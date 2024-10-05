@@ -1,8 +1,7 @@
 import { configureStore } from '@reduxjs/toolkit'
-import { authenticationSlice } from './reducer/authenticationSlide'
-
+import authReducer from "../redux/slice/authenticationSlide";
 export default configureStore({
   reducer: {
-    authen: authenticationSlice.reducer,
+    authen: authReducer,
   },
 })
