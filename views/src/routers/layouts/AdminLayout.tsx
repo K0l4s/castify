@@ -1,15 +1,17 @@
-import { Outlet } from "react-router-dom"
-import AdminHeader from "../../components/header/AdminHeader"
-import AdminSidebar from "../../components/sidebar/AdminSidebar"
+import { Outlet } from "react-router-dom";
+import AdminHeader from "../../components/header/AdminHeader";
+import AdminSidebar from "../../components/sidebar/AdminSidebar";
 
-const CreatorLayout = () => {
+const AdminLayout = () => {
   return (
     <>
-      <AdminHeader/>
-      <AdminSidebar/>
-      <Outlet />
+      <AdminHeader />
+      <AdminSidebar />
+      <div className="p-6 py-20 sm:ml-64">
+      <Outlet/>
+      </div>
     </>
-  )
-}
+  );
+};
 
-export default CreatorLayout
+export default AdminLayout;

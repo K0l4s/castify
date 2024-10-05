@@ -12,6 +12,13 @@ const Router = () => {
   return (
     <>
     <Routes>
+        <Route>
+            <Route path='/login' element={<LandingPage />} />
+            <Route path='/register' element={<LandingPage />} />
+            <Route path='/forgot-password' element={<LandingPage />} />
+            <Route path='/reset-password' element={<LandingPage />} />
+        </Route>
+
         <Route element={<AdminLayout />} >
             <Route path='/admin' element={<AdminLadingPage />} />
             <Route path="/admin/users" element={<AdminUserPage/>} />

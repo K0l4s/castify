@@ -7,7 +7,9 @@ const CreatorLayout = () => {
     <>
       <CreatorHeader />
       <CreatorSidebar />
+      <div className="p-6 py-20 sm:ml-64">
       <Outlet />
+      </div>
     </>
   )
 }
