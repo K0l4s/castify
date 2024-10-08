@@ -8,7 +8,7 @@ interface DefaultModalProps {
 }
 const LoginModal = (props:DefaultModalProps) => {
   return (
-    <CustomModal animation="slide" title="Register" isOpen={props.isOpen} onClose={props.onClose}>
+    <CustomModal animation="zoom" title="Register" isOpen={props.isOpen} onClose={props.onClose}>
       <div className="p-4">
         <form>
           <div className="mb-4">

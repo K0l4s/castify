@@ -29,7 +29,7 @@ const CustomModal: React.FC<ModalProps> = ({
   useEffect(() => {
     if (isOpen) {
       setIsVisible(true);
-      setTimeout(() => setIsAnimating(true), 10); // Delay to trigger animation
+      setTimeout(() => setIsAnimating(true), 50); // Delay to trigger animation
       if (onOpen) {
         onOpen();
       }
@@ -59,12 +59,12 @@ const CustomModal: React.FC<ModalProps> = ({
 
   return (
     <div
-      className={`fixed inset-0 flex items-center justify-center bg-gray-900 bg-opacity-50 duration-300 ease-in-out ${className}`}
+      className={`z-100 fixed inset-0 flex items-center justify-center bg-gray-900 bg-opacity-50 duration-300 ease-in-out ${className}`}
       style={style}
     >
       <div
         id="custom-modal"
-        className={` bg-gray-800 rounded-lg shadow-lg ${sizeClasses[size]} duration-500 ease-in-out p-6 relative
+        className={` bg-gray-800 rounded-lg shadow-lg ${sizeClasses[size]} duration-300 ease-in-out p-6 relative
         ${animationClasses[animation]}`}
       >
         <div className="flex justify-between items-center border-b pb-3">
