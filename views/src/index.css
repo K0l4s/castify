@@ -25,3 +25,15 @@
     grid-template-columns: 200px 1fr; /* Sidebar takes 200px, the rest is for the main content */
   }
 }
+
+.fade-animation {
+  animation: fadeIn 5s ease-in-out;
+}
+
+.slide-animation {
+  animation: slideIn 5s ease-in-out;
+}
+
+.zoom-animation {
+  animation: zoomIn 5s ease-in-out;
+}

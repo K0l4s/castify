@@ -13,6 +13,7 @@ const Router = () => {
     <>
     <Routes>
         <Route>
+            
             <Route path='/login' element={<LandingPage />} />
             <Route path='/register' element={<LandingPage />} />
             <Route path='/forgot-password' element={<LandingPage />} />
