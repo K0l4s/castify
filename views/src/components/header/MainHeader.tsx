@@ -1,8 +1,14 @@
 import { Link } from 'react-router-dom'
 import logo from '../../assets/images/logo.png'
 import { BiSearch } from 'react-icons/bi'
+import AuthenticationModal from '../modals/authentication/AuthenticationModal'
+import { useState } from 'react'
 
 const MainHeader = () => {
+  
+  const [isOpen, setIsOpen] = useState(false);
+  const handleOpen = () => setIsOpen(true);
+  const handleClose = () => setIsOpen(false);
   const toggleSidebar = () => {
     // document.getElementById("logo-sidebar")?.classList.remove("-translate-x-full")
     if (document.getElementById("logo-sidebar")?.classList.contains("-translate-x-full")) {
@@ -22,6 +28,7 @@ const MainHeader = () => {
   }
   const isLogin = false;
   return (
+    <>
     <nav className="fixed top-0 z-50 w-full bg-white border-b border-gray-200 dark:bg-gray-800 dark:border-gray-700">
       <div className="px-3 py-3 lg:px-5 lg:pl-3">
         <div className="flex items-center justify-between">
@@ -58,7 +65,7 @@ const MainHeader = () => {
                   <img className="w-8 h-8 rounded-full" src="https://flowbite.com/docs/images/people/profile-picture-5.jpg" alt="user photo" />
                 </button>
                 ) : (
-                  <Link to="/login" className="text-gray-900 bg-blue-500 p-3 rounded-xl dark:text-white">Login</Link>
+                  <button onClick={handleOpen} className="text-gray-900 bg-blue-500 p-2 rounded-xl dark:text-white">Login</button>
                 )}
               </div>
               <div className="fixed right-0 top-10 z-50 hidden my-4 text-base list-none bg-white divide-y divide-gray-100 rounded shadow dark:bg-gray-700 dark:divide-gray-600" id="dropdown-user">
@@ -90,6 +97,9 @@ const MainHeader = () => {
         </div>
       </div>
     </nav>
+    
+    <AuthenticationModal isLogin={true} isOpen={isOpen} onClose={handleClose}/>
+    </>
   )
 }
 
