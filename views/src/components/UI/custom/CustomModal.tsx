@@ -8,7 +8,6 @@ interface ModalProps {
   animation?: 'fade' | 'slide' | 'zoom' | 'none';
   size?: 'sm' | 'md' | 'lg' | 'xl' | 'full' | 'none';
   className?: string;
-  bgColor?: string;
   style?: React.CSSProperties;
   onOpen?: () => void;
 }
@@ -22,7 +21,6 @@ const CustomModal: React.FC<ModalProps> = ({
   size = 'md',
   className = '',
   style,
-  bgColor = 'blue',
   onOpen,
 }) => {
   const [isVisible, setIsVisible] = useState(false);
