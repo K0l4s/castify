@@ -26,7 +26,7 @@ import java.util.List;
 public class UserCollection implements UserDetails {
 
     @Id
-    private int id; // Change Integer to String for MongoDB
+    private String id; // Change Integer to String for MongoDB
     private String fullname;
     private String avatar_url;
     private String cover_url;

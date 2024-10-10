@@ -5,6 +5,7 @@ import com.castify.apis.collections.UserCollection;
 import com.castify.apis.enums.Role;
 import com.castify.apis.enums.TokenType;
 import com.castify.apis.models.authentication.*;
+import com.castify.apis.utils.EncryptionUtils;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -95,6 +96,10 @@ public class AuthenticationService {
 //  }
 
     public AuthenticationResponse confirmRegister(ConfirmRequest confirmRequest) throws Exception{
+        if ("ĐÃ XÁC THỰC".equals(confirmRequest.getCode())) {
+            throw new Exception("Lỗi bảo mật!");
+        }
+
         if ("ĐÃ XÁC THỰC".equals(confirmRequest.getCode())) {
             throw new Exception("Lỗi bảo mật!");
         }
