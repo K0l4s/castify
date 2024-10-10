@@ -65,7 +65,7 @@ const MainHeader = () => {
                   <img className="w-8 h-8 rounded-full" src="https://flowbite.com/docs/images/people/profile-picture-5.jpg" alt="user photo" />
                 </button>
                 ) : (
-                  <button onClick={handleOpen} className="text-gray-900 bg-blue-500 p-2 rounded-xl dark:text-white">Login</button>
+                  <button onClick={handleOpen} className="text-gray-900 bg-blue-500 rounded-xl dark:text-white">Login</button>
                 )}
               </div>
               <div className="fixed right-0 top-10 z-50 hidden my-4 text-base list-none bg-white divide-y divide-gray-100 rounded shadow dark:bg-gray-700 dark:divide-gray-600" id="dropdown-user">
