@@ -14,14 +14,14 @@ interface PodcastProps {
 
 const Podcast: React.FC<PodcastProps> = ({
     videoSrc,
-    avatarSrc,
-    title,
-    author,
-    voteCount,
-    dislikeCount,
-    commentCount,
-    shareCount,
-    description,
+    // avatarSrc,
+    // title,
+    // author,
+    // voteCount,
+    // dislikeCount,
+    // commentCount,
+    // shareCount,
+    // description,
 }) => {
     const height = (16 * 100) / 9;
     console.log(height);
