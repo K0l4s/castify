@@ -40,9 +40,9 @@ const LandingPage = () => {
         Show Error Toast
       </button>
     </div>
-      <Popover buttonLabel="Click me">
+      {/* <Popover buttonLabel="Click me">
         <p>This is the content inside the popover.</p>
-      </Popover>
+      </Popover> */}
       <Podcast
         videoSrc="http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerFun.mp4"
         avatarSrc="/path/to/avatar.png"

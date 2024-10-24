@@ -44,7 +44,7 @@ const CustomModal: React.FC<ModalProps> = ({
     md: 'w-1/2',
     lg: 'w-3/4',
     xl: 'w-5/6',
-    full: 'w-full h-full',
+    full: 'w-full min-h-screen',
     none: '',
   };
 
@@ -59,7 +59,7 @@ const CustomModal: React.FC<ModalProps> = ({
 
   return (
     <div
-      className={`z-100 fixed inset-0 flex items-center justify-center bg-gray-900 bg-opacity-50 duration-300 ease-in-out ${className}`}
+      className={`z-100 fixed overflow-y-auto inset-0 flex items-center justify-center bg-gray-900 bg-opacity-50 duration-300 ease-in-out ${className}`}
       style={style}
     >
       <div

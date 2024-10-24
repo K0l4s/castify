@@ -12,9 +12,11 @@ import java.time.LocalDate;
 @AllArgsConstructor
 @NoArgsConstructor
 public class RegisterRequest {
-    private String fullname;
+    private String lastName;
+    private String middleName;
+    private String firstName;
     private String email;
-    private String nickName;
+    private String username;
     private String password;
     private LocalDate birthday;
     private String address;

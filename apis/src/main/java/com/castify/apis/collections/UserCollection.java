@@ -15,8 +15,8 @@ import org.springframework.security.core.userdetails.UserDetails;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.Period;
 import java.util.Collection;
-import java.util.List;
 
 @Document(collection = "user")
 @Data
@@ -27,30 +27,26 @@ public class UserCollection implements UserDetails {
 
     @Id
     private String id; // Change Integer to String for MongoDB
-    private String fullname;
-    private String avatar_url;
-    private String cover_url;
-    private String email;
-    private String password;
+    private String firstName;
+    private String middleName;
+    private String lastName;
+    private String username;
+    private String avatarUrl;
+    private String coverUrl;
     private LocalDate birthday;
     private String address;
+    private String password;
     private String phone;
-    private String code;
-    private LocalDateTime createDay;
+    private String email;
     private boolean isActive;
-    private boolean isLock = false; // Considered locked
-    private String nickName;
+    private boolean isNonLocked;
+    private boolean isNonBanned;
+    private LocalDateTime createdDay;
+    private LocalDateTime lastLogin;
 
     @Enumerated(EnumType.STRING)
     private Role role;
 
-    @DBRef // Use DBRef for referencing TokenCollection
-    private List<TokenCollection> tokens;
-
-    public UserCollection(String email, String fullname) {
-        this.email = email;
-        this.fullname = fullname;
-    }
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
@@ -64,7 +60,7 @@ public class UserCollection implements UserDetails {
 
     @Override
     public String getUsername() {
-        return email;
+        return username;
     }
 
     @Override
@@ -84,6 +80,18 @@ public class UserCollection implements UserDetails {
 
     @Override
     public boolean isEnabled() {
-        return isActive;
+        if(isNonBanned && isNonLocked && isActive)
+            return true;
+        return false;
+//        return isActive;
+    }
+
+    public String getFullname(){
+        return lastName+" "+middleName+" "+firstName;
+    }
+    public int getAge(){
+        LocalDate today = LocalDate.now();
+        Period period = Period.between(birthday, today);
+        return period.getYears();
     }
 }

@@ -37,7 +37,7 @@ const Podcast: React.FC<PodcastProps> = ({
                     src={videoSrc}
                     controls
                     className="absolute top-0 left-0 w-full h-full object-cover"
-                    poster="/path/to/your/video-poster.png"
+                    poster="https://innovavietnam.vn/wp-content/uploads/poster-561x800.jpg"
                 />
             </div>
         </div>

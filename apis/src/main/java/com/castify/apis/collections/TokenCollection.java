@@ -27,6 +27,6 @@ public class TokenCollection {
 
     private boolean expired;
 
-    @DBRef // Use DBRef to reference UserCollection
+    @DBRef
     private UserCollection userCollection;
 }
