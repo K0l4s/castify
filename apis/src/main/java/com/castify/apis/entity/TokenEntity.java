@@ -1,12 +1,11 @@
-package com.castify.apis.collections;
+package com.castify.apis.entity;
 
 import com.castify.apis.enums.TokenType;
-import jakarta.persistence.Id; // You can still use this for the Id annotation
+import org.springframework.data.annotation.Id; // Sửa dòng này
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 @Document(collection = "token")
@@ -14,7 +13,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class TokenCollection {
+public class TokenEntity {
 
     @Id
     private String id; // Change Integer to String for MongoDB
@@ -23,10 +22,12 @@ public class TokenCollection {
 
     private TokenType tokenType = TokenType.BEARER;
 
+    private String userId;
+
     private boolean revoked;
 
     private boolean expired;
 
-    @DBRef
-    private UserCollection userCollection;
+//    @DBRef
+//    private UserCollection userCollection;
 }

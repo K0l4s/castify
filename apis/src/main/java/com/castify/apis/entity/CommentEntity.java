@@ -1,6 +1,6 @@
-package com.castify.apis.collections;
+package com.castify.apis.entity;
 
-import jakarta.persistence.Id;
+import org.springframework.data.annotation.Id; // Sửa dòng này
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -15,7 +15,7 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
-public class CommentCollection {
+public class CommentEntity {
     @Id
     private String id;
 
@@ -25,10 +25,10 @@ public class CommentCollection {
     private String content;
 
     @DBRef
-    private List<CommentLikeCollection> likes;
+    private List<CommentLikeEntity> likes;
 
     @DBRef
-    private List<CommentCollection> replies;
+    private List<CommentEntity> replies;
 
     private LocalDateTime timestamp;
 

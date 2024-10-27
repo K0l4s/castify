@@ -1,6 +1,5 @@
-package com.castify.apis.services;
+package com.castify.apis.service;
 
-import com.castify.apis.services.IEmailService;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -45,15 +44,15 @@ public class EmailServiceImpl implements IEmailService {
     }
 
     @Override
-    public void sendVerificationMail(String email, String code) {
+    public void sendVerificationMail(String email,String tokenValid) {
         String subject = "Blankcil Verification";
 
         // use the Frontend domain when click on button in email body
-        String verificationUrl = frontendDomain + "/verify?code=" + code;
+        String verificationUrl = frontendDomain + "/verify?token=" + tokenValid;
 
         Context context = new Context();
         context.setVariable("verificationUrl", verificationUrl);
-        context.setVariable("verificationCode", code);
+        context.setVariable("verificationCode", null);
 
         String htmlContent = templateEngine.process("email/verification", context);
 

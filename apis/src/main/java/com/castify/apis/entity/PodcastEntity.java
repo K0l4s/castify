@@ -1,6 +1,6 @@
-package com.castify.apis.collections;
+package com.castify.apis.entity;
 
-import jakarta.persistence.Id;
+import org.springframework.data.annotation.Id; // Sửa dòng này
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -14,7 +14,7 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
-public class PodcastCollection {
+public class PodcastEntity {
     @Id
     private String id;
     private String title;
@@ -24,10 +24,10 @@ public class PodcastCollection {
     private String videoUrl;
     private long views;
     @DBRef
-    private List<CommentCollection> comments;
+    private List<CommentEntity> comments;
 
     @DBRef
-    private List<PodcastLikeCollection> likes;
+    private List<PodcastLikeEntity> likes;
 
     private LocalDateTime createdDay;
 
@@ -36,7 +36,7 @@ public class PodcastCollection {
     private boolean isActive;
 
     @DBRef
-    private UserCollection user;
+    private UserEntity user;
 
     public long getTotalLikes(){
         return likes.size();

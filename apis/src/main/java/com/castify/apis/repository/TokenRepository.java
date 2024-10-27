@@ -1,19 +1,19 @@
-package com.castify.apis.repositories;
+package com.castify.apis.repository;
 
 import java.util.List;
 import java.util.Optional;
 
-import com.castify.apis.collections.TokenCollection;
+import com.castify.apis.entity.TokenEntity;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.data.mongodb.repository.Query;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface TokenRepository extends MongoRepository<TokenCollection, String> { // Change Integer to String for MongoDB
+public interface TokenRepository extends MongoRepository<TokenEntity, String> { // Change Integer to String for MongoDB
 
     // Custom query to find all valid tokens by user ID
     @Query("{ 'userCollection.id': ?0, 'expired': false, 'revoked': false }")
-    List<TokenCollection> findAllValidTokenByUser(String userId); // Change parameter type to String
+    List<TokenEntity> findAllValidTokenByUser(String userId); // Change parameter type to String
 
-    Optional<TokenCollection> findByToken(String token);
+    Optional<TokenEntity> findByToken(String token);
 }

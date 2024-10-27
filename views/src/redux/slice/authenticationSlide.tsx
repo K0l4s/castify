@@ -4,6 +4,7 @@ import { User } from "../../models/User";
 
 export interface AuthenticatedUser {
   currentUser: User;
+  isAuth: boolean;
   isFetching: boolean;
   error: boolean;
   displayError: string;
@@ -11,6 +12,7 @@ export interface AuthenticatedUser {
 
 const initialState: AuthenticatedUser = {
   currentUser: {} as User,
+  isAuth: false,
   isFetching: false,
   error: false,
   displayError: "",
@@ -22,14 +24,17 @@ const authSlice = createSlice({
   reducers: {
     loginStart: (state) => {
       state.isFetching = true;
+      state.isAuth = false;
     },
     loginSuccess: (state, action: PayloadAction<User>) => {
       state.isFetching = false;
+      state.isAuth = true;
       state.currentUser = action.payload;
       state.error = false;
     },
     loginFailure: (state, action: PayloadAction<string>) => {
       state.isFetching = false;
+      state.isAuth = false;
       state.error = true;
       state.displayError = action.payload;
     },

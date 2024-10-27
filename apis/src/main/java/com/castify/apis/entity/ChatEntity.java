@@ -1,6 +1,6 @@
-package com.castify.apis.collections;
+package com.castify.apis.entity;
 
-import jakarta.persistence.Id;
+import org.springframework.data.annotation.Id; // Sửa dòng này
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -13,16 +13,16 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
-public class ChatCollection {
+public class ChatEntity {
     @Id
     private String id;
     private String title;
     private String imageUrl;
 
     @DBRef
-    private List<UserCollection> member;
+    private List<UserEntity> member;
 
     @DBRef
-    private List<MessageCollection> message;
+    private List<MessageEntity> message;
     private boolean isActive;
 }

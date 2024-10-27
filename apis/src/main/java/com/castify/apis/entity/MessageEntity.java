@@ -1,6 +1,6 @@
-package com.castify.apis.collections;
+package com.castify.apis.entity;
 
-import jakarta.persistence.Id;
+import org.springframework.data.annotation.Id; // Sửa dòng này
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -9,16 +9,21 @@ import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.time.LocalDateTime;
 
-@Document(collection = "commentLike")
+@Document(collection = "message")
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
-public class CommentLikeCollection {
+public class MessageEntity {
     @Id
     private String id;
 
     @DBRef
-    private UserCollection userCollection;
+    private UserEntity sender;
+
+    @DBRef
+    private UserEntity receiver;
+
+    private String content;
 
     private LocalDateTime timestamp;
 }

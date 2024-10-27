@@ -1,14 +1,13 @@
-package com.castify.apis.collections;
+package com.castify.apis.entity;
 
 import com.castify.apis.enums.Role;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
-import jakarta.persistence.Id; // You can still use this for the Id annotation
+import org.springframework.data.annotation.Id; // Sửa dòng này
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -17,13 +16,14 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.Period;
 import java.util.Collection;
+import java.util.List;
 
 @Document(collection = "user")
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class UserCollection implements UserDetails {
+public class UserEntity implements UserDetails {
 
     @Id
     private String id; // Change Integer to String for MongoDB
@@ -43,8 +43,8 @@ public class UserCollection implements UserDetails {
     private boolean isNonBanned;
     private LocalDateTime createdDay;
     private LocalDateTime lastLogin;
-
-    @Enumerated(EnumType.STRING)
+    private List<String> badgesId;
+//    @Enumerated(EnumType.STRING)
     private Role role;
 
 
@@ -94,4 +94,6 @@ public class UserCollection implements UserDetails {
         Period period = Period.between(birthday, today);
         return period.getYears();
     }
+
+
 }

@@ -27,6 +27,24 @@ const requests = {
   baseApiDelete: <T>(url: string, params?: T) =>
     baseApi.delete(url, { params }).then(responseBody),
 };
+const auth = {
+  login: (user: any) => requests.post("api/v1/auth/authenticate", user),
+  register: (user: any) => requests.post("api/v1/auth/register", user),
+  me: () => requests.get("api/v1/auth/me"),
+  logout: () => requests.post("api/v1/auth/logout", {}),
+  forgotPassword: (email: string) =>
+    requests.post("api/v1/auth/forgot-password", { email }),
+  resetPassword: (data: any) =>
+    requests.post("api/v1/auth/reset-password", data),
+  changePassword: (data: any) =>
+    requests.post("api/v1/auth/change-password", data),
+  verifyEmail: (token: string) =>
+    requests.get(`api/v1/auth/verify-email/${token}`),
+  resendEmail: (email: string) =>
+    requests.post("api/v1/auth/resend-email", { email }),
+  refreshToken: (refreshToken: string) => 
+    requests.post("api/v1/auth/refresh-token", { refreshToken }),
+};
 const Podcasts = {
   list: (params: any) => requests.get("api/v1/podcasts", params),
   details: (id: string) => requests.get(`api/v1/podcasts/${id}`),
@@ -38,5 +56,6 @@ const Podcasts = {
 
 const agent = {
     Podcasts,
+    auth
 };
 export default agent;

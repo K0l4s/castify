@@ -15,11 +15,15 @@ import io.swagger.v3.oas.annotations.servers.Server;
                 contact = @Contact(
                         name = "Castify",
                         email = "blankcil.st@gmail.com",
-                        url = "https://github.com/K0l4s/castify"
+                        url = "http://castify.com"
                 ),
-                description = "OpenApi documentation for Castify Platform",
-                title = "OpenAPI - The Best Podcast Platform",
+                description = "OpenApi documentation for Spring Security",
+                title = "OpenApi specification - Castify",
                 version = "1.0",
+                license = @License(
+                        name = "Licence name",
+                        url = "https://some-url.com"
+                ),
                 termsOfService = "Terms of service"
         ),
         servers = {
@@ -27,10 +31,6 @@ import io.swagger.v3.oas.annotations.servers.Server;
                         description = "Local ENV",
                         url = "http://localhost:8081"
                 ),
-                @Server(
-                        description = "PROD ENV",
-                        url = "http://localhost:8081"
-                )
         },
         security = {
                 @SecurityRequirement(

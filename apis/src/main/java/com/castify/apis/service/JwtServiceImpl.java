@@ -1,4 +1,4 @@
-package com.castify.apis.services;
+package com.castify.apis.service;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;

@@ -1,6 +1,6 @@
-package com.castify.apis.services;
+package com.castify.apis.service;
 
-import com.castify.apis.repositories.TokenRepository;
+import com.castify.apis.repository.TokenRepository;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;

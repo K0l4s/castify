@@ -1,7 +1,7 @@
 package com.castify.apis.config;
 
 import com.castify.apis.auditing.ApplicationAuditAware;
-import com.castify.apis.repositories.UserRepository;
+import com.castify.apis.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

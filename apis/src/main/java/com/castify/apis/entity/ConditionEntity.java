@@ -1,7 +1,7 @@
-package com.castify.apis.collections;
+package com.castify.apis.entity;
 
 import com.castify.apis.enums.ConditionType;
-import jakarta.persistence.Id;
+import org.springframework.data.annotation.Id; // Sửa dòng này
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -11,7 +11,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
-public class ConditionCollection {
+public class ConditionEntity {
     @Id
     private String id;
     private ConditionType type;
