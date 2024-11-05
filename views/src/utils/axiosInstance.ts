@@ -1,6 +1,7 @@
 import axios from "axios";
 import Cookie from "js-cookie";
-import { BaseApi } from "./BaseApi";
+// import { BaseApi } from "./BaseApi";
+const BaseApi = "http://localhost:3000";
 export const axiosInstance = axios.create({
     baseURL: BaseApi,
     headers: {
