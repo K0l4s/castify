@@ -1,8 +1,14 @@
-import { axiosInstanceAuth } from "../utils/axiosInstance";
+import { axiosInstance } from "../utils/axiosInstance";
 
 export const userService = {
-    getUser: async () => {
-        return await axiosInstanceAuth.get(`/api/v1/user`);
+    getUser: async (token:string) => {
+        return await axiosInstance.get(`/api/v1/user`,
+            {
+                headers: {
+                    Authorization: `Bearer ${token}`
+                }
+            }
+        );
     },
     updateUser: async () => {
         // return await axiosInstance.put(`${BaseApi}api/v1/user`, user);

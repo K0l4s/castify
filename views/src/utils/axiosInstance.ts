@@ -1,7 +1,7 @@
 import axios from "axios";
 import Cookie from "js-cookie";
 // import { BaseApi } from "./BaseApi";
-const BaseApi = "http://localhost:3000";
+const BaseApi = "http://localhost:8081";
 export const axiosInstance = axios.create({
     baseURL: BaseApi,
     headers: {
@@ -17,3 +17,9 @@ export const axiosInstanceAuth = axios.create({
     },
 });
 
+export const axiosInstanceFile = axios.create({
+    baseURL: BaseApi,
+    headers: {
+        "Content-Type": "multipart/form-data",
+    },
+});
