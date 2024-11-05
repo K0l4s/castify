@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import LoginModal from "./LoginModal";
 import RegisterModal from "./RegisterModal";
 import { useSelector } from "react-redux";
@@ -15,11 +15,15 @@ const AuthenticationModal: React.FC<DefaultModalProps> = (props) => {
     const tranformLogin = () => {
         setLoginModal(!loginModal);
     }
-    const isAuth = useSelector((state: { authen: { isAuth: boolean; currentUser: User; }; }) => state.authen.isAuth);
-    if(!isAuth){
+    const isAuth = useSelector((state: any) => state.authen.isAuth);
+    if(isAuth){
+        // console.log(isAuth)
         return null;
-        console.log(isAuth)
+        
     }
+    useEffect(() => {
+        console.log(isAuth)
+    }, [isAuth])
     const getIsLogin = () => {
         switch (loginModal) {
             case true:

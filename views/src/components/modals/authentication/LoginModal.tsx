@@ -1,9 +1,10 @@
 
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import agent from "../../../utils/agent";
 import CustomModal from "../../UI/custom/CustomModal"
 import { loginFailure, loginStart, loginSuccess } from "../../../redux/slice/authenticationSlide";
 import Cookies from 'js-cookie';
+import { User } from "../../../models/User";
 interface DefaultModalProps {
   trigger: ()=>void;
   isOpen: boolean;
@@ -12,6 +13,7 @@ interface DefaultModalProps {
 
 const LoginModal = (props:DefaultModalProps) => {
   const dispatch = useDispatch();
+  const isAuth = useSelector((state: { authen: { isAuth: boolean; currentUser: User; }; }) => state.authen.isAuth);
   const handleLogin = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     console.log('login')
@@ -21,12 +23,13 @@ const LoginModal = (props:DefaultModalProps) => {
       email: e.currentTarget.email.value,
       password: e.currentTarget.password.value
     }).then(res => {
-      // console.log(res)
+      console.log(res)
       localStorage.setItem('token', res.access_token)
       localStorage.setItem('refreshToken', res.refresh_token)
       Cookies.set('token', res.access_token)
       Cookies.set('refreshToken', res.refresh_token)
       loginSuccess(res)
+      console.log(isAuth)
     }).catch(err => {
       console.log(err)
       loginFailure(err)

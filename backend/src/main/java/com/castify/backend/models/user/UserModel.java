@@ -23,7 +23,7 @@ public class UserModel {
     private String coverUrl;
     private LocalDate birthday;
     private String address;
-    private String password;
+//    private String password;
     private String phone;
     private String email;
     private List<String> badgesId;
