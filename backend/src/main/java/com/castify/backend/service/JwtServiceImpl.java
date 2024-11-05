@@ -16,7 +16,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
 @Service
-public class JwtServiceImpl{
+public class JwtServiceImpl implements IJwtService{
 
     @Value("${application.security.jwt.secret-key}")
     private String secretKey;
@@ -24,7 +24,10 @@ public class JwtServiceImpl{
     private long jwtExpiration;
     @Value("${application.security.jwt.refresh-token.expiration}")
     private long refreshExpiration;
+    @Value("${JWT_VALID_EXPIRATION}")
+    private long validExpiration;
 
+    @Override
     public String extractUsername(String token) {
         return extractClaim(token, Claims::getSubject);
     }
@@ -33,18 +36,22 @@ public class JwtServiceImpl{
         final Claims claims = extractAllClaims(token);
         return claimsResolver.apply(claims);
     }
-
+    @Override
+    public String generateValidToken(UserDetails userDetails) {
+        return buildToken(new HashMap<>(),userDetails,validExpiration);
+    }
+    @Override
     public String generateToken(UserDetails userDetails) {
         return generateToken(new HashMap<>(), userDetails);
     }
-
+    @Override
     public String generateToken(
             Map<String, Object> extraClaims,
             UserDetails userDetails
     ) {
         return buildToken(extraClaims, userDetails, jwtExpiration);
     }
-
+    @Override
     public String generateRefreshToken(
             UserDetails userDetails
     ) {
@@ -65,7 +72,7 @@ public class JwtServiceImpl{
                 .signWith(getSignInKey(), SignatureAlgorithm.HS256)
                 .compact();
     }
-
+    @Override
     public boolean isTokenValid(String token, UserDetails userDetails) {
         final String username = extractUsername(token);
         return (username.equals(userDetails.getUsername())) && !isTokenExpired(token);

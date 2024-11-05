@@ -1,12 +1,9 @@
-import axios from "axios";
-import { Envs } from "./env";
-
-
-const baseURL = Envs.apiRemote;
-
-const baseApi = axios.create({
-  baseURL,
-  withCredentials: true,
-});
-
-export default baseApi;
+// export const Envs = {
+//     apiLocal: "http://localhost:8081/",
+//     apiRemote: "http://localhost:8081/",
+//     apiEnv: "http://localhost:8081/",
+//   };
+  
+export const BaseApi = 'http://localhost:8081/';
+export const BaseApiRemote = 'http://localhost:8081/';
+export const BaseApiEnv = 'http://localhost:8081/';

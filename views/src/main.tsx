@@ -4,8 +4,8 @@ import App from './App.tsx'
 import './index.css'
 import { BrowserRouter as Router } from 'react-router-dom'
 import { Provider } from 'react-redux'
-import store from './redux/store.tsx'
-import ToastProvider from './hooks/ToastProvider.tsx'
+import ToastProvider from './context/ToastProvider.tsx'
+import { store } from './redux/store.tsx'
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <Provider store={store}>
