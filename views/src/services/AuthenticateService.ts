@@ -1,5 +1,4 @@
 // import axios from "axios";
-import { BaseApi } from "../utils/BaseApi";
 import { LoginInput, RegisterInput } from "../models/Authentication";
 // import Cookies from 'js-cookie';
 import { axiosInstance } from "../utils/axiosInstance";
