@@ -3,6 +3,8 @@ import logo from '../../assets/images/logo.png'
 import { BiSearch } from 'react-icons/bi'
 import AuthenticationModal from '../modals/authentication/AuthenticationModal'
 import { useState } from 'react'
+import { useSelector } from 'react-redux'
+import { RootState } from '../../redux/store'
 
 const MainHeader = () => {
   
@@ -26,7 +28,8 @@ const MainHeader = () => {
       document.getElementById("dropdown-user")?.classList.add("hidden")
     }
   }
-  const isLogin = false;
+  // const isLogin = false;
+  const isAuth = useSelector((state: RootState) => state.auth.isAuthenticated);
   return (
     <>
     <nav className="sticky top-0 z-50 w-full bg-white border-b border-gray-200 dark:bg-gray-800 dark:border-gray-700">
@@ -40,7 +43,7 @@ const MainHeader = () => {
             </button>
             <Link to="/" className="flex ms-2 md:me-24">
               <img src={logo} className="h-8 me-3" alt="Castify Logo" />
-              <span className="self-center text-xl font-semibold sm:text-2xl whitespace-nowrap dark:text-white">Castify</span>
+              <span className="self-center text-xl font-semibold sm:text-2xl whitespace-nowrap text-black dark:text-white">Castify</span>
             </Link>
           </div>
           {/* Search bar */}
@@ -59,7 +62,7 @@ const MainHeader = () => {
           <div className="flex items-center">
             <div className="flex items-center ms-3">
               <div>
-                {isLogin ? (
+                {isAuth ? (
                 <button onClick={toggleMenuUser} type="button" className="flex text-sm bg-gray-800 rounded-full focus:ring-4 focus:ring-gray-300 dark:focus:ring-gray-600" aria-expanded="false" data-dropdown-toggle="dropdown-user">
                   <span className="sr-only">Open user menu</span>
                   <img className="w-8 h-8 rounded-full" src="https://flowbite.com/docs/images/people/profile-picture-5.jpg" alt="user photo" />

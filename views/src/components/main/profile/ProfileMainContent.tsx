@@ -1,5 +1,5 @@
 import React from 'react';
-import Podcast from '../../UI/podcast/Podcast';
+// import Podcast from '../../UI/podcast/Podcast';
 
 const ProfileMainContent: React.FC = () => {
     return (
