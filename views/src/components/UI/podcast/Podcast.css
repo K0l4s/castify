@@ -1,0 +1,106 @@
+@keyframes float-up {
+    0% {
+        transform: translateY(0) scale(0.3);
+        opacity: 0;
+    }
+    20% {
+        opacity: 1;
+    }
+    50% {
+        transform: translateY(-50vh) scale(1.2);
+    }
+    100% {
+        transform: translateY(-100vh) scale(0.8);
+        opacity: 0;
+    }
+}
+
+@keyframes flames {
+    0% {
+        transform: scale(0.8) translateY(100%);
+        opacity: 0;
+    }
+    25% {
+        transform: scale(1.1) translateY(0);
+        opacity: 0.8;
+    }
+    75% {
+        transform: scale(1.2) translateY(-10%);
+        opacity: 0.6;
+    }
+    100% {
+        transform: scale(1) translateY(-20%);
+        opacity: 0;
+    }
+}
+
+@keyframes lightning {
+    0%, 100% { 
+        opacity: 0;
+        transform: scale(1);
+    }
+    5%, 95% {
+        opacity: 0;
+    }
+    10%, 90% {
+        opacity: 1;
+        transform: scale(1.1);
+        filter: brightness(2);
+    }
+    15%, 85% {
+        opacity: 0;
+    }
+    20%, 80% {
+        opacity: 1;
+        transform: scale(1.2);
+        filter: brightness(2.5);
+    }
+}
+
+@keyframes shake {
+    0%, 100% { 
+        transform: translateX(0) rotate(0); 
+    }
+    15% { 
+        transform: translateX(-8px) rotate(-5deg); 
+    }
+    30% { 
+        transform: translateX(6px) rotate(5deg); 
+    }
+    45% { 
+        transform: translateX(-6px) rotate(-3deg); 
+    }
+    60% { 
+        transform: translateX(4px) rotate(2deg); 
+    }
+    75% { 
+        transform: translateX(-2px) rotate(-1deg); 
+    }
+}
+
+.flame-effect {
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(to top, 
+        rgba(255,69,0,0.9), 
+        rgba(255,140,0,0.7), 
+        rgba(255,165,0,0.5), 
+        rgba(255,69,0,0.3), 
+        transparent
+    );
+    filter: blur(8px);
+    mix-blend-mode: screen;
+}
+
+.lightning-effect {
+    width: 100%;
+    height: 100%;
+    background: radial-gradient(
+        circle at 50% 50%,
+        rgba(255,255,255,0.9),
+        rgba(255,255,255,0.6),
+        rgba(255,255,255,0.3),
+        transparent 70%
+    );
+    mix-blend-mode: screen;
+}
