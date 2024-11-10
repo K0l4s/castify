@@ -9,7 +9,11 @@ interface Toast {
 }
 
 interface ToastContextType {
-  addToast: (message: string, duration?: number, type?: 'success' | 'error' | 'info' | 'warning' | 'loading') => string;
+  success: (message: string, duration?: number) => string;
+  error: (message: string, duration?: number) => string;
+  info: (message: string, duration?: number) => string;
+  warning: (message: string, duration?: number) => string;
+  loading: (message: string) => string;
   removeToast: (id: string) => void;
   closeLoadingToast: (id: string) => void;
 }
@@ -39,6 +43,26 @@ const ToastProvider: React.FC<{ children: React.ReactNode }> = ({ children }) =>
     }
     return id;
   }, []);
+
+  const success = useCallback((message: string, duration = 3000) => {
+    return addToast(message, duration, 'success');
+  }, [addToast]);
+
+  const error = useCallback((message: string, duration = 3000) => {
+    return addToast(message, duration, 'error');
+  }, [addToast]);
+
+  const info = useCallback((message: string, duration = 3000) => {
+    return addToast(message, duration, 'info');
+  }, [addToast]);
+
+  const warning = useCallback((message: string, duration = 3000) => {
+    return addToast(message, duration, 'warning');
+  }, [addToast]);
+
+  const loading = useCallback((message: string) => {
+    return addToast(message, undefined, 'loading');
+  }, [addToast]);
 
   const removeToast = useCallback((id: string) => {
     setToasts((prevToasts) => prevToasts.filter((toast) => toast.id !== id));
@@ -84,9 +108,9 @@ const ToastProvider: React.FC<{ children: React.ReactNode }> = ({ children }) =>
   };
 
   return (
-    <ToastContext.Provider value={{ addToast, removeToast, closeLoadingToast }}>
+    <ToastContext.Provider value={{ success, error, info, warning, loading, removeToast, closeLoadingToast }}>
       {children}
-      <div className="fixed bottom-4 right-4 flex flex-col space-y-2">
+      <div className="fixed bottom-4 right-4 flex flex-col space-y-2 z-[999999]">
         {toasts.map((toast) => (
           <div
             key={toast.id}

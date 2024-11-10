@@ -8,55 +8,10 @@ import CustomSearchbar from "../../../components/UI/custom/CustomSearchbar";
 
 const LandingPage = () => {
   const toast = useToast();
-  const handleShowToast = () => {
-    toast.addToast("This is an info toast", 3000, "info");
-  };
-  const handleShowSuccessToast = () => {
-    toast.addToast("This is a success toast", 3000, "success");
-  };
-  const handleShowErrorToast = () => {
-    toast.addToast("This is an error toast", 3000, "error");
-  };
-  const handleShowWarningToast = () => {
-    toast.addToast("This is a warning toast", 3000, "warning");
-  };
-  const handleShowLoadingToast = () => {
-    toast.addToast("This is a loading toast", 3000, "loading");
-  };
 
   return (
     <div>
       <div>
-      <button
-        onClick={handleShowToast}
-        className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 mr-2"
-      >
-        Show Info Toast
-      </button>
-      <button
-        onClick={handleShowSuccessToast}
-        className="px-4 py-2 bg-green-500 text-white rounded-md hover:bg-green-600 mr-2"
-      >
-        Show Success Toast
-      </button>
-      <button
-        onClick={handleShowErrorToast}
-        className="px-4 py-2 bg-red-500 text-white rounded-md hover:bg-red-600"
-      >
-        Show Error Toast
-      </button>
-      <button
-        onClick={handleShowWarningToast}
-        className="px-4 py-2 bg-red-500 text-white rounded-md hover:bg-red-600"
-      >
-        Show Error Toast
-      </button>
-      <button
-        onClick={handleShowLoadingToast}
-        className="px-4 py-2 bg-red-500 text-white rounded-md hover:bg-red-600"
-      >
-        Show Error Toast
-      </button>
     </div>
       <Popover buttonLabel="Click me">
         <p>This is the content inside the popover.</p>

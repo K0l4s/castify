@@ -76,19 +76,21 @@ const Toast: React.FC<ToastProps> = ({
 
   return (
     <div
-      className={`fixed ${positionClasses} flex items-center min-w-[300px] px-4 py-3 rounded-lg shadow-lg 
-        ${bgColorClasses} text-white backdrop-blur-sm bg-opacity-90
-        animate-fade-in-out transition-all duration-300 ease-in-out transform hover:scale-102`}
+      className={`fixed ${positionClasses} flex items-center min-w-[300px] px-4 py-3 rounded-lg shadow-lg z-100
+        ${bgColorClasses} text-white backdrop-blur-sm bg-opacity-95
+        animate-fade-in-out transition-all duration-300 ease-in-out transform hover:scale-105
+        shadow-xl ring-1 ring-black/5`}
       role="alert"
+      style={{ zIndex: 999999 }}
     >
       {getToastIcon()}
       <div className="flex-grow">
-        <p className="font-medium">{message}</p>
+        <p className="font-medium tracking-wide">{message}</p>
       </div>
       {type !== 'loading' && (
         <button
           onClick={() => onClose(id)}
-          className="ml-4 p-1 hover:bg-white/20 rounded-full transition-colors duration-200"
+          className="ml-4 p-1.5 hover:bg-white/20 rounded-full transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-white/50"
           aria-label="Close notification"
         >
           <svg className="w-4 h-4" fill="none" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" viewBox="0 0 24 24" stroke="currentColor">

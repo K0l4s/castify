@@ -1,4 +1,5 @@
 import CustomModal from "../../UI/custom/CustomModal";
+import { useState } from "react";
 
 interface DefaultModalProps {
   trigger: () => void;
@@ -6,173 +7,305 @@ interface DefaultModalProps {
   onClose: () => void;
 }
 
-const RegisterModal = (props: DefaultModalProps) => {
-  return (
-    <CustomModal animation="zoom" title="Register" isOpen={props.isOpen} onClose={props.onClose} size="full" >
+interface RegisterFormData {
+  lastName: string;
+  middleName: string;
+  firstName: string;
+  birthday: string;
+  phone: string;
+  nickName: string;
+  email: string;
+  repeatEmail: string;
+  password: string;
+  repeatPass: string;
+  address: string;
+}
 
-      <div className="p-4 max-h-screen overflow-y-auto">
-        <form className="text-white">
+const RegisterModal = (props: DefaultModalProps) => {
+  const [formData, setFormData] = useState<RegisterFormData>({
+    lastName: '',
+    middleName: '',
+    firstName: '',
+    birthday: '',
+    phone: '',
+    nickName: '',
+    email: '',
+    repeatEmail: '',
+    password: '',
+    repeatPass: '',
+    address: ''
+  });
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: value
+    }));
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    // Validate form data
+    if (formData.email !== formData.repeatEmail) {
+      // Show error toast
+      return;
+    }
+    if (formData.password !== formData.repeatPass) {
+      // Show error toast
+      return;
+    }
+    // Submit form data
+    try {
+      // API call here
+    } catch (error) {
+      // Handle error
+    }
+  };
+
+  const inputClasses = "mt-1 block w-full px-4 py-3 bg-gray-800/50 border border-gray-600/50 rounded-lg shadow-sm " +
+    "focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500/50 " +
+    "text-white placeholder-gray-400 transition duration-200 ease-in-out transform hover:bg-gray-700/30";
+  
+  const labelClasses = "block text-sm font-medium text-gray-300 mb-1 tracking-wide";
+  
+  const buttonClasses = "w-full flex justify-center items-center py-3 px-4 border border-transparent rounded-lg " +
+    "shadow-lg text-sm font-semibold text-white transition-all duration-200 ease-in-out " +
+    "focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-800 transform hover:scale-[1.02] active:scale-[0.98]";
+
+  return (
+    <CustomModal 
+      animation="zoom" 
+      title="Create Your Account" 
+      isOpen={props.isOpen} 
+      onClose={props.onClose} 
+      size="xl"
+    >
+      <div className="p-6 max-h-[80vh] overflow-y-auto bg-gradient-to-b from-gray-800 to-gray-900 rounded-lg">
+        <form className="space-y-6" onSubmit={handleSubmit}>
           {/* Name fields */}
-          <div className="grid grid-cols-1 lg:grid-cols-3 md:grid-cols-1 gap-2 mb-2">
-            {/* Last Name - Spans full width on md, 1/3 on lg */}
-            <div className="lg:col-span-1 md:col-span-3 col-span-3">
-              <label htmlFor="lastName" className="block text-sm font-medium">Last Name</label>
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+            <div className="lg:col-span-1">
+              <label htmlFor="lastName" className={labelClasses}>Last Name</label>
               <input
                 type="text"
                 id="lastName"
                 name="lastName"
-                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                value={formData.lastName}
+                onChange={handleInputChange}
+                className={inputClasses}
+                required
+                placeholder="Enter your last name"
               />
             </div>
 
-            {/* Middle Name and First Name - inline on lg, stacked on md */}
-            <div className="grid grid-cols-2 lg:col-span-2 md:col-span-3 gap-2">
-              <div className="col-span-1">
-                <label htmlFor="middleName" className="block text-sm font-medium">Middle Name</label>
-                <input
-                  type="text"
-                  id="middleName"
-                  name="middleName"
-                  className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-                />
-              </div>
-              <div className="col-span-1">
-                <label htmlFor="firstName" className="block text-sm font-medium">First Name</label>
+            <div className="lg:col-span-2 grid grid-cols-2 gap-4">
+              <div>
+                <label htmlFor="firstName" className={labelClasses}>First Name</label>
                 <input
                   type="text"
                   id="firstName"
                   name="firstName"
-                  className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                  value={formData.firstName}
+                  onChange={handleInputChange}
+                  className={inputClasses}
+                  required
+                  placeholder="Enter your first name"
+                />
+              </div>
+              <div>
+                <label htmlFor="middleName" className={labelClasses}>Middle Name</label>
+                <input
+                  type="text"
+                  id="middleName"
+                  name="middleName"
+                  value={formData.middleName}
+                  onChange={handleInputChange}
+                  className={inputClasses}
+                  placeholder="Optional"
                 />
               </div>
             </div>
           </div>
 
           {/* Birthday, Phone, and Nick Name fields */}
-          <div className="grid grid-cols-1 lg:grid-cols-3 md:grid-cols-1 gap-2 mb-2">
-            {/* Birthday - spans full width on md, 1/3 on lg */}
-            <div className="lg:col-span-1 md:col-span-3 col-span-3">
-              <label htmlFor="birthday" className="block text-sm font-medium">Birthday</label>
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+            <div>
+              <label htmlFor="birthday" className={labelClasses}>Birthday</label>
               <input
                 type="date"
                 id="birthday"
                 name="birthday"
-                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                value={formData.birthday}
+                onChange={handleInputChange}
+                className={inputClasses}
+                required
               />
             </div>
-
-            {/* Phone and Nick Name - inline on lg, stacked on md */}
-            <div className="grid grid-cols-2 lg:col-span-2 md:col-span-3 gap-2">
-              <div className="col-span-1">
-                <label htmlFor="phone" className="block text-sm font-medium">Phone</label>
-                <input
-                  type="text"
-                  id="phone"
-                  name="phone"
-                  className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-                />
-              </div>
-              <div className="col-span-1">
-                <label htmlFor="nickName" className="block text-sm font-medium">Nick Name</label>
-                <input
-                  type="text"
-                  id="nickName"
-                  name="nickName"
-                  className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-                />
-              </div>
+            <div>
+              <label htmlFor="phone" className={labelClasses}>Phone Number</label>
+              <input
+                type="tel"
+                id="phone"
+                name="phone"
+                value={formData.phone}
+                onChange={handleInputChange}
+                className={inputClasses}
+                required
+                placeholder="+1 (555) 000-0000"
+              />
+            </div>
+            <div>
+              <label htmlFor="nickName" className={labelClasses}>Nickname (Optional)</label>
+              <input
+                type="text"
+                id="nickName"
+                name="nickName"
+                value={formData.nickName}
+                onChange={handleInputChange}
+                className={inputClasses}
+                placeholder="What should we call you?"
+              />
             </div>
           </div>
 
-          {/* Email and Repeat Email */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-2">
+          {/* Email fields */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label htmlFor="email" className="block text-sm font-medium">Email</label>
+              <label htmlFor="email" className={labelClasses}>Email Address</label>
               <input
                 type="email"
                 id="email"
                 name="email"
-                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                value={formData.email}
+                onChange={handleInputChange}
+                className={inputClasses}
+                required
+                placeholder="you@example.com"
               />
             </div>
             <div>
-              <label htmlFor="repeatEmail" className="block text-sm font-medium">Repeat Email</label>
+              <label htmlFor="repeatEmail" className={labelClasses}>Confirm Email</label>
               <input
                 type="email"
                 id="repeatEmail"
                 name="repeatEmail"
-                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                value={formData.repeatEmail}
+                onChange={handleInputChange}
+                className={inputClasses}
+                required
+                placeholder="Verify your email"
               />
             </div>
           </div>
 
-          {/* Password and Repeat Password */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-2">
+          {/* Password fields */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label htmlFor="password" className="block text-sm font-medium">Password</label>
+              <label htmlFor="password" className={labelClasses}>Password</label>
               <input
                 type="password"
                 id="password"
                 name="password"
-                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                value={formData.password}
+                onChange={handleInputChange}
+                className={inputClasses}
+                required
+                minLength={8}
+                placeholder="Min. 8 characters"
               />
             </div>
             <div>
-              <label htmlFor="repeatPass" className="block text-sm font-medium">Repeat Password</label>
+              <label htmlFor="repeatPass" className={labelClasses}>Confirm Password</label>
               <input
                 type="password"
                 id="repeatPass"
                 name="repeatPass"
-                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                value={formData.repeatPass}
+                onChange={handleInputChange}
+                className={inputClasses}
+                required
+                minLength={8}
+                placeholder="Verify your password"
               />
             </div>
           </div>
 
           {/* Address */}
-          <div className="col-span-3 mb-2">
-            <label htmlFor="address" className="block text-sm font-medium">Address</label>
+          <div>
+            <label htmlFor="address" className={labelClasses}>Address</label>
             <input
               type="text"
               id="address"
               name="address"
-              className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+              value={formData.address}
+              onChange={handleInputChange}
+              className={inputClasses}
+              required
+              placeholder="Enter your full address"
             />
           </div>
 
           {/* Register button */}
           <button
             type="submit"
-            className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+            className={`${buttonClasses} bg-gradient-to-r from-indigo-600 to-indigo-500 hover:from-indigo-500 hover:to-indigo-600`}
           >
-            Register
+            Create Account
           </button>
-          {/* Footer links */}
-          <div className="flex flex-col mt-2 items-center">
-            <h3 className="flex">
-              Have an account?
-              <div onClick={props.trigger} className="text-blue-500 cursor-pointer ml-2">
-                Log In
-              </div>
-            </h3>
-            <h3 className="flex">
-              Forgot your password?
-              <div className="text-blue-500 cursor-pointer ml-2">Get here</div>
-            </h3>
+
+          {/* Divider */}
+          <div className="relative my-6">
+            <div className="absolute inset-0 flex items-center">
+              <div className="w-full border-t border-gray-600/50"></div>
+            </div>
+            <div className="relative flex justify-center text-sm">
+              <span className="px-4 bg-gray-900 text-gray-400">or continue with</span>
+            </div>
           </div>
 
-          {/* Register with Google and Facebook - Stacked on mobile */}
-          <div className="grid grid-cols-2 md:grid-cols-2 gap-4">
-            <button className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 mt-4">
-              Register with Google
+          {/* Social login buttons */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <button
+              type="button"
+              className={`${buttonClasses} bg-gradient-to-r from-red-600 to-red-500 hover:from-red-500 hover:to-red-600`}
+            >
+              <svg className="w-5 h-5 mr-2" viewBox="0 0 24 24">
+                <path fill="currentColor" d="M12.545,10.239v3.821h5.445c-0.712,2.315-2.647,3.972-5.445,3.972c-3.332,0-6.033-2.701-6.033-6.032s2.701-6.032,6.033-6.032c1.498,0,2.866,0.549,3.921,1.453l2.814-2.814C17.503,2.988,15.139,2,12.545,2C7.021,2,2.543,6.477,2.543,12s4.478,10,10.002,10c8.396,0,10.249-7.85,9.426-11.748L12.545,10.239z"/>
+              </svg>
+              Sign up with Google
             </button>
-            <button className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 mt-4">
-              Register with Facebook
+            <button
+              type="button"
+              className={`${buttonClasses} bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-500 hover:to-blue-600`}
+            >
+              <svg className="w-5 h-5 mr-2" viewBox="0 0 24 24">
+                <path fill="currentColor" d="M12 2.04C6.5 2.04 2 6.53 2 12.06C2 17.06 5.66 21.21 10.44 21.96V14.96H7.9V12.06H10.44V9.85C10.44 7.34 11.93 5.96 14.22 5.96C15.31 5.96 16.45 6.15 16.45 6.15V8.62H15.19C13.95 8.62 13.56 9.39 13.56 10.18V12.06H16.34L15.89 14.96H13.56V21.96A10 10 0 0 0 22 12.06C22 6.53 17.5 2.04 12 2.04Z"/>
+              </svg>
+              Sign up with Facebook
+            </button>
+          </div>
+
+          {/* Footer links */}
+          <div className="flex flex-col items-center space-y-4 pt-6 border-t border-gray-600/50">
+            <div className="flex items-center space-x-2 text-sm">
+              <span className="text-gray-400">Already have an account?</span>
+              <button 
+                type="button"
+                onClick={props.trigger}
+                className="text-indigo-400 hover:text-indigo-300 font-medium transition-colors duration-200"
+              >
+                Sign in instead
+              </button>
+            </div>
+            <button 
+              type="button"
+              className="text-sm text-gray-400 hover:text-gray-300 transition-colors duration-200"
+            >
+              Forgot your password?
             </button>
           </div>
         </form>
-
-
-
       </div>
     </CustomModal>
   );
