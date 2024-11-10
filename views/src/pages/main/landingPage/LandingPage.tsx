@@ -1,13 +1,12 @@
 
 import Podcast from "../../../components/UI/podcast/Podcast";
 import videodemo from "../../../assets/videos/15283210-hd_1080_1920_30fps.mp4"
-import { useToast } from "../../../context/ToastProvider";
 import Popover from "../../../components/UI/custom/Popover";
 import CustomTable from "../../../components/UI/custom/CustomTable";
 import CustomSearchbar from "../../../components/UI/custom/CustomSearchbar";
 
 const LandingPage = () => {
-  const toast = useToast();
+
 
   return (
     <div>
