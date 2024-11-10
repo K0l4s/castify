@@ -3,6 +3,7 @@ import Podcast from "../../../components/UI/podcast/Podcast";
 import videodemo from "../../../assets/videos/15283210-hd_1080_1920_30fps.mp4"
 import { useToast } from "../../../context/ToastProvider";
 import Popover from "../../../components/UI/custom/Popover";
+import CustomTable from "../../../components/UI/custom/CustomTable";
 
 const LandingPage = () => {
   const toast = useToast();
@@ -87,6 +88,11 @@ const LandingPage = () => {
         description="Ngày hôm ấy tôi đi trong mưa, có nhớ phút giây yếu đuối không ngờ #viral #castify #modify #topten #year2024"
       />
       </div>
+      <CustomTable headers={["Name", "Email", "Role"]}>
+        <tr>
+          <td>1</td>
+        </tr>
+      </CustomTable>
     </div>
   ) 
 }
