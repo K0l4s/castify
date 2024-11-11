@@ -71,7 +71,7 @@ const RegisterModal = (props: DefaultModalProps) => {
   
   const buttonClasses = "w-full flex justify-center items-center py-3 px-4 border border-transparent rounded-lg " +
     "shadow-lg text-sm font-semibold text-white transition-all duration-200 ease-in-out " +
-    "focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-800 transform hover:scale-[1.02] active:scale-[0.98]";
+    "focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-800 transform ";
 
   return (
     <CustomModal 
@@ -79,9 +79,10 @@ const RegisterModal = (props: DefaultModalProps) => {
       title="Create Your Account" 
       isOpen={props.isOpen} 
       onClose={props.onClose} 
-      size="xl"
+      size="full"
+      className="bg-gradient-to-b from-gray-800 to-gray-900"
     >
-      <div className="p-6 max-h-[80vh] overflow-y-auto bg-gradient-to-b from-gray-800 to-gray-900 rounded-lg">
+      <div className="  overflow-y-auto  rounded-lg">
         <form className="space-y-6" onSubmit={handleSubmit}>
           {/* Name fields */}
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
@@ -277,7 +278,7 @@ const RegisterModal = (props: DefaultModalProps) => {
             </button>
             <button
               type="button"
-              className={`${buttonClasses} bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-500 hover:to-blue-600`}
+              className={`${buttonClasses} bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-500 hover:to-blue-600 dark:bg-gradient-to-r dark:from-blue-600 dark:to-blue-500 dark:hover:from-blue-500 dark:hover:to-blue-600`}
             >
               <svg className="w-5 h-5 mr-2" viewBox="0 0 24 24">
                 <path fill="currentColor" d="M12 2.04C6.5 2.04 2 6.53 2 12.06C2 17.06 5.66 21.21 10.44 21.96V14.96H7.9V12.06H10.44V9.85C10.44 7.34 11.93 5.96 14.22 5.96C15.31 5.96 16.45 6.15 16.45 6.15V8.62H15.19C13.95 8.62 13.56 9.39 13.56 10.18V12.06H16.34L15.89 14.96H13.56V21.96A10 10 0 0 0 22 12.06C22 6.53 17.5 2.04 12 2.04Z"/>
@@ -300,7 +301,7 @@ const RegisterModal = (props: DefaultModalProps) => {
             </div>
             <button 
               type="button"
-              className="text-sm text-gray-400 hover:text-gray-300 transition-colors duration-200"
+              className="text-sm text-gray-400 hover:text-gray-300 transition-colors duration-200 dark:text-gray-400 dark:hover:text-gray-300"
             >
               Forgot your password?
             </button>

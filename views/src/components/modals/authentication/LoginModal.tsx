@@ -41,6 +41,7 @@ const LoginModal = ({ trigger, isOpen, onClose }: DefaultModalProps) => {
     setIsLoading(true);
 
     try {
+      toast.loading('Logging in...');
       const res = await authenticateApi.login(formData);
 
       if (!res.data) {
