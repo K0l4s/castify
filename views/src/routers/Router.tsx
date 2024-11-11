@@ -11,7 +11,7 @@ import NotAccessPage from '../pages/errorPage/NotAccessPage'
 import ProfilePage from '../pages/main/profile/ProfilePage'
 
 const Router = () => {
-    const isAdmin = false; // Replace with your actual admin check logic
+    const isAdmin = true; // Replace with your actual admin check logic
 
     return (
         <div className='bg-gray-200 dark:bg-gray-900'>
@@ -28,8 +28,8 @@ const Router = () => {
                     <Route path="users" element={<AdminUserPage />} />
                 </Route>
 
-                <Route element={<CreatorLayout />} >
-                    <Route path='/creator/' element={<CreatorLandingPage />} />
+                <Route path='/creator/*' element={<CreatorLayout />} >
+                    <Route path='' element={<CreatorLandingPage />} />
                 </Route>
 
                 <Route element={<MainLayout />} >
