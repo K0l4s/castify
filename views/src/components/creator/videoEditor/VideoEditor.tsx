@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react'
-import { FaScissors, FaPlay, FaPause } from 'react-icons/fa6';
+import { FaImage, FaMusic, FaVideo } from 'react-icons/fa6';
 
 interface VideoClip {
     id: string;
@@ -7,12 +7,24 @@ interface VideoClip {
     endTime: number;
     src: string;
     duration: number;
+    volume: number;
+}
+
+interface AudioClip {
+    id: string;
+    startTime: number;
+    endTime: number;
+    src: string;
+    duration: number;
+    volume: number;
 }
 
 interface TextOverlay {
     id: string;
     text: string;
     position: {x: number; y: number};
+    startTime: number;
+    endTime: number;
     style: {
         fontSize: number;
         color: string;
@@ -20,210 +32,322 @@ interface TextOverlay {
     }
 }
 
-// interface AudioTrack {
-//     id: string;
-//     src: string;
-//     startTime: number;
-//     volume: number;
-// }
+interface ImageOverlay {
+    id: string;
+    src: string;
+    position: {x: number; y: number};
+    startTime: number;
+    endTime: number;
+    scale: number;
+}
+
+interface StoredComponent {
+    id: string;
+    type: 'video' | 'audio' | 'image';
+    name: string;
+    src: string;
+    createdAt: Date;
+}
 
 const VideoEditor = () => {
     const [videoClips, setVideoClips] = useState<VideoClip[]>([])
+    const [audioClips, setAudioClips] = useState<AudioClip[]>([])
     const [selectedClip, setSelectedClip] = useState<string | null>(null)
     const [textOverlays, setTextOverlays] = useState<TextOverlay[]>([])
-    // const [audioTracks, setAudioTracks] = useState<AudioTrack[]>([])
-    const [selectedText, setSelectedText] = useState<string | null>(null)
-    const [isDragging, setIsDragging] = useState(false)
-    const [mousePosition, setMousePosition] = useState({x: 0, y: 0})
-    const [showSplitLine, setShowSplitLine] = useState(false)
+    const [imageOverlays, setImageOverlays] = useState<ImageOverlay[]>([])
+    const [selectedOverlay, setSelectedOverlay] = useState<string | null>(null)
+    console.log(selectedOverlay)    
+    // const [isDragging, setIsDragging] = useState(false)
+    // const [mousePosition, setMousePosition] = useState({x: 0, y: 0})
+    // const [showSplitLine, setShowSplitLine] = useState(false)
     const videoRef = useRef<HTMLVideoElement>(null)
     const timelineRef = useRef<HTMLDivElement>(null)
     const [isPlaying, setIsPlaying] = useState(false)
     const [currentTime, setCurrentTime] = useState(0)
-    const [timelineScale, setTimelineScale] = useState(1)
-    const [editingText, setEditingText] = useState<string | null>(null)
+    // const [timelineScale, setTimelineScale] = useState(1)
+    // const [editingText, setEditingText] = useState<string | null>(null)
+    const [storedComponents, setStoredComponents] = useState<StoredComponent[]>([])
+    const [showComponentLibrary, setShowComponentLibrary] = useState(false)
 
-    const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>, type: 'video' | 'audio' | 'image') => {
         const file = e.target.files?.[0]
-        if (file) {
-            const url = URL.createObjectURL(file)
+        if (!file) return
+
+        const url = URL.createObjectURL(file)
+        const newComponent: StoredComponent = {
+            id: Date.now().toString(),
+            type,
+            name: file.name,
+            src: url,
+            createdAt: new Date()
+        }
+        setStoredComponents(prev => [...prev, newComponent])
+
+        if (type === 'video') {
             const video = document.createElement('video')
             video.src = url
-            
             video.onloadedmetadata = () => {
                 const newClip: VideoClip = {
                     id: Date.now().toString(),
                     startTime: 0,
                     endTime: video.duration,
                     duration: video.duration,
-                    src: url
+                    src: url,
+                    volume: 1
                 }
                 setVideoClips(prevClips => [...prevClips, newClip])
-                
-                if (videoRef.current) {
-                    videoRef.current.src = url
-                    videoRef.current.load()
+            }
+        } else if (type === 'audio') {
+            const audio = new Audio(url)
+            audio.onloadedmetadata = () => {
+                const newClip: AudioClip = {
+                    id: Date.now().toString(),
+                    startTime: 0,
+                    endTime: audio.duration,
+                    duration: audio.duration,
+                    src: url,
+                    volume: 1
                 }
+                setAudioClips(prevClips => [...prevClips, newClip])
+            }
+        } else if (type === 'image') {
+            const newImage: ImageOverlay = {
+                id: Date.now().toString(),
+                src: url,
+                position: { x: 50, y: 50 },
+                startTime: currentTime,
+                endTime: currentTime + 5,
+                scale: 1
+            }
+            setImageOverlays(prev => [...prev, newImage])
+        }
+    }
+
+    useEffect(() => {
+        const handleTimeUpdate = () => {
+            if (videoRef.current) {
+                setCurrentTime(videoRef.current.currentTime)
             }
         }
+
+        videoRef.current?.addEventListener('timeupdate', handleTimeUpdate)
+        return () => videoRef.current?.removeEventListener('timeupdate', handleTimeUpdate)
+    }, [])
+
+    const handleSplitClip = () => {
+        if (!selectedClip || !videoRef.current) return
+
+        const clip = videoClips.find(c => c.id === selectedClip)
+        if (!clip) return
+
+        const splitTime = videoRef.current.currentTime
+        
+        const clip1: VideoClip = {
+            ...clip,
+            id: Date.now().toString(),
+            endTime: splitTime,
+            duration: splitTime - clip.startTime
+        }
+
+        const clip2: VideoClip = {
+            ...clip,
+            id: (Date.now() + 1).toString(),
+            startTime: splitTime,
+            duration: clip.endTime - splitTime
+        }
+
+        setVideoClips(prev => 
+            prev.filter(c => c.id !== selectedClip).concat([clip1, clip2])
+        )
     }
 
     const handleAddText = () => {
         const newText: TextOverlay = {
             id: Date.now().toString(),
-            text: 'Click to edit',
-            position: {x: 50, y: 50},
+            text: 'New Text',
+            position: { x: 50, y: 50 },
+            startTime: currentTime,
+            endTime: currentTime + 5,
             style: {
                 fontSize: 24,
                 color: '#ffffff',
                 fontFamily: 'Arial'
             }
         }
-        setTextOverlays([...textOverlays, newText])
-        setSelectedText(newText.id)
-        setEditingText(newText.id)
+        setTextOverlays(prev => [...prev, newText])
     }
 
-    const handleTextDragStart = (id: string) => {
-        if (editingText) return
-        setSelectedText(id)
-        setIsDragging(true)
-    }
+    // const handleOverlayDrag = (id: string, type: 'text' | 'image', newPosition: {x: number, y: number}) => {
+    //     if (type === 'text') {
+    //         setTextOverlays(prev => 
+    //             prev.map(overlay => 
+    //                 overlay.id === id 
+    //                     ? {...overlay, position: newPosition}
+    //                     : overlay
+    //             )
+    //         )
+    //     } else {
+    //         setImageOverlays(prev => 
+    //             prev.map(overlay => 
+    //                 overlay.id === id 
+    //                     ? {...overlay, position: newPosition}
+    //                     : overlay
+    //             )
+    //         )
+    //     }
+    // }
 
-    const handleTextDrag = (e: React.MouseEvent | React.TouchEvent, id: string) => {
-        if (isDragging && selectedText === id && !editingText) {
-            const container = e.currentTarget.parentElement
-            if (!container) return
-
-            const rect = container.getBoundingClientRect()
-            let clientX: number, clientY: number
-
-            if ('touches' in e) {
-                const touch = e.touches[0]
-                clientX = touch.clientX
-                clientY = touch.clientY
-            } else {
-                clientX = e.clientX
-                clientY = e.clientY
-            }
-
-            const x = Math.max(0, Math.min(100, ((clientX - rect.left) / rect.width) * 100))
-            const y = Math.max(0, Math.min(100, ((clientY - rect.top) / rect.height) * 100))
-            
-            setTextOverlays(overlays => 
-                overlays.map(overlay => 
-                    overlay.id === id 
-                        ? {...overlay, position: {x, y}}
-                        : overlay
-                )
-            )
-        }
-    }
-
-    const handleTextDragEnd = () => {
-        setIsDragging(false)
-    }
-
-    const handleTextClick = (id: string) => {
-        if (!isDragging) {
-            setEditingText(id)
-            setSelectedText(id)
-        }
-    }
-
-    const handleTextChange = (id: string, newText: string) => {
-        setTextOverlays(overlays =>
-            overlays.map(overlay =>
-                overlay.id === id
-                    ? {...overlay, text: newText}
-                    : overlay
-            )
-        )
-    }
-
-    const handleTextBlur = () => {
-        setEditingText(null)
-    }
-
-    // const handleClipTrim = (id: string, startTime: number, endTime: number) => {
-    //     setVideoClips(clips =>
-    //         clips.map(clip =>
-    //             clip.id === id
-    //                 ? {...clip, startTime, endTime}
-    //                 : clip
+    // const handleTextEdit = (id: string, newText: string) => {
+    //     setTextOverlays(prev => 
+    //         prev.map(overlay => 
+    //             overlay.id === id 
+    //                 ? {...overlay, text: newText}
+    //                 : overlay
     //         )
     //     )
     // }
 
+    // const handleVolumeChange = (id: string, type: 'video' | 'audio', volume: number) => {
+    //     if (type === 'video') {
+    //         setVideoClips(prev =>
+    //             prev.map(clip =>
+    //                 clip.id === id
+    //                     ? {...clip, volume}
+    //                     : clip
+    //             )
+    //         )
+    //     } else {
+    //         setAudioClips(prev =>
+    //             prev.map(clip =>
+    //                 clip.id === id
+    //                     ? {...clip, volume}
+    //                     : clip
+    //             )
+    //         )
+    //     }
+    // }
+
+    // const handleTimelineItemDrag = (id: string, type: 'video' | 'audio' | 'text' | 'image', newStartTime: number) => {
+    //     if (type === 'video') {
+    //         setVideoClips(prev =>
+    //             prev.map(clip => {
+    //                 if (clip.id === id) {
+    //                     const duration = clip.endTime - clip.startTime
+    //                     return {
+    //                         ...clip,
+    //                         startTime: newStartTime,
+    //                         endTime: newStartTime + duration
+    //                     }
+    //                 }
+    //                 return clip
+    //             })
+    //         )
+    //     } else if (type === 'audio') {
+    //         setAudioClips(prev =>
+    //             prev.map(clip => {
+    //                 if (clip.id === id) {
+    //                     const duration = clip.endTime - clip.startTime
+    //                     return {
+    //                         ...clip,
+    //                         startTime: newStartTime,
+    //                         endTime: newStartTime + duration
+    //                     }
+    //                 }
+    //                 return clip
+    //             })
+    //         )
+    //     } else if (type === 'text') {
+    //         setTextOverlays(prev =>
+    //             prev.map(overlay => {
+    //                 if (overlay.id === id) {
+    //                     const duration = overlay.endTime - overlay.startTime
+    //                     return {
+    //                         ...overlay,
+    //                         startTime: newStartTime,
+    //                         endTime: newStartTime + duration
+    //                     }
+    //                 }
+    //                 return overlay
+    //             })
+    //         )
+    //     } else {
+    //         setImageOverlays(prev =>
+    //             prev.map(overlay => {
+    //                 if (overlay.id === id) {
+    //                     const duration = overlay.endTime - overlay.startTime
+    //                     return {
+    //                         ...overlay,
+    //                         startTime: newStartTime,
+    //                         endTime: newStartTime + duration
+    //                     }
+    //                 }
+    //                 return overlay
+    //             })
+    //         )
+    //     }
+    // }
+
+    const handleComponentSelect = (component: StoredComponent) => {
+        if (component.type === 'video') {
+            const video = document.createElement('video')
+            video.src = component.src
+            video.onloadedmetadata = () => {
+                const newClip: VideoClip = {
+                    id: Date.now().toString(),
+                    startTime: currentTime,
+                    endTime: currentTime + video.duration,
+                    duration: video.duration,
+                    src: component.src,
+                    volume: 1
+                }
+                setVideoClips(prev => [...prev, newClip])
+            }
+        } else if (component.type === 'audio') {
+            const audio = new Audio(component.src)
+            audio.onloadedmetadata = () => {
+                const newClip: AudioClip = {
+                    id: Date.now().toString(),
+                    startTime: currentTime,
+                    endTime: currentTime + audio.duration,
+                    duration: audio.duration,
+                    src: component.src,
+                    volume: 1
+                }
+                setAudioClips(prev => [...prev, newClip])
+            }
+        } else if (component.type === 'image') {
+            const newImage: ImageOverlay = {
+                id: Date.now().toString(),
+                src: component.src,
+                position: { x: 50, y: 50 },
+                startTime: currentTime,
+                endTime: currentTime + 5,
+                scale: 1
+            }
+            setImageOverlays(prev => [...prev, newImage])
+        }
+    }
+
+    const handleDeleteComponent = (id: string) => {
+        setStoredComponents(prev => prev.filter(component => component.id !== id))
+    }
+
     const handleTimelineClick = (e: React.MouseEvent) => {
-        if (!videoRef.current || !timelineRef.current) return
-        
+        if (!timelineRef.current || !videoRef.current) return
+
         const rect = timelineRef.current.getBoundingClientRect()
         const clickX = e.clientX - rect.left
-        const timePosition = (clickX / rect.width) * (videoRef.current.duration / timelineScale)
-        
-        videoRef.current.currentTime = timePosition
-        setCurrentTime(timePosition)
-    }
+        const timelineWidth = rect.width
+        const duration = videoRef.current.duration
 
-    const handleMouseMove = (e: React.MouseEvent) => {
-        if (timelineRef.current && showSplitLine) {
-            const rect = timelineRef.current.getBoundingClientRect()
-            const x = e.clientX - rect.left
-            const timePosition = (x / rect.width) * (videoRef.current?.duration || 0)
-            setMousePosition({x: timePosition, y: e.clientY - rect.top})
-        }
-    }
-
-    const handleTimelineZoom = (e: React.WheelEvent) => {
-        if (e.ctrlKey || e.metaKey) {
-            e.preventDefault()
-            const zoomFactor = e.deltaY > 0 ? 0.9 : 1.1
-            setTimelineScale(prev => Math.min(Math.max(prev * zoomFactor, 0.1), 10))
-        }
-    }
-
-    const handleSplitClip = () => {
-        if (!selectedClip || !videoRef.current) return
-
-        const currentClip = videoClips.find(clip => clip.id === selectedClip)
-        if (!currentClip) return
-
-        const splitTime = mousePosition.x
-
-        const firstHalf: VideoClip = {
-            id: Date.now().toString(),
-            startTime: currentClip.startTime,
-            endTime: splitTime,
-            src: currentClip.src,
-            duration: currentClip.duration
-        }
-
-        const secondHalf: VideoClip = {
-            id: (Date.now() + 1).toString(),
-            startTime: splitTime,
-            endTime: currentClip.endTime,
-            src: currentClip.src,
-            duration: currentClip.duration
-        }
-
-        setVideoClips(clips => {
-            const index = clips.findIndex(clip => clip.id === selectedClip)
-            const newClips = [...clips]
-            newClips.splice(index, 1, firstHalf, secondHalf)
-            return newClips
-        })
-        setShowSplitLine(false)
-    }
-
-    const handleDeleteClip = () => {
-        if (!selectedClip) return
-        setVideoClips(clips => clips.filter(clip => clip.id !== selectedClip))
-        setSelectedClip(null)
+        const newTime = (clickX / timelineWidth) * duration
+        videoRef.current.currentTime = newTime
+        setCurrentTime(newTime)
     }
 
     const togglePlayPause = () => {
         if (!videoRef.current) return
+
         if (isPlaying) {
             videoRef.current.pause()
         } else {
@@ -232,232 +356,84 @@ const VideoEditor = () => {
         setIsPlaying(!isPlaying)
     }
 
-    useEffect(() => {
-        const handleKeyPress = (e: KeyboardEvent) => {
-            if (e.key === 's' && selectedClip && showSplitLine) {
-                handleSplitClip()
-            }
-            if ((e.key === 'Delete' || e.key === 'Del') && selectedClip) {
-                handleDeleteClip()
-            }
-            if (e.key === ' ') {
-                e.preventDefault()
-                togglePlayPause()
-            }
-        }
-        window.addEventListener('keydown', handleKeyPress)
-        return () => window.removeEventListener('keydown', handleKeyPress)
-    }, [selectedClip, mousePosition, showSplitLine, isPlaying])
-
-    useEffect(() => {
-        if (!videoRef.current || videoClips.length === 0) return
-
-        const firstClip = videoClips[0]
-        if (videoRef.current.src !== firstClip.src) {
-            videoRef.current.src = firstClip.src
-            videoRef.current.load()
-        }
-        videoRef.current.currentTime = currentTime
-    }, [currentTime, videoClips])
-
-    useEffect(() => {
-        if (videoClips.length > 0 && videoRef.current) {
-            const firstClip = videoClips[0]
-            videoRef.current.src = firstClip.src
-            videoRef.current.load()
-        }
-    }, [videoClips])
-
-    const handleExport = async () => {
-        if (!videoRef.current || videoClips.length === 0) {
-            console.error('No video to export')
-            return
-        }
-
-        try {
-            // Create a canvas element to draw the video frames
-            const canvas = document.createElement('canvas')
-            const ctx = canvas.getContext('2d')
-            if (!ctx) throw new Error('Could not get canvas context')
-
-            // Set canvas dimensions to match video
-            canvas.width = videoRef.current.videoWidth
-            canvas.height = videoRef.current.videoHeight
-
-            // Create MediaRecorder to record canvas
-            const stream = canvas.captureStream(30) // 30 FPS
-            const mediaRecorder = new MediaRecorder(stream, {
-                mimeType: 'video/webm;codecs=vp9'
-            })
-
-            const chunks: Blob[] = []
-            mediaRecorder.ondataavailable = (e) => chunks.push(e.data)
-            
-            mediaRecorder.onstop = () => {
-                const blob = new Blob(chunks, { type: 'video/webm' })
-                const url = URL.createObjectURL(blob)
-                const a = document.createElement('a')
-                a.href = url
-                a.download = 'exported-video.webm'
-                a.click()
-                URL.revokeObjectURL(url)
-            }
-
-            // Start recording
-            mediaRecorder.start()
-
-            // Process each clip
-            for (const clip of videoClips) {
-                videoRef.current.currentTime = clip.startTime
-                
-                // Wait for video to seek
-                await new Promise(resolve => {
-                    videoRef.current!.onseeked = resolve
-                })
-
-                // Draw frames for clip duration
-                // const startTime = performance.now()
-                // const clipDuration = clip.endTime - clip.startTime
-                
-                while (videoRef.current.currentTime < clip.endTime) {
-                    ctx.drawImage(videoRef.current, 0, 0)
-                    
-                    // Draw text overlays
-                    textOverlays.forEach(overlay => {
-                        ctx.font = `${overlay.style.fontSize}px ${overlay.style.fontFamily}`
-                        ctx.fillStyle = overlay.style.color
-                        ctx.textAlign = 'center'
-                        const x = (overlay.position.x / 100) * canvas.width
-                        const y = (overlay.position.y / 100) * canvas.height
-                        ctx.fillText(overlay.text, x, y)
-                    })
-
-                    videoRef.current.currentTime += 1/30 // Advance 1 frame at 30fps
-                    await new Promise(resolve => setTimeout(resolve, 1000/30))
-                }
-            }
-
-            // Stop recording
-            mediaRecorder.stop()
-
-        } catch (error) {
-            console.error('Error exporting video:', error)
-        }
-    }
-
     return (
         <div className="flex flex-col h-screen bg-gray-900 text-white">
             <div className="flex-1 flex">
                 <div className="w-3/4 p-4">
-                    <div className="bg-black aspect-video mb-4 relative">
-                        <input 
-                            type="file"
-                            accept="video/*"
-                            onChange={handleFileUpload}
-                            className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
-                            style={{display: videoClips.length === 0 ? 'block' : 'none'}}
+                    <div className="relative aspect-video bg-black mb-4">
+                        <video
+                            ref={videoRef}
+                            className="w-full h-full"
+                            onClick={togglePlayPause}
                         />
-                        {videoClips.length === 0 && (
-                            <div className="absolute inset-0 flex items-center justify-center">
-                                <p className="text-gray-400">Drop video file here or click to upload</p>
-                            </div>
-                        )}
-                        {videoClips.length > 0 && (
-                            <>
-                                <video
-                                    ref={videoRef}
-                                    className="w-full h-full"
-                                    onTimeUpdate={(e) => setCurrentTime((e.target as HTMLVideoElement).currentTime)}
-                                />
-                                <button
-                                    onClick={togglePlayPause}
-                                    className="absolute bottom-4 left-1/2 transform -translate-x-1/2 bg-blue-500 hover:bg-blue-600 rounded-full p-3"
-                                >
-                                    {isPlaying ? <FaPause /> : <FaPlay />}
-                                </button>
-                            </>
-                        )}
                         {textOverlays.map(overlay => (
-                            <div
-                                key={overlay.id}
-                                style={{
-                                    position: 'absolute',
-                                    left: `${overlay.position.x}%`,
-                                    top: `${overlay.position.y}%`,
-                                    cursor: isDragging && selectedText === overlay.id ? 'grabbing' : 'grab',
-                                    userSelect: 'none',
-                                    transform: 'translate(-50%, -50%)',
-                                    ...overlay.style
-                                }}
-                                onMouseDown={() => handleTextDragStart(overlay.id)}
-                                onMouseUp={handleTextDragEnd}
-                                onMouseMove={(e) => handleTextDrag(e, overlay.id)}
-                                onTouchStart={() => handleTextDragStart(overlay.id)}
-                                onTouchEnd={handleTextDragEnd}
-                                onTouchMove={(e) => handleTextDrag(e, overlay.id)}
-                                onClick={() => handleTextClick(overlay.id)}
-                            >
-                                {editingText === overlay.id ? (
-                                    <input
-                                        type="text"
-                                        value={overlay.text}
-                                        onChange={(e) => handleTextChange(overlay.id, e.target.value)}
-                                        onBlur={handleTextBlur}
-                                        autoFocus
-                                        className="bg-transparent border-b border-white outline-none text-center"
-                                        style={{
-                                            fontSize: `${overlay.style.fontSize}px`,
-                                            color: overlay.style.color,
-                                            width: '200px'
-                                        }}
-                                    />
-                                ) : (
-                                    overlay.text
-                                )}
-                            </div>
+                            currentTime >= overlay.startTime && currentTime <= overlay.endTime && (
+                                <div
+                                    key={overlay.id}
+                                    style={{
+                                        position: 'absolute',
+                                        left: `${overlay.position.x}%`,
+                                        top: `${overlay.position.y}%`,
+                                        ...overlay.style
+                                    }}
+                                    onMouseDown={() => setSelectedOverlay(overlay.id)}
+                                >
+                                    {overlay.text}
+                                </div>
+                            )
+                        ))}
+                        {imageOverlays.map(overlay => (
+                            currentTime >= overlay.startTime && currentTime <= overlay.endTime && (
+                                <img
+                                    key={overlay.id}
+                                    src={overlay.src}
+                                    style={{
+                                        position: 'absolute',
+                                        left: `${overlay.position.x}%`,
+                                        top: `${overlay.position.y}%`,
+                                        transform: `scale(${overlay.scale})`
+                                    }}
+                                    onMouseDown={() => setSelectedOverlay(overlay.id)}
+                                />
+                            )
                         ))}
                     </div>
-                    
+
                     <div 
                         ref={timelineRef}
-                        className="bg-gray-800 p-4 rounded relative cursor-pointer"
-                        onMouseMove={handleMouseMove}
+                        className="h-32 bg-gray-800 relative"
                         onClick={handleTimelineClick}
-                        onWheel={handleTimelineZoom}
                     >
-                        <div className="flex space-x-2 mb-4" style={{transform: `scaleX(${timelineScale})`, transformOrigin: 'left'}}>
+                        {/* Timeline components rendering */}
+                        <div className="absolute top-0 left-0 w-full h-full">
                             {videoClips.map(clip => (
                                 <div
                                     key={clip.id}
-                                    className={`relative h-16 bg-blue-500 rounded p-2 cursor-pointer ${
-                                        selectedClip === clip.id ? 'ring-2 ring-white' : ''
-                                    }`}
-                                    onClick={(e) => {
-                                        e.stopPropagation()
-                                        setSelectedClip(clip.id)
+                                    className={`absolute h-8 bg-blue-500 ${selectedClip === clip.id ? 'ring-2 ring-white' : ''}`}
+                                    style={{
+                                        left: `${(clip.startTime / (videoRef.current?.duration || 1)) * 100}%`,
+                                        width: `${((clip.endTime - clip.startTime) / (videoRef.current?.duration || 1)) * 100}%`
                                     }}
-                                    style={{width: `${((clip.endTime - clip.startTime) / clip.duration) * 100}%`}}
-                                >
-                                    <span className="text-xs">Clip {clip.id}</span>
-                                </div>
+                                    onClick={() => setSelectedClip(clip.id)}
+                                />
                             ))}
-                        </div>
-                        {showSplitLine && selectedClip && (
-                            <div 
-                                className="absolute top-0 bottom-0 w-0.5 bg-red-500"
+                            {audioClips.map(clip => (
+                                <div
+                                    key={clip.id}
+                                    className="absolute h-6 bg-green-500 top-10"
+                                    style={{
+                                        left: `${(clip.startTime / (videoRef.current?.duration || 1)) * 100}%`,
+                                        width: `${((clip.endTime - clip.startTime) / (videoRef.current?.duration || 1)) * 100}%`
+                                    }}
+                                />
+                            ))}
+                            <div
+                                className="absolute h-full w-0.5 bg-red-500"
                                 style={{
-                                    left: `${(mousePosition.x / (videoRef.current?.duration || 1)) * 100}%`,
-                                    display: mousePosition.x > 0 ? 'block' : 'none'
+                                    left: `${(currentTime / (videoRef.current?.duration || 1)) * 100}%`
                                 }}
                             />
-                        )}
-                        <div 
-                            className="absolute top-0 bottom-0 w-0.5 bg-white"
-                            style={{
-                                left: `${(currentTime / (videoRef.current?.duration || 1)) * 100}%`,
-                                pointerEvents: 'none'
-                            }}
-                        />
+                        </div>
                     </div>
                 </div>
 
@@ -465,92 +441,95 @@ const VideoEditor = () => {
                     <h2 className="text-xl font-bold mb-4">Tools</h2>
                     <div className="space-y-4">
                         <div className="border-b border-gray-700 pb-4">
-                            <h3 className="text-sm font-semibold mb-2">Video Tools</h3>
-                            <input
-                                type="file"
-                                accept="video/*"
-                                onChange={handleFileUpload}
-                                className="w-full mb-2 text-sm file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:bg-blue-500 file:text-white hover:file:bg-blue-600"
-                            />
+                            <h3 className="text-sm font-semibold mb-2">Component Library</h3>
                             <button
-                                onClick={() => setShowSplitLine(!showSplitLine)}
-                                className={`w-full flex items-center justify-center space-x-2 px-4 py-2 rounded mb-2 ${
-                                    showSplitLine ? 'bg-red-500 hover:bg-red-600' : 'bg-blue-500 hover:bg-blue-600'
-                                }`}
-                                disabled={!selectedClip}
-                            >
-                                <FaScissors />
-                                <span>{showSplitLine ? 'Cancel Split' : 'Split Video'}</span>
-                            </button>
-                            {showSplitLine && (
-                                <p className="text-xs text-gray-400 text-center">Press 'S' to split at the red line</p>
-                            )}
-                            <button
-                                onClick={handleDeleteClip}
-                                className="w-full bg-red-500 hover:bg-red-600 px-4 py-2 rounded mb-2"
-                                disabled={!selectedClip}
-                            >
-                                Delete Clip
-                            </button>
-                            {selectedClip && (
-                                <p className="text-xs text-gray-400 text-center">Press Delete to remove selected clip</p>
-                            )}
-                        </div>
-
-                        <div className="border-b border-gray-700 pb-4">
-                            <h3 className="text-sm font-semibold mb-2">Text Tools</h3>
-                            <button
-                                onClick={handleAddText}
+                                onClick={() => setShowComponentLibrary(!showComponentLibrary)}
                                 className="w-full bg-blue-500 hover:bg-blue-600 px-4 py-2 rounded mb-2"
                             >
-                                Add Text
+                                {showComponentLibrary ? 'Hide Library' : 'Show Library'}
                             </button>
-                            {selectedText && (
+
+                            {showComponentLibrary && (
                                 <div className="space-y-2">
-                                    <input
-                                        type="color"
-                                        className="w-full h-8 rounded"
-                                        onChange={(e) => {
-                                            setTextOverlays(overlays =>
-                                                overlays.map(overlay =>
-                                                    overlay.id === selectedText
-                                                        ? {...overlay, style: {...overlay.style, color: e.target.value}}
-                                                        : overlay
-                                                )
-                                            )
-                                        }}
-                                    />
-                                    <div className="flex items-center space-x-2">
-                                        <input
-                                            type="range"
-                                            min="12"
-                                            max="72"
-                                            className="flex-1"
-                                            onChange={(e) => {
-                                                setTextOverlays(overlays =>
-                                                    overlays.map(overlay =>
-                                                        overlay.id === selectedText
-                                                            ? {...overlay, style: {...overlay.style, fontSize: parseInt(e.target.value)}}
-                                                            : overlay
-                                                    )
-                                                )
-                                            }}
-                                        />
-                                        <span className="text-sm">
-                                            {textOverlays.find(o => o.id === selectedText)?.style.fontSize}px
-                                        </span>
+                                    <div className="flex space-x-2">
+                                        <label className="flex-1 flex items-center justify-center bg-blue-500 hover:bg-blue-600 px-4 py-2 rounded cursor-pointer">
+                                            <FaVideo className="mr-2" />
+                                            <input
+                                                type="file"
+                                                accept="video/*"
+                                                onChange={(e) => handleFileUpload(e, 'video')}
+                                                className="hidden"
+                                            />
+                                            Video
+                                        </label>
+                                        <label className="flex-1 flex items-center justify-center bg-blue-500 hover:bg-blue-600 px-4 py-2 rounded cursor-pointer">
+                                            <FaMusic className="mr-2" />
+                                            <input
+                                                type="file"
+                                                accept="audio/*"
+                                                onChange={(e) => handleFileUpload(e, 'audio')}
+                                                className="hidden"
+                                            />
+                                            Audio
+                                        </label>
+                                        <label className="flex-1 flex items-center justify-center bg-blue-500 hover:bg-blue-600 px-4 py-2 rounded cursor-pointer">
+                                            <FaImage className="mr-2" />
+                                            <input
+                                                type="file"
+                                                accept="image/*"
+                                                onChange={(e) => handleFileUpload(e, 'image')}
+                                                className="hidden"
+                                            />
+                                            Image
+                                        </label>
+                                    </div>
+
+                                    <div className="max-h-48 overflow-y-auto">
+                                        {storedComponents.map(component => (
+                                            <div 
+                                                key={component.id}
+                                                className="flex items-center justify-between bg-gray-700 p-2 rounded mb-2"
+                                            >
+                                                <div className="flex items-center">
+                                                    {component.type === 'video' && <FaVideo className="mr-2" />}
+                                                    {component.type === 'audio' && <FaMusic className="mr-2" />}
+                                                    {component.type === 'image' && <FaImage className="mr-2" />}
+                                                    <span className="text-sm truncate">{component.name}</span>
+                                                </div>
+                                                <div className="flex space-x-2">
+                                                    <button
+                                                        onClick={() => handleComponentSelect(component)}
+                                                        className="text-xs bg-blue-500 hover:bg-blue-600 px-2 py-1 rounded"
+                                                    >
+                                                        Use
+                                                    </button>
+                                                    <button
+                                                        onClick={() => handleDeleteComponent(component.id)}
+                                                        className="text-xs bg-red-500 hover:bg-red-600 px-2 py-1 rounded"
+                                                    >
+                                                        Delete
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        ))}
                                     </div>
                                 </div>
                             )}
                         </div>
 
-                        <div>
-                            <h3 className="text-sm font-semibold mb-2">Export</h3>
+                        <div className="space-y-2">
                             <button
-                                onClick={handleExport}
-                                className="w-full bg-green-500 hover:bg-green-600 px-4 py-2 rounded"
+                                onClick={handleAddText}
+                                className="w-full bg-blue-500 hover:bg-blue-600 px-4 py-2 rounded"
                             >
-                                Export Video
+                                Add Text
+                            </button>
+                            <button
+                                onClick={handleSplitClip}
+                                disabled={!selectedClip}
+                                className="w-full bg-blue-500 hover:bg-blue-600 px-4 py-2 rounded disabled:opacity-50"
+                            >
+                                Split Clip
                             </button>
                         </div>
                     </div>

@@ -10,10 +10,13 @@ import NotFoundPage from '../pages/errorPage/NotFoundPage'
 import NotAccessPage from '../pages/errorPage/NotAccessPage'
 import ProfilePage from '../pages/main/profile/ProfilePage'
 import VideoEditor from '../components/creator/videoEditor/VideoEditor'
+import { useSelector } from 'react-redux'
+import { Role } from '../constants/Role'
+import { RootState } from '../redux/store'
 
 const Router = () => {
-    const isAdmin = true; // Replace with your actual admin check logic
-
+    // const isAdmin = true; // Replace with your actual admin check logic
+    const isAdmin = useSelector((state: RootState) => state.auth.user?.role === Role.A);
     return (
         <div className='bg-gray-200 dark:bg-gray-900'>
             <Routes>

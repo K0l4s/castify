@@ -100,10 +100,10 @@ const LoginModal = ({ trigger, isOpen, onClose }: DefaultModalProps) => {
         <form onSubmit={handleLogin} className="space-y-4">
           <div>
             <label htmlFor="email" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-              Email Address
+              Email Or Username
             </label>
             <input 
-              type="email" 
+              // type="email" 
               id="email" 
               name="email"
               value={formData.email}

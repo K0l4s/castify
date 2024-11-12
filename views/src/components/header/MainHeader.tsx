@@ -1,21 +1,14 @@
 import { Link } from 'react-router-dom'
 import logo from '../../assets/images/logo.png'
-import AuthenticationModal from '../modals/authentication/AuthenticationModal'
 import { useState } from 'react'
-import { useSelector } from 'react-redux'
-import { RootState } from '../../redux/store'
+import Authentication from './Authentication';
 
 const MainHeader = () => {
-  const [isOpen, setIsOpen] = useState(false);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-  const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [showSearchResults, setShowSearchResults] = useState(false);
 
-  const isAuth = useSelector((state: RootState) => state.auth.isAuthenticated);
 
-  const handleOpen = () => setIsOpen(true);
-  const handleClose = () => setIsOpen(false);
 
   const toggleSidebar = () => {
     setIsSidebarOpen(!isSidebarOpen);
@@ -23,11 +16,7 @@ const MainHeader = () => {
     sidebar?.classList.toggle("-translate-x-full");
   }
 
-  const toggleUserMenu = () => {
-    setIsUserMenuOpen(!isUserMenuOpen);
-    const dropdown = document.getElementById("dropdown-user");
-    dropdown?.classList.toggle("hidden");
-  }
+  
 
   const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchQuery(e.target.value);
@@ -46,6 +35,7 @@ const MainHeader = () => {
       setShowSearchResults(false);
     }, 200);
   }
+  
 
   return (
     <>
@@ -117,54 +107,11 @@ const MainHeader = () => {
                 </div>
               )}
             </div>
-
-            <div className="flex items-center">
-              <div className="relative ms-3">
-                {isAuth ? (
-                  <button
-                    onClick={toggleUserMenu}
-                    className="flex text-sm bg-gray-800 rounded-full focus:ring-4 focus:ring-gray-300 dark:focus:ring-gray-600"
-                    aria-expanded={isUserMenuOpen}
-                    aria-label="User menu"
-                  >
-                    <img className="w-8 h-8 rounded-full" src="https://flowbite.com/docs/images/people/profile-picture-5.jpg" alt="User avatar" />
-                  </button>
-                ) : (
-                  <button 
-                    onClick={handleOpen}
-                    className="px-4 py-2 text-white bg-blue-500 hover:bg-blue-600 rounded-xl transition-colors"
-                  >
-                    Login
-                  </button>
-                )}
-
-                <div className={`fixed right-0 top-10 z-50 ${isUserMenuOpen ? '' : 'hidden'} my-4 text-base list-none bg-white divide-y divide-gray-100 rounded shadow dark:bg-gray-700 dark:divide-gray-600`} id="dropdown-user">
-                  <div className="px-4 py-3">
-                    <p className="text-sm text-gray-900 dark:text-white">Admin</p>
-                    <p className="text-sm font-medium text-gray-900 truncate dark:text-gray-300">Switch to user</p>
-                  </div>
-                  <ul className="py-1">
-                    <li>
-                      <Link to="/dashboard" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-600 dark:hover:text-white">Dashboard</Link>
-                    </li>
-                    <li>
-                      <Link to="/settings" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-600 dark:hover:text-white">Settings</Link>
-                    </li>
-                    <li>
-                      <Link to="/earnings" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-600 dark:hover:text-white">Earnings</Link>
-                    </li>
-                    <li>
-                      <button className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-600 dark:hover:text-white">Sign out</button>
-                    </li>
-                  </ul>
-                </div>
-              </div>
-            </div>
+            <Authentication />
           </div>
         </div>
       </nav>
 
-      <AuthenticationModal isLogin={true} isOpen={isOpen} onClose={handleClose} />
     </>
   )
 }
