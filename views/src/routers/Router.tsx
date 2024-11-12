@@ -9,6 +9,7 @@ import CreatorLandingPage from '../pages/creator/ladingPage/CreatorLandingPage'
 import NotFoundPage from '../pages/errorPage/NotFoundPage'
 import NotAccessPage from '../pages/errorPage/NotAccessPage'
 import ProfilePage from '../pages/main/profile/ProfilePage'
+import VideoEditor from '../components/creator/videoEditor/VideoEditor'
 
 const Router = () => {
     const isAdmin = true; // Replace with your actual admin check logic
@@ -30,6 +31,7 @@ const Router = () => {
 
                 <Route path='/creator/*' element={<CreatorLayout />} >
                     <Route path='' element={<CreatorLandingPage />} />
+                    <Route path='video-editor' element={<VideoEditor />} />
                 </Route>
 
                 <Route element={<MainLayout />} >
