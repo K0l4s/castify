@@ -16,7 +16,6 @@ import { RootState } from '../redux/store'
 import VertifyPage from '../pages/main/vertifyPage/VertifyPage'
 
 const Router = () => {
-    // const isAdmin = true; // Replace with your actual admin check logic
     const isAdmin = useSelector((state: RootState) => state.auth.user?.role === Role.A);
     return (
         <div className='bg-gray-200 dark:bg-gray-900'>

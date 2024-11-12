@@ -21,7 +21,7 @@ const LandingPage = () => {
       <div className="grid grid-cols-1 grid-rows-1 gap-10">
         <Podcast
           videoSrc="http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerFun.mp4"
-          avatarSrc="/path/to/avatar.png"
+          avatarSrc=""
           title="Ngày hôm ấy - Phần 1"
           author="Huỳnh Trung Kiên"
           voteCount={55}
@@ -34,7 +34,7 @@ const LandingPage = () => {
         />
         <Podcast
           videoSrc={videodemo}
-          avatarSrc="/path/to/avatar.png"
+          avatarSrc=""
           title="Ngày hôm ấy - Phần 1"
           author="Huỳnh Trung Kiên"
           voteCount={55}
