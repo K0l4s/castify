@@ -13,6 +13,7 @@ import VideoEditor from '../components/creator/videoEditor/VideoEditor'
 import { useSelector } from 'react-redux'
 import { Role } from '../constants/Role'
 import { RootState } from '../redux/store'
+import VertifyPage from '../pages/main/vertifyPage/VertifyPage'
 
 const Router = () => {
     // const isAdmin = true; // Replace with your actual admin check logic
@@ -25,6 +26,7 @@ const Router = () => {
                     <Route path='/register' element={<LandingPage />} />
                     <Route path='/forgot-password' element={<LandingPage />} />
                     <Route path='/reset-password' element={<LandingPage />} />
+                    <Route path='/vertify' element={<VertifyPage />} />
                 </Route>
 
                 <Route path="/admin/*" element={isAdmin ? <AdminLayout /> : <NotAccessPage />}>

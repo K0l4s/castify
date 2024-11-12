@@ -1,3 +1,6 @@
+import { useToast } from "../../../context/ToastProvider";
+import { userRegister } from "../../../models/User";
+import { authenticateApi } from "../../../services/AuthenticateService";
 import CustomModal from "../../UI/custom/CustomModal";
 import { useState } from "react";
 
@@ -7,33 +10,33 @@ interface DefaultModalProps {
   onClose: () => void;
 }
 
-interface RegisterFormData {
-  lastName: string;
-  middleName: string;
-  firstName: string;
-  birthday: string;
-  phone: string;
-  nickName: string;
-  email: string;
-  repeatEmail: string;
-  password: string;
-  repeatPass: string;
-  address: string;
-}
+// interface RegisterFormData {
+//   lastName: string;
+//   middleName: string;
+//   firstName: string;
+//   birthday: string;
+//   phone: string;
+//   nickName: string;
+//   email: string;
+//   repeatEmail: string;
+//   password: string;
+//   repeatPass: string;
+//   address: string;
+// }
 
 const RegisterModal = (props: DefaultModalProps) => {
-  const [formData, setFormData] = useState<RegisterFormData>({
+  const [formData, setFormData] = useState<userRegister>({
     lastName: '',
     middleName: '',
     firstName: '',
-    birthday: '',
-    phone: '',
-    nickName: '',
     email: '',
     repeatEmail: '',
+    username: '',
     password: '',
-    repeatPass: '',
-    address: ''
+    confirmPassword: '',
+    birthday: new Date(),
+    address: '',
+    phone: ''
   });
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -43,16 +46,27 @@ const RegisterModal = (props: DefaultModalProps) => {
       [name]: value
     }));
   };
-
+  const toast = useToast();
+  // const navigate = useNavigate();
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (formData.email !== formData.repeatEmail) {
       return;
     }
-    if (formData.password !== formData.repeatPass) {
+    if (formData.password !== formData.confirmPassword) {
       return;
     }
     try {
+      await authenticateApi.register(formData).then(res => {
+        console.log(res);
+        toast.success(res.data.message);
+        props.onClose();
+        // new window
+        window.open('/login', '_blank');
+      }).catch(err => {
+        console.log(err);
+        toast.error(err.response.data.message);
+      });
       // API call here
     } catch (error) {
       // Handle error
@@ -124,7 +138,7 @@ const RegisterModal = (props: DefaultModalProps) => {
                 type="date"
                 id="birthday"
                 name="birthday"
-                value={formData.birthday}
+                value={formData.birthday.toISOString().split('T')[0]}
                 onChange={handleInputChange}
                 className={inputClasses}
                 required
@@ -147,8 +161,8 @@ const RegisterModal = (props: DefaultModalProps) => {
               <input
                 type="text"
                 id="nickName"
-                name="nickName"
-                value={formData.nickName}
+                name="username"
+                value={formData.username}
                 onChange={handleInputChange}
                 className={inputClasses}
               />
@@ -197,12 +211,12 @@ const RegisterModal = (props: DefaultModalProps) => {
               />
             </div>
             <div>
-              <label htmlFor="repeatPass" className={labelClasses}>Confirm Password</label>
+              <label htmlFor="confirmPassword" className={labelClasses}>Confirm Password</label>
               <input
                 type="password"
-                id="repeatPass"
-                name="repeatPass"
-                value={formData.repeatPass}
+                id="confirmPassword"
+                name="confirmPassword"
+                value={formData.confirmPassword}
                 onChange={handleInputChange}
                 className={inputClasses}
                 required

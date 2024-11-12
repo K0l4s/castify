@@ -9,6 +9,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -26,6 +28,7 @@ import com.castify.backend.repository.TokenRepository;
 @RequiredArgsConstructor
 public class AuthenticationService implements IAuthenticationService {
 
+    private static final Logger log = LoggerFactory.getLogger(AuthenticationService.class);
     //    private final UserRepository repository;
 //    private final TokenRepository tokenRepository;
 //    private final PasswordEncoder passwordEncoder;
@@ -81,6 +84,10 @@ public class AuthenticationService implements IAuthenticationService {
 
     @Override
     public RegisterResponse register(RegisterRequest request) throws Exception {
+        if(!request.getEmail().equals(request.getRepeatEmail()))
+            throw new RuntimeException("Email and repeat email not match!");
+        if(!request.getPassword().equals(request.getConfirmPassword()))
+            throw new RuntimeException("Password and confirm password not match!");
         if (userRepository.existsByEmailOrUsername(request.getEmail(), request.getUsername()))
             throw new RuntimeException("User with email " + request.getEmail() + " or nick name " + request.getEmail() + " already exists.");
 
@@ -92,8 +99,8 @@ public class AuthenticationService implements IAuthenticationService {
 
 
         var savedUser = repository.save(user);
-        String validToken = jwtService.generateValidToken(user);
-        saveUserToken(user, validToken, TokenType.VALID);
+        String validToken = jwtService.generateValidToken(request.getUsername());
+        saveUserToken(savedUser, validToken, TokenType.VALID);
         emailService.sendVerificationMail(user.getEmail(), validToken);
         return RegisterResponse.builder().firstName(savedUser.getFirstName()).lastName(savedUser.getLastName()).middleName(savedUser.getMiddleName()).email(savedUser.getEmail()).build();
     }
@@ -109,7 +116,7 @@ public class AuthenticationService implements IAuthenticationService {
         validToken = authHeader.substring(7);
         userEmail = jwtService.extractUsername(validToken);
         if (userEmail == null) {
-            throw new IOException("Not found user");
+            throw new IOException("Not found user"+validToken);
         }
         var user = this.repository.findByEmailOrUsername(userEmail).orElseThrow();
         if (!jwtService.isTokenValid(validToken, user)) {

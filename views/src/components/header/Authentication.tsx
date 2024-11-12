@@ -7,12 +7,13 @@ import { RootState } from "../../redux/store";
 import Cookies from "js-cookie";
 import { Link } from "react-router-dom";
 import AuthenticationModal from "../modals/authentication/AuthenticationModal";
-import { useEffect, useState } from "react";
+import { useState } from "react";
+import ThemeModeSwitch from "../UI/custom/ThemeModeSwitch";
 
 const Authentication = () => {
     const [isOpen, setIsOpen] = useState(false);
     const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
-    const [mode, setMode] = useState(localStorage.getItem('theme') || 'light');
+    // const [mode, setMode] = useState(localStorage.getItem('theme') || 'light');
 
     const toast = useToast();
     const dispatch = useDispatch();
@@ -38,23 +39,6 @@ const Authentication = () => {
     const user = useSelector((state: RootState) => state.auth.user);
     // console.log(user);
 
-    const toggleTheme = () => {
-        if (mode === 'light') {
-            setMode('dark');
-        } else {
-            setMode('light');
-        }
-        localStorage.setItem('theme', mode);
-        // document.documentElement.classList.toggle('dark', mode === 'dark');
-        console.log(mode)
-    }
-    useEffect(() => {
-        if (mode === 'dark') {
-            document.documentElement.classList.add('dark');
-        } else {
-            document.documentElement.classList.remove('dark');
-        }
-    }, [mode]);
 
 
     return <div className="flex items-center">
@@ -94,9 +78,10 @@ const Authentication = () => {
                     </li>
                     {/* thememode */}
                     <li>
-                        <button onClick={toggleTheme} className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-600 dark:hover:text-white">
-                            {mode === 'light' ? 'Dark Mode' : 'Light Mode'}
-                        </button>
+                        <div className="flex items-center justify-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-600 dark:hover:text-white">
+                            <ThemeModeSwitch />
+                        </div>
+
                     </li>
                     <li>
                         <button onClick={handleLogout} className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-600 dark:hover:text-white">Sign out</button>

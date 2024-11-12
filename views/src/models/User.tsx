@@ -37,17 +37,28 @@ export interface userLogin {
 }
 
 export interface userRegister {
-    firstName: string,
-    middleName: string,
+    // firstName: string,
+    // middleName: string,
+    // lastName: string,
+    // email: string,
+    // repeatEmail: string,
+    // password: string,
+    // repeatPass: string,
+    // birthday: Date,
+    // address: string,
+    // phone: string,
+    // nickName: string,
     lastName: string,
-    email: string,
-    repeatEmail: string,
-    password: string,
-    repeatPass: string,
-    birthday: Date,
-    address: string,
-    phone: string,
-    nickName: string,
+    middleName:string,
+    firstName:string,
+    email:string,
+    repeatEmail:string,
+    username:string,
+    password:string,
+    confirmPassword:string,
+    birthday:Date,
+    address:string,
+    phone:string
 }
 export interface userConfirm {
     email: string;
