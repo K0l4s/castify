@@ -9,6 +9,7 @@ export default {
     extend: {
       zIndex: {
         '100': '100',
+        '200': '200',
       },
     },
   },

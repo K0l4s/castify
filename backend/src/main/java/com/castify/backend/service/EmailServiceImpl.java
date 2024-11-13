@@ -48,7 +48,7 @@ public class EmailServiceImpl implements IEmailService {
         String subject = "Blankcil Verification";
 
         // use the Frontend domain when click on button in email body
-        String verificationUrl = frontendDomain + "/verify?token=" + tokenValid;
+        String verificationUrl = frontendDomain + "/vertify?token=" + tokenValid;
 
         Context context = new Context();
         context.setVariable("verificationUrl", verificationUrl);

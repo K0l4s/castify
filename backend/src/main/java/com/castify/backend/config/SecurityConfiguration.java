@@ -16,6 +16,9 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import static com.castify.backend.enums.Permission.ADMIN_CREATE;
 import static com.castify.backend.enums.Permission.ADMIN_DELETE;
 import static com.castify.backend.enums.Permission.ADMIN_READ;
@@ -54,7 +57,7 @@ public class SecurityConfiguration {
             "/api/v1/user",
             "/api/v1/user/*",
             "/api/v1/user/search",
-            "/ws/**"
+            "/ws/**",
 
     };
     private final JwtAuthenticationFilter jwtAuthFilter;
@@ -97,8 +100,12 @@ public class SecurityConfiguration {
     }
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
+        List patterns = new ArrayList<>();
+        patterns.add("http://localhost:3000");
+        patterns.add("https://castifyapp.vercel.app/");
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.addAllowedOriginPattern("http://localhost:3000");
+//        configuration.addAllowedOriginPattern("http://localhost:3000");
+        configuration.setAllowedOriginPatterns(patterns);
         configuration.addAllowedMethod("*");
         configuration.addAllowedHeader("*");
         configuration.setAllowCredentials(true);

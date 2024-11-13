@@ -36,10 +36,8 @@ public class JwtServiceImpl implements IJwtService{
         final Claims claims = extractAllClaims(token);
         return claimsResolver.apply(claims);
     }
-    @Override
-    public String generateValidToken(UserDetails userDetails) {
-        return buildToken(new HashMap<>(),userDetails,validExpiration);
-    }
+
+
     @Override
     public String generateToken(UserDetails userDetails) {
         return generateToken(new HashMap<>(), userDetails);
@@ -52,10 +50,40 @@ public class JwtServiceImpl implements IJwtService{
         return buildToken(extraClaims, userDetails, jwtExpiration);
     }
     @Override
+    public String generateValidToken(String username) {
+        return generateValidToken(new HashMap<>(), username);
+    }
+    @Override
+    public String generateValidToken(
+            Map<String, Object> extraClaims,
+            String username
+    ) {
+        return buildValidToken(extraClaims, username, validExpiration);
+    }
+    @Override
     public String generateRefreshToken(
             UserDetails userDetails
     ) {
         return buildToken(new HashMap<>(), userDetails, refreshExpiration);
+    }
+    private String buildValidToken(
+            Map<String, Object> extraClaims,
+            String username,
+            long expiration
+    ) {
+        if(username == null || username.isEmpty())
+            throw new RuntimeException("sdfg");
+
+        // Thêm "sub" vào extraClaims
+        extraClaims.put("sub", username);
+
+        return Jwts
+                .builder()
+                .setClaims(extraClaims)
+                .setIssuedAt(new Date(System.currentTimeMillis()))
+                .setExpiration(new Date(System.currentTimeMillis() + expiration))
+                .signWith(getSignInKey(), SignatureAlgorithm.HS256)
+                .compact();
     }
 
     private String buildToken(

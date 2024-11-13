@@ -7,13 +7,21 @@ import java.util.Map;
 public interface IJwtService {
     String extractUsername(String token);
 
-    String generateValidToken(UserDetails userDetails);
+
 
     String generateToken(UserDetails userDetails);
 
     String generateToken(
             Map<String, Object> extraClaims,
             UserDetails userDetails
+    );
+
+
+    String generateValidToken(String username);
+
+    String generateValidToken(
+            Map<String, Object> extraClaims,
+            String username
     );
 
     String generateRefreshToken(
