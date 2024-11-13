@@ -10,21 +10,8 @@ interface DefaultModalProps {
   onClose: () => void;
 }
 
-// interface RegisterFormData {
-//   lastName: string;
-//   middleName: string;
-//   firstName: string;
-//   birthday: string;
-//   phone: string;
-//   nickName: string;
-//   email: string;
-//   repeatEmail: string;
-//   password: string;
-//   repeatPass: string;
-//   address: string;
-// }
-
 const RegisterModal = (props: DefaultModalProps) => {
+  const [step, setStep] = useState(1);
   const [formData, setFormData] = useState<userRegister>({
     lastName: '',
     middleName: '',
@@ -34,7 +21,7 @@ const RegisterModal = (props: DefaultModalProps) => {
     username: '',
     password: '',
     confirmPassword: '',
-    birthday: new Date(),
+    birthday: new Date(), // Changed from new Date() to empty string
     address: '',
     phone: ''
   });
@@ -46,28 +33,43 @@ const RegisterModal = (props: DefaultModalProps) => {
       [name]: value
     }));
   };
+
   const toast = useToast();
-  // const navigate = useNavigate();
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+
+  const validateStep1 = () => {
     if (formData.email !== formData.repeatEmail) {
-      return;
+      toast.error("Emails do not match");
+      return false;
     }
     if (formData.password !== formData.confirmPassword) {
-      return;
+      toast.error("Passwords do not match");
+      return false;
     }
+    return true;
+  };
+
+  const handleNext = () => {
+    if (validateStep1()) {
+      setStep(2);
+    }
+  };
+
+  const handleReturn = () => {
+    setStep(1);
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
     try {
       await authenticateApi.register(formData).then(res => {
         console.log(res);
         toast.success(res.data.message);
         props.onClose();
-        // new window
         window.open('/login', '_blank');
       }).catch(err => {
         console.log(err);
         toast.error(err.response.data.message);
       });
-      // API call here
     } catch (error) {
       // Handle error
     }
@@ -85,7 +87,7 @@ const RegisterModal = (props: DefaultModalProps) => {
   return (
     <CustomModal 
       animation="zoom" 
-      title="Create Account" 
+      title={step === 1 ? "Create Account - Step 1" : "Create Account - Step 2"} 
       isOpen={props.isOpen} 
       onClose={props.onClose} 
       size="lg"
@@ -93,157 +95,180 @@ const RegisterModal = (props: DefaultModalProps) => {
     >
       <div className="px-4 py-6">
         <form className="space-y-4" onSubmit={handleSubmit}>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div>
-              <label htmlFor="lastName" className={labelClasses}>Last Name</label>
-              <input
-                type="text"
-                id="lastName"
-                name="lastName"
-                value={formData.lastName}
-                onChange={handleInputChange}
-                className={inputClasses}
-                required
-              />
-            </div>
-            <div>
-              <label htmlFor="firstName" className={labelClasses}>First Name</label>
-              <input
-                type="text"
-                id="firstName"
-                name="firstName"
-                value={formData.firstName}
-                onChange={handleInputChange}
-                className={inputClasses}
-                required
-              />
-            </div>
-            <div>
-              <label htmlFor="middleName" className={labelClasses}>Middle Name</label>
-              <input
-                type="text"
-                id="middleName"
-                name="middleName"
-                value={formData.middleName}
-                onChange={handleInputChange}
-                className={inputClasses}
-              />
-            </div>
-          </div>
+          {step === 1 ? (
+            <>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label htmlFor="email" className={labelClasses}>Email</label>
+                  <input
+                    type="email"
+                    id="email"
+                    name="email"
+                    value={formData.email}
+                    onChange={handleInputChange}
+                    className={inputClasses}
+                    required
+                  />
+                </div>
+                <div>
+                  <label htmlFor="repeatEmail" className={labelClasses}>Confirm Email</label>
+                  <input
+                    type="email"
+                    id="repeatEmail"
+                    name="repeatEmail"
+                    value={formData.repeatEmail}
+                    onChange={handleInputChange}
+                    className={inputClasses}
+                    required
+                  />
+                </div>
+              </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div>
-              <label htmlFor="birthday" className={labelClasses}>Birthday</label>
-              <input
-                type="date"
-                id="birthday"
-                name="birthday"
-                value={formData.birthday.toISOString().split('T')[0]}
-                onChange={handleInputChange}
-                className={inputClasses}
-                required
-              />
-            </div>
-            <div>
-              <label htmlFor="phone" className={labelClasses}>Phone</label>
-              <input
-                type="tel"
-                id="phone"
-                name="phone"
-                value={formData.phone}
-                onChange={handleInputChange}
-                className={inputClasses}
-                required
-              />
-            </div>
-            <div>
-              <label htmlFor="nickName" className={labelClasses}>Nickname</label>
-              <input
-                type="text"
-                id="nickName"
-                name="username"
-                value={formData.username}
-                onChange={handleInputChange}
-                className={inputClasses}
-              />
-            </div>
-          </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label htmlFor="password" className={labelClasses}>Password</label>
+                  <input
+                    type="password"
+                    id="password"
+                    name="password"
+                    value={formData.password}
+                    onChange={handleInputChange}
+                    className={inputClasses}
+                    required
+                    minLength={8}
+                  />
+                </div>
+                <div>
+                  <label htmlFor="confirmPassword" className={labelClasses}>Confirm Password</label>
+                  <input
+                    type="password"
+                    id="confirmPassword"
+                    name="confirmPassword"
+                    value={formData.confirmPassword}
+                    onChange={handleInputChange}
+                    className={inputClasses}
+                    required
+                    minLength={8}
+                  />
+                </div>
+              </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <label htmlFor="email" className={labelClasses}>Email</label>
-              <input
-                type="email"
-                id="email"
-                name="email"
-                value={formData.email}
-                onChange={handleInputChange}
-                className={inputClasses}
-                required
-              />
-            </div>
-            <div>
-              <label htmlFor="repeatEmail" className={labelClasses}>Confirm Email</label>
-              <input
-                type="email"
-                id="repeatEmail"
-                name="repeatEmail"
-                value={formData.repeatEmail}
-                onChange={handleInputChange}
-                className={inputClasses}
-                required
-              />
-            </div>
-          </div>
+              <button
+                type="button"
+                onClick={handleNext}
+                className={`${buttonClasses} bg-indigo-600 hover:bg-indigo-700`}
+              >
+                Next
+              </button>
+            </>
+          ) : (
+            <>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div>
+                  <label htmlFor="lastName" className={labelClasses}>Last Name</label>
+                  <input
+                    type="text"
+                    id="lastName"
+                    name="lastName"
+                    value={formData.lastName}
+                    onChange={handleInputChange}
+                    className={inputClasses}
+                    required
+                  />
+                </div>
+                <div>
+                  <label htmlFor="firstName" className={labelClasses}>First Name</label>
+                  <input
+                    type="text"
+                    id="firstName"
+                    name="firstName"
+                    value={formData.firstName}
+                    onChange={handleInputChange}
+                    className={inputClasses}
+                    required
+                  />
+                </div>
+                <div>
+                  <label htmlFor="middleName" className={labelClasses}>Middle Name</label>
+                  <input
+                    type="text"
+                    id="middleName"
+                    name="middleName"
+                    value={formData.middleName}
+                    onChange={handleInputChange}
+                    className={inputClasses}
+                  />
+                </div>
+              </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <label htmlFor="password" className={labelClasses}>Password</label>
-              <input
-                type="password"
-                id="password"
-                name="password"
-                value={formData.password}
-                onChange={handleInputChange}
-                className={inputClasses}
-                required
-                minLength={8}
-              />
-            </div>
-            <div>
-              <label htmlFor="confirmPassword" className={labelClasses}>Confirm Password</label>
-              <input
-                type="password"
-                id="confirmPassword"
-                name="confirmPassword"
-                value={formData.confirmPassword}
-                onChange={handleInputChange}
-                className={inputClasses}
-                required
-                minLength={8}
-              />
-            </div>
-          </div>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div>
+                  <label htmlFor="birthday" className={labelClasses}>Birthday</label>
+                  <input
+                    type="date"
+                    id="birthday"
+                    name="birthday"
+                    value={formData.birthday instanceof Date ? formData.birthday.toISOString().split('T')[0] : formData.birthday}
+                    onChange={handleInputChange}
+                    className={inputClasses}
+                    required
+                  />
+                </div>
+                <div>
+                  <label htmlFor="phone" className={labelClasses}>Phone</label>
+                  <input
+                    type="tel"
+                    id="phone"
+                    name="phone"
+                    value={formData.phone}
+                    onChange={handleInputChange}
+                    className={inputClasses}
+                    required
+                  />
+                </div>
+                <div>
+                  <label htmlFor="nickName" className={labelClasses}>Nickname</label>
+                  <input
+                    type="text"
+                    id="nickName"
+                    name="username"
+                    value={formData.username}
+                    onChange={handleInputChange}
+                    className={inputClasses}
+                  />
+                </div>
+              </div>
 
-          <div>
-            <label htmlFor="address" className={labelClasses}>Address</label>
-            <input
-              type="text"
-              id="address"
-              name="address"
-              value={formData.address}
-              onChange={handleInputChange}
-              className={inputClasses}
-              required
-            />
-          </div>
+              <div>
+                <label htmlFor="address" className={labelClasses}>Address</label>
+                <input
+                  type="text"
+                  id="address"
+                  name="address"
+                  value={formData.address}
+                  onChange={handleInputChange}
+                  className={inputClasses}
+                  required
+                />
+              </div>
 
-          <button
-            type="submit"
-            className={`${buttonClasses} bg-indigo-600 hover:bg-indigo-700`}
-          >
-            Create Account
-          </button>
+              <div className="flex gap-4">
+                <button
+                  type="button"
+                  onClick={handleReturn}
+                  className={`${buttonClasses} bg-gray-600 hover:bg-gray-700`}
+                >
+                  Return
+                </button>
+                <button
+                  type="submit"
+                  className={`${buttonClasses} bg-indigo-600 hover:bg-indigo-700`}
+                >
+                  Create Account
+                </button>
+              </div>
+            </>
+          )}
 
           <div className="relative my-4">
             <div className="absolute inset-0 flex items-center">
