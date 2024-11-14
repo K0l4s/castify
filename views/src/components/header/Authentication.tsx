@@ -61,7 +61,7 @@ const Authentication = () => {
                 </button>
             )}
 
-            <div className={`fixed right-0 top-10 z-50 ${isUserMenuOpen ? '' : 'hidden'} my-4 text-base list-none bg-white divide-y divide-gray-100 rounded shadow dark:bg-gray-700 dark:divide-gray-600`} id="dropdown-user">
+            <div className={`fixed right-0 top-10 z-50 ${isUserMenuOpen && isAuth ? '' : 'hidden'} my-4 text-base list-none bg-white divide-y divide-gray-100 rounded shadow dark:bg-gray-700 dark:divide-gray-600`} id="dropdown-user">
                 <div className="px-4 py-3">
                     <p className="text-sm text-gray-900 dark:text-white">Admin</p>
                     <p className="text-sm font-medium text-gray-900 truncate dark:text-gray-300">Switch to user</p>
