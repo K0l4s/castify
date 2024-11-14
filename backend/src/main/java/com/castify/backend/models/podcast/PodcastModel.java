@@ -1,4 +1,4 @@
-package com.castify.backend.models;
+package com.castify.backend.models.podcast;
 
 import com.castify.backend.entity.CommentEntity;
 import com.castify.backend.entity.PodcastLikeEntity;
@@ -17,7 +17,6 @@ public class PodcastModel {
     private String id;
     private String title;
     private String content;
-    private String audioUrl;
     private String thumbnailUrl;
     private String videoUrl;
     private long views;
