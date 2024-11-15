@@ -11,5 +11,4 @@ public class CreatePodcastModel {
     private String title;
     private String content;
     private String thumbnailUrl;
-    private String videoUrl;
 }
