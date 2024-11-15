@@ -4,6 +4,7 @@ import com.castify.backend.models.podcast.CreatePodcastModel;
 import com.castify.backend.models.podcast.PodcastModel;
 import com.castify.backend.service.podcast.IPodcastService;
 import com.castify.backend.service.podcast.PodcastServiceImpl;
+import com.castify.backend.utils.FileUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
@@ -27,7 +28,8 @@ public class PodcastController {
 
     @PostMapping(value = "/create", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<?> createPodcast(
-            @RequestPart("data") CreatePodcastModel createPodcastModel,
+            @RequestPart("title") String title,
+            @RequestPart("content") String content,
             @RequestPart("video") MultipartFile videoFile) {
         try {
             // Validate file type
@@ -36,10 +38,15 @@ public class PodcastController {
                 throw new RuntimeException("Unsupported video format");
             }
 
+            // Format fileName
+            String formattedFileName = FileUtils.formatFileName(videoFile.getOriginalFilename());
+
             // Save video temporarily
-            Path videoPath = Paths.get(uploadDir, videoFile.getOriginalFilename());
+            Path videoPath = Paths.get(uploadDir, formattedFileName + ".mp4");
             Files.createDirectories(videoPath.getParent()); // Ensure directory exists
             videoFile.transferTo(videoPath.toFile());
+
+            CreatePodcastModel createPodcastModel = new CreatePodcastModel(title, content);
 
             // Call service and pass video file path
             PodcastModel podcastModel = podcastService.createPodcast(createPodcastModel, videoPath.toString());
