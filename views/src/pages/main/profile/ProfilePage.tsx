@@ -5,14 +5,11 @@ import { userService } from '../../../services/UserService';
 import { User } from '../../../models/User';
 import { Role } from '../../../constants/Role';
 import { useToast } from '../../../context/ToastProvider';
-import Cookie from 'js-cookie';
 import { useParams } from 'react-router-dom';
 import { RootState } from '../../../redux/store';
 import { useSelector } from 'react-redux';
 import NotAccessPage from '../../informationPage/NotAccessPage';
 import Loading from '../../../components/UI/custom/Loading';
-import NotFoundPage from '../../informationPage/NotFoundPage';
-import NotFoundInformation from '../../informationPage/NotFoundInformation';
 
 const ProfilePage: React.FC = () => {
   const  username  = useParams().username;
