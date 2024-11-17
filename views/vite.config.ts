@@ -5,7 +5,7 @@ import react from '@vitejs/plugin-react'
 export default defineConfig({
   plugins: [react()],
   server: {
-    host: true, // Mở server để truy cập từ các thiết bị trong cùng mạng LAN
+    // host: true, // Mở server để truy cập từ các thiết bị trong cùng mạng LAN
     port: 3000, // Thay đổi cổng nếu cần thiết
   },
 })
