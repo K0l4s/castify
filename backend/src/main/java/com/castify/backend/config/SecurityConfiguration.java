@@ -101,7 +101,7 @@ public class SecurityConfiguration {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         List patterns = new ArrayList<>();
-        patterns.add("http://localhost:3000");
+        patterns.add("http://localhost:5000");
         patterns.add("https://castifyapp.vercel.app/");
         CorsConfiguration configuration = new CorsConfiguration();
 //        configuration.addAllowedOriginPattern("http://localhost:3000");
