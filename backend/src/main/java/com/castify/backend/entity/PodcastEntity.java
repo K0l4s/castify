@@ -19,7 +19,6 @@ public class PodcastEntity {
     private String id;
     private String title;
     private String content;
-    private String audioUrl;
     private String thumbnailUrl;
     private String videoUrl;
     private long views;
