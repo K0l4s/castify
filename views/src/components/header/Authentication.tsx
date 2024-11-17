@@ -12,6 +12,7 @@ import ThemeModeSwitch from "../UI/custom/ThemeModeSwitch";
 import { RiUploadCloudLine } from "react-icons/ri";
 import { IoIosNotifications } from "react-icons/io";
 import Tooltip from "../UI/custom/Tooltip";
+import CustomButton from "../UI/custom/CustomButton";
 
 const Authentication = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -43,33 +44,31 @@ const Authentication = () => {
     dropdown?.classList.toggle("hidden");
   };
   const user = useSelector((state: RootState) => state.auth.user);
-  // console.log(user);
-
   return (
     <div>
       <div className="relative">
         {isAuth ? (
           <div className="flex items-center gap-4">
             <Tooltip text="Upload">
-              <button className="p-1 text-black dark:text-white rounded-full hover:bg-gray-300 dark:hover:bg-gray-600">
-                <RiUploadCloudLine size={32} />
+              <button className="p-2 text-gray-700 dark:text-gray-200 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                <RiUploadCloudLine className="w-6 h-6" />
               </button>
             </Tooltip>
 
             <Tooltip text="Notifications">
-              <button className="p-1 text-black dark:text-white rounded-full hover:bg-gray-300 dark:hover:bg-gray-600">
-                <IoIosNotifications size={32} />
+              <button className="p-2 text-gray-700 dark:text-gray-200 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                <IoIosNotifications className="w-6 h-6" />
               </button>
             </Tooltip>
 
             <button
               onClick={toggleUserMenu}
-              className="flex text-sm bg-gray-800 rounded-full focus:ring-4 focus:ring-gray-300 dark:focus:ring-gray-600"
+              className="flex text-sm rounded-full focus:ring-2 focus:ring-blue-500 focus:outline-none transition-transform duration-200 hover:scale-105"
               aria-expanded={isUserMenuOpen}
               aria-label="User menu"
             >
               <img
-                className="w-8 h-8 rounded-full"
+                className="w-10 h-10 rounded-full object-cover border-2 border-transparent hover:border-blue-500 transition-colors duration-200"
                 src={
                   user?.avatarUrl ||
                   "https://cdn-icons-png.flaticon.com/512/9203/9203764.png"
@@ -79,23 +78,32 @@ const Authentication = () => {
             </button>
           </div>
         ) : (
-          <button
-            onClick={handleOpen}
-            className="px-4 py-2 text-white bg-blue-500 hover:bg-blue-600 rounded-xl transition-colors"
-          >
-            Login
-          </button>
+          <div className="flex items-center gap-4">
+            <CustomButton
+              onClick={handleOpen}
+              rounded="full"
+              variant="danger"
+              isShining={true}
+            >
+              <span className="relative z-10 flex items-center justify-center gap-2">
+                <svg className="w-5 h-5 transition-transform group-hover:rotate-12" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1" />
+                </svg>
+                <p className="text-white font-semibold text-sm">Login</p>
+              </span>
+            </CustomButton>
+            <ThemeModeSwitch />
+          </div>
         )}
 
         <div
-          className={`fixed right-0 top-10 z-50 ${
-            isUserMenuOpen && isAuth ? "" : "hidden"
-          } my-4 text-base list-none bg-white divide-y divide-gray-100 rounded shadow dark:bg-gray-700 dark:divide-gray-600`}
+          className={`absolute right-0 top-12 z-50 ${isUserMenuOpen && isAuth ? "" : "hidden"
+            } w-64 mt-2 bg-white dark:bg-gray-800 rounded-xl shadow-lg ring-1 ring-black ring-opacity-5 divide-y divide-gray-100 dark:divide-gray-700 transform opacity-100 scale-100 transition-all duration-200`}
           id="dropdown-user"
         >
-          <div className="px-4 py-3">
-            <p className="text-sm text-gray-900 dark:text-white">Admin</p>
-            <p className="text-sm font-medium text-gray-900 truncate dark:text-gray-300">
+          <div className="px-4 py-3 space-y-1">
+            <p className="text-sm font-medium text-gray-900 dark:text-white">Admin</p>
+            <p className="text-xs text-gray-500 dark:text-gray-400">
               Switch to user
             </p>
           </div>
@@ -103,7 +111,7 @@ const Authentication = () => {
             <li>
               <Link
                 to="/profile"
-                className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-600 dark:hover:text-white"
+                className="flex items-center px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 dark:text-gray-300 dark:hover:bg-gray-700/50 transition-colors duration-200"
               >
                 Profile
               </Link>
@@ -111,22 +119,21 @@ const Authentication = () => {
             <li>
               <Link
                 to="/"
-                className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-600 dark:hover:text-white"
+                className="flex items-center px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 dark:text-gray-300 dark:hover:bg-gray-700/50 transition-colors duration-200"
               >
                 Settings
               </Link>
             </li>
-
-            {/* thememode */}
             <li>
-              <div className="flex items-center justify-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-600 dark:hover:text-white">
-                <ThemeModeSwitch />
+              <div className=" px-4 py-2.5">
+                <span className="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300">Theme
+                  <ThemeModeSwitch /></span>
               </div>
             </li>
             <li>
               <button
                 onClick={handleLogout}
-                className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-600 dark:hover:text-white"
+                className="w-full text-left px-4 py-2.5 text-sm text-red-600 hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-900/20 transition-colors duration-200"
               >
                 Sign out
               </button>

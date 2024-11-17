@@ -1,8 +1,11 @@
 import React from 'react';
-import { FaMapMarkerAlt, FaUserFriends } from 'react-icons/fa';
+import { FaEdit, FaMapMarkerAlt, FaUserFriends } from 'react-icons/fa';
 import { GiRank3, GiLaurelCrown } from 'react-icons/gi';
 import { BsStars } from 'react-icons/bs';
 import { User } from '../../../models/User';
+import { useParams } from 'react-router-dom';
+import { useSelector } from 'react-redux';
+import { RootState } from '../../../redux/store';
 
 interface ProfileMainContentProps {
     user: User;
@@ -28,24 +31,28 @@ const ProfileMainContent: React.FC<ProfileMainContentProps> = ({
     badgeBackground = "bg-yellow-500",
     badgePosition = { top: "-0.25rem", right: "-0.25rem" }
 }) => {
+    const username = useParams().username;
+    const currentUser = useSelector((state: RootState) => state.auth.user);
+    const isOwner = !username || currentUser?.username === username;
+    console.log(username);
     return (
         <div className="w-full">
             {/* Profile Header Section */}
-            <div className="bg-gray-900 rounded-lg shadow-xl overflow-hidden transform transition-all hover:scale-[1.01] duration-300">
+            <div className="bg-gray-900 rounded-lg shadow-xl overflow-hidden transform transition-all duration-300">
                 <div className="relative">
                     {/* Banner Image */}
                     <div className="w-full h-48 sm:h-56 md:h-64 bg-gray-800 relative overflow-hidden">
                         <div className="absolute inset-0 bg-gradient-to-r from-purple-900/30 to-blue-900/30 mix-blend-overlay"></div>
-                        <img 
-                            className="w-full h-full object-cover object-center transform hover:scale-105 transition-transform duration-700"
+                        <img
+                            className="w-full h-full object-cover object-center transform transition-transform duration-700"
                             src={user.coverUrl || "https://png.pngtree.com/thumb_back/fw800/background/20231005/pngtree-3d-illustration-captivating-podcast-experience-image_13529585.png"}
                             alt="Profile Banner"
                         />
                     </div>
 
                     {/* Profile Info Overlay */}
-                    <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-gray-900 via-gray-900/95 to-transparent h-32 sm:h-36 md:h-40"/>
-                    
+                    <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-gray-900 via-gray-900/95 to-transparent h-32 sm:h-36 md:h-40" />
+
                     {/* Profile Content */}
                     <div className="relative px-4 sm:px-6 md:px-8 pb-6 sm:pb-8">
                         {/* Profile Picture with Custom Frame */}
@@ -54,13 +61,13 @@ const ProfileMainContent: React.FC<ProfileMainContentProps> = ({
                                 {/* Animated Border Frame */}
                                 <div className={`absolute -inset-1 ${frameGradient} rounded-full animate-spin-slow opacity-75 blur-sm group-hover:opacity-100 transition duration-500`}></div>
                                 <div className={`w-28 h-28 sm:w-32 sm:h-32 md:w-36 md:h-36 rounded-full border-${frameBorderWidth} ${frameBorderColor} overflow-hidden relative transform transition-transform duration-300 group-hover:scale-105`}>
-                                    <img 
-                                        className="w-full h-full object-cover object-center transform transition-transform duration-500 group-hover:scale-110"
+                                    <img
+                                        className="w-full h-full object-cover object-center transform transition-transform duration-500 "
                                         src={user.avatarUrl || "https://flowbite.com/docs/images/people/profile-picture-5.jpg"}
                                         alt="Profile Picture"
                                     />
                                     {/* Customizable Badge */}
-                                    <div 
+                                    <div
                                         className={`absolute ${badgeBackground} p-1.5 sm:p-2 rounded-full shadow-lg transform transition-all duration-300 hover:scale-110 hover:rotate-12`}
                                         style={{
                                             top: badgePosition.top,
@@ -96,10 +103,18 @@ const ProfileMainContent: React.FC<ProfileMainContentProps> = ({
                                         <span>{user.address || "No address provided"}</span>
                                     </div>
                                 </div>
-                                <button className="flex items-center justify-center bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white px-6 sm:px-8 py-2 sm:py-2.5 rounded-full transition duration-300 transform hover:scale-105 hover:shadow-lg text-sm sm:text-base w-full sm:w-auto">
-                                    <FaUserFriends className="mr-2" />
-                                    Follow
-                                </button>
+                                {isOwner ? (
+                                    <button className="flex items-center justify-center bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white px-6 sm:px-8 py-2 sm:py-2.5 rounded-full transition duration-300 transform hover:scale-105 hover:shadow-lg text-sm sm:text-base w-full sm:w-auto">
+                                        <FaEdit className="mr-2" />
+                                        Edit Profile
+                                    </button>
+                                ) : (
+                                    <button className="flex items-center justify-center bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white px-6 sm:px-8 py-2 sm:py-2.5 rounded-full transition duration-300 transform hover:scale-105 hover:shadow-lg text-sm sm:text-base w-full sm:w-auto">
+                                        <FaUserFriends className="mr-2" />
+                                        Follow
+                                    </button>
+
+                                )}
                             </div>
 
                             {/* Stats with Badges */}
