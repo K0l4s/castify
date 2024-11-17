@@ -52,16 +52,18 @@ const LoginModal = ({ trigger, isOpen, onClose }: DefaultModalProps) => {
       Cookies.set('token', res.data.access_token, { 
         expires: 1,
         secure: true,
-        sameSite: 'strict'
+        sameSite: 'strict',
+        path: '/'
       });
       Cookies.set('refreshToken', res.data.refresh_token, { 
         expires: 7,
         secure: true,
-        sameSite: 'strict'
+        sameSite: 'strict',
+        path: '/'
       });
 
       // Fetch user information
-      const userRes = await userService.getUser(res.data.access_token);
+      const userRes = await userService.getUserByToken(res.data.access_token);
       const user: User = userRes.data;
       
       dispatch(login());

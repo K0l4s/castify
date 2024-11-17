@@ -10,6 +10,7 @@ export const axiosInstance = axios.create({
 });
 export const axiosInstanceAuth = axios.create({
     baseURL: BaseApi,
+    withCredentials: true,
     headers: {
         "Content-Type": "application/json",
         Authorization: "Bearer " + Cookie.get("token"),

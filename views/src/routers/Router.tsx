@@ -20,13 +20,13 @@ const Router = () => {
     return (
         <div className='bg-gray-200 dark:bg-gray-900'>
             <Routes>
-                <Route>
+                {/* <Route> */}
                     <Route path='/login' element={<LandingPage />} />
                     <Route path='/register' element={<LandingPage />} />
                     <Route path='/forgot-password' element={<LandingPage />} />
                     <Route path='/reset-password' element={<LandingPage />} />
                     <Route path='/vertify' element={<VertifyPage />} />
-                </Route>
+                {/* </Route> */}
 
                 <Route path="/admin/*" element={isAdmin ? <AdminLayout /> : <NotAccessPage />}>
                     <Route path='' element={<AdminLadingPage />} />

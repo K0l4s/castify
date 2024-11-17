@@ -1,14 +1,21 @@
-import { axiosInstance } from "../utils/axiosInstance";
+import { axiosInstance, axiosInstanceAuth } from "../utils/axiosInstance";
 
 export const userService = {
-    getUser: async (token:string) => {
-        return await axiosInstance.get(`/api/v1/user`,
-            {
+    getUserByToken: async (token:string) => {
+
+            return await axiosInstance.get(`/api/v1/user`,
+                {
                 headers: {
                     Authorization: `Bearer ${token}`
                 }
             }
         );
+    },
+    getUserDetails: async (username?:string) => {
+        if(username)
+            return await axiosInstance.get(`/api/v1/user?username=${username}`);
+        else
+            return await axiosInstanceAuth.get(`/api/v1/user`);
     },
     updateUser: async () => {
         // return await axiosInstance.put(`${BaseApi}api/v1/user`, user);
