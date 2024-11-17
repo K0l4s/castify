@@ -21,7 +21,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     
     if (token) {
       try {
-        const userRes = await userService.getUser(token);
+        const userRes = await userService.getUserByToken(token);
         const user: User = userRes.data;
         
         dispatch(login());
