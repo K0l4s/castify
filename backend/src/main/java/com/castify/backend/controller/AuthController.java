@@ -45,6 +45,37 @@ public class AuthController {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Error: " + e.getMessage());
         }
     }
+//@PostMapping("/authenticate")
+//public ResponseEntity<?> authenticate(
+//        @RequestBody AuthenticationRequest request,
+//        HttpServletResponse response
+//) {
+//    try {
+//        // Gọi service để thực hiện xác thực
+//        AuthenticationResponse authResponse = service.authenticate(request);
+//
+//        // Tạo cookie
+//        Cookie cookie = new Cookie("authToken", authResponse.getAccessToken());
+//        cookie.setHttpOnly(true); // Chỉ truy cập cookie từ phía server
+//        cookie.setSecure(true); // Sử dụng cho HTTPS
+//        cookie.setPath("/"); // Có hiệu lực trên toàn bộ ứng dụng
+//        cookie.setMaxAge( 24 * 60 * 60); // Cookie tồn tại trong 1 ngày
+//
+//        // Thêm cookie vào response
+//        response.addCookie(cookie);
+//        Cookie refeshTokenCookie = new Cookie("refreshAuthToken", authResponse.getRefreshToken());
+//        refeshTokenCookie.setHttpOnly(true);
+//        refeshTokenCookie.setSecure(true);
+//        refeshTokenCookie.setPath("/");
+//        refeshTokenCookie.setMaxAge( 7*24 * 60 * 60);
+//        response.addCookie(cookie);
+//
+//        return ResponseEntity.ok(authResponse);
+//    } catch (Exception e) {
+//        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Error: " + e.getMessage());
+//    }
+//}
+
     @PostMapping("/vetify-email")
     public ResponseEntity<?> confirm(
             HttpServletRequest request,

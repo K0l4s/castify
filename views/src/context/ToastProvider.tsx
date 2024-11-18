@@ -16,6 +16,7 @@ interface ToastContextType {
   loading: (message: string) => string;
   removeToast: (id: string) => void;
   closeLoadingToast: (id: string) => void;
+  clearAllToasts: () => void;
 }
 
 const ToastContext = createContext<ToastContextType | undefined>(undefined);
@@ -72,6 +73,10 @@ const ToastProvider: React.FC<{ children: React.ReactNode }> = ({ children }) =>
     setToasts((prevToasts) => prevToasts.filter((toast) => toast.id !== id));
   }, []);
 
+  const clearAllToasts = useCallback(() => {
+    setToasts([]);
+  }, []);
+
   const getToastIcon = (type: Toast['type']) => {
     switch (type) {
       case 'success':
@@ -108,19 +113,20 @@ const ToastProvider: React.FC<{ children: React.ReactNode }> = ({ children }) =>
   };
 
   return (
-    <ToastContext.Provider value={{ success, error, info, warning, loading, removeToast, closeLoadingToast }}>
+    <ToastContext.Provider value={{ success, error, info, warning, loading, removeToast, closeLoadingToast, clearAllToasts }}>
       {children}
       <div className="fixed bottom-4 right-4 flex flex-col space-y-2 z-[999999]">
+       
         {toasts.map((toast) => (
           <div
             key={toast.id}
-            className={`px-4 py-2 rounded shadow-lg animate-fade-in-out ${
-              toast.type === 'success' ? 'bg-green-500' : 
-              toast.type === 'error' ? 'bg-red-500' : 
-              toast.type === 'warning' ? 'bg-yellow-500' :
-              toast.type === 'loading' ? 'bg-gray-500' :
-              'bg-blue-500'
-            } text-white relative`}
+            className={`min-w-[150px] px-4 py-2 rounded shadow-lg animate-line bg-white dark:bg-black ${
+              toast.type === 'success' ? ' text-green-500' :
+              toast.type === 'error' ? ' text-red-500' :
+              toast.type === 'warning' ? ' text-yellow-500' :
+              toast.type === 'loading' ? ' text-gray-500' :
+              ' text-blue-500'
+            } relative`}
           >
             <div className="flex items-center">
               {getToastIcon(toast.type)}
@@ -129,13 +135,39 @@ const ToastProvider: React.FC<{ children: React.ReactNode }> = ({ children }) =>
             {toast.type !== 'loading' && (
               <button
                 onClick={() => removeToast(toast.id)}
-                className="absolute top-0 right-0 p-1 text-white hover:text-gray-300"
+                className="absolute top-0 right-0 p-1 hover:text-gray-300"
               >
                 &times;
               </button>
             )}
           </div>
         ))}
+         {toasts.length > 1 && (
+          <button
+            onClick={clearAllToasts}
+            className="self-end mb-2 px-3 py-1.5 bg-gray-500 hover:bg-gray-600 dark:bg-gray-700 dark:hover:bg-gray-800 text-white rounded-lg shadow-md transition-all duration-200 flex items-center gap-2 text-sm font-medium"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+            </svg>
+            Clear All
+          </button>
+        )}
+        <style>{`
+          @keyframes line {
+            0% { width: 100%; }
+            100% { width: 0%; }
+          }
+          .animate-line::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            right: 0;
+            height: 2px;
+            background-color: currentColor;
+            animation: line 3s linear forwards;
+          }
+        `}</style>
       </div>
     </ToastContext.Provider>
   );

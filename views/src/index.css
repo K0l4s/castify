@@ -12,6 +12,7 @@
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -19,19 +20,37 @@
 /* In your global CSS (or Tailwind's configuration file), define custom grid template */
 @layer utilities {
   .grid-rows-layout {
-    grid-template-rows: auto 1fr; /* Header at the top and the rest below */
+    grid-template-rows: auto 1fr;
+    /* Header at the top and the rest below */
   }
+
   .grid-cols-layout {
-    grid-template-columns: 200px 1fr; /* Sidebar takes 200px, the rest is for the main content */
+    grid-template-columns: 200px 1fr;
+    /* Sidebar takes 200px, the rest is for the main content */
   }
 }
 
 
 @keyframes fade-in-out {
-  0% { opacity: 0; transform: translateY(20px); }
-  10% { opacity: 1; transform: translateY(0); }
-  90% { opacity: 1; transform: translateY(0); }
-  100% { opacity: 0; transform: translateY(20px); }
+  0% {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+
+  10% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  90% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  100% {
+    opacity: 0;
+    transform: translateY(20px);
+  }
 }
 
 .animate-fade-in-out {
@@ -40,7 +59,9 @@
 
 
 @keyframes spin {
-  to { transform: rotate(360deg); }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 .animate-spin {
@@ -48,8 +69,15 @@
 }
 
 @keyframes bounce {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-10px); }
+
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+
+  50% {
+    transform: translateY(-10px);
+  }
 }
 
 .animate-bounce {
