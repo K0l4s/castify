@@ -1,79 +1,57 @@
-import { FC, memo } from 'react';
+import React from 'react';
+import { FaPlay, FaClock } from 'react-icons/fa';
 
 interface PodcastCardProps {
   title: string;
-  author: string;
+  user: {
+    avatar: string;
+    username: string;
+  };
   thumbnailUrl: string;
   duration: string;
-  description: string;
-  onClick?: () => void;
-  className?: string; // Added for more flexibility
-  viewCount?: number; // Added to show popularity
-  isNew?: boolean; // Added to highlight new content
 }
 
-const PodcastCard: FC<PodcastCardProps> = memo(({
+const PodcastCard: React.FC<PodcastCardProps> = ({
   title,
-  author,
+  user,
   thumbnailUrl,
   duration,
-  description,
-  onClick,
-  className = '',
-  viewCount,
-  isNew = false
 }) => {
   return (
-    <div 
-      className={`max-w-[200px] rounded-lg overflow-hidden shadow-lg bg-gray-800 hover:bg-gray-700/80 transition-all duration-200 cursor-pointer transform hover:scale-[1.02] focus:outline-none focus:ring-2 focus:ring-indigo-500/50 ${className}`}
-      onClick={onClick}
-      role="button"
-      tabIndex={0}
-      onKeyDown={(e) => {
-        if (e.key === 'Enter' || e.key === ' ') {
-          onClick?.();
-        }
-      }}
-      aria-label={`Podcast: ${title} by ${author}`}
-    >
-      <div className="relative aspect-[9/13] group">
-        {isNew && (
-          <span className="absolute top-2 left-2 bg-indigo-500 text-white px-2 py-1 text-xs rounded-full font-medium z-10">
-            New
-          </span>
-        )}
-        <img 
-          className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105" 
-          src={thumbnailUrl} 
-          alt={`${title} podcast thumbnail`}
-          loading="lazy"
-        />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
-        <span className="absolute bottom-2 right-2 bg-black/80 text-white px-2 py-1 text-xs rounded-full font-medium">
-          {duration}
-        </span>
+    <div className="bg-transparent rounded-xl shadow-lg overflow-hidden transform hover:scale-105 transition-all duration-300">
+      {/* Thumbnail Container */}
+      <div className="relative group">
+        <div className="w-full pb-[56.25%] relative"> {/* 16:9 aspect ratio */}
+          <img
+            src={thumbnailUrl}
+            alt={title}
+            className="absolute top-0 left-0 w-full h-full object-cover"
+          />
+        </div>
+        <div className="absolute inset-0 bg-black bg-opacity-40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
+          <button className="bg-white dark:bg-gray-800 p-3 rounded-full transform hover:scale-110 transition-transform duration-300">
+            <FaPlay className="text-blue-500 dark:text-blue-400" />
+          </button>
+        </div>
+        <div className="absolute bottom-2 right-2 bg-black bg-opacity-75 px-2 py-1 rounded-md flex items-center">
+          <FaClock className="text-white mr-1 text-sm" />
+          <span className="text-white text-sm">{duration}</span>
+        </div>
       </div>
-      
-      <div className="px-3 py-3">
-        <h3 className="font-bold text-sm text-white mb-1.5 line-clamp-2 group-hover:text-indigo-400 transition-colors">
+
+      {/* Content */}
+      <div className="p-4">
+        <h3 className="text-lg font-semibold text-gray-800 dark:text-white mb-1 line-clamp-1">
           {title}
         </h3>
-        <p className="text-gray-400 text-xs mb-1 hover:text-gray-300 transition-colors font-medium">
-          {author}
-        </p>
-        {viewCount !== undefined && (
-          <p className="text-gray-500 text-xs mb-2">
-            {new Intl.NumberFormat('en-US', { notation: 'compact' }).format(viewCount)} views
-          </p>
-        )}
-        <p className="text-gray-300 text-xs line-clamp-2 leading-relaxed opacity-90">
-          {description}
-        </p>
+        <div className=' flex items-center'>
+          <img src={user.avatar} alt={user.username} className='w-5 h-5 rounded-full mr-1' />
+          <span className='line-clamp-1 text-md text-gray-500 dark:text-gray-400'>{user.username}</span>
+        </div>
+
       </div>
     </div>
   );
-});
-
-PodcastCard.displayName = 'PodcastCard';
+};
 
 export default PodcastCard;

@@ -7,7 +7,7 @@ const MainLayout = () => {
     <>
       <MainHeader />
       <MainSidebar />
-      <div className="p-6 py-20 sm:ml-64 min-h-screen">
+      <div className="py-2 sm:ml-52 min-h-screen">
         <Outlet />
       </div>
     </>

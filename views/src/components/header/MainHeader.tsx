@@ -35,7 +35,7 @@ const MainHeader = () => {
               </button>
               <Link to="/" className="flex items-center ms-2 md:me-24">
                 <img src={logo} className="h-8 me-3" alt="Castify Logo" />
-                <span className="self-center text-xl font-semibold sm:text-2xl whitespace-nowrap text-black dark:text-white">Castify</span>
+                <span className="self-center text-xl font-semibold sm:text-2xl whitespace-nowrap text-black dark:text-white">Blankcil</span>
               </Link>
             </div>
             <MainSearchBar />

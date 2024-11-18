@@ -38,11 +38,11 @@ const CustomButton = ({
 }: ButtonProps) => {
   const getVariantClasses = () => {
     const variants = {
-      primary: 'bg-blue-600 text-white hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 shadow-md hover:shadow-lg',
-      secondary: 'bg-gray-600 text-white hover:bg-gray-700 dark:bg-gray-500 dark:hover:bg-gray-600 shadow-md hover:shadow-lg',
-      danger: 'bg-red-600 text-white hover:bg-red-700 dark:bg-red-500 dark:hover:bg-red-600 shadow-md hover:shadow-lg',
-      outline: 'border-2 border-blue-600 text-blue-600 hover:bg-blue-50 dark:border-blue-400 dark:text-blue-400 dark:hover:bg-blue-900/20',
-      ghost: 'text-blue-600 hover:bg-blue-50 dark:text-blue-400 dark:hover:bg-blue-900/20'
+      primary: 'bg-blue-600 hover:bg-blue-700 text-white dark:bg-blue-500 dark:hover:bg-blue-600 dark:text-white shadow-md hover:shadow-lg',
+      secondary: 'bg-gray-200 hover:bg-gray-300 text-gray-800 dark:bg-gray-700 dark:hover:bg-gray-600 dark:text-gray-200 shadow-md hover:shadow-lg',
+      danger: 'bg-red-600 hover:bg-red-700 text-white dark:bg-red-500 dark:hover:bg-red-600 dark:text-white shadow-md hover:shadow-lg',
+      outline: 'border-2 border-gray-600 text-gray-600 hover:bg-gray-100 dark:border-gray-400 dark:text-gray-300 dark:hover:bg-gray-800',
+      ghost: 'text-gray-600 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-800'
     };
     return variants[variant] || variants.primary;
   };
@@ -82,7 +82,7 @@ const CustomButton = ({
     inline-flex items-center justify-center
     font-medium transition-all duration-200
     focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500
-    dark:focus:ring-offset-gray-800
+    dark:focus:ring-offset-gray-900 dark:focus:ring-blue-400
     ${getVariantClasses()}
     ${getSizeClasses()}
     ${getRoundedClasses()}
@@ -98,7 +98,7 @@ const CustomButton = ({
       type={type}
       onClick={onClick}
       disabled={disabled || loading}
-      className={`${baseClasses} ${disabled ? 'opacity-50 cursor-not-allowed' : ''} relative group overflow-hidden`}
+      className={`${baseClasses} ${disabled ? 'opacity-50 cursor-not-allowed dark:opacity-40' : ''} relative group overflow-hidden`}
     >
       <span className="relative z-10 flex items-center justify-center gap-2">
         {loading ? (
