@@ -1,3 +1,4 @@
+import { Link } from "react-router-dom";
 import { useToast } from "../../../context/ToastProvider";
 import { userRegister } from "../../../models/User";
 import { authenticateApi } from "../../../services/AuthenticateService";
@@ -50,7 +51,12 @@ const RegisterModal = (props: DefaultModalProps) => {
 
   const handleNext = () => {
     if (validateStep1()) {
-      setStep(2);
+      // check email, confirm email, password, confirm password is exist
+      if(formData.email && formData.repeatEmail && formData.password && formData.confirmPassword) {
+        setStep(2);
+      }else{
+        toast.error("Please fill all the fields");
+      }
     }
   };
 
@@ -86,12 +92,11 @@ const RegisterModal = (props: DefaultModalProps) => {
 
   return (
     <CustomModal 
-      animation="zoom" 
+      animation="zoom"  
       title={step === 1 ? "Create Account - Step 1" : "Create Account - Step 2"} 
       isOpen={props.isOpen} 
       onClose={props.onClose} 
       size="lg"
-      className="bg-gray-900"
     >
       <div className="px-4 py-6">
         <form className="space-y-4" onSubmit={handleSubmit}>
@@ -251,7 +256,9 @@ const RegisterModal = (props: DefaultModalProps) => {
                   required
                 />
               </div>
-
+              <p className="text-sm text-gray-500 dark:text-gray-400 text-center">
+                By creating an account, you agree to our <Link to="/terms" target="_blank" rel="noopener noreferrer" className="text-red-500 dark:text-red-500">Terms of Service</Link> and <Link to="/privacy" target="_blank" rel="noopener noreferrer" className="text-red-500 dark:text-red-500">Privacy Policy</Link>.
+              </p>
               <div className="flex gap-4">
                 <button
                   type="button"
@@ -275,7 +282,7 @@ const RegisterModal = (props: DefaultModalProps) => {
               <div className="w-full border-t border-gray-700"></div>
             </div>
             <div className="relative flex justify-center text-sm">
-              <span className="px-2 bg-gray-900 text-gray-500">or</span>
+              <span className="px-2 bg-white dark:bg-gray-900 text-gray-500">or</span>
             </div>
           </div>
 
