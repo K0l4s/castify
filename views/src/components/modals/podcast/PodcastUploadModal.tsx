@@ -1,6 +1,10 @@
 import React, { useEffect, useState } from "react";
 import CustomModal from "../../UI/custom/CustomModal";
 import { RiAiGenerate, RiUploadCloudLine } from "react-icons/ri";
+import { useToast } from "../../../context/ToastProvider";
+import { createPodcast } from "../../../services/PodcastService";
+import { validateFileType } from "../../../utils/FileValidation";
+import CustomButton from "../../UI/custom/CustomButton";
 
 interface PodcastUploadModalProps {
   isOpen: boolean;
@@ -16,6 +20,7 @@ const PodcastUploadModal: React.FC<PodcastUploadModalProps> = ({
   const [titleError, setTitleError] = useState("");
   const [descError, setDescError] = useState("");
 
+  const [videoFile, setVideoFile] = useState<File | null>(null);
   const [videoPreview, setVideoPreview] = useState<string | null>(null);
   const [videoFilename, setVideoFilename] = useState<string | null>(null);
   const [thumbnailPreview, setThumbnailPreview] = useState<string | null>(null);
@@ -25,6 +30,8 @@ const PodcastUploadModal: React.FC<PodcastUploadModalProps> = ({
   );
   const [selectedPlaylists, setSelectedPlaylists] = useState<number[]>([]);
   const [showPlaylistModal, setShowPlaylistModal] = useState(false);
+
+  const toast = useToast();
 
   // Mock API response
   useEffect(() => {
@@ -40,9 +47,20 @@ const PodcastUploadModal: React.FC<PodcastUploadModalProps> = ({
 
   const handleVideoChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
+
     if (file) {
+      const validExtensions = [".mp4", ".avi", ".mkv"];
+
+      if (!validateFileType(file, validExtensions)) {
+        toast.error(
+          "Invalid file type. Please select a .mp4, .avi, or .mkv file."
+        );
+        return;
+      }
+
       const videoUrl = URL.createObjectURL(file);
       setVideoPreview(videoUrl);
+      setVideoFile(file);
       setVideoFilename(file.name);
     }
   };
@@ -52,6 +70,15 @@ const PodcastUploadModal: React.FC<PodcastUploadModalProps> = ({
   ) => {
     const file = event.target.files?.[0];
     if (file) {
+      const validExtensions = [".jpg", ".jpeg", ".png", ".webp"];
+
+      if (!validateFileType(file, validExtensions)) {
+        toast.error(
+          "Invalid file type. Please select a .jpg, .jpeg, .png, or .webp file."
+        );
+        return;
+      }
+
       const thumbnailUrl = URL.createObjectURL(file);
       setThumbnailPreview(thumbnailUrl);
     }
@@ -85,6 +112,43 @@ const PodcastUploadModal: React.FC<PodcastUploadModalProps> = ({
     );
   };
 
+  const handleUpload = async () => {
+    if (!title || !videoFile) {
+      toast.error("Please fill in all required fields");
+      return;
+    }
+    const loadingToastId = toast.loading("Uploading podcast, please wait...");
+    onClose();
+
+    try {
+      const payload = {
+        title,
+        content: desc,
+        video: videoFile,
+      };
+      await createPodcast(payload);
+      toast.success("Podcast uploaded successfully!");
+      toast.closeLoadingToast(loadingToastId);
+      clearData();
+    } catch (error) {
+      console.error("Failed to upload podcast:", error);
+      toast.error("Failed to upload podcast. Please try again.");
+      toast.closeLoadingToast(loadingToastId);
+    }
+  };
+
+  const clearData = () => {
+    setTitle("");
+    setDesc("");
+    setTitleError("");
+    setDescError("");
+    setVideoFile(null);
+    setVideoPreview(null);
+    setVideoFilename(null);
+    setThumbnailPreview(null);
+    setSelectedPlaylists([]);
+  };
+
   return (
     <CustomModal
       isOpen={isOpen}
@@ -93,9 +157,10 @@ const PodcastUploadModal: React.FC<PodcastUploadModalProps> = ({
       size="xl"
       title="Upload Video"
       closeOnOutsideClick={false}
+      closeOnEsc={false}
     >
-      <div className="grid md:grid-cols-3 gap-4">
-        <div className="flex flex-col col-span-2">
+      <div className="grid md:grid-cols-3 gap-4 ">
+        <div className="flex flex-col md:col-span-2 col-span-3">
           {/* Title */}
           <label
             className={`mb-1 text-sm font-medium text-gray-700 dark:text-gray-300 ${
@@ -152,7 +217,7 @@ const PodcastUploadModal: React.FC<PodcastUploadModalProps> = ({
           </div>
         </div>
 
-        <div className="flex flex-col">
+        <div className="flex flex-col md:col-span-1 col-span-3">
           {videoPreview && (
             <div className="mb-4">
               <video src={videoPreview} controls className="w-full rounded" />
@@ -161,54 +226,67 @@ const PodcastUploadModal: React.FC<PodcastUploadModalProps> = ({
           {videoPreview && (
             <>
               <span className="text-gray-400">Filename</span>
-              <span className="text-sm text-black dark:text-white whitespace-nowrap overflow-hidden" title={`${videoFilename}`} >{videoFilename}</span>
+              <span
+                className="text-sm text-black dark:text-white whitespace-nowrap overflow-hidden"
+                title={`${videoFilename}`}
+              >
+                {videoFilename}
+              </span>
             </>
           )}
-          <label className="mt-4 w-full flex gap-2 items-center justify-center py-2 bg-white text-blue-500 rounded-lg shadow-lg 
-            uppercase border border-blue cursor-pointer hover:bg-blue-500 hover:text-white transition-colors">
-            <RiUploadCloudLine size={24} className="inline-block" />
-            <span className="text-base font-medium leading-normal">Choose Video</span>
-            <input
-              type="file"
-              accept="video/*"
-              onChange={handleVideoChange}
-              className="hidden"
-            />
-          </label>
-          
+          <CustomButton
+            className="mt-2 uppercase leading-normal font-medium text-blue-500 hover:dark:text-white bg-white hover:bg-blue-600 hover:dark:bg-blue-600 hover:text-white"
+            icon={<RiUploadCloudLine size={24} />}
+            text="Choose Video"
+            variant="outline"
+            onClick={() => document.getElementById("video-input")?.click()}
+          />
+          <input
+            id="video-input"
+            type="file"
+            accept="video/*"
+            onChange={handleVideoChange}
+            className="hidden"
+          />
         </div>
 
         {/* Thumbnail */}
         <div className="col-span-2">
-          <div className="flex flex-col md:w-2/3">
+          <div className="flex flex-col md:w-1/2">
             <label className="my-2 text-sm font-medium text-gray-700 dark:text-gray-300">
               Thumbnail
             </label>
             <div className="flex gap-4">
               {!thumbnailPreview && (
-                <label
-                  className="text-center text-sm text-black dark:text-white border-2 w-full py-4
-                  border-gray-400 border-dashed rounded cursor-pointer hover:bg-gray-300 hover:dark:bg-gray-600 transition-colors"
-                >
-                  <RiUploadCloudLine size={24} className="inline-block" /> Add
-                  <input
-                    type="file"
-                    accept="image/*"
-                    onChange={handleThumbnailChange}
-                    className="hidden"
-                  />
-                </label>
+                <CustomButton
+                  className="text-sm dark:text-white border-2 w-full py-4  border-dashed rounded hover:bg-gray-300 hover:dark:bg-gray-600"
+                  icon={
+                    <RiUploadCloudLine size={24} className="inline-block" />
+                  }
+                  text="Add"
+                  variant="outline"
+                  onClick={() =>
+                    document.getElementById("thumbnail-input")?.click()
+                  }
+                />
               )}
-                <label
-                  className="text-center text-sm text-black dark:text-white border-2 w-full py-4
-                  border-gray-400 border-dashed rounded cursor-pointer hover:bg-gray-300 hover:dark:bg-gray-600 transition-colors"
-                >
-                  <RiAiGenerate size={24} className="inline-block" /> Auto generate
-                </label>
+              <CustomButton
+                className="text-sm dark:text-white border-2 w-full py-4  border-dashed rounded hover:bg-gray-300 hover:dark:bg-gray-600"
+                icon={<RiAiGenerate size={24} className="inline-block" />}
+                text="Auto generate"
+                variant="outline"
+              />
+              <input
+                id="thumbnail-input"
+                type="file"
+                accept="image/*"
+                onChange={handleThumbnailChange}
+                className="hidden"
+              />
             </div>
-            
+
             {thumbnailPreview && (
-              <div className="mt-2 relative mb-4 group object-cover w-full">
+              <div className="mt-2 p-1 relative mb-4 group object-cover w-full border-2 border-dashed border-gray-400">
                 <img
                   src={thumbnailPreview}
                   alt="Thumbnail Preview"
@@ -237,14 +315,14 @@ const PodcastUploadModal: React.FC<PodcastUploadModalProps> = ({
             <label className="mb-2 text-sm font-medium text-gray-700 dark:text-gray-300">
               Playlist
             </label>
-            <button
+            <CustomButton
               onClick={() => setShowPlaylistModal(true)}
-              className="px-4 py-2 text-white bg-blue-500 rounded hover:bg-blue-600 transition-colors"
-            >
-              {selectedPlaylists.length > 0
-                ? `${selectedPlaylists.length} Playlists Selected`
-                : "Select Playlists"}
-            </button>
+              text={
+                selectedPlaylists.length > 0
+                  ? `${selectedPlaylists.length} Playlists Selected`
+                  : "Select Playlists"
+              }
+            />
           </div>
         </div>
 
@@ -274,13 +352,20 @@ const PodcastUploadModal: React.FC<PodcastUploadModalProps> = ({
               </div>
             ))}
           </div>
-          <button
+          <CustomButton
             onClick={() => setShowPlaylistModal(false)}
-            className="mt-4 px-4 py-2 text-white bg-blue-500 rounded hover:bg-blue-600 transition-colors"
-          >
-            Done
-          </button>
+            text="Done"
+          />
         </CustomModal>
+
+        <div className="col-span-3 flex justify-end">
+          <CustomButton
+            onClick={handleUpload}
+            text="Upload"
+            variant="outline"
+            className="uppercase text-sm leading-normal font-medium px-3 py-3 text-blue-500 hover:dark:text-white bg-white hover:bg-blue-600 hover:dark:bg-blue-600 hover:text-white"
+          />
+        </div>
       </div>
     </CustomModal>
   );

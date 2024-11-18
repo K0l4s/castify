@@ -20,7 +20,9 @@ export const axiosInstanceAuth = axios.create({
 
 export const axiosInstanceFile = axios.create({
     baseURL: BaseApi,
+    withCredentials: true,
     headers: {
         "Content-Type": "multipart/form-data",
+        Authorization: "Bearer " + Cookie.get("token"),
     },
 });
