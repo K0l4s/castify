@@ -5,20 +5,24 @@ import { logout } from "../../redux/slice/authSlice";
 import { useSelector } from "react-redux";
 import { RootState } from "../../redux/store";
 import Cookies from "js-cookie";
-import { Link } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import AuthenticationModal from "../modals/authentication/AuthenticationModal";
 import { useState } from "react";
 import ThemeModeSwitch from "../UI/custom/ThemeModeSwitch";
-import { RiUploadCloudLine } from "react-icons/ri";
+import { RiUploadCloudLine, RiVideoAddFill } from "react-icons/ri";
 import { IoIosNotifications } from "react-icons/io";
 import Tooltip from "../UI/custom/Tooltip";
+import PodcastUploadModal from "../modals/podcast/PodcastUploadModal";
 import CustomButton from "../UI/custom/CustomButton";
 
 const Authentication = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
   // const [mode, setMode] = useState(localStorage.getItem('theme') || 'light');
-
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const navigate = useNavigate();
+  const location = useLocation();
+  
   const toast = useToast();
   const dispatch = useDispatch();
   const handleLogout = () => {
@@ -49,11 +53,24 @@ const Authentication = () => {
       <div className="relative">
         {isAuth ? (
           <div className="flex items-center gap-4">
-            <Tooltip text="Upload">
-              <button className="p-2 text-gray-700 dark:text-gray-200 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500">
-                <RiUploadCloudLine className="w-6 h-6" />
+            {location.pathname.includes("/creator") ? (
+              <button 
+                onClick={() => setIsModalOpen(true)}  
+                className="px-4 py-2 text-sm border border-gray-500 rounded-full text-black hover:bg-gray-300
+                  dark:border-gray-300 dark:text-white dark:hover:bg-gray-600">
+                <RiVideoAddFill className="inline-block mr-2 ml-1" size={20} />
+                Upload
               </button>
-            </Tooltip>
+            ) : (
+
+              <Tooltip text="Upload">
+                <button 
+                  onClick={() => navigate('/creator/video-editor')}
+                  className="p-1 text-black dark:text-white rounded-full hover:bg-gray-300 dark:hover:bg-gray-600">
+                  <RiUploadCloudLine size={32} />
+                </button>
+              </Tooltip>
+            )}
 
             <Tooltip text="Notifications">
               <button className="p-2 text-gray-700 dark:text-gray-200 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500">
@@ -145,6 +162,10 @@ const Authentication = () => {
         isLogin={true}
         isOpen={isOpen}
         onClose={handleClose}
+      />
+      <PodcastUploadModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
       />
     </div>
   );
