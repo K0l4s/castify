@@ -6,8 +6,8 @@ import LandingPage from '../pages/main/landingPage/LandingPage'
 import AdminLadingPage from '../pages/admin/ladingPage/AdminLadingPage'
 import AdminUserPage from '../pages/admin/userPage/AdminUserPage'
 import CreatorLandingPage from '../pages/creator/ladingPage/CreatorLandingPage'
-import NotFoundPage from '../pages/errorPage/NotFoundPage'
-import NotAccessPage from '../pages/errorPage/NotAccessPage'
+import NotFoundPage from '../pages/informationPage/NotFoundPage'
+import NotAccessPage from '../pages/informationPage/NotAccessPage'
 import ProfilePage from '../pages/main/profile/ProfilePage'
 import VideoEditor from '../components/creator/videoEditor/VideoEditor'
 import { useSelector } from 'react-redux'
@@ -41,7 +41,8 @@ const Router = () => {
                 <Route element={<MainLayout />} >
                     <Route path='/' element={<LandingPage />} />
                 </Route>
-                <Route path='/profile/*' element={<ProfilePage />} />
+                <Route path='/profile' element={<ProfilePage />} />
+                <Route path='/profile/:username' element={<ProfilePage />} />
                 <Route path='*' element={<NotFoundPage />} />
             </Routes>
         </div>

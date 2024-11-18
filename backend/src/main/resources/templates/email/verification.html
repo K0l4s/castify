@@ -2,58 +2,83 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>TakeNotes Verification</title>
+    <title>Blankcil Verification</title>
     <style type="text/css">
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #eaf7ee;
+            font-family: 'Poppins', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
             margin: 0;
             padding: 0;
             width: 100%;
+            min-height: 100vh;
             -webkit-text-size-adjust: 100%;
             -ms-text-size-adjust: 100%;
         }
         .body-container {
             width: 100%;
             height: 100%;
-            padding: 20px 0;
+            padding: 40px 0;
             text-align: center;
         }
         .content {
             width: 90%;
-            max-width: 500px;
-            background-color: #ffffff;
-            padding: 20px;
-            border: 1px solid #cccccc;
-            border-radius: 5px;
+            max-width: 600px;
+            background-color: rgba(255, 255, 255, 0.95);
+            padding: 40px;
+            border-radius: 15px;
             margin: 0 auto;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
         }
         .header {
-            font-size: 26px;
-            margin-bottom: 20px;
+            font-size: 32px;
+            margin-bottom: 30px;
+            color: #2c3e50;
+            font-weight: 600;
         }
         .verify-button {
-            background-color: #4CAF50;
+            background: linear-gradient(45deg, #4CAF50, #45a049);
             color: white;
-            padding: 15px 32px;
+            padding: 16px 40px;
             text-align: center;
             text-decoration: none;
             display: inline-block;
-            font-size: 16px;
-            margin: 20px 0 0 18%;
+            font-size: 18px;
+            margin: 25px 0;
             cursor: pointer;
-            border-radius: 5px;
+            border-radius: 50px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(76, 175, 80, 0.3);
         }
         .verify-button:hover {
-            background-color: #40b766;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(76, 175, 80, 0.4);
         }
         .verification-code {
-            font-size: 18px;
-            margin-top: 20px;
-            padding: 10px;
-            background-color: #f4f4f4;
-            border-radius: 5px;
+            font-size: 24px;
+            font-weight: 600;
+            letter-spacing: 3px;
+            margin: 25px 0;
+            padding: 15px 30px;
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            border-radius: 10px;
             display: inline-block;
+            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.05);
+            color: #2c3e50;
+        }
+        .logo {
+            width: 180px;
+            height: auto;
+            margin-bottom: 20px;
+            transition: transform 0.3s ease;
+        }
+        .logo:hover {
+            transform: scale(1.05);
+        }
+        p {
+            color: #5a6c7d;
+            line-height: 1.6;
+            font-size: 16px;
         }
     </style>
 </head>
@@ -64,32 +89,32 @@
             <table class="content" cellpadding="0" cellspacing="0">
                 <tr>
                     <td align="center">
-                        <img class="logo" src="https://firebasestorage.googleapis.com/v0/b/blankcil.appspot.com/o/logo192.png?alt=media&token=272996b3-e43d-466c-b6c1-eafd44adca5a" alt="TakeNotes" style="width: 200px; height: auto;">
+                        <img class="logo" src="https://scontent-hkg4-1.xx.fbcdn.net/v/t39.30808-6/453503742_3792933170982005_483391579532328877_n.jpg?_nc_cat=110&ccb=1-7&_nc_sid=6ee11a&_nc_eui2=AeFquCrZ6dcPMN8OkA4eYcEHe42j0QY2xXp7jaPRBjbFeg3UUoCWGeBAnXKaxIEJG60IFbXhmipROScpmfqzPZR5&_nc_ohc=jLLltxs34E0Q7kNvgGkt5Bu&_nc_zt=23&_nc_ht=scontent-hkg4-1.xx&_nc_gid=AmHg5a945wFe2jhB9k3eIyW&oh=00_AYBglITqWdV-KhNCtFy25ynTcmjAFwurHQIkncaG09iyaA&oe=673FABC1" alt="Blankcil Logo">
                     </td>
                 </tr>
                 <tr>
                     <td align="center">
-                        <p class="header" style="font-size: 26px; margin-bottom: 20px;">Thanks for choosing our service!!</p>
+                        <h1 class="header">Welcome to Blankcil! 🎉</h1>
                     </td>
                 </tr>
                 <tr>
                     <td align="center">
-                        <p>Please use the code or click the button below to verify your registration:</p>
+                        <p>We're excited to have you on board! To get started, please verify your account using the verification code below or click the button:</p>
+                    </td>
+                </tr>
+<!--                <tr>-->
+<!--                    <td align="center">-->
+<!--                        <div class="verification-code" th:text="${verificationCode}">N/A</div>-->
+<!--                    </td>-->
+<!--                </tr>-->
+                <tr>
+                    <td align="center">
+                        <a class="verify-button" th:href="${verificationUrl}">Verify your account</a>
                     </td>
                 </tr>
                 <tr>
                     <td align="center">
-                        <p class="verification-code" th:text="${verificationCode}">N/A</p>
-                    </td>
-                </tr>
-                <tr>
-                    <td align="center">
-                        <a class="verify-button" th:href="${verificationUrl}" style="background-color: #4CAF50; color: white; padding: 15px 32px; text-align: center; text-decoration: none; display: inline-block; font-size: 16px; margin: 20px 0; cursor: pointer; border-radius: 5px;">Verify your account</a>
-                    </td>
-                </tr>
-                <tr>
-                    <td align="center">
-                        <p>Blankcil Team</p>
+                        <p style="margin-top: 30px; font-size: 14px; color: #8795a1;">Best regards,<br>The Blankcil Team</p>
                     </td>
                 </tr>
             </table>

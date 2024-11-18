@@ -3,6 +3,7 @@ package com.castify.backend.controller;
 import com.castify.backend.models.authentication.*;
 import com.castify.backend.service.AuthenticationService;
 import com.castify.backend.service.IAuthenticationService;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
