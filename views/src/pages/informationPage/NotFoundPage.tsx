@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {useNavigate } from 'react-router-dom'; // Make sure to import useHistory
 
 const NotFoundPage: React.FC = () => {
@@ -12,13 +12,22 @@ const NotFoundPage: React.FC = () => {
     }, 1000);
   };
 
+  useEffect(() => {
+    document.body.style.overflow = 'hidden';
+    return () => {
+      document.body.style.overflow = 'auto';
+    };
+  }, []);
+
+
   return (
     <div className={`min-h-screen bg-gray-900 flex items-center justify-center p-4 overflow-hidden transition-all duration-1000 ${isReturning ? 'scale-150 opacity-0' : ''}`}>
       {/* Background stars */}
-      {[...Array(100)].map((_, i) => (
+      {[...Array(500)].map((_, i) => (
         <div
           key={i}
-          className={`absolute w-[2px] h-[2px] bg-white rounded-full animate-twinkle transition-all duration-1000 ${isReturning ? 'scale-0' : ''}`}
+          id="star"
+          className={`absolute w-[2px] h-[2px] bg-white rounded-full animate-twinkle transition-all duration-1000 animate-pulse ${isReturning ? 'scale-0' : ''}`}
           style={{
             top: `${Math.random() * 100}%`,
             left: `${Math.random() * 100}%`,
@@ -26,11 +35,12 @@ const NotFoundPage: React.FC = () => {
             animationDuration: `${1 + Math.random() * 2}s`,
             transform: `translate(${Math.random() * 10 - 5}px, ${Math.random() * 10 - 5}px)`,
             filter: `blur(${Math.random() * 1}px)`,
-            opacity: Math.random() * 0.5 + 0.5
+            opacity: Math.random() * 0.5 
           }}
         />
       ))}
 
+      
       <div className={`text-center relative z-10 transition-all duration-1000 ${isReturning ? 'scale-0 translate-y-[-100vh]' : ''}`}>
         {/* 404 Text */}
         <h1 className="text-[120px] font-black text-transparent bg-clip-text bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 animate-gradient-x mb-2">404</h1>
@@ -65,14 +75,62 @@ const NotFoundPage: React.FC = () => {
           
           {/* Planet Orbits */}
           {[
-            { name: 'Mercury', size: 3, color: 'bg-gray-400', orbitSize: 80, speed: 4.1 },
-            { name: 'Venus', size: 4, color: 'bg-yellow-600', orbitSize: 120, speed: 10.5 },
-            { name: 'Earth', size: 4, color: 'bg-blue-500', orbitSize: 160, speed: 17 },
-            { name: 'Mars', size: 3.5, color: 'bg-red-500', orbitSize: 200, speed: 32 },
-            { name: 'Jupiter', size: 10, color: 'bg-orange-300', orbitSize: 280, speed: 100 },
-            { name: 'Saturn', size: 9, color: 'bg-yellow-200', orbitSize: 340, speed: 250 },
-            { name: 'Uranus', size: 6, color: 'bg-cyan-200', orbitSize: 400, speed: 500 },
-            { name: 'Neptune', size: 6, color: 'bg-blue-400', orbitSize: 460, speed: 1000 }
+            { 
+              name: 'Mercury', 
+              size: 3*4, 
+              color: 'bg-gradient-to-r from-gray-400 to-gray-600', 
+              orbitSize: 80*2, 
+              speed: 4.1 
+            },
+            { 
+              name: 'Venus', 
+              size: 4*4, 
+              color: 'bg-gradient-to-r from-yellow-600 via-yellow-500 to-orange-400', 
+              orbitSize: 120*2, 
+              speed: 10.5 
+            },
+            { 
+              name: 'Earth', 
+              size: 4*4, 
+              color: 'bg-gradient-to-r from-blue-600 via-green-500 to-blue-400', 
+              orbitSize: 160*2, 
+              speed: 17 
+            },
+            { 
+              name: 'Mars', 
+              size: 3.5*4, 
+              color: 'bg-gradient-to-r from-red-700 via-red-600 to-red-500', 
+              orbitSize: 200*2, 
+              speed: 32 
+            },
+            { 
+              name: 'Jupiter', 
+              size: 10*4, 
+              color: 'bg-gradient-to-r from-orange-700 via-yellow-600 to-orange-500', 
+              orbitSize: 280*2, 
+              speed: 100 
+            },
+            { 
+              name: 'Saturn', 
+              size: 9*4, 
+              color: 'bg-gradient-to-r from-yellow-700 via-yellow-600 to-yellow-500', 
+              orbitSize: 340*2, 
+              speed: 250 
+            },
+            { 
+              name: 'Uranus', 
+              size: 6*4, 
+              color: 'bg-gradient-to-r from-cyan-600 via-cyan-500 to-cyan-400', 
+              orbitSize: 400*2, 
+              speed: 500 
+            },
+            { 
+              name: 'Neptune', 
+              size: 6*4, 
+              color: 'bg-gradient-to-r from-blue-900 via-blue-800 to-blue-700', 
+              orbitSize: 460*2, 
+              speed: 1000 
+            }
           ].map((planet) => (
             <div 
               key={planet.name}
@@ -94,15 +152,30 @@ const NotFoundPage: React.FC = () => {
               />
               {/* Special case for Saturn's rings */}
               {planet.name === 'Saturn' && (
-                <div 
-                  className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 
-                    bg-yellow-100/30 rounded-full"
-                  style={{
-                    width: `${planet.size * 1.8}px`,
-                    height: `${planet.size * 0.3}px`,
-                    transform: 'rotate(30deg)'
-                  }}
-                />
+                <>
+                  {/* Inner ring */}
+                  <div 
+                    className={`absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2
+                      bg-yellow-100/40 rounded-full blur-[0.5px]`}
+                    style={{
+                      width: `${100}px`,
+                      height: `${3}px`,
+                      transform: 'rotate(30deg) translateX(-40px) translateY(25px)',
+                      boxShadow: '0 0 4px rgba(254, 240, 138, 0.4)'
+                    }}
+                  />
+                  {/* Outer ring */}
+                  <div 
+                    className={`absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2
+                      bg-yellow-50/20 rounded-full blur-[0.2px]`}
+                    style={{
+                      width: `${100}px`,
+                      height: `${5}px`,
+                      transform: 'rotate(30deg) translateX(-40px) translateY(25px)',
+                      boxShadow: '0 0 9px rgba(254, 240, 138, 0.2)'
+                    }}
+                  />
+                </>
               )}
             </div>
           ))}
