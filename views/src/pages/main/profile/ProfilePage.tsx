@@ -95,7 +95,16 @@ const ProfilePage: React.FC = () => {
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
             {Array.from({ length: 10 }).map((_, index) => (
-              <PodcastCard key={index} title="Test" author="Test" thumbnailUrl="https://tenten.vn/tin-tuc/wp-content/uploads/2023/08/podcast-la-gi-2.jpg" duration="1:23" description="Test" />
+              <PodcastCard 
+                key={index}
+                title="Test"
+                user={{
+                  avatar: "https://tenten.vn/tin-tuc/wp-content/uploads/2023/08/podcast-la-gi-2.jpg",
+                  username: "Test"
+                }}
+                thumbnailUrl="https://tenten.vn/tin-tuc/wp-content/uploads/2023/08/podcast-la-gi-2.jpg"
+                duration="1:23"
+              />
             ))}
           </div>
 

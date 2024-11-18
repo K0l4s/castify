@@ -6,6 +6,7 @@ import { User } from '../../../models/User';
 import { useParams } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import { RootState } from '../../../redux/store';
+import CustomButton from '../../UI/custom/CustomButton';
 
 interface ProfileMainContentProps {
     user: User;
@@ -102,15 +103,15 @@ const ProfileMainContent: React.FC<ProfileMainContentProps> = ({
                                     </div>
                                 </div>
                                 {isOwner ? (
-                                    <button className="flex items-center justify-center bg-gradient-to-r from-blue-500 to-blue-600 dark:from-blue-600 dark:to-blue-700 hover:from-blue-600 hover:to-blue-700 dark:hover:from-blue-700 dark:hover:to-blue-800 text-white px-6 sm:px-8 py-2 sm:py-2.5 rounded-full transition duration-300 transform hover:scale-105 hover:shadow-lg text-sm sm:text-base w-full sm:w-auto">
+                                    <CustomButton isShining={true}>
                                         <FaEdit className="mr-2" />
                                         Edit Profile
-                                    </button>
+                                    </CustomButton>
                                 ) : (
-                                    <button className="flex items-center justify-center bg-gradient-to-r from-blue-500 to-blue-600 dark:from-blue-600 dark:to-blue-700 hover:from-blue-600 hover:to-blue-700 dark:hover:from-blue-700 dark:hover:to-blue-800 text-white px-6 sm:px-8 py-2 sm:py-2.5 rounded-full transition duration-300 transform hover:scale-105 hover:shadow-lg text-sm sm:text-base w-full sm:w-auto">
+                                    <CustomButton isShining={true} variant="danger">
                                         <FaUserFriends className="mr-2" />
                                         Follow
-                                    </button>
+                                    </CustomButton>
                                 )}
                             </div>
 

@@ -14,6 +14,8 @@ import { useSelector } from 'react-redux'
 import { Role } from '../constants/Role'
 import { RootState } from '../redux/store'
 import VertifyPage from '../pages/main/vertifyPage/VertifyPage'
+import TermsPage from '../pages/main/policyPage/TearmsPage'
+import PrivacyPolicy from '../pages/main/policyPage/PrivacyPolicy'
 
 const Router = () => {
     const isAdmin = useSelector((state: RootState) => state.auth.user?.role === Role.A);
@@ -26,6 +28,8 @@ const Router = () => {
                     <Route path='/forgot-password' element={<LandingPage />} />
                     <Route path='/reset-password' element={<LandingPage />} />
                     <Route path='/vertify' element={<VertifyPage />} />
+                    <Route path='/terms' element={<TermsPage />} />
+                    <Route path='/privacy' element={<PrivacyPolicy />} />
                 {/* </Route> */}
 
                 <Route path="/admin/*" element={isAdmin ? <AdminLayout /> : <NotAccessPage />}>
@@ -40,6 +44,9 @@ const Router = () => {
 
                 <Route element={<MainLayout />} >
                     <Route path='/' element={<LandingPage />} />
+                    <Route path='/feed' element={<LandingPage />} />
+                    <Route path='/feed/follow' element={<LandingPage />} />
+                    <Route path='/feed/trend' element={<LandingPage />} />
                 </Route>
                 <Route path='/profile' element={<ProfilePage />} />
                 <Route path='/profile/:username' element={<ProfilePage />} />
