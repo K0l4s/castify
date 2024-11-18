@@ -5,11 +5,11 @@ import { logout } from "../../redux/slice/authSlice";
 import { useSelector } from "react-redux";
 import { RootState } from "../../redux/store";
 import Cookies from "js-cookie";
-import { Link } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import AuthenticationModal from "../modals/authentication/AuthenticationModal";
 import { useState } from "react";
 import ThemeModeSwitch from "../UI/custom/ThemeModeSwitch";
-import { RiUploadCloudLine } from "react-icons/ri";
+import { RiUploadCloudLine, RiVideoAddFill } from "react-icons/ri";
 import { IoIosNotifications } from "react-icons/io";
 import Tooltip from "../UI/custom/Tooltip";
 
@@ -18,6 +18,9 @@ const Authentication = () => {
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
   // const [mode, setMode] = useState(localStorage.getItem('theme') || 'light');
 
+  const navigate = useNavigate();
+  const location = useLocation();
+  
   const toast = useToast();
   const dispatch = useDispatch();
   const handleLogout = () => {
@@ -50,11 +53,22 @@ const Authentication = () => {
       <div className="relative">
         {isAuth ? (
           <div className="flex items-center gap-4">
-            <Tooltip text="Upload">
-              <button className="p-1 text-black dark:text-white rounded-full hover:bg-gray-300 dark:hover:bg-gray-600">
-                <RiUploadCloudLine size={32} />
+            {location.pathname.includes("/creator") ? (
+              <button className="px-4 py-2 border border-gray-500 rounded-full text-black hover:bg-gray-300
+                dark:border-gray-300 dark:text-white dark:hover:bg-gray-600">
+                <RiVideoAddFill className="inline-block mb-1 mr-2 ml-1" />
+                Upload
               </button>
-            </Tooltip>
+            ) : (
+
+              <Tooltip text="Upload">
+                <button 
+                  onClick={() => navigate('/creator/video-editor')}
+                  className="p-1 text-black dark:text-white rounded-full hover:bg-gray-300 dark:hover:bg-gray-600">
+                  <RiUploadCloudLine size={32} />
+                </button>
+              </Tooltip>
+            )}
 
             <Tooltip text="Notifications">
               <button className="p-1 text-black dark:text-white rounded-full hover:bg-gray-300 dark:hover:bg-gray-600">
