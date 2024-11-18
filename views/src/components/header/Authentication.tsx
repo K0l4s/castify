@@ -9,7 +9,7 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import AuthenticationModal from "../modals/authentication/AuthenticationModal";
 import { useState } from "react";
 import ThemeModeSwitch from "../UI/custom/ThemeModeSwitch";
-import { RiUploadCloudLine, RiVideoAddFill } from "react-icons/ri";
+import { RiVideoAddFill } from "react-icons/ri";
 import { IoIosNotifications } from "react-icons/io";
 import Tooltip from "../UI/custom/Tooltip";
 import PodcastUploadModal from "../modals/podcast/PodcastUploadModal";
@@ -69,7 +69,7 @@ const Authentication = () => {
                   className="px-4 py-2 text-sm border border-gray-500 rounded-full text-black hover:bg-gray-300
                   dark:border-gray-300 dark:text-white dark:hover:bg-gray-600">
                   <RiVideoAddFill className="inline-block mr-2 ml-1" size={20} />
-                  Upload
+                  <p className="hidden sm:inline">Upload</p>
                 </button>
               </Tooltip>
             )}
