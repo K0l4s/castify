@@ -12,12 +12,13 @@ import ThemeModeSwitch from "../UI/custom/ThemeModeSwitch";
 import { RiUploadCloudLine, RiVideoAddFill } from "react-icons/ri";
 import { IoIosNotifications } from "react-icons/io";
 import Tooltip from "../UI/custom/Tooltip";
+import PodcastUploadModal from "../modals/podcast/PodcastUploadModal";
 
 const Authentication = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
   // const [mode, setMode] = useState(localStorage.getItem('theme') || 'light');
-
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
   
@@ -54,9 +55,11 @@ const Authentication = () => {
         {isAuth ? (
           <div className="flex items-center gap-4">
             {location.pathname.includes("/creator") ? (
-              <button className="px-4 py-2 border border-gray-500 rounded-full text-black hover:bg-gray-300
-                dark:border-gray-300 dark:text-white dark:hover:bg-gray-600">
-                <RiVideoAddFill className="inline-block mb-1 mr-2 ml-1" />
+              <button 
+                onClick={() => setIsModalOpen(true)}  
+                className="px-4 py-2 text-sm border border-gray-500 rounded-full text-black hover:bg-gray-300
+                  dark:border-gray-300 dark:text-white dark:hover:bg-gray-600">
+                <RiVideoAddFill className="inline-block mr-2 ml-1" size={20} />
                 Upload
               </button>
             ) : (
@@ -152,6 +155,10 @@ const Authentication = () => {
         isLogin={true}
         isOpen={isOpen}
         onClose={handleClose}
+      />
+      <PodcastUploadModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
       />
     </div>
   );
