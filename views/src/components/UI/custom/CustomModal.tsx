@@ -114,7 +114,7 @@ const CustomModal: React.FC<ModalProps> = ({
             </svg>
           </button>
         </div>
-        <div className="px-6 py-4 max-h-[calc(100vh-10rem)] text-gray-700 dark:text-gray-300">
+        <div className="px-6 py-4 max-h-[calc(100vh-5rem)] overflow-auto text-gray-700 dark:text-gray-300">
           {children}
         </div>
       </div>
