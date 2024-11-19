@@ -98,7 +98,7 @@ const CustomButton = ({
       type={type}
       onClick={onClick}
       disabled={disabled || loading}
-      className={`${baseClasses} ${disabled ? 'opacity-50 cursor-not-allowed dark:opacity-40' : ''} relative group overflow-hidden`}
+      className={`${baseClasses} ${disabled ? 'opacity-50 cursor-not-allowed dark:opacity-40' : ''} relative group overflow-hidden ${className}`}
     >
       <span className="relative z-10 flex items-center justify-center gap-2">
         {loading ? (
