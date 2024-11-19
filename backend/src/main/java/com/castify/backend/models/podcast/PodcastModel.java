@@ -20,12 +20,15 @@ public class PodcastModel {
     private String thumbnailUrl;
     private String videoUrl;
     private long views;
+    private long totalLikes;
+    private long totalComments;
+    private String username;
     private LocalDateTime createdDay;
     private LocalDateTime lastEdited;
     private boolean isActive;
 
-    private List<CommentEntity> comments;
-    private List<PodcastLikeEntity> likes;
+//    private List<CommentEntity> comments;
+//    private List<PodcastLikeEntity> likes;
 
-    private UserModel user;
+//    private UserModel user;
 }

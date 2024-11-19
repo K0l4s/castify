@@ -22,10 +22,10 @@ public class PodcastEntity {
     private String thumbnailUrl;
     private String videoUrl;
     private long views;
-    @DBRef
+    @DBRef(lazy = true)
     private List<CommentEntity> comments;
 
-    @DBRef
+    @DBRef(lazy = true)
     private List<PodcastLikeEntity> likes;
 
     private LocalDateTime createdDay;
@@ -34,14 +34,14 @@ public class PodcastEntity {
 
     private boolean isActive;
 
-    @DBRef
+    @DBRef(lazy = true)
     private UserEntity user;
 
-    public long getTotalLikes(){
-        return likes.size();
+    public long getTotalLikes() {
+        return likes != null ? likes.size() : 0;
     }
 
-    public long getTotalComments(){
-        return comments.size();
+    public long getTotalComments() {
+        return comments != null ? comments.size() : 0;
     }
 }
