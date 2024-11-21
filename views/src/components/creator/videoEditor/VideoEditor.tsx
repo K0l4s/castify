@@ -49,15 +49,15 @@ const VideoEditor = () => {
         const dropZone = event.currentTarget
         const afterElement = getDragAfterElement(dropZone, event.clientX)
         const draggable = document.querySelector('.dragging')
-        if (draggable && afterElement) {
-            dropZone.insertBefore(draggable, afterElement)
+        if (draggable && afterElement.element) {
+            dropZone.insertBefore(draggable, afterElement.element)
         }
     }
 
-    const getDragAfterElement = (container: HTMLElement, x: number) => {
+    const getDragAfterElement = (container: HTMLElement, x: number): { offset: number; element: Element | null } => {
         const draggableElements = [...container.querySelectorAll('.timeline-item:not(.dragging)')]
         
-        return draggableElements.reduce((closest, child) => {
+        return draggableElements.reduce<{ offset: number; element: Element | null }>((closest, child) => {
             const box = child.getBoundingClientRect()
             const offset = x - box.left - box.width / 2
             
@@ -66,7 +66,7 @@ const VideoEditor = () => {
             } else {
                 return closest
             }
-        }, { offset: Number.NEGATIVE_INFINITY })
+        }, { offset: Number.NEGATIVE_INFINITY, element: null })
     }
 
     const handleDrop = (event: React.DragEvent<HTMLDivElement>) => {
@@ -76,8 +76,8 @@ const VideoEditor = () => {
             const component = JSON.parse(componentData)
             const dropZone = event.currentTarget
             const afterElement = getDragAfterElement(dropZone, event.clientX)
-            const dropIndex = afterElement 
-                ? [...dropZone.children].indexOf(afterElement)
+            const dropIndex = afterElement.element
+                ? [...dropZone.children].indexOf(afterElement.element)
                 : timelineComponents.length
 
             if (component.sourceIndex !== undefined) {
