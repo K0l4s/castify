@@ -1,4 +1,4 @@
-package com.castify.backend.service;
+package com.castify.backend.service.authenticatation.jwt;
 
 import org.springframework.security.core.userdetails.UserDetails;
 

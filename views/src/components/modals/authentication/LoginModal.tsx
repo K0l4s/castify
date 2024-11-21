@@ -69,7 +69,8 @@ const LoginModal = ({ trigger, isOpen, onClose }: DefaultModalProps) => {
       dispatch(login());
       dispatch(setUser(user));
       // toast.success('Login successful!');
-      toast.info('Login successful!');
+      toast.clearAllToasts();
+      toast.success('Login successful!');
       
     } catch (err: any) {
       console.error("Login error:", {
@@ -78,6 +79,7 @@ const LoginModal = ({ trigger, isOpen, onClose }: DefaultModalProps) => {
         status: err.response?.status,
         url: err.config?.url
       });
+      toast.clearAllToasts();
       toast.error(err.response?.data?.message || 'Login failed. Please try again.');
       
     } finally {
