@@ -1,4 +1,4 @@
-package com.castify.backend.service;
+package com.castify.backend.service.email;
 
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;

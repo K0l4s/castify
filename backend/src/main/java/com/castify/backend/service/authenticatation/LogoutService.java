@@ -1,4 +1,4 @@
-package com.castify.backend.service;
+package com.castify.backend.service.authenticatation;
 
 import com.castify.backend.repository.TokenRepository;
 import jakarta.servlet.http.HttpServletRequest;

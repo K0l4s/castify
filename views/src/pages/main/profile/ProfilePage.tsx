@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
 import ProfileMainContent from '../../../components/main/profile/ProfileMainContent';
-import MainHeader from '../../../components/header/MainHeader';
 import { userService } from '../../../services/UserService';
 import { User } from '../../../models/User';
 import { Role } from '../../../constants/Role';
@@ -74,7 +73,7 @@ const ProfilePage: React.FC = () => {
 
   return (
     <div className="min-h-screen">
-      <MainHeader />
+     
       <div className="container mx-auto px-4 py-8">
         <div className="mx-auto">
           <ProfileMainContent user={user} />

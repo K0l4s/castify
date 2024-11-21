@@ -1,7 +1,7 @@
 package com.castify.backend.components;
 
 import com.castify.backend.repository.TokenRepository;
-import com.castify.backend.service.JwtServiceImpl;
+import com.castify.backend.service.authenticatation.jwt.JwtServiceImpl;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;

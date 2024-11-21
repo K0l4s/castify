@@ -1,4 +1,4 @@
-package com.castify.backend.service;
+package com.castify.backend.service.authenticatation;
 
 import com.castify.backend.models.authentication.AuthenticationRequest;
 import com.castify.backend.models.authentication.AuthenticationResponse;

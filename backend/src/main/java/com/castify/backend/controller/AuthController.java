@@ -1,20 +1,15 @@
 package com.castify.backend.controller;
 
 import com.castify.backend.models.authentication.*;
-import com.castify.backend.service.AuthenticationService;
-import com.castify.backend.service.IAuthenticationService;
-import jakarta.servlet.http.Cookie;
+import com.castify.backend.service.authenticatation.AuthenticationService;
+import com.castify.backend.service.authenticatation.IAuthenticationService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.io.IOException;
-import java.net.http.HttpResponse;
 
 @RestController
 @RequestMapping("/api/v1/auth")

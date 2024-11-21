@@ -1,3 +1,4 @@
+import { User } from "../models/User";
 import { axiosInstance, axiosInstanceAuth } from "../utils/axiosInstance";
 
 export const userService = {
@@ -17,8 +18,8 @@ export const userService = {
         else
             return await axiosInstanceAuth.get(`/api/v1/user`);
     },
-    updateUser: async () => {
-        // return await axiosInstance.put(`${BaseApi}api/v1/user`, user);
+    updateUser: async (user:User) => {
+        return await axiosInstanceAuth.put(`/api/v1/user`, user);
     },
     deleteUser: async () => {
         // return await axiosInstance.delete(`${BaseApi}api/v1/user`);
