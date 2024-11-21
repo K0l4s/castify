@@ -66,7 +66,7 @@ const VideoEditor = () => {
             } else {
                 return closest
             }
-        }, { offset: Number.NEGATIVE_INFINITY }).element
+        }, { offset: Number.NEGATIVE_INFINITY })
     }
 
     const handleDrop = (event: React.DragEvent<HTMLDivElement>) => {

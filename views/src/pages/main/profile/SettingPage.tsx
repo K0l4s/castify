@@ -8,7 +8,7 @@ import CustomButton from '../../../components/UI/custom/CustomButton';
 const SettingPage = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [user, setUser] = useState<User>();
-  const [isEdit, setIsEdit] = useState(false);
+  // const [isEdit, setIsEdit] = useState(false);
   const toast = useToast();
 
   useEffect(() => {

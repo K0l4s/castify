@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
 import ProfileMainContent from '../../../components/main/profile/ProfileMainContent';
-import MainHeader from '../../../components/header/MainHeader';
 import { userService } from '../../../services/UserService';
 import { User } from '../../../models/User';
 import { Role } from '../../../constants/Role';
