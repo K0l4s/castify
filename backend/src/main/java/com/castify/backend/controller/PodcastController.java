@@ -17,6 +17,8 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.nio.file.Path;
+import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/v1/podcast")
@@ -71,6 +73,26 @@ public class PodcastController {
             return ResponseEntity.ok(podcastModel);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Error: " + e.getMessage());
+        }
+    }
+
+    @GetMapping("/contents")
+    public ResponseEntity<?> getAllSelfPodcasts(
+            @RequestParam(defaultValue = "0") int page, // Số trang
+            @RequestParam(defaultValue = "10") int size, // Số phần tử mỗi trang
+            @RequestParam(required = false) Integer minViews, // Lọc theo số lượng view tối thiểu
+            @RequestParam(required = false) Integer minComments, // Lọc theo số lượng comment tối thiểu
+            @RequestParam(required = false, defaultValue = "asc") String sortByViews, // Sắp xếp view tăng/giảm dần
+            @RequestParam(required = false, defaultValue = "asc") String sortByComments, // Sắp xếp comment tăng/giảm dần
+            @RequestParam(required = false, defaultValue = "desc") String sortByCreatedDay // Sắp xếp theo ngày tạo tăng/giảm dần
+    ) {
+        try {
+            Map<String, Object> podcasts = podcastService.getAllSelfPodcasts(page, size, minViews, minComments,
+                    sortByViews, sortByComments, sortByCreatedDay);
+
+            return ResponseEntity.ok(podcasts);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error: " + e.getMessage());
         }
     }
 }
