@@ -16,6 +16,7 @@ import { RootState } from '../redux/store'
 import VertifyPage from '../pages/main/vertifyPage/VertifyPage'
 import TermsPage from '../pages/main/policyPage/TearmsPage'
 import PrivacyPolicy from '../pages/main/policyPage/PrivacyPolicy'
+import MyPodcastPage from '../pages/creator/ladingPage/MyPodcastPage'
 
 const Router = () => {
     const isAdmin = useSelector((state: RootState) => state.auth.user?.role === Role.A);
@@ -39,6 +40,7 @@ const Router = () => {
 
                 <Route path='/creator/*' element={<CreatorLayout />} >
                     <Route path='' element={<CreatorLandingPage />} />
+                    <Route path='contents' element={<MyPodcastPage />} />
                     <Route path='video-editor' element={<VideoEditor />} />
                 </Route>
 

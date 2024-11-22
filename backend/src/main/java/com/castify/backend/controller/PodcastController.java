@@ -10,6 +10,9 @@ import com.castify.backend.service.podcast.PodcastServiceImpl;
 import com.castify.backend.utils.FileUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.UrlResource;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -17,8 +20,10 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Logger;
 
 @RestController
 @RequestMapping("/api/v1/podcast")
@@ -31,6 +36,11 @@ public class PodcastController {
 
     @Value("${file.upload-dir}")
     private String baseUploadDir;
+
+    @Value("${podcast.video.base-path}")
+    private String videoBasePath;
+
+    private static final Logger logger = Logger.getLogger(PodcastController.class.getName());
 
     @PostMapping(value = "/create", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<?> createPodcast(
@@ -93,6 +103,31 @@ public class PodcastController {
             return ResponseEntity.ok(podcasts);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error: " + e.getMessage());
+        }
+    }
+
+    @GetMapping("/video")
+    public ResponseEntity<Resource> getVideo(@RequestParam String path, @RequestHeader(value = "Referer", required = false) String referer) {
+        try {
+            // Kiểm tra nguồn gốc yêu cầu
+            if (referer == null || !referer.startsWith("http://localhost:5000")) { // Thay đổi URL theo ứng dụng của bạn
+                logger.warning("Invalid referer: " + referer);
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).body(null);
+            }
+
+            Path filePath = Paths.get(videoBasePath).resolve(path).normalize();
+            Resource resource = new UrlResource(filePath.toUri());
+
+            if (resource.exists()) {
+                return ResponseEntity.ok()
+                        .contentType(MediaType.parseMediaType("video/mp4"))
+                        .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\"" + resource.getFilename() + "\"")
+                        .body(resource);
+            } else {
+                return ResponseEntity.notFound().build();
+            }
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
 }

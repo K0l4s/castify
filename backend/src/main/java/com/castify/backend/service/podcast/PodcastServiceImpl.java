@@ -80,8 +80,8 @@ public class PodcastServiceImpl implements IPodcastService {
             sort = Sort.by(Sort.Direction.DESC, "views");
         } else if ("desc".equalsIgnoreCase(sortByComments)) {
             sort = Sort.by(Sort.Direction.DESC, "comments");
-        } else if ("desc".equalsIgnoreCase(sortByCreatedDay)) {
-            sort = Sort.by(Sort.Direction.DESC, "createdDay");
+        } else if ("asc".equalsIgnoreCase(sortByCreatedDay)) {
+            sort = Sort.by(Sort.Direction.ASC, "createdDay");
         }
 
         Pageable pageable = PageRequest.of(page, size, sort);
@@ -101,12 +101,13 @@ public class PodcastServiceImpl implements IPodcastService {
                     podcastModel.setTotalLikes(podcast.getTotalLikes()); // Thiết lập các trường bổ sung
                     podcastModel.setTotalComments(podcast.getTotalComments());
                     podcastModel.setUsername(podcast.getUser().getUsername());
+//                    podcastModel.setVideoUrl("/api/v1/podcast/video?path=" + podcast.getVideoUrl());
                     return podcastModel;
                 })
                 .toList();
 
         // Tính toán currentPage và totalPage
-        int currentPage = podcastEntities.getNumber() + 1;
+        int currentPage = podcastEntities.getNumber();
         int totalPages = podcastEntities.getTotalPages();
 
         // Thêm thông tin phân trang vào response
