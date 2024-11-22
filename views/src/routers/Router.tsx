@@ -16,12 +16,9 @@ import { RootState } from '../redux/store'
 import VertifyPage from '../pages/main/vertifyPage/VertifyPage'
 import TermsPage from '../pages/main/policyPage/TearmsPage'
 import PrivacyPolicy from '../pages/main/policyPage/PrivacyPolicy'
-<<<<<<< HEAD
 import MyPodcastPage from '../pages/creator/ladingPage/MyPodcastPage'
-=======
 import SettingPage from '../pages/main/profile/SettingPage'
 import ProfileLayout from './layouts/ProfileLayout'
->>>>>>> bd1fdde90943f4b91b47914795b6cfe26b762ec1
 
 const Router = () => {
     const isAdmin = useSelector((state: RootState) => state.auth.user?.role === Role.A);
