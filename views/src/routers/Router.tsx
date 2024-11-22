@@ -16,7 +16,12 @@ import { RootState } from '../redux/store'
 import VertifyPage from '../pages/main/vertifyPage/VertifyPage'
 import TermsPage from '../pages/main/policyPage/TearmsPage'
 import PrivacyPolicy from '../pages/main/policyPage/PrivacyPolicy'
+<<<<<<< HEAD
 import MyPodcastPage from '../pages/creator/ladingPage/MyPodcastPage'
+=======
+import SettingPage from '../pages/main/profile/SettingPage'
+import ProfileLayout from './layouts/ProfileLayout'
+>>>>>>> bd1fdde90943f4b91b47914795b6cfe26b762ec1
 
 const Router = () => {
     const isAdmin = useSelector((state: RootState) => state.auth.user?.role === Role.A);
@@ -24,13 +29,13 @@ const Router = () => {
         <div className='bg-gray-200 dark:bg-gray-900'>
             <Routes>
                 {/* <Route> */}
-                    <Route path='/login' element={<LandingPage />} />
-                    <Route path='/register' element={<LandingPage />} />
-                    <Route path='/forgot-password' element={<LandingPage />} />
-                    <Route path='/reset-password' element={<LandingPage />} />
-                    <Route path='/vertify' element={<VertifyPage />} />
-                    <Route path='/terms' element={<TermsPage />} />
-                    <Route path='/privacy' element={<PrivacyPolicy />} />
+                <Route path='/login' element={<LandingPage />} />
+                <Route path='/register' element={<LandingPage />} />
+                <Route path='/forgot-password' element={<LandingPage />} />
+                <Route path='/reset-password' element={<LandingPage />} />
+                <Route path='/vertify' element={<VertifyPage />} />
+                <Route path='/terms' element={<TermsPage />} />
+                <Route path='/privacy' element={<PrivacyPolicy />} />
                 {/* </Route> */}
 
                 <Route path="/admin/*" element={isAdmin ? <AdminLayout /> : <NotAccessPage />}>
@@ -50,8 +55,11 @@ const Router = () => {
                     <Route path='/feed/follow' element={<LandingPage />} />
                     <Route path='/feed/trend' element={<LandingPage />} />
                 </Route>
-                <Route path='/profile' element={<ProfilePage />} />
-                <Route path='/profile/:username' element={<ProfilePage />} />
+                <Route element={<ProfileLayout />}>
+                    <Route path='/profile' element={<ProfilePage />} />
+                    <Route path='/profile/:username' element={<ProfilePage />} />
+                    <Route path='/setting' element={<SettingPage />} />
+                </Route>
                 <Route path='*' element={<NotFoundPage />} />
             </Routes>
         </div>

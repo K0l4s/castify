@@ -120,12 +120,12 @@ const ToastProvider: React.FC<{ children: React.ReactNode }> = ({ children }) =>
         {toasts.map((toast) => (
           <div
             key={toast.id}
-            className={`min-w-[150px] px-4 py-2 rounded shadow-lg animate-line bg-white dark:bg-black ${
-              toast.type === 'success' ? ' text-green-500' :
-              toast.type === 'error' ? ' text-red-500' :
-              toast.type === 'warning' ? ' text-yellow-500' :
-              toast.type === 'loading' ? ' text-gray-500' :
-              ' text-blue-500'
+            className={`min-w-[150px] px-4 py-2 rounded shadow-lg animate-line  ${
+              toast.type === 'success' ? ' text-green-500 bg-green-200 dark:bg-green-900' :
+              toast.type === 'error' ? ' text-red-500 bg-red-200 dark:bg-red-900' :
+              toast.type === 'warning' ? ' text-yellow-500 bg-yellow-200 dark:bg-yellow-900' :
+              toast.type === 'loading' ? ' text-yellow-500 bg-yellow-200 dark:bg-yellow-900' :
+              ' text-blue-500 bg-blue-200 dark:bg-blue-900'
             } relative`}
           >
             <div className="flex items-center">

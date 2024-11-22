@@ -1,4 +1,4 @@
-package com.castify.backend.service;
+package com.castify.backend.service.authenticatation.jwt;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
