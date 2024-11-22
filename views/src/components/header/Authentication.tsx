@@ -39,7 +39,7 @@ const Authentication = () => {
       });
   };
   const isAuth = useSelector((state: RootState) => state.auth.isAuthenticated);
-
+  
   const handleOpen = () => setIsOpen(true);
   const handleClose = () => setIsOpen(false);
   const toggleUserMenu = () => {
@@ -65,7 +65,7 @@ const Authentication = () => {
 
               <Tooltip text="Upload">
                 <button
-                  onClick={() => navigate('/creator/video-editor')}
+                  onClick={() => navigate('/creator/contents')}
                   className="px-4 py-2 text-sm border border-gray-500 rounded-full text-black hover:bg-gray-300
                   dark:border-gray-300 dark:text-white dark:hover:bg-gray-600">
                   <RiVideoAddFill className="inline-block mr-2 ml-1" size={20} />

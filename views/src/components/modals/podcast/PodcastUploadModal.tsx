@@ -5,6 +5,7 @@ import { useToast } from "../../../context/ToastProvider";
 import { createPodcast } from "../../../services/PodcastService";
 import { validateFileType } from "../../../utils/FileValidation";
 import CustomButton from "../../UI/custom/CustomButton";
+import { usePodcastContext } from "../../../context/PodcastContext";
 
 interface PodcastUploadModalProps {
   isOpen: boolean;
@@ -32,6 +33,8 @@ const PodcastUploadModal: React.FC<PodcastUploadModalProps> = ({
   const [showPlaylistModal, setShowPlaylistModal] = useState(false);
 
   const toast = useToast();
+
+  const { fetchPodcasts } = usePodcastContext();
 
   // Mock API response
   useEffect(() => {
@@ -128,6 +131,7 @@ const PodcastUploadModal: React.FC<PodcastUploadModalProps> = ({
       };
       await createPodcast(payload);
       toast.success("Podcast uploaded successfully!");
+      fetchPodcasts();
       toast.closeLoadingToast(loadingToastId);
       clearData();
     } catch (error) {

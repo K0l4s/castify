@@ -1,4 +1,5 @@
-import { axiosInstanceFile } from "../utils/axiosInstance";
+import { PodcastResponse } from "../models/PodcastModel";
+import { axiosInstanceAuth, axiosInstanceFile } from "../utils/axiosInstance";
 
 interface CreatePodcastPayload {
   title: string;
@@ -13,7 +14,43 @@ export const createPodcast = async (payload: CreatePodcastPayload) => {
   formData.append("video", payload.video);
 
   try {
-    const response = await axiosInstanceFile.post("/api/v1/podcast/create", formData);
+    const response = await axiosInstanceFile.post(
+      "/api/v1/podcast/create",
+      formData
+    );
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};
+
+export const getSelfPodcastsInCreator = async (
+  page = 0,
+  size = 10,
+  minViews?: number,
+  minComments?: number,
+  sortByViews = "asc",
+  sortByComments = "asc",
+  sortByCreatedDay = "desc"
+) => {
+  try {
+    const response = await axiosInstanceAuth.get<PodcastResponse>(
+      "/api/v1/podcast/contents", {
+      params: {
+        page,
+        size,
+        minViews,
+        minComments,
+        sortByViews,
+        sortByComments,
+        sortByCreatedDay
+      }
+    });
+
+    response.data.podcasts.forEach(podcast => {
+      podcast.videoUrl = `http://localhost:8081/api/v1/podcast/video?path=${encodeURIComponent(podcast.videoUrl)}`;
+    });
+
     return response.data;
   } catch (error) {
     throw error;

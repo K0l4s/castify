@@ -1,4 +1,5 @@
 
+import { PodcastProvider } from './context/PodcastContext'
 import { ThemeProvider } from './context/ThemeContext'
 import Router from './routers/Router'
 
@@ -7,7 +8,9 @@ function App() {
   return (
     <>
       <ThemeProvider>
-        <Router />
+        <PodcastProvider>
+          <Router />
+        </PodcastProvider>
       </ThemeProvider>
     </>
   )
