@@ -1,9 +1,14 @@
 package com.castify.backend.service.podcast;
 
+import com.castify.backend.entity.CommentEntity;
 import com.castify.backend.entity.PodcastEntity;
+import com.castify.backend.entity.PodcastLikeEntity;
 import com.castify.backend.entity.UserEntity;
+import com.castify.backend.models.comment.CommentModel;
 import com.castify.backend.models.podcast.CreatePodcastModel;
 import com.castify.backend.models.podcast.PodcastModel;
+import com.castify.backend.repository.CommentRepository;
+import com.castify.backend.repository.PodcastLikeRepository;
 import com.castify.backend.repository.PodcastRepository;
 import com.castify.backend.repository.UserRepository;
 import org.modelmapper.ModelMapper;
@@ -29,6 +34,12 @@ public class PodcastServiceImpl implements IPodcastService {
 
     @Autowired
     private PodcastRepository podcastRepository;
+
+    @Autowired
+    private PodcastLikeRepository podcastLikeRepository;
+
+    @Autowired
+    private CommentRepository commentRepository;
 
     @Override
     public PodcastModel createPodcast(CreatePodcastModel createPodcastModel, String videoPath) {
@@ -95,15 +106,19 @@ public class PodcastServiceImpl implements IPodcastService {
         // Xử lý thêm logic filter minComments và ánh xạ sang PodcastModel
         // Ánh xạ trực tiếp và lọc theo minComments
         List<PodcastModel> podcastModels = podcastEntities.stream()
-                .filter(podcast -> podcast.getTotalComments() >= minCommentsValue)
                 .map(podcast -> {
-                    PodcastModel podcastModel = modelMapper.map(podcast, PodcastModel.class);
-                    podcastModel.setTotalLikes(podcast.getTotalLikes()); // Thiết lập các trường bổ sung
-                    podcastModel.setTotalComments(podcast.getTotalComments());
-                    podcastModel.setUsername(podcast.getUser().getUsername());
+                    long totalComments = commentRepository.countByPodcastId(podcast.getId());
+                    if (totalComments >= minCommentsValue) { // Lọc tại đây
+                        PodcastModel podcastModel = modelMapper.map(podcast, PodcastModel.class);
+                        podcastModel.setTotalComments(totalComments);
+                        podcastModel.setTotalLikes(podcastLikeRepository.countByPodcastId(podcast.getId()));
+                        podcastModel.setUsername(podcast.getUser().getUsername());
 //                    podcastModel.setVideoUrl("/api/v1/podcast/video?path=" + podcast.getVideoUrl());
-                    return podcastModel;
+                        return podcastModel;
+                    }
+                    return null;
                 })
+                .filter(Objects::nonNull)
                 .toList();
 
         // Tính toán currentPage và totalPage
@@ -117,5 +132,30 @@ public class PodcastServiceImpl implements IPodcastService {
         response.put("podcasts", podcastModels);
 
         return response;
+    }
+
+    @Override
+    public PodcastModel getPodcastById(String podcastId) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String userEmail = authentication.getName();
+
+        UserEntity userEntity = userRepository.findByEmailOrUsername(userEmail)
+                .orElseThrow(() -> new RuntimeException("User not found with email: " + userEmail));
+
+        PodcastEntity podcastEntity = podcastRepository.findById(podcastId)
+                .orElseThrow(() -> new RuntimeException("Podcast not found"));
+
+        long totalComments = commentRepository.countByPodcastId(podcastId);
+        long totalLikes = podcastLikeRepository.countByPodcastId(podcastId);
+
+        PodcastModel podcastModel = modelMapper.map(podcastEntity, PodcastModel.class);
+        podcastModel.setTotalComments(totalComments);
+        podcastModel.setTotalLikes(totalLikes);
+        podcastModel.setUsername(podcastEntity.getUser().getUsername());
+
+        boolean isLiked = podcastLikeRepository.existsByUserEntityIdAndPodcastId(userEntity.getId(), podcastId);
+        podcastModel.setLiked(isLiked);
+
+        return podcastModel;
     }
 }

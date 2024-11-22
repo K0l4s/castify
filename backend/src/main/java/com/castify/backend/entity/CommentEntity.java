@@ -4,7 +4,6 @@ import org.springframework.data.annotation.Id; // Sửa dòng này
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.apache.catalina.User;
 import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
 
@@ -19,24 +18,27 @@ public class CommentEntity {
     @Id
     private String id;
 
-    @DBRef
-    private User user;
+    @DBRef(lazy = true)
+    private UserEntity user;
 
     private String content;
 
-    @DBRef
+    @DBRef(lazy = true)
     private List<CommentLikeEntity> likes;
 
-    @DBRef
+    @DBRef(lazy = true)
     private List<CommentEntity> replies;
 
     private LocalDateTime timestamp;
 
+    @DBRef(lazy = true)
+    private PodcastEntity podcast;
+
     public long getTotalLikes(){
-        return likes.size();
+        return likes != null ? likes.size() : 0;
     }
 
     public long getTotalReplies(){
-        return replies.size();
+        return replies != null ? replies.size() : 0;
     }
 }

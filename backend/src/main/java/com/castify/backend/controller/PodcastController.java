@@ -110,7 +110,7 @@ public class PodcastController {
     public ResponseEntity<Resource> getVideo(@RequestParam String path, @RequestHeader(value = "Referer", required = false) String referer) {
         try {
             // Kiểm tra nguồn gốc yêu cầu
-            if (referer == null || !referer.startsWith("http://localhost:5000")) { // Thay đổi URL theo ứng dụng của bạn
+            if (referer == null || !referer.startsWith("http://localhost:5000") || !referer.startsWith("https://castifyapp.vercel.app/")) {
                 logger.warning("Invalid referer: " + referer);
                 return ResponseEntity.status(HttpStatus.FORBIDDEN).body(null);
             }
@@ -128,6 +128,16 @@ public class PodcastController {
             }
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<?> getPodcastByAuthUser(@PathVariable String id) {
+        try {
+            PodcastModel podcastModel = podcastService.getPodcastById(id);
+            return ResponseEntity.ok(podcastModel);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error: " + e.getMessage());
         }
     }
 }

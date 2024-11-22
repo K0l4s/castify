@@ -1,5 +1,6 @@
 package com.castify.backend.service.podcast;
 
+import com.castify.backend.models.comment.CommentModel;
 import com.castify.backend.models.podcast.CreatePodcastModel;
 import com.castify.backend.models.podcast.PodcastModel;
 
@@ -11,4 +12,5 @@ public interface IPodcastService {
     Map<String, Object> getAllSelfPodcasts(int page, int size, Integer minViews,
                                            Integer minComments, String sortByViews,
                                            String sortByComments, String sortByCreatedDay);
+    PodcastModel getPodcastById(String id);
 }

@@ -27,6 +27,7 @@ public class PodcastModel {
     private LocalDateTime lastEdited;
     private boolean isActive;
 
+    private boolean isLiked;
 //    private List<CommentEntity> comments;
 //    private List<PodcastLikeEntity> likes;
 
