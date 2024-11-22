@@ -60,7 +60,7 @@ const MyPodcastPage: React.FC = () => {
       </h1>
       <div className="flex flex-col gap-6 bg-gray-200 dark:bg-gray-800 rounded min-h-[73vh]">
         {/* Header Row */}
-        <div className="grid grid-cols-7 rounded-lg shadow-md overflow-hidden p-4 font-semibold">
+        <div className="grid grid-cols-7 border-b border-gray-400 dark:border-gray-600 overflow-hidden p-4 font-semibold text-slate-900 dark:text-white">
           <div className="col-span-2 text-center">Video</div>
           <div className="col-span-1 text-center">Display mode</div>
           <div className="col-span-1 text-center">Created Day</div>
@@ -71,7 +71,7 @@ const MyPodcastPage: React.FC = () => {
         {podcasts.map((podcast) => (
           <div
             key={podcast.id}
-            className="grid grid-cols-7 rounded-lg shadow-md overflow-hidden p-4"
+            className="grid grid-cols-7 border-b border-gray-400 dark:border-gray-600 overflow-hidden p-4"
           >
             {/* Thumbnail, Title, Content */}
             <div className="flex gap-4 col-span-2">
@@ -82,35 +82,35 @@ const MyPodcastPage: React.FC = () => {
               />
               <div className="flex flex-col">
                 <h2
-                  className="text-base font-semibold line-clamp-1"
+                  className="text-base font-semibold line-clamp-1 text-black dark:text-white"
                   title={`${podcast.title}`}
                 >
                   {podcast.title}
                 </h2>
-                <p className="text-sm line-clamp-2">{podcast.content}</p>
+                <p className="text-sm line-clamp-2 text-slate-700 dark:text-gray-200">{podcast.content}</p>
               </div>
             </div>
             {/* Display mode */}
-            <div className="flex items-center justify-center col-span-1">
+            <div className="flex items-center justify-center col-span-1 text-slate-800 dark:text-white">
               <p>{podcast.active ? "Public" : "Private"}</p>
             </div>
             {/* Created Day */}
             <div className="flex items-center justify-center col-span-1">
-              <p className="text-sm text-gray-400">
+              <p className="text-sm text-slate-800 dark:text-white">
                 {new Date(podcast.createdDay).toLocaleDateString()}
               </p>
             </div>
             {/* Views */}
             <div className="flex items-center justify-center col-span-1">
-              <p>{podcast.views}</p>
+              <p className="text-slate-800 dark:text-white">{podcast.views}</p>
             </div>
             {/* Likes */}
             <div className="flex items-center justify-center col-span-1">
-              <p>{podcast.totalLikes}</p>
+              <p className="text-slate-800 dark:text-white">{podcast.totalLikes}</p>
             </div>
             {/* Comments */}
             <div className="flex items-center justify-center col-span-1">
-              <p>{podcast.totalComments}</p>
+              <p className="text-slate-800 dark:text-white">{podcast.totalComments}</p>
             </div>
           </div>
         ))}
@@ -123,7 +123,7 @@ const MyPodcastPage: React.FC = () => {
         >
           <IoIosArrowBack size={20} />
         </button>
-        <span className="mx-2">
+        <span className="mx-2 text-black dark:text-white">
           {currentPage + 1} / {totalPages}
         </span>
         <button
