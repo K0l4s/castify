@@ -1,16 +1,13 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { getSelfPodcastsInCreator } from "../../../services/PodcastService";
-import { Podcast } from "../../../models/PodcastModel";
 import { IoIosArrowBack, IoIosArrowForward } from "react-icons/io";
+import { usePodcastContext } from "../../../context/PodcastContext";
 
 const MyPodcastPage: React.FC = () => {
-  const [podcasts, setPodcasts] = useState<Podcast[]>([]);
+  const { podcasts, currentPage, totalPages, fetchPodcasts } = usePodcastContext();
   const location = useLocation();
   const navigate = useNavigate();
-  const [currentPage, setCurrentPage] = useState(0);
-  const [totalPages, setTotalPages] = useState(1);
-  const defaultThumbnail = "/TEST.png"; // Thay bằng đường dẫn thumbnail mặc định nếu không có.
+  const defaultThumbnail = "/TEST.png";
 
   const defaultParams = {
     page: 0,
@@ -35,30 +32,19 @@ const MyPodcastPage: React.FC = () => {
     if (shouldNavigate) {
       navigate({ search: searchParams.toString() }, { replace: true });
     } else {
-      fetchPodcasts(searchParams);
+      fetchPodcastsFromParams(searchParams);
     }
   }, [location.search, navigate]);
 
-  const fetchPodcasts = async (searchParams: URLSearchParams) => {
+  const fetchPodcastsFromParams = async (searchParams: URLSearchParams) => {
     const page = Number(searchParams.get("page"));
     const size = Number(searchParams.get("size"));
+    const sortByViews = searchParams.get("sortByViews") || "asc";
+    const sortByComments = searchParams.get("sortByComments") || "asc";
+    const sortByCreatedDay = searchParams.get("sortByCreatedDay") || "desc";
 
-    try {
-      const data = await getSelfPodcastsInCreator(
-        page,
-        size,
-        undefined,
-        undefined,
-        searchParams.get("sortByViews") || "asc",
-        searchParams.get("sortByComments") || "asc",
-        searchParams.get("sortByCreatedDay") || "desc"
-      );
-      setPodcasts(data.podcasts);
-      setCurrentPage(data.currentPage);
-      setTotalPages(data.totalPages);
-    } catch (error) {
-      console.error("Error fetching podcasts:", error);
-    }
+    fetchPodcasts(page, size, sortByViews, sortByComments, sortByCreatedDay);
+
   };
 
   const handlePageChange = (newPage: number) => {
