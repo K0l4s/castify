@@ -11,6 +11,7 @@ export interface Podcast {
   createdDay: string;
   lastEdited: string;
   active: boolean;
+  liked: boolean;
 }
 
 export interface PodcastResponse {
