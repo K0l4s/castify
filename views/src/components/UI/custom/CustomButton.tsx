@@ -10,7 +10,7 @@ interface ButtonProps {
   text?: string;
   icon?: React.ReactNode;
   loading?: boolean;
-  variant?: 'primary' | 'secondary' | 'danger' | 'outline' | 'ghost';
+  variant?: 'primary' | 'secondary' | 'danger' | 'outline' | 'ghost' | 'success' | 'warning';
   size?: 'xs' | 'sm' | 'md' | 'lg' | 'xl';
   children?: React.ReactNode;
   fullWidth?: boolean;
@@ -42,7 +42,9 @@ const CustomButton = ({
       secondary: 'bg-gray-200 hover:bg-gray-300 text-gray-800 dark:bg-gray-700 dark:hover:bg-gray-600 dark:text-gray-200 shadow-md hover:shadow-lg',
       danger: 'bg-red-600 hover:bg-red-700 text-white dark:bg-red-500 dark:hover:bg-red-600 dark:text-white shadow-md hover:shadow-lg',
       outline: 'border-2 border-gray-600 text-gray-600 hover:bg-gray-100 dark:border-gray-400 dark:text-gray-300 dark:hover:bg-gray-800',
-      ghost: 'text-gray-600 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-800'
+      ghost: 'text-gray-600 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-800',
+      success: 'bg-green-600 hover:bg-green-700 text-white dark:bg-green-500 dark:hover:bg-green-600 dark:text-white shadow-md hover:shadow-lg',
+      warning: 'bg-yellow-500 hover:bg-yellow-600 text-white dark:bg-yellow-400 dark:hover:bg-yellow-500 dark:text-white shadow-md hover:shadow-lg'
     };
     return variants[variant] || variants.primary;
   };

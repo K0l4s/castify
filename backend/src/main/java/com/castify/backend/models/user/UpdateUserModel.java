@@ -14,13 +14,10 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class UpdateUserModel {
-    private String id;
     private String firstName;
     private String middleName;
     private String lastName;
     private String username;
-//    private String avatarUrl;
-//    private String coverUrl;
     private LocalDate birthday;
     private String address;
 }
