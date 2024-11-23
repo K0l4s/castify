@@ -3,7 +3,7 @@ import { FaEdit, FaMapMarkerAlt, FaUserFriends } from 'react-icons/fa';
 import { GiRank3, GiLaurelCrown } from 'react-icons/gi';
 import { BsStars } from 'react-icons/bs';
 import { User } from '../../../models/User';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import { RootState } from '../../../redux/store';
 import CustomButton from '../../UI/custom/CustomButton';
@@ -32,6 +32,7 @@ const ProfileMainContent: React.FC<ProfileMainContentProps> = ({
     badgeBackground = "bg-yellow-500",
     badgePosition = { top: "-0.25rem", right: "-0.25rem" }
 }) => {
+    const navigate = useNavigate();
     const username = useParams().username;
     const currentUser = useSelector((state: RootState) => state.auth.user);
     const isOwner = !username || currentUser?.username === username;
@@ -66,6 +67,11 @@ const ProfileMainContent: React.FC<ProfileMainContentProps> = ({
                                         className="w-full h-full object-cover object-center transform transition-transform duration-500"
                                         src={user.avatarUrl || "https://flowbite.com/docs/images/people/profile-picture-5.jpg"}
                                         alt="Profile Picture"
+                                        onError={(e) => {
+                                            const target = e.target as HTMLImageElement;
+                                            target.onerror = null;
+                                            target.src = "https://flowbite.com/docs/images/people/profile-picture-5.jpg";
+                                        }}
                                     />
                                     {/* Customizable Badge */}
                                     <div
@@ -103,7 +109,7 @@ const ProfileMainContent: React.FC<ProfileMainContentProps> = ({
                                     </div>
                                 </div>
                                 {isOwner ? (
-                                    <CustomButton isShining={true}>
+                                    <CustomButton isShining={true} onClick={() => navigate('/setting')}>
                                         <FaEdit className="mr-2" />
                                         Edit Profile
                                     </CustomButton>

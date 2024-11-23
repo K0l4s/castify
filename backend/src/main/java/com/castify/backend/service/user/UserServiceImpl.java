@@ -1,6 +1,7 @@
 package com.castify.backend.service.user;
 
 import com.castify.backend.entity.UserEntity;
+import com.castify.backend.models.user.UpdateUserModel;
 import com.castify.backend.models.user.UserModel;
 import com.castify.backend.repository.UserRepository;
 import com.castify.backend.service.uploadFile.IUploadFileService;
@@ -12,6 +13,8 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.Optional;
 
 @Service
@@ -35,6 +38,7 @@ public class UserServiceImpl implements IUserService {
             throw new Exception("Not found user with username " + username);
         }
     }
+
     @Override
     public UserModel getUserByToken() throws Exception {
 //        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -45,6 +49,7 @@ public class UserServiceImpl implements IUserService {
         return modelMapper.map(userData, UserModel.class);
 
     }
+
     @Override
     public UserModel updateUserInformation() throws Exception {
         UserEntity authenticatedUser = getUserByAuthentication();
@@ -70,10 +75,38 @@ public class UserServiceImpl implements IUserService {
     }
 
     @Override
-    public UserEntity getUserByAuthentication() throws Exception{
+    public UserEntity getUserByAuthentication() throws Exception {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String usernameOrEmail = authentication.getName();
         return userRepository.findByEmailOrUsername(usernameOrEmail)
                 .orElseThrow(() -> new RuntimeException("User not found with email: " + usernameOrEmail));
+    }
+    @Override
+    public UpdateUserModel updateUserInformationById(UpdateUserModel updateUserModel) throws Exception {
+        UserEntity userData = getUserByAuthentication();
+        LocalDateTime lastUpdateUsername = userData.getLastUpdateUsername();
+
+//        userData.setUsername(updateUserModel.getUsername());
+        userData.setFirstName(updateUserModel.getFirstName());
+        userData.setMiddleName(updateUserModel.getMiddleName());
+        userData.setLastName(updateUserModel.getLastName());
+        userData.setBirthday(updateUserModel.getBirthday());
+        userData.setAddress(updateUserModel.getAddress());
+//        userData.setLastUpdateUsername(LocalDateTime.now());
+
+        UserEntity updatedUser = userRepository.save(userData);
+        return modelMapper.map(updatedUser, UpdateUserModel.class);
+    }
+    @Override
+    public String updateUsernameById(String username) throws Exception {
+        UserEntity userData = getUserByAuthentication();
+        LocalDateTime lastUpdateUsername = userData.getLastUpdateUsername();
+        if (lastUpdateUsername != null && ChronoUnit.DAYS.between(lastUpdateUsername, LocalDateTime.now()) < 7 && userData.getUsername().equals(username)) {
+            throw new Exception("Username không thể cập nhật vì chưa đủ 7 ngày kể từ lần cập nhật cuối.");
+        }
+        userData.setUsername(username);
+        userData.setLastUpdateUsername(LocalDateTime.now());
+        userRepository.save(userData);
+        return username;
     }
 }

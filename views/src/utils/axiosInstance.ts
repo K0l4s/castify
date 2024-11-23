@@ -14,7 +14,6 @@ export const axiosInstanceAuth = axios.create({
     headers: {
         "Content-Type": "application/json",
         Authorization: "Bearer " + Cookie.get("token"),
-        // console.log(Cookie.get("access_token"))
     },
 });
 
