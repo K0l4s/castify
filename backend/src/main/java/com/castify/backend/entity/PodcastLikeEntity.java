@@ -18,7 +18,7 @@ public class PodcastLikeEntity {
     private String id;
     @DBRef
     private UserEntity userEntity;
-    private String podcastId;
+//    private String podcastId;
     private LocalDateTime timestamp;
 
     @DBRef(lazy = true)

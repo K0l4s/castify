@@ -1,6 +1,7 @@
 package com.castify.backend.controller;
 
 import com.castify.backend.models.podcast.CreatePodcastModel;
+import com.castify.backend.models.podcast.LikePodcastDTO;
 import com.castify.backend.models.podcast.PodcastModel;
 import com.castify.backend.models.user.UserModel;
 import com.castify.backend.service.user.IUserService;
@@ -136,6 +137,16 @@ public class PodcastController {
         try {
             PodcastModel podcastModel = podcastService.getPodcastById(id);
             return ResponseEntity.ok(podcastModel);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error: " + e.getMessage());
+        }
+    }
+
+    @PostMapping("/reaction")
+    public ResponseEntity<?> addReaction(@RequestBody LikePodcastDTO likePodcastDTO) {
+        try {
+            String result = podcastService.toggleLikeOnPodcast(likePodcastDTO.getPodcastId());
+            return ResponseEntity.ok(result);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error: " + e.getMessage());
         }
