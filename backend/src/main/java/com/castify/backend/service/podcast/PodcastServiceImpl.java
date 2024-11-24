@@ -11,6 +11,7 @@ import com.castify.backend.repository.CommentRepository;
 import com.castify.backend.repository.PodcastLikeRepository;
 import com.castify.backend.repository.PodcastRepository;
 import com.castify.backend.repository.UserRepository;
+import com.castify.backend.service.user.IUserService;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -40,6 +41,9 @@ public class PodcastServiceImpl implements IPodcastService {
 
     @Autowired
     private CommentRepository commentRepository;
+
+    @Autowired
+    private IUserService userService;
 
     @Override
     public PodcastModel createPodcast(CreatePodcastModel createPodcastModel, String videoPath) {
@@ -111,7 +115,7 @@ public class PodcastServiceImpl implements IPodcastService {
                     if (totalComments >= minCommentsValue) { // Lọc tại đây
                         PodcastModel podcastModel = modelMapper.map(podcast, PodcastModel.class);
                         podcastModel.setTotalComments(totalComments);
-                        podcastModel.setTotalLikes(podcastLikeRepository.countByPodcastId(podcast.getId()));
+                        podcastModel.setTotalLikes(podcastLikeRepository.countByPodcastEntityId(podcast.getId()));
                         podcastModel.setUsername(podcast.getUser().getUsername());
 //                    podcastModel.setVideoUrl("/api/v1/podcast/video?path=" + podcast.getVideoUrl());
                         return podcastModel;
@@ -146,16 +150,41 @@ public class PodcastServiceImpl implements IPodcastService {
                 .orElseThrow(() -> new RuntimeException("Podcast not found"));
 
         long totalComments = commentRepository.countByPodcastId(podcastId);
-        long totalLikes = podcastLikeRepository.countByPodcastId(podcastId);
+        long totalLikes = podcastLikeRepository.countByPodcastEntityId(podcastId);
 
         PodcastModel podcastModel = modelMapper.map(podcastEntity, PodcastModel.class);
         podcastModel.setTotalComments(totalComments);
         podcastModel.setTotalLikes(totalLikes);
         podcastModel.setUsername(podcastEntity.getUser().getUsername());
 
-        boolean isLiked = podcastLikeRepository.existsByUserEntityIdAndPodcastId(userEntity.getId(), podcastId);
+        boolean isLiked = podcastLikeRepository.existsByUserEntityIdAndPodcastEntityId(userEntity.getId(), podcastId);
         podcastModel.setLiked(isLiked);
 
         return podcastModel;
+    }
+
+    @Override
+    public String toggleLikeOnPodcast(String id) throws Exception {
+        System.out.println(id);
+        UserEntity userEntity = userService.getUserByAuthentication();
+
+        PodcastEntity podcastEntity = podcastRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Podcast not found"));
+
+        Optional<PodcastLikeEntity> existingLike = podcastLikeRepository
+                .findByUserEntityIdAndPodcastEntityId(userEntity.getId(), podcastEntity.getId());
+
+        if (existingLike.isPresent()) {
+            // Nếu đã like, thì unlike
+            podcastLikeRepository.delete(existingLike.get());
+        } else {
+            // Nếu chưa like, thì thêm like
+            PodcastLikeEntity newLike = new PodcastLikeEntity();
+            newLike.setUserEntity(userEntity);
+            newLike.setPodcastEntity(podcastEntity);
+            newLike.setTimestamp(LocalDateTime.now());
+            podcastLikeRepository.save(newLike);
+        }
+        return "Success";
     }
 }
