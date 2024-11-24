@@ -1,3 +1,5 @@
+import { UserSimple } from "./User";
+
 export interface Podcast {
   id: string;
   title: string;
@@ -10,7 +12,9 @@ export interface Podcast {
   username: string;
   createdDay: string;
   lastEdited: string;
+  user: UserSimple;
   active: boolean;
+  liked: boolean;
 }
 
 export interface PodcastResponse {
@@ -18,3 +22,4 @@ export interface PodcastResponse {
   totalPages: number;
   currentPage: number;
 }
+

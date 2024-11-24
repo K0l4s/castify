@@ -1,4 +1,4 @@
-import { PodcastResponse } from "../models/PodcastModel";
+import { Podcast, PodcastResponse } from "../models/PodcastModel";
 import { axiosInstanceAuth, axiosInstanceFile } from "../utils/axiosInstance";
 
 interface CreatePodcastPayload {
@@ -51,6 +51,34 @@ export const getSelfPodcastsInCreator = async (
       podcast.videoUrl = `http://localhost:8081/api/v1/podcast/video?path=${encodeURIComponent(podcast.videoUrl)}`;
     });
 
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};
+
+export const getPodcastById = async (id: string) => {
+  try {
+    const response = await axiosInstanceAuth.get<Podcast>(`/api/v1/podcast/${id}`);
+    response.data.videoUrl = `http://localhost:8081/api/v1/podcast/video?path=${encodeURIComponent(response.data.videoUrl)}`;
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};
+
+export const getPodcastComments = async (podcastId: string) => {
+  try {
+    const response = await axiosInstanceAuth.get(`/api/v1/comment/list/${podcastId}`);
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};
+
+export const likePodcast = async (podcastId: string) => {
+  try {
+    const response = await axiosInstanceAuth.post(`/api/v1/podcast/reaction`, { podcastId });
     return response.data;
   } catch (error) {
     throw error;

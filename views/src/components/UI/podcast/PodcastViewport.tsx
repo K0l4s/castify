@@ -1,0 +1,250 @@
+import React, { useEffect, useRef, useState } from "react";
+import { useLocation } from "react-router-dom";
+import { getPodcastById, getPodcastComments, getSelfPodcastsInCreator, likePodcast } from "../../../services/PodcastService";
+import { Podcast } from "../../../models/PodcastModel";
+import defaultAvatar from "../../../assets/images/default_avatar.jpg";
+import CustomButton from "../custom/CustomButton";
+import { HeartIcon } from "../custom/SVG_Icon";
+import { FaBookmark, FaEye, FaFlag, FaShareAlt } from "react-icons/fa";
+import { TfiMoreAlt } from "react-icons/tfi";
+import { formatDateTime } from "../../../utils/DateUtils";
+import { Comment } from "../../../models/CommentModel";
+import CommentSection from "./CommentSection";
+import Tooltip from "../custom/Tooltip";
+import { useSelector } from "react-redux";
+import { RootState } from "../../../redux/store";
+
+const PodcastViewport: React.FC = () => {
+  const location = useLocation();
+  const queryParams = new URLSearchParams(location.search);
+  const id = queryParams.get("pid");
+
+  const [podcast, setPodcast] = useState<Podcast | null>(null);
+  const [comments, setComments] = useState<Comment[]>([]);
+  const [suggestedPodcasts, setSuggestedPodcasts] = useState<any[]>([]);
+  const [isDescriptionExpanded, setIsDescriptionExpanded] = useState(false);
+  const [showDescToggle, setShowDescToggle] = useState(false);
+  const [showOptions, setShowOptions] = useState(false);
+
+  const descriptionRef = useRef<HTMLPreElement>(null);
+
+  const userRedux = useSelector((state: RootState) => state.auth.user);
+  
+  useEffect(() => {
+    const fetchPodcast = async () => {
+      try {
+        if (id) {
+          const podcastData = await getPodcastById(id);
+          setPodcast(podcastData);
+        }
+      } catch (error) {
+        console.error("Error fetching podcast:", error);
+      }
+    };
+
+    const fetchComments = async () => {
+      try {
+        if (id) {
+          const commentsData = await getPodcastComments(id);
+          setComments(commentsData);
+        }
+      } catch (error) {
+        console.error("Error fetching comments:", error);
+      }
+    };
+
+    const fetchSuggestedPodcasts = async () => {
+      try {
+        const suggestedData = await getSelfPodcastsInCreator();
+        setSuggestedPodcasts(suggestedData.podcasts);
+      } catch (error) {
+        console.error("Error fetching suggested podcasts:", error);
+      }
+    };
+
+    fetchPodcast();
+    fetchComments();
+    fetchSuggestedPodcasts();
+  }, [id]);
+
+  useEffect(() => {
+    if (descriptionRef.current) {
+      const lineHeight = parseInt(window.getComputedStyle(descriptionRef.current).lineHeight, 10);
+      const lines = descriptionRef.current.scrollHeight / lineHeight;
+      setShowDescToggle(lines > 5);
+    }
+  }, [podcast?.content]);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      const target = event.target as Node;
+      if (!(target as Element).closest(".podcast-options")) {
+        setShowOptions(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
+
+  if (!podcast) {
+    return <div className="flex justify-center items-center h-screen">Loading...</div>;
+  }
+
+  const toggleDescription = () => {
+    setIsDescriptionExpanded(!isDescriptionExpanded);
+  };
+
+  const handleLike = async (podcastId: string) => {
+    try {
+      await likePodcast(podcastId);
+      const updatedPodcast = await getPodcastById(podcastId);
+      setPodcast(updatedPodcast);
+    } catch (error) {
+      console.error("Error liking podcast:", error);
+    }
+  };
+
+  const toggleOptions = () => {
+    setShowOptions(!showOptions);
+  };
+
+  const handleEdit = () => {
+    console.log("Edit podcast");
+    // Add edit logic here
+  };
+
+  const handleReport = () => {
+    console.log("Report podcast");
+    // Add report logic here
+  };
+
+  const handleSave = () => {
+    console.log("Save podcast");
+    // Add save logic here
+  };
+
+  const userInfo = podcast?.user.lastName + " " + podcast?.user.middleName + " " +podcast?.user.firstName;
+  
+  return (
+    <div className="flex flex-col lg:flex-row p-4 lg:p-8 bg-white text-black dark:bg-gray-900 dark:text-white">
+      <div className="flex-1 lg:mr-8">
+        <video autoPlay className="w-full mb-4 rounded-lg" controls>
+          <source src={podcast.videoUrl} type="video/mp4" />
+          Your browser does not support the video tag.
+        </video>
+
+        <h1 className="text-2xl font-bold my-2">{podcast.title}</h1>
+
+        {/* Info */}
+        <div className="flex items-center justify-between mt-2 my-4 gap-3">
+          <div className="flex items-center gap-3">
+            <img src={podcast.user.avatarUrl || defaultAvatar} alt="avatar" className="w-10 h-10 rounded-full" />
+            <div className="flex flex-col">
+              <span className="text-base font-medium text-black dark:text-white">{userInfo}</span>
+              <span className="text-sm text-gray-700 dark:text-gray-300">100K Follow</span>
+            </div>
+            {podcast.user.id !== userRedux?.id ? (
+              <CustomButton
+                text="Follow"
+                variant="primary"
+                rounded="full"
+                className="bg-gray-600 hover:bg-gray-500 dark:bg-gray-600 hover:dark:bg-gray-500"
+              />
+            ): (
+              <CustomButton
+                text="Edit video"
+                variant="primary"
+                rounded="full"
+                onClick={handleEdit}
+              />
+            )}
+          </div>
+          <div className="flex items-center gap-3">
+            <CustomButton
+              text={podcast.views.toString() + " views"}
+              icon={<FaEye size={22} />}
+              variant="primary"
+              rounded="full"
+              className="bg-gray-600 hover:bg-gray-500 dark:bg-gray-600 hover:dark:bg-gray-600"
+            />
+            <Tooltip text="Reaction">
+              <CustomButton
+                text={podcast.totalLikes.toString()}
+                icon={<HeartIcon filled={podcast.liked} color={podcast.liked ? "white" : "gray"} strokeColor="white" />}
+                variant="primary"
+                rounded="full"
+                size="sm"
+                onClick={() => handleLike(podcast.id)}
+                className="bg-gray-600 hover:bg-gray-500 dark:bg-gray-600 hover:dark:bg-gray-500"
+              />
+            </Tooltip>
+            <CustomButton
+              text="Share"
+              icon={<FaShareAlt size={20}/>}
+              variant="primary"
+              rounded="full"
+              className="bg-gray-600 hover:bg-gray-500 dark:bg-gray-600 hover:dark:bg-gray-500"
+            />
+            <div className="relative">
+            <CustomButton
+              icon={<TfiMoreAlt size={20}/>}
+              variant="primary"
+              rounded="full"
+              onClick={toggleOptions}
+              className="bg-gray-600 hover:bg-gray-500 dark:bg-gray-600 hover:dark:bg-gray-500"
+            />
+            {showOptions && (
+              <div className="podcast-options absolute -top-10 right-0 -translate-y-2/3 w-48 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-lg shadow-lg z-50">
+                <ul className="py-1">
+                  <li className="px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer" onClick={handleReport}>
+                    <FaFlag className="inline-block mb-1 mr-2" />
+                    Report
+                  </li>
+                  <li className="px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer" onClick={handleSave}>
+                    <FaBookmark className="inline-block mb-1 mr-2" />
+                    Save
+                  </li>
+                </ul>
+              </div>
+            )}
+            </div>
+          </div>
+        </div>
+
+        {/* Description */}
+        <div className="p-4 rounded-lg bg-gray-200 dark:bg-gray-800">
+          <p className="text-gray-700 dark:text-white text-base font-bold mb-2">
+            Upload day:
+            {" " + formatDateTime(podcast.createdDay)}
+          </p>
+          <pre ref={descriptionRef} className={`text-black dark:text-white whitespace-pre-wrap ${isDescriptionExpanded ? '' : 'line-clamp-5'}`} style={{ fontFamily: 'inherit', fontSize: 'inherit' }}>
+            {podcast.content}
+          </pre>
+          {showDescToggle && (
+            <button onClick={toggleDescription} className="text-blue-600 dark:text-blue-300 font-medium mt-2">
+              {isDescriptionExpanded ? 'Show less' : 'Show more'}
+            </button>
+          )}
+        </div>
+
+        {/* Comments */}
+        <CommentSection podcastId={id!} comments={comments} setComments={setComments} totalComments={podcast.totalComments} currentUserId={podcast.user.id}/>
+      </div>
+
+      <div className="w-full lg:w-1/4 mt-8 lg:mt-0">
+        <h2 className="text-xl font-semibold mb-4">Suggested for you</h2>
+        {suggestedPodcasts.map(suggested => (
+          <div key={suggested.id} className="mb-4 p-4 border rounded-lg border-gray-300 dark:border-gray-700">
+            <h3 className="text-lg font-bold">{suggested.title}</h3>
+            <p className="text-gray-700 dark:text-gray-300">{suggested.content}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+};
+
+export default PodcastViewport;

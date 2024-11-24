@@ -19,6 +19,7 @@ import PrivacyPolicy from '../pages/main/policyPage/PrivacyPolicy'
 import MyPodcastPage from '../pages/creator/ladingPage/MyPodcastPage'
 import SettingPage from '../pages/main/profile/SettingPage'
 import ProfileLayout from './layouts/ProfileLayout'
+import PodcastViewport from '../components/UI/podcast/PodcastViewport'
 
 const Router = () => {
     const isAdmin = useSelector((state: RootState) => state.auth.user?.role === Role.A);
@@ -51,6 +52,7 @@ const Router = () => {
                     <Route path='/feed' element={<LandingPage />} />
                     <Route path='/feed/follow' element={<LandingPage />} />
                     <Route path='/feed/trend' element={<LandingPage />} />
+                    <Route path='/watch' element={<PodcastViewport />} />
                 </Route>
                 <Route element={<ProfileLayout />}>
                     <Route path='/profile' element={<ProfilePage />} />

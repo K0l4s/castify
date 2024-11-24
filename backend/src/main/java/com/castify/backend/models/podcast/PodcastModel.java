@@ -1,14 +1,11 @@
 package com.castify.backend.models.podcast;
 
-import com.castify.backend.entity.CommentEntity;
-import com.castify.backend.entity.PodcastLikeEntity;
-import com.castify.backend.models.user.UserModel;
+import com.castify.backend.models.user.UserSimple;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
-import java.util.List;
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -31,5 +28,5 @@ public class PodcastModel {
 //    private List<CommentEntity> comments;
 //    private List<PodcastLikeEntity> likes;
 
-//    private UserModel user;
+    private UserSimple user;
 }

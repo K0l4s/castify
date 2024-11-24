@@ -5,10 +5,12 @@ import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface PodcastLikeRepository  extends MongoRepository<PodcastLikeEntity, String> {
-    boolean existsByUserEntityIdAndPodcastId(String userId, String podcastId);
-    List<PodcastLikeEntity> findByPodcastId(String podcastId);
-    long countByPodcastId(String podcastId);
+    boolean existsByUserEntityIdAndPodcastEntityId(String userId, String podcastId);
+    Optional<PodcastLikeEntity> findByUserEntityIdAndPodcastEntityId(String userId, String podcastId);
+//    List<PodcastLikeEntity> findByPodcastId(String podcastId);
+    long countByPodcastEntityId(String podcastId);
 }
