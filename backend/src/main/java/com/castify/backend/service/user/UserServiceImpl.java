@@ -24,7 +24,7 @@ public class UserServiceImpl implements IUserService {
     @Autowired
     private ModelMapper modelMapper;
     @Autowired
-    private IUploadFileService uploadFileService = new UploadFileServiceImpl();
+    private IUploadFileService uploadFileService;
 
     @Override
     public UserModel getUserByUsername(String username) throws Exception {
@@ -68,10 +68,10 @@ public class UserServiceImpl implements IUserService {
     @Override
     public String updateAvatar(MultipartFile imageFile) throws Exception {
         UserEntity userData = getUserByAuthentication();
-        String filePath = uploadFileService.uploadImage(imageFile, userData.getId(), userData.getEmail(), "avatar");
-        userData.setAvatarUrl(filePath);
+        String imageUrl = uploadFileService.uploadImage(imageFile);
+        userData.setAvatarUrl(imageUrl);
         userRepository.save(userData);
-        return filePath;
+        return imageUrl;
     }
 
     @Override
