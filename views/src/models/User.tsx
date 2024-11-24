@@ -20,6 +20,14 @@ export interface User {
     role: Role
     [key: string]: any;
 }
+export interface updateUser {
+    firstName: string;
+    middleName: string;
+    lastName: string;
+    birthday: Date;
+    address: string;
+    phone: string;
+}
 export interface userCard {
     id: number;
     email: string;

@@ -41,6 +41,7 @@ public class UserEntity implements UserDetails {
     private boolean isNonBanned;
     private LocalDateTime createdDay;
     private LocalDateTime lastLogin;
+    private LocalDateTime lastUpdateUsername;
     private List<String> badgesId;
 //    @Enumerated(EnumType.STRING)
     private Role role;
