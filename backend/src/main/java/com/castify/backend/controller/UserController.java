@@ -27,8 +27,19 @@ public class UserController {
 //            UserModel user = new UserModel();
             if (username != null)
                 return ResponseEntity
-                        .ok(userService.getUserByUsername(username));
+                        .ok(userService.getProfileDetail(username));
 
+            return ResponseEntity
+                    .ok(userService.getSelfProfileDetail());
+        } catch (Exception e) {
+            return ResponseEntity
+                    .status(HttpStatus.UNAUTHORIZED)
+                    .body("Error: " + e.getMessage());
+        }
+    }
+    @GetMapping("/auth")
+    private ResponseEntity<?> getUserAuth() {
+        try {
             return ResponseEntity
                     .ok(userService.getUserByToken());
         } catch (Exception e) {
@@ -37,7 +48,6 @@ public class UserController {
                     .body("Error: " + e.getMessage());
         }
     }
-
     @PutMapping("/image")
     private ResponseEntity<String> updateAvatar(
             @RequestPart("avatar") MultipartFile avatarFile
@@ -66,6 +76,20 @@ public class UserController {
         }catch (Exception ex){
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body("Error"+ ex.getMessage());
+        }
+    }
+
+    @PutMapping("/follow")
+    private ResponseEntity<?> toggleFollow(
+            @RequestParam(value = "username") String username
+    ) throws Exception{
+        try{
+            return ResponseEntity.ok(
+                    userService.toggleFollow(username)
+            );
+        }catch (Exception ex){
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body("Error"+ex.getMessage());
         }
     }
 
