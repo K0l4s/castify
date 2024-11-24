@@ -14,7 +14,7 @@ export const userService = {
     },
     getUserDetails: async (username?:string) => {
         if(username)
-            return await axiosInstance.get(`/api/v1/user?username=${username}`);
+            return await axiosInstanceAuth.get(`/api/v1/user?username=${username}`);
         else
             return await axiosInstanceAuth.get(`/api/v1/user`);
     },
@@ -24,4 +24,7 @@ export const userService = {
     deleteUser: async () => {
         // return await axiosInstance.delete(`${BaseApi}api/v1/user`);
     },
+    followUser: async (targetUsername:string) => {
+        return await axiosInstanceAuth.put(`/api/v1/user/follow?username=${targetUsername}`)
+    }
 };
