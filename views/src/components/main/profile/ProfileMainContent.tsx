@@ -1,7 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { FaEdit, FaMapMarkerAlt, FaUserCheck, FaUserFriends, FaUserPlus } from 'react-icons/fa';
-import { GiRank3, GiLaurelCrown } from 'react-icons/gi';
-import { BsStars } from 'react-icons/bs';
+import { FaEdit, FaMapMarkerAlt, FaUserCheck, FaUserPlus } from 'react-icons/fa';
 import { userDetail } from '../../../models/User';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useSelector } from 'react-redux';
@@ -9,6 +7,7 @@ import { RootState } from '../../../redux/store';
 import CustomButton from '../../UI/custom/CustomButton';
 import { userService } from '../../../services/UserService';
 import { useToast } from '../../../context/ToastProvider';
+import { GiLaurelCrown } from 'react-icons/gi';
 
 interface ProfileMainContentProps {
 
