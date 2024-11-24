@@ -9,6 +9,7 @@ import com.castify.backend.service.user.UserServiceImpl;
 import com.castify.backend.service.podcast.IPodcastService;
 import com.castify.backend.service.podcast.PodcastServiceImpl;
 import com.castify.backend.utils.FileUtils;
+import io.jsonwebtoken.MalformedJwtException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
@@ -151,4 +152,9 @@ public class PodcastController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error: " + e.getMessage());
         }
     }
+    @ExceptionHandler(MalformedJwtException.class)
+    public ResponseEntity<String> handleMalformedJwtException(MalformedJwtException ex) {
+        return new ResponseEntity<>("Invalid JWT token format", HttpStatus.BAD_REQUEST);
+    }
+
 }
