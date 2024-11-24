@@ -1,5 +1,6 @@
 package com.castify.backend.models.comment;
 
+import com.castify.backend.models.user.UserSimple;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -17,4 +18,5 @@ public class CommentModel {
     private LocalDateTime timestamp;
 
     private boolean isLiked;
+    private UserSimple user;
 }

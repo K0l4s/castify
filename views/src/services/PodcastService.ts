@@ -75,3 +75,12 @@ export const getPodcastComments = async (podcastId: string) => {
     throw error;
   }
 };
+
+export const likePodcast = async (podcastId: string) => {
+  try {
+    const response = await axiosInstanceAuth.post(`/api/v1/podcast/reaction`, { podcastId });
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};

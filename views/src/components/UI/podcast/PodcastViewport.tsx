@@ -1,7 +1,16 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useLocation } from "react-router-dom";
-import { getPodcastById, getPodcastComments, getSelfPodcastsInCreator } from "../../../services/PodcastService";
+import { getPodcastById, getPodcastComments, getSelfPodcastsInCreator, likePodcast } from "../../../services/PodcastService";
 import { Podcast } from "../../../models/PodcastModel";
+import defaultAvatar from "../../../assets/images/default_avatar.jpg";
+import CustomButton from "../custom/CustomButton";
+import { HeartIcon } from "../custom/SVG_Icon";
+import { FaEye, FaShareAlt } from "react-icons/fa";
+import { TfiMoreAlt } from "react-icons/tfi";
+import { formatDateTime } from "../../../utils/DateUtils";
+import { Comment } from "../../../models/CommentModel";
+import CommentSection from "./CommentSection";
+import Tooltip from "../custom/Tooltip";
 
 const PodcastViewport: React.FC = () => {
   const location = useLocation();
@@ -9,8 +18,12 @@ const PodcastViewport: React.FC = () => {
   const id = queryParams.get("pid");
 
   const [podcast, setPodcast] = useState<Podcast | null>(null);
-  const [comments, setComments] = useState<any[]>([]);
+  const [comments, setComments] = useState<Comment[]>([]);
   const [suggestedPodcasts, setSuggestedPodcasts] = useState<any[]>([]);
+  const [isDescriptionExpanded, setIsDescriptionExpanded] = useState(false);
+  const [showDescToggle, setShowDescToggle] = useState(false);
+
+  const descriptionRef = useRef<HTMLPreElement>(null);
 
   useEffect(() => {
     const fetchPodcast = async () => {
@@ -49,10 +62,34 @@ const PodcastViewport: React.FC = () => {
     fetchSuggestedPodcasts();
   }, [id]);
 
+  useEffect(() => {
+    if (descriptionRef.current) {
+      const lineHeight = parseInt(window.getComputedStyle(descriptionRef.current).lineHeight, 10);
+      const lines = descriptionRef.current.scrollHeight / lineHeight;
+      setShowDescToggle(lines > 5);
+    }
+  }, [podcast?.content]);
+
   if (!podcast) {
     return <div className="flex justify-center items-center h-screen">Loading...</div>;
   }
 
+  const toggleDescription = () => {
+    setIsDescriptionExpanded(!isDescriptionExpanded);
+  };
+
+  const handleLike = async (podcastId: string) => {
+    try {
+      await likePodcast(podcastId);
+      const updatedPodcast = await getPodcastById(podcastId);
+      setPodcast(updatedPodcast);
+    } catch (error) {
+      console.error("Error liking podcast:", error);
+    }
+  };
+
+  const userInfo = podcast?.user.lastName + " " + podcast?.user.middleName + " " +podcast?.user.firstName;
+  
   return (
     <div className="flex flex-col lg:flex-row p-4 lg:p-8 bg-white text-black dark:bg-gray-900 dark:text-white">
       <div className="flex-1 lg:mr-8">
@@ -60,28 +97,78 @@ const PodcastViewport: React.FC = () => {
           <source src={podcast.videoUrl} type="video/mp4" />
           Your browser does not support the video tag.
         </video>
-        <h1 className="text-2xl font-bold mb-4">{podcast.title}</h1>
 
-        <p className="text-gray-700 dark:text-gray-300 mb-2">{podcast.content}</p>
-        <div className="flex items-center text-gray-600 dark:text-gray-400 mb-4">
-          <span className="mr-4">Views: {podcast.views}</span>
-          <span className="mr-4">Likes: {podcast.totalLikes}</span>
-          <span>Comments: {podcast.totalComments}</span>
-        </div>
-        <div>
-          <h2 className="text-xl font-semibold mb-2">Comments</h2>
-          {comments.map(comment => (
-            <div key={comment.id} className="mb-4 p-4 border rounded-lg border-gray-300 dark:border-gray-700">
-              <p className="text-gray-800 dark:text-gray-200">{comment.content}</p>
-              <div className="flex items-center text-gray-600 dark:text-gray-400 mt-2">
-                <span className="mr-4">Likes: {comment.totalLikes}</span>
-                <span>Replies: {comment.totalReplies}</span>
-                <span className="ml-auto">{new Date(comment.timestamp).toLocaleString()}</span>
-              </div>
+        <h1 className="text-2xl font-bold my-2">{podcast.title}</h1>
+
+        <div className="flex items-center justify-between mt-2 my-4 gap-3">
+          <div className="flex items-center gap-3">
+            <img src={podcast.user.avatarUrl || defaultAvatar} alt="avatar" className="w-10 h-10 rounded-full" />
+            <div className="flex flex-col">
+              <span className="text-base font-medium text-black dark:text-white">{userInfo}</span>
+              <span className="text-sm text-gray-700 dark:text-gray-300">100K Follow</span>
             </div>
-          ))}
+            <CustomButton
+              text="Follow"
+              variant="primary"
+              rounded="full"
+              className="bg-gray-600 hover:bg-gray-500 dark:bg-gray-600 hover:dark:bg-gray-500"
+            />
+          </div>
+          <div className="flex items-center gap-3">
+            <CustomButton
+              text={podcast.views.toString() + " views"}
+              icon={<FaEye size={22} />}
+              variant="primary"
+              rounded="full"
+              className="bg-gray-600 hover:bg-gray-500 dark:bg-gray-600 hover:dark:bg-gray-600"
+            />
+            <Tooltip text="Reaction">
+              <CustomButton
+                text={podcast.totalLikes.toString()}
+                icon={<HeartIcon filled={podcast.liked} color={podcast.liked ? "white" : "gray"} strokeColor="white" />}
+                variant="primary"
+                rounded="full"
+                size="sm"
+                onClick={() => handleLike(podcast.id)}
+                className="bg-gray-600 hover:bg-gray-500 dark:bg-gray-600 hover:dark:bg-gray-500"
+              />
+            </Tooltip>
+            <CustomButton
+              text="Share"
+              icon={<FaShareAlt size={20}/>}
+              variant="primary"
+              rounded="full"
+              className="bg-gray-600 hover:bg-gray-500 dark:bg-gray-600 hover:dark:bg-gray-500"
+            />
+            <CustomButton
+              icon={<TfiMoreAlt size={20}/>}
+              variant="primary"
+              rounded="full"
+              className="bg-gray-600 hover:bg-gray-500 dark:bg-gray-600 hover:dark:bg-gray-500"
+            />
+          </div>
         </div>
+
+        {/* Description */}
+        <div className="p-4 rounded-lg bg-gray-200 dark:bg-gray-800">
+          <p className="text-gray-700 dark:text-white text-base font-bold mb-2">
+            Upload day:
+            {" " + formatDateTime(podcast.createdDay)}
+          </p>
+          <pre ref={descriptionRef} className={`text-black dark:text-white whitespace-pre-wrap ${isDescriptionExpanded ? '' : 'line-clamp-5'}`} style={{ fontFamily: 'inherit', fontSize: 'inherit' }}>
+            {podcast.content}
+          </pre>
+          {showDescToggle && (
+            <button onClick={toggleDescription} className="text-blue-600 dark:text-blue-300 font-medium mt-2">
+              {isDescriptionExpanded ? 'Show less' : 'Show more'}
+            </button>
+          )}
+        </div>
+
+        {/* Comments */}
+        <CommentSection podcastId={id!} comments={comments} setComments={setComments} totalComments={podcast.totalComments} currentUserId={podcast.user.id}/>
       </div>
+
       <div className="w-full lg:w-1/4 mt-8 lg:mt-0">
         <h2 className="text-xl font-semibold mb-4">Suggested for you</h2>
         {suggestedPodcasts.map(suggested => (

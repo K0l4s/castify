@@ -76,3 +76,12 @@ export interface userUpdate {
     dateOfBirth:Date;
     [key: string]: any;
 }
+
+export interface UserSimple {
+    id: string;
+    firstName: string;
+    middleName: string;
+    lastName: string;
+    username: string;
+    avatarUrl: string;
+}
