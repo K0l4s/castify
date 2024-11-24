@@ -5,6 +5,7 @@ import com.castify.backend.models.comment.CommentRequestDTO;
 import com.castify.backend.models.comment.CommentModel;
 import com.castify.backend.service.comment.ICommentService;
 import com.castify.backend.service.user.IUserService;
+import io.jsonwebtoken.MalformedJwtException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -43,4 +44,9 @@ public class CommentController {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
     }
+    @ExceptionHandler(MalformedJwtException.class)
+    public ResponseEntity<String> handleMalformedJwtException(MalformedJwtException ex) {
+        return new ResponseEntity<>("Invalid JWT token format", HttpStatus.BAD_REQUEST);
+    }
+
 }
