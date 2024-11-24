@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from "react";
 import { getPodcastComments } from "../../../services/PodcastService";
 import { Comment } from "../../../models/CommentModel";
 import { IoFilter, IoSend } from "react-icons/io5";
-import { MdMoreVert } from "react-icons/md";
+import { MdEdit, MdMoreVert } from "react-icons/md";
 import { RxReset } from "react-icons/rx";
 import { formatDateTime } from "../../../utils/DateUtils";
 import { HeartIcon } from "../custom/SVG_Icon";
@@ -11,6 +11,7 @@ import defaultAvatar from "../../../assets/images/default_avatar.jpg";
 import "./style.css";
 import { addComment } from "../../../services/CommentService";
 import Tooltip from "../custom/Tooltip";
+import { RiDeleteBin6Line } from "react-icons/ri";
 
 interface CommentSectionProps {
   podcastId: string;
@@ -127,6 +128,20 @@ const CommentSection: React.FC<CommentSectionProps> = ({ podcastId, comments, se
     });
   }, [comments]);
 
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      const target = event.target as Node;
+      if (!(target as Element).closest(".comment-options")) {
+        setShowOptions({});
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
+
   return (
     <div className="mt-4">
       <div className="flex items-center gap-4 my-2">
@@ -188,15 +203,26 @@ const CommentSection: React.FC<CommentSectionProps> = ({ podcastId, comments, se
               className="ml-2 text-black dark:text-white dark:hover:bg-gray-900"
             />
             {showOptions[comment.id] && (
-              <div className="absolute -top-20 right-0 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-lg shadow-lg mt-2">
+              <div className="comment-options absolute -top-20 right-0 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-lg shadow-lg mt-2 z-50">
                 <ul className="py-1">
                   {comment.user.id === currentUserId ? (
                     <>
-                      <li className="px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer" onClick={() => handleEdit(comment.id)}>Edit</li>
-                      <li className="px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer" onClick={() => handleDelete(comment.id)}>Delete</li>
+                      <li className="px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer" 
+                        onClick={() => handleEdit(comment.id)}>
+                          <MdEdit className="inline-block mb-1 mr-2" />
+                          Edit
+                      </li>
+                      <li className="px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer" 
+                        onClick={() => handleDelete(comment.id)}>
+                          <RiDeleteBin6Line className="inline-block mb-1 mr-2" />
+                          Delete
+                      </li>
                     </>
                   ) : (
-                    <li className="px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer" onClick={() => handleReport(comment.id)}>Report</li>
+                    <li className="px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer" 
+                      onClick={() => handleReport(comment.id)}>
+                        Report
+                    </li>
                   )}
                 </ul>
               </div>

@@ -5,12 +5,14 @@ import { Podcast } from "../../../models/PodcastModel";
 import defaultAvatar from "../../../assets/images/default_avatar.jpg";
 import CustomButton from "../custom/CustomButton";
 import { HeartIcon } from "../custom/SVG_Icon";
-import { FaEye, FaShareAlt } from "react-icons/fa";
+import { FaBookmark, FaEye, FaFlag, FaShareAlt } from "react-icons/fa";
 import { TfiMoreAlt } from "react-icons/tfi";
 import { formatDateTime } from "../../../utils/DateUtils";
 import { Comment } from "../../../models/CommentModel";
 import CommentSection from "./CommentSection";
 import Tooltip from "../custom/Tooltip";
+import { useSelector } from "react-redux";
+import { RootState } from "../../../redux/store";
 
 const PodcastViewport: React.FC = () => {
   const location = useLocation();
@@ -22,9 +24,12 @@ const PodcastViewport: React.FC = () => {
   const [suggestedPodcasts, setSuggestedPodcasts] = useState<any[]>([]);
   const [isDescriptionExpanded, setIsDescriptionExpanded] = useState(false);
   const [showDescToggle, setShowDescToggle] = useState(false);
+  const [showOptions, setShowOptions] = useState(false);
 
   const descriptionRef = useRef<HTMLPreElement>(null);
 
+  const userRedux = useSelector((state: RootState) => state.auth.user);
+  
   useEffect(() => {
     const fetchPodcast = async () => {
       try {
@@ -70,6 +75,20 @@ const PodcastViewport: React.FC = () => {
     }
   }, [podcast?.content]);
 
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      const target = event.target as Node;
+      if (!(target as Element).closest(".podcast-options")) {
+        setShowOptions(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
+
   if (!podcast) {
     return <div className="flex justify-center items-center h-screen">Loading...</div>;
   }
@@ -88,6 +107,25 @@ const PodcastViewport: React.FC = () => {
     }
   };
 
+  const toggleOptions = () => {
+    setShowOptions(!showOptions);
+  };
+
+  const handleEdit = () => {
+    console.log("Edit podcast");
+    // Add edit logic here
+  };
+
+  const handleReport = () => {
+    console.log("Report podcast");
+    // Add report logic here
+  };
+
+  const handleSave = () => {
+    console.log("Save podcast");
+    // Add save logic here
+  };
+
   const userInfo = podcast?.user.lastName + " " + podcast?.user.middleName + " " +podcast?.user.firstName;
   
   return (
@@ -100,6 +138,7 @@ const PodcastViewport: React.FC = () => {
 
         <h1 className="text-2xl font-bold my-2">{podcast.title}</h1>
 
+        {/* Info */}
         <div className="flex items-center justify-between mt-2 my-4 gap-3">
           <div className="flex items-center gap-3">
             <img src={podcast.user.avatarUrl || defaultAvatar} alt="avatar" className="w-10 h-10 rounded-full" />
@@ -107,12 +146,21 @@ const PodcastViewport: React.FC = () => {
               <span className="text-base font-medium text-black dark:text-white">{userInfo}</span>
               <span className="text-sm text-gray-700 dark:text-gray-300">100K Follow</span>
             </div>
-            <CustomButton
-              text="Follow"
-              variant="primary"
-              rounded="full"
-              className="bg-gray-600 hover:bg-gray-500 dark:bg-gray-600 hover:dark:bg-gray-500"
-            />
+            {podcast.user.id !== userRedux?.id ? (
+              <CustomButton
+                text="Follow"
+                variant="primary"
+                rounded="full"
+                className="bg-gray-600 hover:bg-gray-500 dark:bg-gray-600 hover:dark:bg-gray-500"
+              />
+            ): (
+              <CustomButton
+                text="Edit video"
+                variant="primary"
+                rounded="full"
+                onClick={handleEdit}
+              />
+            )}
           </div>
           <div className="flex items-center gap-3">
             <CustomButton
@@ -140,12 +188,29 @@ const PodcastViewport: React.FC = () => {
               rounded="full"
               className="bg-gray-600 hover:bg-gray-500 dark:bg-gray-600 hover:dark:bg-gray-500"
             />
+            <div className="relative">
             <CustomButton
               icon={<TfiMoreAlt size={20}/>}
               variant="primary"
               rounded="full"
+              onClick={toggleOptions}
               className="bg-gray-600 hover:bg-gray-500 dark:bg-gray-600 hover:dark:bg-gray-500"
             />
+            {showOptions && (
+              <div className="podcast-options absolute -top-10 right-0 -translate-y-2/3 w-48 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-lg shadow-lg z-50">
+                <ul className="py-1">
+                  <li className="px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer" onClick={handleReport}>
+                    <FaFlag className="inline-block mb-1 mr-2" />
+                    Report
+                  </li>
+                  <li className="px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer" onClick={handleSave}>
+                    <FaBookmark className="inline-block mb-1 mr-2" />
+                    Save
+                  </li>
+                </ul>
+              </div>
+            )}
+            </div>
           </div>
         </div>
 
