@@ -3,6 +3,7 @@ package com.castify.backend.controller;
 import com.castify.backend.models.authentication.*;
 import com.castify.backend.service.authenticatation.AuthenticationService;
 import com.castify.backend.service.authenticatation.IAuthenticationService;
+import io.jsonwebtoken.MalformedJwtException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -93,4 +94,9 @@ public class AuthController {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Error: " + e.getMessage());
         }
     }
+    @ExceptionHandler(MalformedJwtException.class)
+    public ResponseEntity<String> handleMalformedJwtException(MalformedJwtException ex) {
+        return new ResponseEntity<>("Invalid JWT token format", HttpStatus.BAD_REQUEST);
+    }
+
 }
