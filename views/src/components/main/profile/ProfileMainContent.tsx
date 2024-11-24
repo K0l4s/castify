@@ -55,7 +55,6 @@ const ProfileMainContent: React.FC<ProfileMainContentProps> = ({
     const toast = useToast();
     const navigate = useNavigate();
     const [user, setUser] = useState<userDetail>(defaultUser);
-    const [isFollow, setIsFollow] = useState(false);
     useEffect(() => {
         const fetchUserDetails = async () => {
             setIsLoading(true);
@@ -70,7 +69,7 @@ const ProfileMainContent: React.FC<ProfileMainContentProps> = ({
 
                 if (userRes?.data) {
                     setUser(userRes.data);
-                    setIsFollow(userRes.data.follow);
+                    // setIsFollow(userRes.data.follow);
                 } else {
                     setUser(defaultUser);
                     toast.error("User not found");
@@ -86,14 +85,19 @@ const ProfileMainContent: React.FC<ProfileMainContentProps> = ({
         fetchUserDetails();
     }, [username, isAuthenticated]);
 
-
-    console.log(isFollow)
     const currentUser = useSelector((state: RootState) => state.auth.user);
     const isOwner = !username || currentUser?.username === username;
     const toggleFollow = async () => {
         const data = userService.followUser(username || "");
-        setIsFollow(!isFollow);
-        console.log((await data).data);
+        // setIsFollow(!isFollow);
+        user.follow = !user.follow;
+        if (user.follow) {
+            user.totalFollower += 1;
+            toast.success("Unfollowed user");
+        } else {
+            user.totalFollower -= 1;
+            toast.success("Followed user");
+        }
     }
     return (
         <div className="w-full">
@@ -190,7 +194,7 @@ const ProfileMainContent: React.FC<ProfileMainContentProps> = ({
                                             <div className="flex items-center gap-1">
                                                 <div className="w-4 h-4 border-4 border-t-transparent border-blue-500 animate-spin rounded-full"></div>
                                             </div>
-                                        ) : isFollow ? (
+                                        ) : user.follow ? (
                                             <div className='flex items-center gap-1'>
                                                 <FaUserCheck className="mr-2" />
                                                 Unfollow
@@ -212,7 +216,7 @@ const ProfileMainContent: React.FC<ProfileMainContentProps> = ({
                                 ) : (
                                     <>
                                         <div className="text-center relative group cursor-pointer transform hover:scale-105 transition-transform duration-300">
-                                            <div className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white group-hover:text-blue-500 dark:group-hover:text-blue-400 transition-colors duration-300">{user.totalFollower}</div>
+                                            <div className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white group-hover:text-blue-500 dark:group-hover:text-blue-400 transition-colors duration-300">{user.totalFollowing}</div>
                                             <div className="text-xs sm:text-sm text-gray-500 dark:text-gray-400 group-hover:text-gray-700 dark:group-hover:text-gray-300">Following</div>
                                             <div className="absolute -top-2 -right-2 bg-blue-500 dark:bg-blue-400 w-3 h-3 sm:w-4 sm:h-4 rounded-full animate-pulse"></div>
                                         </div>
