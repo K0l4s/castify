@@ -37,7 +37,17 @@ public class UserController {
                     .body("Error: " + e.getMessage());
         }
     }
-
+    @GetMapping("/auth")
+    private ResponseEntity<?> getUserAuth() {
+        try {
+            return ResponseEntity
+                    .ok(userService.getUserByToken());
+        } catch (Exception e) {
+            return ResponseEntity
+                    .status(HttpStatus.UNAUTHORIZED)
+                    .body("Error: " + e.getMessage());
+        }
+    }
     @PutMapping("/image")
     private ResponseEntity<String> updateAvatar(
             @RequestPart("avatar") MultipartFile avatarFile

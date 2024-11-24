@@ -13,6 +13,8 @@ public interface IUserService {
 
     UserDetailModel getSelfProfileDetail() throws Exception;
 
+    UserDetailModel mapToUserDetailModel(UserEntity userEntity) throws Exception;
+
     UserModel getUserByToken() throws Exception;
 
     UserModel updateUserInformation() throws Exception;

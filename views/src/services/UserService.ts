@@ -4,7 +4,7 @@ import { axiosInstance, axiosInstanceAuth } from "../utils/axiosInstance";
 export const userService = {
     getUserByToken: async (token:string) => {
 
-            return await axiosInstance.get(`/api/v1/user`,
+            return await axiosInstance.get(`/api/v1/user/auth`,
                 {
                 headers: {
                     Authorization: `Bearer ${token}`
@@ -17,6 +17,9 @@ export const userService = {
             return await axiosInstanceAuth.get(`/api/v1/user?username=${username}`);
         else
             return await axiosInstanceAuth.get(`/api/v1/user`);
+    },
+    getUserAuth: async () => {
+        return await axiosInstanceAuth.get(`/api/v1/user/auth`);
     },
     updateUser: async (user:updateUser) => {
         return await axiosInstanceAuth.put(`/api/v1/user`, user);

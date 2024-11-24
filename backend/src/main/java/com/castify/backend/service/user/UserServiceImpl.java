@@ -1,7 +1,6 @@
 package com.castify.backend.service.user;
 
 import com.castify.backend.entity.UserEntity;
-import com.castify.backend.exception.UserNotFoundException;
 import com.castify.backend.models.user.UpdateUserModel;
 import com.castify.backend.models.user.UserDetailModel;
 import com.castify.backend.models.user.UserModel;
@@ -99,8 +98,8 @@ public UserDetailModel getProfileDetail(String username) throws Exception {
         UserEntity userData = getUserByAuthentication();
         return mapToUserDetailModel(userData);
     }
-
-    private UserDetailModel mapToUserDetailModel(UserEntity userEntity) throws Exception {
+    @Override
+    public UserDetailModel mapToUserDetailModel(UserEntity userEntity) throws Exception {
         // Tạo custom mapping hoặc sử dụng logic thủ công
         UserDetailModel userDetail = modelMapper.map(userEntity, UserDetailModel.class);
 
