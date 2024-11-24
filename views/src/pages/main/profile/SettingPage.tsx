@@ -26,7 +26,7 @@ const SettingPage = () => {
     const fetchUserDetails = async () => {
       setIsLoading(true);
       try {
-        const userRes = await userService.getUserDetails();
+        const userRes = await userService.getUserAuth();
         console.log(userRes);
         if (userRes?.data) {
           setUser(userRes.data);

@@ -56,7 +56,6 @@ public class SecurityConfiguration {
             "/webjars/**",
             "/swagger-ui.html",
             "/api/v1/user",
-            "/api/v1/user/*",
             "/api/v1/user/search",
             "/ws/**",
 

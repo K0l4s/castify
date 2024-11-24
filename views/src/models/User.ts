@@ -20,6 +20,37 @@ export interface User {
     role: Role
     [key: string]: any;
 }
+export interface userDetail{
+    // private String id;
+    // private String fullname;
+    // private String username;
+    // private String avatarUrl;
+    // private String coverUrl;
+    // private LocalDate birthday;
+    // private String address;
+    // private String phone;
+    // private String email;
+    // private List<String> badgesId;
+    // private boolean isFollow;
+    // private long totalFollower;
+    // private long totalFollowing;
+    // private long totalPost;
+    id: string,
+    fullname: string,
+    username: string,
+    avatarUrl: string,
+    coverUrl: string,
+    birthday: Date,
+    address: string,
+    phone: string,
+    email: string,
+    badgesId: string[],
+    follow: boolean,
+    totalFollower: number,
+    totalFollowing: number,
+    totalPost: number
+    [key: string]: any;
+}
 export interface updateUser {
     firstName: string;
     middleName: string;
