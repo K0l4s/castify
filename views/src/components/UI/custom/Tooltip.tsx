@@ -28,7 +28,7 @@ const Tooltip: React.FC<TooltipProps> = ({ text, children }) => {
     >
       {children}
       <div
-        className={`absolute -bottom-10 left-1/2 -translate-x-1/2 bg-gray-700 text-white text-sm rounded py-2 px-2 transition-opacity duration-200 ${
+        className={`absolute -bottom-10 left-1/2 -translate-x-1/2 bg-gray-700 text-white text-sm rounded py-2 px-2 transition-opacity duration-200 z-50 ${
           showTooltip ? 'opacity-100' : 'opacity-0'
         }`}
       >

@@ -176,7 +176,7 @@ const CommentSection: React.FC<CommentSectionProps> = ({ podcastId, comments, se
       {comments.map(comment => (
         <div key={comment.id} className="relative mb-4 p-4 border rounded-lg bg-gray-200 dark:bg-gray-800 border-gray-300 dark:border-gray-700">
           <div className="flex items-center mb-2">
-            <img src={comment.user.avatarUrl || defaultAvatar} alt="avatar" className="w-8 h-8 rounded-full mr-2" />
+            <img src={comment.user.avatarUrl || defaultAvatar} alt="avatar" className="w-10 h-10 rounded-full mr-2" />
             <span className="text-base font-medium text-gray-800 dark:text-gray-200">@{comment.user.username}</span>
             <span className="ml-auto">{formatDateTime(comment.timestamp)}</span>
             <CustomButton
@@ -235,7 +235,7 @@ const CommentSection: React.FC<CommentSectionProps> = ({ podcastId, comments, se
                 <div
                   contentEditable
                   onInput={(e) => handleReplyInput(comment.id, e)}
-                  className="flex-1 p-2 w-full border rounded-lg bg-gray-200 dark:bg-gray-700 dark:text-white resize-none h-auto min-h-[43px] overflow-auto"
+                  className="comment-input flex-1 p-2 w-full border rounded-lg bg-gray-300 dark:bg-gray-700 dark:text-white resize-none h-auto min-h-[43px] overflow-auto"
                   style={{ whiteSpace: "pre-wrap" }}
                   data-placeholder="Add a reply..."
                 />

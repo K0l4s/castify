@@ -93,7 +93,7 @@ const PodcastViewport: React.FC = () => {
   return (
     <div className="flex flex-col lg:flex-row p-4 lg:p-8 bg-white text-black dark:bg-gray-900 dark:text-white">
       <div className="flex-1 lg:mr-8">
-        <video className="w-full mb-4 rounded-lg" controls>
+        <video autoPlay className="w-full mb-4 rounded-lg" controls>
           <source src={podcast.videoUrl} type="video/mp4" />
           Your browser does not support the video tag.
         </video>
