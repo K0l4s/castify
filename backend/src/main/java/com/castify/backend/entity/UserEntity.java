@@ -1,6 +1,7 @@
 package com.castify.backend.entity;
 
 import com.castify.backend.enums.Role;
+import jakarta.validation.constraints.NotNull;
 import org.springframework.data.annotation.Id; // Sửa dòng này
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -13,6 +14,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.Period;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
@@ -28,6 +30,7 @@ public class UserEntity implements UserDetails {
     private String firstName;
     private String middleName;
     private String lastName;
+    @NotNull
     private String username;
     private String avatarUrl;
     private String coverUrl;
@@ -35,6 +38,7 @@ public class UserEntity implements UserDetails {
     private String address;
     private String password;
     private String phone;
+    @NotNull
     private String email;
     private boolean isActive;
     private boolean isNonLocked;
@@ -45,6 +49,7 @@ public class UserEntity implements UserDetails {
     private List<String> badgesId;
 //    @Enumerated(EnumType.STRING)
     private Role role;
+    private List<String> following = new ArrayList<>();
 
 
     @Override
@@ -92,6 +97,14 @@ public class UserEntity implements UserDetails {
         LocalDate today = LocalDate.now();
         Period period = Period.between(birthday, today);
         return period.getYears();
+    }
+
+    public int getTotalFollowing(){
+        return following.size();
+    }
+
+    public boolean isFollow(String targetId){
+        return following.contains(targetId);
     }
 
 
