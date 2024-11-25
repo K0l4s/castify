@@ -108,7 +108,7 @@ const PodcastViewport: React.FC = () => {
 
   const handleLike = async (podcastId: string) => {
     if (!isAuthenticated) {
-      toast.warning("Please login to this action");
+      toast.warning("Please login to do this action");
       return;
     }
     try {
@@ -166,7 +166,7 @@ const PodcastViewport: React.FC = () => {
                 rounded="full"
                 onClick={() => {
                   if (!isAuthenticated) {
-                    toast.warning("Please login to this action");
+                    toast.warning("Please login to do this action");
                   }
                 }}
                 className="bg-gray-600 hover:bg-gray-500 dark:bg-gray-600 hover:dark:bg-gray-500"
