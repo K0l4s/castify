@@ -157,7 +157,6 @@ public class PodcastServiceImpl implements IPodcastService {
         podcastModel.setTotalLikes(totalLikes);
         podcastModel.setUsername(podcastEntity.getUser().getUsername());
 
-        System.out.println("Reach here");
         boolean isLiked = podcastLikeRepository.existsByUserEntityIdAndPodcastEntityId(userEntity.getId(), podcastId);
         podcastModel.setLiked(isLiked);
 

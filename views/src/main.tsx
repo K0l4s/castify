@@ -9,7 +9,7 @@ import { store } from './redux/store.tsx'
 import { AuthProvider } from './context/AuthenticateContext.tsx'
 import ScrollToTop from './utils/ScrollToTop.tsx'
 createRoot(document.getElementById('root')!).render(
-  <StrictMode>
+  // <StrictMode>
     <Provider store={store}>
       <Router >
         <ToastProvider>
@@ -20,5 +20,5 @@ createRoot(document.getElementById('root')!).render(
         </ToastProvider>
       </Router >
     </Provider>
-  </StrictMode>,
+  // </StrictMode>,
 )

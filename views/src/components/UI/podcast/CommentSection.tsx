@@ -1,6 +1,4 @@
 import React, { useState, useRef, useEffect } from "react";
-import { getPodcastComments } from "../../../services/PodcastService";
-import { Comment } from "../../../models/CommentModel";
 import { IoFilter, IoSend } from "react-icons/io5";
 import { MdEdit, MdMoreVert } from "react-icons/md";
 import { RxReset } from "react-icons/rx";
@@ -9,24 +7,22 @@ import { HeartIcon } from "../custom/SVG_Icon";
 import CustomButton from "../custom/CustomButton";
 import defaultAvatar from "../../../assets/images/default_avatar.jpg";
 import "./style.css";
-import { addComment } from "../../../services/CommentService";
 import Tooltip from "../custom/Tooltip";
 import { RiDeleteBin6Line } from "react-icons/ri";
-import { useSelector } from "react-redux";
-import { RootState } from "../../../redux/store";
+import { useDispatch, useSelector } from "react-redux";
+import { AppDispatch, RootState } from "../../../redux/store";
 import { FaFlag } from "react-icons/fa";
 import { useToast } from "../../../context/ToastProvider";
 import { useNavigate } from "react-router-dom";
+import { addNewComment, fetchComments, resetComments } from "../../../redux/slice/commentSlice";
 
 interface CommentSectionProps {
   podcastId: string;
-  comments: Comment[];
-  setComments: React.Dispatch<React.SetStateAction<Comment[]>>;
   totalComments: number;
   currentUserId: string;
 }
 
-const CommentSection: React.FC<CommentSectionProps> = ({ podcastId, comments, setComments, totalComments, currentUserId }) => {
+const CommentSection: React.FC<CommentSectionProps> = ({ podcastId, totalComments, currentUserId }) => {
   const [commentContent, setCommentContent] = useState("");
   const [replyContent, setReplyContent] = useState<{ [key: string]: string }>({});
   const [replyingTo, setReplyingTo] = useState<string | null>(null);
@@ -36,24 +32,31 @@ const CommentSection: React.FC<CommentSectionProps> = ({ podcastId, comments, se
 
   const commentDivRef = useRef<HTMLDivElement>(null);
 
+  const dispatch = useDispatch<AppDispatch>();
+  const { comments, loading, hasMore, page } = useSelector((state: RootState) => state.comments);
   const isAuthenticated = useSelector((state: RootState) => state.auth.isAuthenticated);
   const userRedux = useSelector((state: RootState) => state.auth.user);
 
   const toast = useToast();
   const navigate = useNavigate();
 
+  useEffect(() => {
+    console.log('Fetching comments for podcastId:', podcastId);
+    dispatch(resetComments())
+    dispatch(fetchComments({ podcastId, page: 0 }));
+  }, [dispatch, podcastId]);
+
   const handleCommentSubmit = async () => {
     if (commentContent.trim() === "") return;
 
     try {
       const formattedContent = commentContent.replace(/<div><br><\/div>/g, "\n").replace(/<br>/g, "\n").replace(/<div>/g, "\n").replace(/<\/div>/g, "");
-      await addComment({ podcastId, content: formattedContent });
+      // await addComment({ podcastId, content: formattedContent });
+      await dispatch(addNewComment({ podcastId, content: formattedContent }));
       setCommentContent(""); // Clear the input field
       if (commentDivRef.current) {
         commentDivRef.current.innerText = ""; // Clear the content of the div
       }
-      const commentsData = await getPodcastComments(podcastId); // Refresh comments
-      setComments(commentsData);
     } catch (error) {
       console.error("Error adding comment:", error);
     }
@@ -152,6 +155,13 @@ const CommentSection: React.FC<CommentSectionProps> = ({ podcastId, comments, se
       document.removeEventListener("mousedown", handleClickOutside);
     };
   }, []);
+
+  const handleLoadMore = () => {
+    if (!loading && hasMore) {
+      // setPage((prevPage) => prevPage + 1);
+      dispatch(fetchComments({ podcastId, page: page + 1 }));
+    }
+  };
 
   return (
     <div className="mt-4">
@@ -341,6 +351,16 @@ const CommentSection: React.FC<CommentSectionProps> = ({ podcastId, comments, se
           )}
         </div>
       ))}
+      {loading && <div className="text-center my-4">Loading...</div>}
+      {hasMore && !loading && (
+        <div className="text-center my-4">
+          <CustomButton 
+            text="Load more comments" 
+            variant="primary" 
+            onClick={handleLoadMore} 
+          />
+        </div>
+      )}
     </div>
   );
 };

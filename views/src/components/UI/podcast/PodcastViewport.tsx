@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { getPodcastByAnonymous, getPodcastById, getPodcastComments, getSelfPodcastsInCreator, likePodcast } from "../../../services/PodcastService";
+import { getPodcastByAnonymous, getPodcastById, getSelfPodcastsInCreator, likePodcast } from "../../../services/PodcastService";
 import { Podcast } from "../../../models/PodcastModel";
 import defaultAvatar from "../../../assets/images/default_avatar.jpg";
 import CustomButton from "../custom/CustomButton";
@@ -8,7 +8,6 @@ import { HeartIcon } from "../custom/SVG_Icon";
 import { FaBookmark, FaEye, FaFlag, FaShareAlt } from "react-icons/fa";
 import { TfiMoreAlt } from "react-icons/tfi";
 import { formatDateTime } from "../../../utils/DateUtils";
-import { Comment } from "../../../models/CommentModel";
 import CommentSection from "./CommentSection";
 import Tooltip from "../custom/Tooltip";
 import { useSelector } from "react-redux";
@@ -21,7 +20,6 @@ const PodcastViewport: React.FC = () => {
   const id = queryParams.get("pid");
 
   const [podcast, setPodcast] = useState<Podcast | null>(null);
-  const [comments, setComments] = useState<Comment[]>([]);
   const [suggestedPodcasts, setSuggestedPodcasts] = useState<any[]>([]);
   const [isDescriptionExpanded, setIsDescriptionExpanded] = useState(false);
   const [showDescToggle, setShowDescToggle] = useState(false);
@@ -52,17 +50,6 @@ const PodcastViewport: React.FC = () => {
       }
     };
 
-    const fetchComments = async () => {
-      try {
-        if (id) {
-          const commentsData = await getPodcastComments(id);
-          setComments(commentsData);
-        }
-      } catch (error) {
-        console.error("Error fetching comments:", error);
-      }
-    };
-
     const fetchSuggestedPodcasts = async () => {
       try {
         const suggestedData = await getSelfPodcastsInCreator(); // Temporary
@@ -73,7 +60,6 @@ const PodcastViewport: React.FC = () => {
     };
 
     fetchPodcast();
-    fetchComments();
     fetchSuggestedPodcasts();
   }, [id, isAuthenticated]);
 
@@ -259,7 +245,7 @@ const PodcastViewport: React.FC = () => {
         </div>
 
         {/* Comments */}
-        <CommentSection podcastId={id!} comments={comments} setComments={setComments} totalComments={podcast.totalComments} currentUserId={userRedux?.id!}/>
+        <CommentSection podcastId={id!} totalComments={podcast.totalComments} currentUserId={userRedux?.id!}/>
       </div>
 
       <div className="w-full lg:w-1/4 mt-8 lg:mt-0">
