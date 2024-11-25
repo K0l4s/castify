@@ -12,6 +12,10 @@ import "./style.css";
 import { addComment } from "../../../services/CommentService";
 import Tooltip from "../custom/Tooltip";
 import { RiDeleteBin6Line } from "react-icons/ri";
+import { useSelector } from "react-redux";
+import { RootState } from "../../../redux/store";
+import { FaFlag } from "react-icons/fa";
+import { useToast } from "../../../context/ToastProvider";
 
 interface CommentSectionProps {
   podcastId: string;
@@ -30,6 +34,9 @@ const CommentSection: React.FC<CommentSectionProps> = ({ podcastId, comments, se
   const [showOptions, setShowOptions] = useState<{ [key: string]: boolean }>({});
 
   const commentDivRef = useRef<HTMLDivElement>(null);
+
+  const isAuthenticated = useSelector((state: RootState) => state.auth.isAuthenticated);
+  const toast = useToast();
 
   const handleCommentSubmit = async () => {
     if (commentContent.trim() === "") return;
@@ -154,6 +161,9 @@ const CommentSection: React.FC<CommentSectionProps> = ({ podcastId, comments, se
           className="mb-2 text-black dark:text-white"
         />
       </div>
+      
+      {isAuthenticated ? (
+
       <div className="flex mb-4 gap-2">
         <img src={defaultAvatar} alt="avatar" className="w-10 h-10 rounded-full mr-2" />
         <div className="flex flex-col w-full items-end gap-4">
@@ -188,9 +198,18 @@ const CommentSection: React.FC<CommentSectionProps> = ({ podcastId, comments, se
           </div>
         </div>
       </div>
+      ) : (
+        <div className="mx-auto my-2 text-center">
+          <CustomButton 
+            text="Please login to add a comment" 
+            variant="ghost"
+          />
+        </div>
+      )}
+
       {comments.map(comment => (
-        <div key={comment.id} className="relative mb-4 p-4 border rounded-lg bg-gray-200 dark:bg-gray-800 border-gray-300 dark:border-gray-700">
-          <div className="flex items-center mb-2">
+        <div key={comment.id} className="mb-4 p-4 border rounded-lg bg-gray-200 dark:bg-gray-800 border-gray-300 dark:border-gray-700">
+          <div className="relative flex items-center mb-2">
             <img src={comment.user.avatarUrl || defaultAvatar} alt="avatar" className="w-10 h-10 rounded-full mr-2" />
             <span className="text-base font-medium text-gray-800 dark:text-gray-200">@{comment.user.username}</span>
             <span className="ml-auto">{formatDateTime(comment.timestamp)}</span>
@@ -203,7 +222,7 @@ const CommentSection: React.FC<CommentSectionProps> = ({ podcastId, comments, se
               className="ml-2 text-black dark:text-white dark:hover:bg-gray-900"
             />
             {showOptions[comment.id] && (
-              <div className="comment-options absolute -top-20 right-0 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-lg shadow-lg mt-2 z-50">
+              <div className="comment-options absolute -translate-y-1/2 -top-10 -right-10 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-lg shadow-lg mt-2 z-50">
                 <ul className="py-1">
                   {comment.user.id === currentUserId ? (
                     <>
@@ -220,7 +239,13 @@ const CommentSection: React.FC<CommentSectionProps> = ({ podcastId, comments, se
                     </>
                   ) : (
                     <li className="px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer" 
-                      onClick={() => handleReport(comment.id)}>
+                      onClick={() => { 
+                        if (!isAuthenticated) {
+                          toast.warning("Please login to do this action");
+                        }
+                        handleReport(comment.id)} 
+                      }>
+                        <FaFlag className="inline-block mb-1 mr-2" />
                         Report
                     </li>
                   )}
@@ -243,6 +268,11 @@ const CommentSection: React.FC<CommentSectionProps> = ({ podcastId, comments, se
               variant="ghost"
               rounded="full"
               size="xs"
+              onClick={() => {
+                if (!isAuthenticated) {
+                  toast.warning("Please login to do this action");
+                }
+              }}
             />
             </Tooltip>
             <span className="text-black dark:text-white font-medium">{comment.totalLikes}</span>
@@ -251,10 +281,15 @@ const CommentSection: React.FC<CommentSectionProps> = ({ podcastId, comments, se
               variant="ghost"
               rounded="full"
               className="ml-2 dark:hover:bg-gray-900"
-              onClick={() => setReplyingTo(comment.id)}
+              onClick={() => {
+                if (!isAuthenticated) {
+                  toast.warning("Please login to do this action");
+                }
+                setReplyingTo(comment.id)
+              }}
             />
           </div>
-          {replyingTo === comment.id && (
+          {(replyingTo === comment.id && isAuthenticated) && (
             <div className="flex mt-4 ml-4 gap-2">
               <img src={defaultAvatar} alt="avatar" className="w-10 h-10 rounded-full mr-2" />
               <div className="flex flex-col items-end w-full gap-3">

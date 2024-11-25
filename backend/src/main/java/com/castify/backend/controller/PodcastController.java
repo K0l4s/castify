@@ -143,6 +143,16 @@ public class PodcastController {
         }
     }
 
+    @GetMapping("/anonymous/{id}")
+    public ResponseEntity<?> getPodcastByAnonymous(@PathVariable String id) {
+        try {
+            PodcastModel podcastModel = podcastService.getPodcastByIdAnonymous(id);
+            return ResponseEntity.ok(podcastModel);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error: " + e.getMessage());
+        }
+    }
+
     @PostMapping("/reaction")
     public ResponseEntity<?> addReaction(@RequestBody LikePodcastDTO likePodcastDTO) {
         try {

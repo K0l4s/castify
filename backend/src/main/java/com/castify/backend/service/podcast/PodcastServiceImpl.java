@@ -157,8 +157,27 @@ public class PodcastServiceImpl implements IPodcastService {
         podcastModel.setTotalLikes(totalLikes);
         podcastModel.setUsername(podcastEntity.getUser().getUsername());
 
+        System.out.println("Reach here");
         boolean isLiked = podcastLikeRepository.existsByUserEntityIdAndPodcastEntityId(userEntity.getId(), podcastId);
         podcastModel.setLiked(isLiked);
+
+        return podcastModel;
+    }
+
+    @Override
+    public PodcastModel getPodcastByIdAnonymous(String id) {
+        PodcastEntity podcastEntity = podcastRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Podcast not found"));
+
+        long totalComments = commentRepository.countByPodcastId(id);
+        long totalLikes = podcastLikeRepository.countByPodcastEntityId(id);
+
+        PodcastModel podcastModel = modelMapper.map(podcastEntity, PodcastModel.class);
+        podcastModel.setTotalComments(totalComments);
+        podcastModel.setTotalLikes(totalLikes);
+        podcastModel.setUsername(podcastEntity.getUser().getUsername());
+
+        podcastModel.setLiked(false);
 
         return podcastModel;
     }

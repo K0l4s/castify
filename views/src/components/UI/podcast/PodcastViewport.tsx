@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import { useLocation } from "react-router-dom";
-import { getPodcastById, getPodcastComments, getSelfPodcastsInCreator, likePodcast } from "../../../services/PodcastService";
+import { getPodcastByAnonymous, getPodcastById, getPodcastComments, getSelfPodcastsInCreator, likePodcast } from "../../../services/PodcastService";
 import { Podcast } from "../../../models/PodcastModel";
 import defaultAvatar from "../../../assets/images/default_avatar.jpg";
 import CustomButton from "../custom/CustomButton";
@@ -13,6 +13,7 @@ import CommentSection from "./CommentSection";
 import Tooltip from "../custom/Tooltip";
 import { useSelector } from "react-redux";
 import { RootState } from "../../../redux/store";
+import { useToast } from "../../../context/ToastProvider";
 
 const PodcastViewport: React.FC = () => {
   const location = useLocation();
@@ -29,12 +30,20 @@ const PodcastViewport: React.FC = () => {
   const descriptionRef = useRef<HTMLPreElement>(null);
 
   const userRedux = useSelector((state: RootState) => state.auth.user);
-  
+  const isAuthenticated = useSelector((state: RootState) => state.auth.isAuthenticated);
+
+  const toast = useToast();
+
   useEffect(() => {
     const fetchPodcast = async () => {
       try {
         if (id) {
-          const podcastData = await getPodcastById(id);
+          let podcastData;
+          if (isAuthenticated) {
+            podcastData = await getPodcastById(id);
+          } else {
+            podcastData = await getPodcastByAnonymous(id);
+          }
           setPodcast(podcastData);
         }
       } catch (error) {
@@ -55,7 +64,7 @@ const PodcastViewport: React.FC = () => {
 
     const fetchSuggestedPodcasts = async () => {
       try {
-        const suggestedData = await getSelfPodcastsInCreator();
+        const suggestedData = await getSelfPodcastsInCreator(); // Temporary
         setSuggestedPodcasts(suggestedData.podcasts);
       } catch (error) {
         console.error("Error fetching suggested podcasts:", error);
@@ -65,7 +74,7 @@ const PodcastViewport: React.FC = () => {
     fetchPodcast();
     fetchComments();
     fetchSuggestedPodcasts();
-  }, [id]);
+  }, [id, isAuthenticated]);
 
   useEffect(() => {
     if (descriptionRef.current) {
@@ -98,6 +107,10 @@ const PodcastViewport: React.FC = () => {
   };
 
   const handleLike = async (podcastId: string) => {
+    if (!isAuthenticated) {
+      toast.warning("Please login to this action");
+      return;
+    }
     try {
       await likePodcast(podcastId);
       const updatedPodcast = await getPodcastById(podcastId);
@@ -151,6 +164,11 @@ const PodcastViewport: React.FC = () => {
                 text="Follow"
                 variant="primary"
                 rounded="full"
+                onClick={() => {
+                  if (!isAuthenticated) {
+                    toast.warning("Please login to this action");
+                  }
+                }}
                 className="bg-gray-600 hover:bg-gray-500 dark:bg-gray-600 hover:dark:bg-gray-500"
               />
             ): (
@@ -231,7 +249,7 @@ const PodcastViewport: React.FC = () => {
         </div>
 
         {/* Comments */}
-        <CommentSection podcastId={id!} comments={comments} setComments={setComments} totalComments={podcast.totalComments} currentUserId={podcast.user.id}/>
+        <CommentSection podcastId={id!} comments={comments} setComments={setComments} totalComments={podcast.totalComments} currentUserId={userRedux?.id!}/>
       </div>
 
       <div className="w-full lg:w-1/4 mt-8 lg:mt-0">
