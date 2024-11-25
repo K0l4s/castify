@@ -119,7 +119,7 @@ public class PodcastController {
             Path filePath = Paths.get(videoBasePath).resolve(path).normalize();
             Resource resource = new UrlResource(filePath.toUri());
 
-            if (resource.exists()) {
+            if (resource.exists() && resource.isReadable()) {
                 return ResponseEntity.ok()
                         .contentType(MediaType.parseMediaType("video/mp4"))
                         .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\"" + resource.getFilename() + "\"")
