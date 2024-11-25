@@ -16,6 +16,7 @@ import { useSelector } from "react-redux";
 import { RootState } from "../../../redux/store";
 import { FaFlag } from "react-icons/fa";
 import { useToast } from "../../../context/ToastProvider";
+import { useNavigate } from "react-router-dom";
 
 interface CommentSectionProps {
   podcastId: string;
@@ -36,7 +37,10 @@ const CommentSection: React.FC<CommentSectionProps> = ({ podcastId, comments, se
   const commentDivRef = useRef<HTMLDivElement>(null);
 
   const isAuthenticated = useSelector((state: RootState) => state.auth.isAuthenticated);
+  const userRedux = useSelector((state: RootState) => state.auth.user);
+
   const toast = useToast();
+  const navigate = useNavigate();
 
   const handleCommentSubmit = async () => {
     if (commentContent.trim() === "") return;
@@ -163,41 +167,45 @@ const CommentSection: React.FC<CommentSectionProps> = ({ podcastId, comments, se
       </div>
       
       {isAuthenticated ? (
-
-      <div className="flex mb-4 gap-2">
-        <img src={defaultAvatar} alt="avatar" className="w-10 h-10 rounded-full mr-2" />
-        <div className="flex flex-col w-full items-end gap-4">
-          <div
-            ref={commentDivRef}
-            contentEditable
-            onInput={handleInput}
-            onKeyDown={handleKeyDown}
-            className="comment-input flex-1 p-2 w-full border rounded-lg bg-gray-200 dark:bg-gray-700 dark:text-white resize-none h-auto min-h-[43px] overflow-auto"
-            style={{ whiteSpace: "pre-wrap" }}
-            data-placeholder="Add a comment..."
+        <div className="flex mb-4 gap-2">
+          <img 
+            src={userRedux?.avatarUrl || defaultAvatar} 
+            alt="avatar" 
+            className="w-10 h-10 rounded-full mr-2 cursor-pointer" 
+            onClick={() => navigate(`/profile/${userRedux?.username}`)}
           />
-          <div className="flex gap-3">
-            <Tooltip text="Undo">
-              <CustomButton
-                icon={<RxReset size={20} />}
-                onClick={handeResetInput}
-                variant="ghost"
-                className="py-3"
-              />
-            </Tooltip>
+          <div className="flex flex-col w-full items-end gap-4">
+            <div
+              ref={commentDivRef}
+              contentEditable
+              onInput={handleInput}
+              onKeyDown={handleKeyDown}
+              className="comment-input flex-1 p-2 w-full border rounded-lg bg-gray-200 dark:bg-gray-700 dark:text-white resize-none h-auto min-h-[43px] overflow-auto"
+              style={{ whiteSpace: "pre-wrap" }}
+              data-placeholder="Add a comment..."
+            />
+            <div className="flex gap-3">
+              <Tooltip text="Undo">
+                <CustomButton
+                  icon={<RxReset size={20} />}
+                  onClick={handeResetInput}
+                  variant="ghost"
+                  className="py-3"
+                />
+              </Tooltip>
 
-            <Tooltip text="Send">
-              <CustomButton
-                icon={<IoSend size={20} />}
-                onClick={handleCommentSubmit}
-                variant="primary"
-                className="bg-gray-600 hover:bg-gray-500 dark:bg-gray-600 hover:dark:bg-gray-500 py-3"
-              />
-            </Tooltip>
-            
+              <Tooltip text="Send">
+                <CustomButton
+                  icon={<IoSend size={20} />}
+                  onClick={handleCommentSubmit}
+                  variant="primary"
+                  className="bg-gray-600 hover:bg-gray-500 dark:bg-gray-600 hover:dark:bg-gray-500 py-3"
+                />
+              </Tooltip>
+              
+            </div>
           </div>
         </div>
-      </div>
       ) : (
         <div className="mx-auto my-2 text-center">
           <CustomButton 
@@ -210,8 +218,18 @@ const CommentSection: React.FC<CommentSectionProps> = ({ podcastId, comments, se
       {comments.map(comment => (
         <div key={comment.id} className="mb-4 p-4 border rounded-lg bg-gray-200 dark:bg-gray-800 border-gray-300 dark:border-gray-700">
           <div className="relative flex items-center mb-2">
-            <img src={comment.user.avatarUrl || defaultAvatar} alt="avatar" className="w-10 h-10 rounded-full mr-2" />
-            <span className="text-base font-medium text-gray-800 dark:text-gray-200">@{comment.user.username}</span>
+            <img 
+              src={comment.user.avatarUrl || defaultAvatar} 
+              alt="avatar" 
+              className="w-10 h-10 rounded-full mr-2 cursor-pointer" 
+              onClick={() => navigate(`/profile/${comment.user.username}`)}
+            />
+            <span 
+              className="text-base font-medium text-gray-800 dark:text-gray-200 cursor-pointer"
+              onClick={() => navigate(`/profile/${comment.user.username}`)}
+            >
+              @{comment.user.username}
+            </span>
             <span className="ml-auto">{formatDateTime(comment.timestamp)}</span>
             <CustomButton
               icon={<MdMoreVert size={20}/>}

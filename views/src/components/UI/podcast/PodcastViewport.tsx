@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { getPodcastByAnonymous, getPodcastById, getPodcastComments, getSelfPodcastsInCreator, likePodcast } from "../../../services/PodcastService";
 import { Podcast } from "../../../models/PodcastModel";
 import defaultAvatar from "../../../assets/images/default_avatar.jpg";
@@ -33,6 +33,7 @@ const PodcastViewport: React.FC = () => {
   const isAuthenticated = useSelector((state: RootState) => state.auth.isAuthenticated);
 
   const toast = useToast();
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchPodcast = async () => {
@@ -154,9 +155,18 @@ const PodcastViewport: React.FC = () => {
         {/* Info */}
         <div className="flex items-center justify-between mt-2 my-4 gap-3">
           <div className="flex items-center gap-3">
-            <img src={podcast.user.avatarUrl || defaultAvatar} alt="avatar" className="w-10 h-10 rounded-full" />
+            <img 
+              src={podcast.user.avatarUrl || defaultAvatar} 
+              alt="avatar" 
+              className="w-10 h-10 rounded-full cursor-pointer" 
+              onClick={() => navigate(`/profile/${userRedux?.username}`)}
+            />
             <div className="flex flex-col">
-              <span className="text-base font-medium text-black dark:text-white">{userInfo}</span>
+              <span 
+                className="text-base font-medium text-black dark:text-white cursor-pointer" 
+                onClick={() => navigate(`/profile/${userRedux?.username}`)}>
+                {userInfo}
+              </span>
               <span className="text-sm text-gray-700 dark:text-gray-300">100K Follow</span>
             </div>
             {podcast.user.id !== userRedux?.id ? (
