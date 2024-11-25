@@ -15,6 +15,7 @@ import { FaFlag } from "react-icons/fa";
 import { useToast } from "../../../context/ToastProvider";
 import { useNavigate } from "react-router-dom";
 import { addNewComment, fetchComments, resetComments } from "../../../redux/slice/commentSlice";
+import { AiOutlineLoading3Quarters } from "react-icons/ai";
 
 interface CommentSectionProps {
   podcastId: string;
@@ -28,7 +29,11 @@ const CommentSection: React.FC<CommentSectionProps> = ({ podcastId, totalComment
   const [replyingTo, setReplyingTo] = useState<string | null>(null);
   const [expandedComments, setExpandedComments] = useState<{ [key: string]: boolean }>({});
   const [showCommentToggle, setShowCommentToggle] = useState<{ [key: string]: boolean }>({});
-  const [showOptions, setShowOptions] = useState<{ [key: string]: boolean }>({});
+  const [showCommentOptions, setShowCommentOptions] = useState<{ [key: string]: boolean }>({});
+  const [showFilterOptions, setShowFilterOptions] = useState(false);
+  const [filter, setFilter] = useState("latest");
+  const [filterLoading, setFilterLoading] = useState(false);
+  const [loadMoreLoading, setLoadMoreLoading] = useState(false);
 
   const commentDivRef = useRef<HTMLDivElement>(null);
 
@@ -41,9 +46,8 @@ const CommentSection: React.FC<CommentSectionProps> = ({ podcastId, totalComment
   const navigate = useNavigate();
 
   useEffect(() => {
-    console.log('Fetching comments for podcastId:', podcastId);
     dispatch(resetComments())
-    dispatch(fetchComments({ podcastId, page: 0 }));
+    dispatch(fetchComments({ podcastId, page: 0, sortBy: filter }));
   }, [dispatch, podcastId]);
 
   const handleCommentSubmit = async () => {
@@ -110,10 +114,25 @@ const CommentSection: React.FC<CommentSectionProps> = ({ podcastId, totalComment
   };
 
   const toggleOptions = (commentId: string) => {
-    setShowOptions((prev) => ({
+    setShowCommentOptions((prev) => ({
       ...prev,
       [commentId]: !prev[commentId],
     }));
+  };
+
+  const toggleFilterOptions = () => {
+    setShowFilterOptions(!showFilterOptions);
+  }
+
+  const handleFilterChange = (sortBy: string) => {
+    setFilterLoading(true);
+    setFilter(sortBy);
+    setShowFilterOptions(false);
+    dispatch(resetComments());
+    setTimeout(() => {
+      dispatch(fetchComments({ podcastId, page: 0, sortBy }));
+      setFilterLoading(false);
+    }, 500);
   };
 
   const handleReport = (commentId: string) => {
@@ -146,7 +165,7 @@ const CommentSection: React.FC<CommentSectionProps> = ({ podcastId, totalComment
     const handleClickOutside = (event: MouseEvent) => {
       const target = event.target as Node;
       if (!(target as Element).closest(".comment-options")) {
-        setShowOptions({});
+        setShowCommentOptions({});
       }
     };
 
@@ -157,23 +176,57 @@ const CommentSection: React.FC<CommentSectionProps> = ({ podcastId, totalComment
   }, []);
 
   const handleLoadMore = () => {
+    setLoadMoreLoading(true);
     if (!loading && hasMore) {
-      // setPage((prevPage) => prevPage + 1);
-      dispatch(fetchComments({ podcastId, page: page + 1 }));
+      setTimeout(() => {
+        dispatch(fetchComments({ podcastId, page: page + 1, sortBy: filter }));
+        setLoadMoreLoading(false);
+      }, 500)
     }
   };
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      const target = event.target as Node;
+      if (!(target as Element).closest(".filter-options")) {
+        setShowFilterOptions(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
 
   return (
     <div className="mt-4">
       <div className="flex items-center gap-4 my-2">
         <h2 className="text-xl font-semibold mb-2">{totalComments} comments</h2>
-        <CustomButton 
-          text="Filter"
-          variant="ghost"
-          rounded="lg"
-          icon={<IoFilter size={24} />}  
-          className="mb-2 text-black dark:text-white"
-        />
+        <div className="relative">
+          <CustomButton 
+            text="Filter"
+            variant="ghost"
+            rounded="lg"
+            icon={<IoFilter size={24} />}  
+            onClick={toggleFilterOptions}
+            className="mb-2 text-black dark:text-white"
+          />
+          {showFilterOptions && (
+            <div className="filter-options absolute -top-20 -left-20 translate-x-full w-48 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-lg shadow-lg z-50">
+              <ul className="py-1">
+                <li className="px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer"
+                  onClick={() => handleFilterChange('latest')}>
+                  Latest
+                </li>
+                <li className="px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer"
+                  onClick={() => handleFilterChange('oldest')}>
+                  Oldest
+                </li>
+              </ul>
+            </div>
+          )}
+        </div>
       </div>
       
       {isAuthenticated ? (
@@ -225,6 +278,13 @@ const CommentSection: React.FC<CommentSectionProps> = ({ podcastId, totalComment
         </div>
       )}
 
+      {(loading || filterLoading) && 
+        <div className="text-center my-4 font-bold ">
+          <AiOutlineLoading3Quarters className="inline-block mb-1 mr-2 animate-spin"/>
+          Loading...
+        </div>
+      }
+
       {comments.map(comment => (
         <div key={comment.id} className="mb-4 p-4 border rounded-lg bg-gray-200 dark:bg-gray-800 border-gray-300 dark:border-gray-700">
           <div className="relative flex items-center mb-2">
@@ -249,7 +309,7 @@ const CommentSection: React.FC<CommentSectionProps> = ({ podcastId, totalComment
               onClick={() => toggleOptions(comment.id)}
               className="ml-2 text-black dark:text-white dark:hover:bg-gray-900"
             />
-            {showOptions[comment.id] && (
+            {showCommentOptions[comment.id] && (
               <div className="comment-options absolute -translate-y-1/2 -top-10 -right-10 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-lg shadow-lg mt-2 z-50">
                 <ul className="py-1">
                   {comment.user.id === currentUserId ? (
@@ -351,15 +411,21 @@ const CommentSection: React.FC<CommentSectionProps> = ({ podcastId, totalComment
           )}
         </div>
       ))}
-      {loading && <div className="text-center my-4">Loading...</div>}
       {hasMore && !loading && (
         <div className="text-center my-4">
+        {loadMoreLoading ? (
+          <div className="font-bold">
+            <AiOutlineLoading3Quarters className="inline-block mb-1 mr-2 animate-spin" />
+            Loading...
+          </div>
+        ) : (
           <CustomButton 
-            text="Load more comments" 
+            text="Load more comments"
             variant="primary" 
             onClick={handleLoadMore} 
           />
-        </div>
+        )}
+      </div>
       )}
     </div>
   );

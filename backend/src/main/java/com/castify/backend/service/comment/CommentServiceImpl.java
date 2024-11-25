@@ -62,7 +62,7 @@ public class CommentServiceImpl implements ICommentService {
     public PageDTO<CommentModel> getPodcastComments(String id, int page, int size, String sortBy) {
         try {
             String sortField = switch (sortBy) {
-                case "popular" -> "likeCount"; // Sắp xếp theo số like
+                case "popular" -> "likeCount"; // Sắp xếp theo số like === BUG
                 case "oldest" -> "timestamp"; // Sắp xếp theo thời gian cũ nhất
                 default -> "timestamp"; // Mặc định sắp xếp theo thời gian mới nhất
             };

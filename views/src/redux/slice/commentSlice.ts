@@ -19,8 +19,8 @@ const initialState: CommentsState = {
 
 export const fetchComments = createAsyncThunk(
   'comments/fetchComments',
-  async ({ podcastId, page }: { podcastId: string; page: number }) => {
-    const response = await getPodcastComments(podcastId, page, 10, 'latest');
+  async ({ podcastId, page, sortBy }: { podcastId: string; page: number; sortBy: string }) => {
+    const response = await getPodcastComments(podcastId, page, 10, sortBy);
     return response;
   }
 );
