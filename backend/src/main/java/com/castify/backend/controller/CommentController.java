@@ -1,6 +1,8 @@
 package com.castify.backend.controller;
 
 import com.castify.backend.entity.UserEntity;
+import com.castify.backend.models.PageDTO;
+import com.castify.backend.models.comment.LikeCommentDTO;
 import com.castify.backend.models.comment.CommentRequestDTO;
 import com.castify.backend.models.comment.CommentModel;
 import com.castify.backend.service.comment.ICommentService;
@@ -10,8 +12,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/comment")
@@ -35,9 +35,12 @@ public class CommentController {
     }
 
     @GetMapping("/list/{id}")
-    public ResponseEntity<List<CommentModel>> getComments(@PathVariable String id) {
+    public ResponseEntity<PageDTO<CommentModel>> getComments(@PathVariable String id,
+                                                          @RequestParam(defaultValue = "0") int page,
+                                                          @RequestParam(defaultValue = "10") int size,
+                                                          @RequestParam(defaultValue = "latest") String sortBy) {
         try {
-            List<CommentModel> commentModels = commentService.getPodcastComments(id);
+            PageDTO<CommentModel> commentModels = commentService.getPodcastComments(id, page, size, sortBy);
             return new ResponseEntity<>(commentModels, HttpStatus.OK);
         } catch (Exception e) {
             System.out.println(e.getMessage());
@@ -49,4 +52,13 @@ public class CommentController {
         return new ResponseEntity<>("Invalid JWT token format", HttpStatus.BAD_REQUEST);
     }
 
+    @PostMapping("/reaction")
+    public ResponseEntity<?> toggleLikeOnComments(@RequestBody LikeCommentDTO likeCommentDTO) {
+        try {
+            boolean res = commentService.toggleLikeOnComment(likeCommentDTO.getCommentId());
+            return ResponseEntity.ok(res);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error: " + e.getMessage());
+        }
+    }
 }
