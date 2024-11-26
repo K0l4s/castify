@@ -9,5 +9,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class CommentRequestDTO {
     private String podcastId;
+    private String parentId;
+    private String mentionedUser;
     private String content;
 }

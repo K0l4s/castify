@@ -13,20 +13,18 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/api/v1/comment")
 public class CommentController {
     @Autowired
     private ICommentService commentService;
 
-    @Autowired
-    private IUserService userService;
-
     @PostMapping("/add")
     public ResponseEntity<CommentModel> addComment(@RequestBody CommentRequestDTO commentRequestDTO) {
         try {
-            UserEntity user = userService.getUserByAuthentication();
-            CommentModel commentModel = commentService.addComment(user, commentRequestDTO);
+            CommentModel commentModel = commentService.addComment(commentRequestDTO);
             return new ResponseEntity<>(commentModel, HttpStatus.CREATED);
         } catch (Exception exception) {
             System.out.println(exception.getMessage());
@@ -57,6 +55,16 @@ public class CommentController {
         try {
             boolean res = commentService.toggleLikeOnComment(likeCommentDTO.getCommentId());
             return ResponseEntity.ok(res);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error: " + e.getMessage());
+        }
+    }
+
+    @GetMapping("/list/replies/{id}")
+    public ResponseEntity<?> getReplies(@PathVariable String id) {
+        try {
+            List<CommentModel> replies = commentService.getReplies(id);
+            return new ResponseEntity<>(replies, HttpStatus.OK);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error: " + e.getMessage());
         }

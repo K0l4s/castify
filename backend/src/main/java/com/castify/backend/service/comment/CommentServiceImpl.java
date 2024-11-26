@@ -10,6 +10,7 @@ import com.castify.backend.models.comment.CommentRequestDTO;
 import com.castify.backend.repository.CommentLikeRepository;
 import com.castify.backend.repository.CommentRepository;
 import com.castify.backend.repository.PodcastRepository;
+import com.castify.backend.repository.UserRepository;
 import com.castify.backend.service.user.IUserService;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,6 +19,7 @@ import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -34,23 +36,56 @@ public class CommentServiceImpl implements ICommentService {
 
     @Autowired
     private IUserService userService;
+
     @Autowired
     private CommentLikeRepository commentLikeRepository;
 
+    @Autowired
+    private UserRepository userRepository;
+
     @Override
-    public CommentModel addComment(UserEntity user, CommentRequestDTO commentRequestDTO) {
+    public CommentModel addComment(CommentRequestDTO commentRequestDTO) {
         try {
+            UserEntity userEntity = userService.getUserByAuthentication();
             PodcastEntity podcastEntity = podcastRepository.findById(commentRequestDTO.getPodcastId())
                     .orElseThrow(() -> new RuntimeException("Podcast not found"));
 
             CommentEntity commentEntity = modelMapper.map(commentRequestDTO, CommentEntity.class);
             commentEntity.setId(null);
             commentEntity.setPodcast(podcastEntity);
-            commentEntity.setUser(user);
+            commentEntity.setParentId(commentRequestDTO.getParentId());
+            commentEntity.setUser(userEntity);
             commentEntity.setContent(commentEntity.getContent());
             commentEntity.setTimestamp(LocalDateTime.now());
 
-            commentRepository.save(commentEntity);
+            // Nếu có parentId, tìm comment cha và thêm vào replies
+            if (commentRequestDTO.getParentId() != null) {
+                CommentEntity parentComment = commentRepository.findById(commentRequestDTO.getParentId())
+                        .orElseThrow(() -> new RuntimeException("Parent comment not found"));
+
+                // replies là null thì tạo một danh sách rỗng
+                if (parentComment.getReplies() == null) {
+                    parentComment.setReplies(new ArrayList<>());
+                }
+
+                // Lưu comment con trước để MongoDB sinh ID cho commentEntity
+                commentRepository.save(commentEntity);
+
+                // Sau khi lưu, commentEntity sẽ có ID hợp lệ
+                parentComment.getReplies().add(commentEntity);
+
+                // Mention user nếu có
+                if (commentRequestDTO.getMentionedUser() != null) {
+                    UserEntity mentionedUser = userRepository.findByUsername(commentRequestDTO.getMentionedUser())
+                            .orElseThrow(() -> new RuntimeException("User not found"));
+                    commentEntity.setMentionedUser(mentionedUser.getUsername());
+                }
+
+                commentRepository.save(parentComment);
+            } else {
+                // Nếu không có parentId, đây là comment cấp 0
+                commentRepository.save(commentEntity);
+            }
 
             return modelMapper.map(commentEntity, CommentModel.class);
         } catch (Exception e) {
@@ -91,7 +126,7 @@ public class CommentServiceImpl implements ICommentService {
                     .map(comment -> {
                         CommentModel model = modelMapper.map(comment, CommentModel.class);
                         model.setTotalLikes(comment.getLikes() != null ? comment.getLikes().size() : 0); // Thiết lập `totalLikes`
-
+                        model.setTotalReplies(comment.getTotalReplies());
                         // Neu user entity ton tai thi kiem tra isLiked, nguoc lai set false cho isLiked
                         if (finalUserEntity != null) {
                             boolean isLiked = commentLikeRepository.existsByUserEntityIdAndCommentEntityId(finalUserEntity.getId(), comment.getId());
@@ -122,6 +157,8 @@ public class CommentServiceImpl implements ICommentService {
         if (existingLike.isPresent()) {
             // If like, delete it
             commentLikeRepository.delete(existingLike.get());
+            commentEntity.getLikes().remove(existingLike.get());
+            commentRepository.save(commentEntity);
             return false;
         } else {
             // If not , add a like
@@ -129,8 +166,45 @@ public class CommentServiceImpl implements ICommentService {
             newLike.setCommentEntity(commentEntity);
             newLike.setUserEntity(userEntity);
             newLike.setTimestamp(LocalDateTime.now());
-            commentLikeRepository.save(newLike);
+            CommentLikeEntity savedLike = commentLikeRepository.save(newLike);
+
+            if (commentEntity.getLikes() == null) {
+                commentEntity.setLikes(new ArrayList<>());
+            }
+
+            commentEntity.getLikes().add(savedLike);
+            commentRepository.save(commentEntity);
+            return true;
         }
-        return true;
+    }
+
+    @Override
+    public List<CommentModel> getReplies(String id) {
+        UserEntity userEntity = null;
+        try {
+            userEntity = userService.getUserByAuthentication();
+        } catch (Exception ignored) {
+            // Anonymous user
+        }
+
+        Optional<CommentEntity> parentComment = commentRepository.findById(id);
+        if (parentComment.isPresent()) {
+            UserEntity finalUserEntity = userEntity;
+            return parentComment.get().getReplies().stream()
+                    .map(reply -> {
+                        CommentModel model = modelMapper.map(reply, CommentModel.class);
+                        model.setTotalLikes(reply.getLikes() != null ? reply.getLikes().size() : 0);
+                        model.setTotalReplies(reply.getTotalReplies());
+                        if (finalUserEntity != null) {
+                            boolean isLiked = commentLikeRepository.existsByUserEntityIdAndCommentEntityId(finalUserEntity.getId(), reply.getId());
+                            model.setLiked(isLiked);
+                        } else {
+                            model.setLiked(false);
+                        }
+                        return model;
+                    })
+                    .toList();
+        }
+        return null;
     }
 }

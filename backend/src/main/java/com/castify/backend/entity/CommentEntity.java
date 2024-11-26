@@ -18,8 +18,12 @@ public class CommentEntity {
     @Id
     private String id;
 
+    private String parentId;
+
     @DBRef(lazy = true)
     private UserEntity user;
+
+    private String mentionedUser;
 
     private String content;
 
