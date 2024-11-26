@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
-import { useLocation } from "react-router-dom";
-import { getPodcastById, getPodcastComments, getSelfPodcastsInCreator, likePodcast } from "../../../services/PodcastService";
+import { useLocation, useNavigate } from "react-router-dom";
+import { getPodcastByAnonymous, getPodcastById, getSelfPodcastsInCreator, likePodcast } from "../../../services/PodcastService";
 import { Podcast } from "../../../models/PodcastModel";
 import defaultAvatar from "../../../assets/images/default_avatar.jpg";
 import CustomButton from "../custom/CustomButton";
@@ -8,11 +8,11 @@ import { HeartIcon } from "../custom/SVG_Icon";
 import { FaBookmark, FaEye, FaFlag, FaShareAlt } from "react-icons/fa";
 import { TfiMoreAlt } from "react-icons/tfi";
 import { formatDateTime } from "../../../utils/DateUtils";
-import { Comment } from "../../../models/CommentModel";
 import CommentSection from "./CommentSection";
 import Tooltip from "../custom/Tooltip";
 import { useSelector } from "react-redux";
 import { RootState } from "../../../redux/store";
+import { useToast } from "../../../context/ToastProvider";
 
 const PodcastViewport: React.FC = () => {
   const location = useLocation();
@@ -20,7 +20,6 @@ const PodcastViewport: React.FC = () => {
   const id = queryParams.get("pid");
 
   const [podcast, setPodcast] = useState<Podcast | null>(null);
-  const [comments, setComments] = useState<Comment[]>([]);
   const [suggestedPodcasts, setSuggestedPodcasts] = useState<any[]>([]);
   const [isDescriptionExpanded, setIsDescriptionExpanded] = useState(false);
   const [showDescToggle, setShowDescToggle] = useState(false);
@@ -29,12 +28,21 @@ const PodcastViewport: React.FC = () => {
   const descriptionRef = useRef<HTMLPreElement>(null);
 
   const userRedux = useSelector((state: RootState) => state.auth.user);
-  
+  const isAuthenticated = useSelector((state: RootState) => state.auth.isAuthenticated);
+
+  const toast = useToast();
+  const navigate = useNavigate();
+
   useEffect(() => {
     const fetchPodcast = async () => {
       try {
         if (id) {
-          const podcastData = await getPodcastById(id);
+          let podcastData;
+          if (isAuthenticated) {
+            podcastData = await getPodcastById(id);
+          } else {
+            podcastData = await getPodcastByAnonymous(id);
+          }
           setPodcast(podcastData);
         }
       } catch (error) {
@@ -42,20 +50,9 @@ const PodcastViewport: React.FC = () => {
       }
     };
 
-    const fetchComments = async () => {
-      try {
-        if (id) {
-          const commentsData = await getPodcastComments(id);
-          setComments(commentsData);
-        }
-      } catch (error) {
-        console.error("Error fetching comments:", error);
-      }
-    };
-
     const fetchSuggestedPodcasts = async () => {
       try {
-        const suggestedData = await getSelfPodcastsInCreator();
+        const suggestedData = await getSelfPodcastsInCreator(); // Temporary
         setSuggestedPodcasts(suggestedData.podcasts);
       } catch (error) {
         console.error("Error fetching suggested podcasts:", error);
@@ -63,9 +60,8 @@ const PodcastViewport: React.FC = () => {
     };
 
     fetchPodcast();
-    fetchComments();
     fetchSuggestedPodcasts();
-  }, [id]);
+  }, [id, isAuthenticated]);
 
   useEffect(() => {
     if (descriptionRef.current) {
@@ -98,6 +94,10 @@ const PodcastViewport: React.FC = () => {
   };
 
   const handleLike = async (podcastId: string) => {
+    if (!isAuthenticated) {
+      toast.warning("Please login to do this action");
+      return;
+    }
     try {
       await likePodcast(podcastId);
       const updatedPodcast = await getPodcastById(podcastId);
@@ -141,9 +141,18 @@ const PodcastViewport: React.FC = () => {
         {/* Info */}
         <div className="flex items-center justify-between mt-2 my-4 gap-3">
           <div className="flex items-center gap-3">
-            <img src={podcast.user.avatarUrl || defaultAvatar} alt="avatar" className="w-10 h-10 rounded-full" />
+            <img 
+              src={podcast.user.avatarUrl || defaultAvatar} 
+              alt="avatar" 
+              className="w-10 h-10 rounded-full cursor-pointer" 
+              onClick={() => navigate(`/profile/${userRedux?.username}`)}
+            />
             <div className="flex flex-col">
-              <span className="text-base font-medium text-black dark:text-white">{userInfo}</span>
+              <span 
+                className="text-base font-medium text-black dark:text-white cursor-pointer" 
+                onClick={() => navigate(`/profile/${userRedux?.username}`)}>
+                {userInfo}
+              </span>
               <span className="text-sm text-gray-700 dark:text-gray-300">100K Follow</span>
             </div>
             {podcast.user.id !== userRedux?.id ? (
@@ -151,6 +160,11 @@ const PodcastViewport: React.FC = () => {
                 text="Follow"
                 variant="primary"
                 rounded="full"
+                onClick={() => {
+                  if (!isAuthenticated) {
+                    toast.warning("Please login to do this action");
+                  }
+                }}
                 className="bg-gray-600 hover:bg-gray-500 dark:bg-gray-600 hover:dark:bg-gray-500"
               />
             ): (
@@ -231,7 +245,7 @@ const PodcastViewport: React.FC = () => {
         </div>
 
         {/* Comments */}
-        <CommentSection podcastId={id!} comments={comments} setComments={setComments} totalComments={podcast.totalComments} currentUserId={podcast.user.id}/>
+        <CommentSection podcastId={id!} totalComments={podcast.totalComments} currentUserId={userRedux?.id!}/>
       </div>
 
       <div className="w-full lg:w-1/4 mt-8 lg:mt-0">

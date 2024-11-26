@@ -2,8 +2,12 @@ import React, { useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { IoIosArrowBack, IoIosArrowForward } from "react-icons/io";
 import { usePodcastContext } from "../../../context/PodcastContext";
+import { useSelector } from "react-redux";
+import { RootState } from "../../../redux/store";
 
 const MyPodcastPage: React.FC = () => {
+  const isAuthenticated = useSelector((state: RootState) => state.auth.isAuthenticated);
+
   const { podcasts, currentPage, totalPages, fetchPodcasts } = usePodcastContext();
   const location = useLocation();
   const navigate = useNavigate();
@@ -34,7 +38,7 @@ const MyPodcastPage: React.FC = () => {
     } else {
       fetchPodcastsFromParams(searchParams);
     }
-  }, [location.search, navigate]);
+  }, [location.search, navigate, isAuthenticated]);
 
   const fetchPodcastsFromParams = async (searchParams: URLSearchParams) => {
     const page = Number(searchParams.get("page"));

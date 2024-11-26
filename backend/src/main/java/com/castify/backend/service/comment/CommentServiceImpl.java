@@ -1,18 +1,25 @@
 package com.castify.backend.service.comment;
 
 import com.castify.backend.entity.CommentEntity;
+import com.castify.backend.entity.CommentLikeEntity;
 import com.castify.backend.entity.PodcastEntity;
 import com.castify.backend.entity.UserEntity;
+import com.castify.backend.models.PageDTO;
 import com.castify.backend.models.comment.CommentModel;
 import com.castify.backend.models.comment.CommentRequestDTO;
+import com.castify.backend.repository.CommentLikeRepository;
 import com.castify.backend.repository.CommentRepository;
 import com.castify.backend.repository.PodcastRepository;
+import com.castify.backend.service.user.IUserService;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.*;
+import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class CommentServiceImpl implements ICommentService {
@@ -24,6 +31,11 @@ public class CommentServiceImpl implements ICommentService {
 
     @Autowired
     private ModelMapper modelMapper;
+
+    @Autowired
+    private IUserService userService;
+    @Autowired
+    private CommentLikeRepository commentLikeRepository;
 
     @Override
     public CommentModel addComment(UserEntity user, CommentRequestDTO commentRequestDTO) {
@@ -48,16 +60,77 @@ public class CommentServiceImpl implements ICommentService {
     }
 
     @Override
-    public List<CommentModel> getPodcastComments(String id) {
+    public PageDTO<CommentModel> getPodcastComments(String id, int page, int size, String sortBy) {
         try {
-            List<CommentEntity> commentEntities = commentRepository.findByPodcastId(id);
+            UserEntity userEntity = null;
+            try {
+                userEntity = userService.getUserByAuthentication();
+            } catch (Exception ignored) {
+                // Anonymous user
+            }
 
-            return commentEntities.stream()
-                    .map(commentEntity -> modelMapper.map(commentEntity, CommentModel.class))
-                    .toList();
+            String sortField = switch (sortBy) {
+                case "popular" -> "likeCount"; // Sắp xếp theo số like === BUG
+                case "oldest" -> "timestamp"; // Sắp xếp theo thời gian cũ nhất
+                default -> "timestamp"; // Mặc định sắp xếp theo thời gian mới nhất
+            };
+
+            int sortDirection = sortBy.equals("oldest") ? 1 : -1; // 1 = ASC, -1 = DESC
+            int skip = page * size;
+
+            long totalElements = commentRepository.countByPodcastId(id);
+            int totalPages = (int) Math.ceil(totalElements / (double) size);
+
+            List<CommentEntity> commentEntities = commentRepository.findCommentsWithLikes(
+                    id, sortField, sortDirection, skip, size
+            );
+
+            UserEntity finalUserEntity = userEntity;
+
+            List<CommentModel> commentModels = commentEntities.stream()
+                    .map(comment -> {
+                        CommentModel model = modelMapper.map(comment, CommentModel.class);
+                        model.setTotalLikes(comment.getLikes() != null ? comment.getLikes().size() : 0); // Thiết lập `totalLikes`
+
+                        // Neu user entity ton tai thi kiem tra isLiked, nguoc lai set false cho isLiked
+                        if (finalUserEntity != null) {
+                            boolean isLiked = commentLikeRepository.existsByUserEntityIdAndCommentEntityId(finalUserEntity.getId(), comment.getId());
+                            model.setLiked(isLiked);
+                        } else {
+                            model.setLiked(false);
+                        }
+                        return model;
+                    }).toList();
+
+            return new PageDTO<>(commentModels, size, page, totalPages, totalElements);
         } catch (Exception e) {
             System.out.println("Error getting comments: " + e.getMessage());
             throw new RuntimeException("Failed to get comments", e);
         }
+    }
+
+    @Override
+    public boolean toggleLikeOnComment(String id) throws Exception {
+        UserEntity userEntity = userService.getUserByAuthentication();
+
+        CommentEntity commentEntity = commentRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Comment not found"));
+
+        Optional<CommentLikeEntity> existingLike = commentLikeRepository
+                .findByUserEntityIdAndCommentEntityId(userEntity.getId(), commentEntity.getId());
+
+        if (existingLike.isPresent()) {
+            // If like, delete it
+            commentLikeRepository.delete(existingLike.get());
+            return false;
+        } else {
+            // If not , add a like
+            CommentLikeEntity newLike = new CommentLikeEntity();
+            newLike.setCommentEntity(commentEntity);
+            newLike.setUserEntity(userEntity);
+            newLike.setTimestamp(LocalDateTime.now());
+            commentLikeRepository.save(newLike);
+        }
+        return true;
     }
 }

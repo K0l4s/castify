@@ -21,4 +21,7 @@ public class CommentLikeEntity {
     private UserEntity userEntity;
 
     private LocalDateTime timestamp;
+
+    @DBRef(lazy = true)
+    private CommentEntity commentEntity;
 }

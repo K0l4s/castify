@@ -45,6 +45,8 @@ public class SecurityConfiguration {
             "/api/v1/podcast/all",
             "/api/v1/podcast/view/**",
             "/api/v1/podcast/video",
+            "/api/v1/podcast/anonymous/**",
+            "/api/v1/comment/list/{id}",
             "/v2/api-docs",
             "/v3/api-docs",
             "/v3/api-docs/**",

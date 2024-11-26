@@ -120,7 +120,7 @@ public class PodcastController {
             Path filePath = Paths.get(videoBasePath).resolve(path).normalize();
             Resource resource = new UrlResource(filePath.toUri());
 
-            if (resource.exists()) {
+            if (resource.exists() && resource.isReadable()) {
                 return ResponseEntity.ok()
                         .contentType(MediaType.parseMediaType("video/mp4"))
                         .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\"" + resource.getFilename() + "\"")
@@ -137,6 +137,16 @@ public class PodcastController {
     public ResponseEntity<?> getPodcastByAuthUser(@PathVariable String id) {
         try {
             PodcastModel podcastModel = podcastService.getPodcastById(id);
+            return ResponseEntity.ok(podcastModel);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error: " + e.getMessage());
+        }
+    }
+
+    @GetMapping("/anonymous/{id}")
+    public ResponseEntity<?> getPodcastByAnonymous(@PathVariable String id) {
+        try {
+            PodcastModel podcastModel = podcastService.getPodcastByIdAnonymous(id);
             return ResponseEntity.ok(podcastModel);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error: " + e.getMessage());
