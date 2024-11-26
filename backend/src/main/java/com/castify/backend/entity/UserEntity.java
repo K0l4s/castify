@@ -35,7 +35,11 @@ public class UserEntity implements UserDetails {
     private String avatarUrl;
     private String coverUrl;
     private LocalDate birthday;
-    private String address;
+    private String addressElements;
+    private String ward;
+    private String district;
+    private String provinces;
+//    private String address;
     private String password;
     private String phone;
     @NotNull
@@ -106,6 +110,31 @@ public class UserEntity implements UserDetails {
     public boolean isFollow(String targetId){
         return following.contains(targetId);
     }
+
+    public String getAddress() {
+        String address = "";
+
+        if (addressElements != null && !addressElements.isEmpty() && !addressElements.isBlank()) {
+            address += addressElements;
+        }
+
+        if (ward != null && !ward.isEmpty() && !ward.isBlank()) {
+            address += (address.isEmpty() ? "" : ", ") + ward;
+        }
+
+        if (district != null && !district.isEmpty() && !district.isBlank()) {
+            address += (address.isEmpty() ? "" : ", ") + district;
+        }
+
+        if (provinces != null && !provinces.isEmpty() && !provinces.isBlank()) {
+            address += (address.isEmpty() ? "" : ", ") + provinces;
+        }else{
+            address += ".";
+        }
+
+        return address;
+    }
+
 
 
 }

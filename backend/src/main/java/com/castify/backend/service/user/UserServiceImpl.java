@@ -173,14 +173,15 @@ public UserDetailModel getProfileDetail(String username) throws Exception {
     @Override
     public UpdateUserModel updateUserInformationById(UpdateUserModel updateUserModel) throws Exception {
         UserEntity userData = getUserByAuthentication();
-        LocalDateTime lastUpdateUsername = userData.getLastUpdateUsername();
+//        LocalDateTime lastUpdateUsername = userData.getLastUpdateUsername();
 
 //        userData.setUsername(updateUserModel.getUsername());
         userData.setFirstName(updateUserModel.getFirstName());
         userData.setMiddleName(updateUserModel.getMiddleName());
         userData.setLastName(updateUserModel.getLastName());
         userData.setBirthday(updateUserModel.getBirthday());
-        userData.setAddress(updateUserModel.getAddress());
+//        userData.setAddressElements(u);
+//        userData.setAddress(updateUserModel.getAddress());
 //        userData.setLastUpdateUsername(LocalDateTime.now());
 
         UserEntity updatedUser = userRepository.save(userData);

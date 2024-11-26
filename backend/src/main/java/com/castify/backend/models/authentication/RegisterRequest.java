@@ -21,6 +21,10 @@ public class RegisterRequest {
     private String password;
     private String confirmPassword;
     private LocalDate birthday;
-    private String address;
+//    private String address;
+    private String addressElements;
+    private String ward;
+    private String district;
+    private String provinces;
     private String phone;
 }
