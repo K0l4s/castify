@@ -11,5 +11,5 @@ import java.util.List;
 public interface ICommentService {
     CommentModel addComment(UserEntity user, CommentRequestDTO commentRequestDTO);
     PageDTO<CommentModel> getPodcastComments(String id, int page, int size, String sortBy);
-    String toggleLikeOnComment(String id) throws Exception;
+    boolean toggleLikeOnComment(String id) throws Exception;
 }

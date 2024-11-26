@@ -55,7 +55,7 @@ public class CommentController {
     @PostMapping("/reaction")
     public ResponseEntity<?> toggleLikeOnComments(@RequestBody LikeCommentDTO likeCommentDTO) {
         try {
-            String res = commentService.toggleLikeOnComment(likeCommentDTO.getCommentId());
+            boolean res = commentService.toggleLikeOnComment(likeCommentDTO.getCommentId());
             return ResponseEntity.ok(res);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error: " + e.getMessage());

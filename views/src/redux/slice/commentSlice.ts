@@ -1,7 +1,6 @@
 import { createSlice, PayloadAction, createAsyncThunk } from '@reduxjs/toolkit';
 import { Comment } from '../../models/CommentModel';
-import { getPodcastComments } from '../../services/PodcastService';
-import { addComment } from '../../services/CommentService';
+import { addComment, getPodcastComments, likeComment } from '../../services/CommentService';
 
 interface CommentsState {
   comments: Comment[];
@@ -19,8 +18,8 @@ const initialState: CommentsState = {
 
 export const fetchComments = createAsyncThunk(
   'comments/fetchComments',
-  async ({ podcastId, page, sortBy }: { podcastId: string; page: number; sortBy: string }) => {
-    const response = await getPodcastComments(podcastId, page, 10, sortBy);
+  async ({ podcastId, page, sortBy, isAuthenticated }: { podcastId: string; page: number; sortBy: string; isAuthenticated: boolean }) => {
+    const response = await getPodcastComments(podcastId, page, 10, sortBy, isAuthenticated);
     return response;
   }
 );
@@ -30,6 +29,14 @@ export const addNewComment = createAsyncThunk(
   async ({ podcastId, content }: { podcastId: string; content: string }) => {
     const response = await addComment({ podcastId, content });
     return response;
+  }
+);
+
+export const likeCommentAction = createAsyncThunk(
+  'comments/likeComment',
+  async ({ commentId }: { commentId: string }) => {
+    const response = await likeComment(commentId);
+    return { commentId, liked: response };
   }
 );
 
@@ -60,6 +67,14 @@ const commentsSlice = createSlice({
       })
       .addCase(addNewComment.fulfilled, (state, action: PayloadAction<Comment>) => {
         state.comments = [action.payload, ...state.comments];
+      })
+      .addCase(likeCommentAction.fulfilled, (state, action: PayloadAction<{ commentId: string, liked: boolean }>) => {
+        const { commentId, liked } = action.payload;
+        const comment = state.comments.find(comment => comment.id === commentId);
+        if (comment) {
+          comment.liked = liked;
+          comment.totalLikes += liked ? 1 : -1;
+        }
       });
   },
 });

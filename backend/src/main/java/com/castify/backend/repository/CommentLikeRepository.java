@@ -9,6 +9,7 @@ import java.util.Optional;
 
 @Repository
 public interface CommentLikeRepository extends MongoRepository<CommentLikeEntity, String> {
+    boolean existsByUserEntityIdAndCommentEntityId(String userId, String commentId);
     long countByCommentEntityId(String commentId);
     Optional<CommentLikeEntity> findByUserEntityIdAndCommentEntityId(String userId, String commentId);
 }

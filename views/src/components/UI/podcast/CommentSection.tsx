@@ -14,7 +14,7 @@ import { AppDispatch, RootState } from "../../../redux/store";
 import { FaFlag } from "react-icons/fa";
 import { useToast } from "../../../context/ToastProvider";
 import { useNavigate } from "react-router-dom";
-import { addNewComment, fetchComments, resetComments } from "../../../redux/slice/commentSlice";
+import { addNewComment, fetchComments, likeCommentAction, resetComments } from "../../../redux/slice/commentSlice";
 import { AiOutlineLoading3Quarters } from "react-icons/ai";
 
 interface CommentSectionProps {
@@ -47,7 +47,7 @@ const CommentSection: React.FC<CommentSectionProps> = ({ podcastId, totalComment
 
   useEffect(() => {
     dispatch(resetComments())
-    dispatch(fetchComments({ podcastId, page: 0, sortBy: filter }));
+    dispatch(fetchComments({ podcastId, page: 0, sortBy: filter, isAuthenticated }));
   }, [dispatch, podcastId]);
 
   const handleCommentSubmit = async () => {
@@ -130,7 +130,7 @@ const CommentSection: React.FC<CommentSectionProps> = ({ podcastId, totalComment
     setShowFilterOptions(false);
     dispatch(resetComments());
     setTimeout(() => {
-      dispatch(fetchComments({ podcastId, page: 0, sortBy }));
+      dispatch(fetchComments({ podcastId, page: 0, sortBy, isAuthenticated }));
       setFilterLoading(false);
     }, 500);
   };
@@ -148,6 +148,14 @@ const CommentSection: React.FC<CommentSectionProps> = ({ podcastId, totalComment
   const handleEdit = (commentId: string) => {
     console.log(`Edit comment: ${commentId}`);
     // Thêm logic xử lý chỉnh sửa ở đây
+  };
+
+  const handleLike = (commentId: string) => {
+    if (!isAuthenticated) {
+      toast.warning("Please login to do this action");
+      return;
+    }
+    dispatch(likeCommentAction({ commentId }));
   };
 
   useEffect(() => {
@@ -179,7 +187,7 @@ const CommentSection: React.FC<CommentSectionProps> = ({ podcastId, totalComment
     setLoadMoreLoading(true);
     if (!loading && hasMore) {
       setTimeout(() => {
-        dispatch(fetchComments({ podcastId, page: page + 1, sortBy: filter }));
+        dispatch(fetchComments({ podcastId, page: page + 1, sortBy: filter, isAuthenticated }));
         setLoadMoreLoading(false);
       }, 500)
     }
@@ -351,17 +359,13 @@ const CommentSection: React.FC<CommentSectionProps> = ({ podcastId, totalComment
           )}
           <div className="flex items-center text-gray-600 dark:text-gray-400 mt-2">
             <Tooltip text="Reaction">
-            <CustomButton 
-              icon={<HeartIcon filled={comment.liked} color={comment.liked ? "#991f00" : "gray"} strokeColor="#991f00" />}
-              variant="ghost"
-              rounded="full"
-              size="xs"
-              onClick={() => {
-                if (!isAuthenticated) {
-                  toast.warning("Please login to do this action");
-                }
-              }}
-            />
+              <CustomButton 
+                icon={<HeartIcon filled={comment.liked} color={comment.liked ? "#991f00" : "gray"} strokeColor="#991f00" />}
+                variant="ghost"
+                rounded="full"
+                size="xs"
+                onClick={() => handleLike(comment.id)}
+              />
             </Tooltip>
             <span className="text-black dark:text-white font-medium">{comment.totalLikes}</span>
             <CustomButton 

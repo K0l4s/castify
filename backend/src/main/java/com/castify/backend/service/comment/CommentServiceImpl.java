@@ -14,6 +14,7 @@ import com.castify.backend.service.user.IUserService;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.*;
+import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -61,6 +62,13 @@ public class CommentServiceImpl implements ICommentService {
     @Override
     public PageDTO<CommentModel> getPodcastComments(String id, int page, int size, String sortBy) {
         try {
+            UserEntity userEntity = null;
+            try {
+                userEntity = userService.getUserByAuthentication();
+            } catch (Exception ignored) {
+                // Anonymous user
+            }
+
             String sortField = switch (sortBy) {
                 case "popular" -> "likeCount"; // Sắp xếp theo số like === BUG
                 case "oldest" -> "timestamp"; // Sắp xếp theo thời gian cũ nhất
@@ -77,10 +85,20 @@ public class CommentServiceImpl implements ICommentService {
                     id, sortField, sortDirection, skip, size
             );
 
+            UserEntity finalUserEntity = userEntity;
+
             List<CommentModel> commentModels = commentEntities.stream()
                     .map(comment -> {
                         CommentModel model = modelMapper.map(comment, CommentModel.class);
                         model.setTotalLikes(comment.getLikes() != null ? comment.getLikes().size() : 0); // Thiết lập `totalLikes`
+
+                        // Neu user entity ton tai thi kiem tra isLiked, nguoc lai set false cho isLiked
+                        if (finalUserEntity != null) {
+                            boolean isLiked = commentLikeRepository.existsByUserEntityIdAndCommentEntityId(finalUserEntity.getId(), comment.getId());
+                            model.setLiked(isLiked);
+                        } else {
+                            model.setLiked(false);
+                        }
                         return model;
                     }).toList();
 
@@ -92,7 +110,7 @@ public class CommentServiceImpl implements ICommentService {
     }
 
     @Override
-    public String toggleLikeOnComment(String id) throws Exception {
+    public boolean toggleLikeOnComment(String id) throws Exception {
         UserEntity userEntity = userService.getUserByAuthentication();
 
         CommentEntity commentEntity = commentRepository.findById(id)
@@ -104,6 +122,7 @@ public class CommentServiceImpl implements ICommentService {
         if (existingLike.isPresent()) {
             // If like, delete it
             commentLikeRepository.delete(existingLike.get());
+            return false;
         } else {
             // If not , add a like
             CommentLikeEntity newLike = new CommentLikeEntity();
@@ -112,6 +131,6 @@ public class CommentServiceImpl implements ICommentService {
             newLike.setTimestamp(LocalDateTime.now());
             commentLikeRepository.save(newLike);
         }
-        return "Success";
+        return true;
     }
 }

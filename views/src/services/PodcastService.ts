@@ -77,21 +77,6 @@ export const getPodcastByAnonymous = async (id: string) => {
   }
 };
 
-export const getPodcastComments = async (podcastId: string, page = 0, size = 10, sortBy = "latest") => {
-  try {
-    const response = await axiosInstance.get(`/api/v1/comment/list/${podcastId}`, {
-      params: {
-        page,
-        size,
-        sortBy,
-      },
-    });
-    return response.data;
-  } catch (error) {
-    throw error;
-  }
-};
-
 export const likePodcast = async (podcastId: string) => {
   try {
     const response = await axiosInstanceAuth.post(`/api/v1/podcast/reaction`, { podcastId });
