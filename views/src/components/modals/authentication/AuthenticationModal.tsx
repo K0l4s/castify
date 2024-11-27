@@ -30,6 +30,7 @@ const AuthenticationModal: React.FC<AuthenticationModalProps> = ({ isLogin, isOp
                 trigger={toggleAuthView}
                 isOpen={isOpen} 
                 onClose={onClose}
+                toggleAuthView={toggleAuthView}
             />
         );
     };

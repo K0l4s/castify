@@ -34,7 +34,7 @@ public class UserEntity implements UserDetails {
     private String username;
     private String avatarUrl;
     private String coverUrl;
-    private LocalDate birthday;
+    private LocalDateTime birthday;
     private String addressElements;
     private String ward;
     private String district;
@@ -98,9 +98,13 @@ public class UserEntity implements UserDetails {
         return firstName+" "+middleName+" "+lastName;
     }
     public int getAge(){
-        LocalDate today = LocalDate.now();
-        Period period = Period.between(birthday, today);
-        return period.getYears();
+        LocalDateTime today = LocalDateTime.now();
+        int ages = today.getYear() - birthday.getYear();
+//        if(birthday.getMonthValue() > today.getMonthValue()){
+//            if(birthday.getDayOfMonth()< today.getDayOfMonth())
+//                age=age-1;
+//        }
+        return ages;
     }
 
     public int getTotalFollowing(){

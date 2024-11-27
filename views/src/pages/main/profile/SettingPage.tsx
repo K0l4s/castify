@@ -2,21 +2,33 @@ import React, { useEffect, useState } from 'react';
 import { updateUser, User } from '../../../models/User';
 import { userService } from '../../../services/UserService';
 import { useToast } from '../../../context/ToastProvider';
-import Loading from '../../../components/UI/custom/Loading';
+import { district, provinces, ward } from '../../../models/Location';
+import { locationService } from '../../../services/LocationService';
 import CustomButton from '../../../components/UI/custom/CustomButton';
 import CustomInput from '../../../components/UI/custom/CustomInput';
 import { BiEditAlt, BiLoader, BiSave } from 'react-icons/bi';
 import { GiCancel } from 'react-icons/gi';
+import Loading from '../../../components/UI/custom/Loading';
 
 const SettingPage = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [user, setUser] = useState<User>();
+  const [provincesList, setProvincesList] = useState<provinces[]>([]);
+  const [districtsList, setDistrictsList] = useState<district[]>([]);
+  const [wardsList, setWardsList] = useState<ward[]>([]);
+  const [selectedProvinceId, setSelectedProvinceId] = useState<string>('');
+  const [selectedDistrictId, setSelectedDistrictId] = useState<string>('');
+  const [selectedWardId, setSelectedWardId] = useState<string>('');
   const [editedUser, setEditedUser] = useState<updateUser>({
     firstName: '',
     middleName: '',
     lastName: '',
     birthday: new Date(),
-    address: '',
+    // address: '',
+    addressElements: '',
+    ward: '',
+    district: '',
+    provinces: '',
     phone: ''
   });
   const [isEdit, setIsEdit] = useState(false);
@@ -34,10 +46,15 @@ const SettingPage = () => {
             firstName: userRes.data.firstName,
             middleName: userRes.data.middleName,
             lastName: userRes.data.lastName,
-            birthday: userRes.data.birthday,
-            address: userRes.data.address,
+            birthday: new Date(userRes.data.birthday),
+            addressElements: userRes.data.addressElements,
+            ward: userRes.data.ward,
+            district: userRes.data.district,
+            provinces: userRes.data.provinces,
+            // address: userRes.data.address,
             phone: userRes.data.phone
           });
+          // const selectedDistrictId = 
         } else {
           toast.error("Error loading user details");
         }
@@ -54,10 +71,11 @@ const SettingPage = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
+    console.log(editedUser);
     try {
       const response = await userService.updateUser(editedUser);
       if (response.data) {
-        setUser(prev => prev ? {...prev, ...editedUser} : prev);
+        setUser(prev => prev ? { ...prev, ...editedUser } : prev);
         setIsEdit(false);
         toast.success("Profile updated successfully");
       }
@@ -70,8 +88,13 @@ const SettingPage = () => {
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    setEditedUser(prev => ({...prev, [name]: value}));
+
+    setEditedUser(prev => ({
+      ...prev,
+      [name]: name === "birthday" ? new Date(value) : value
+    }));
   };
+
 
   const handleCancel = () => {
     if (user) {
@@ -80,11 +103,99 @@ const SettingPage = () => {
         middleName: user.middleName,
         lastName: user.lastName,
         birthday: user.birthday,
-        address: user.address,
+        addressElements: user.addressElements,
+        ward: user.ward,
+        district: user.district,
+        provinces: user.provinces,
+        // address: user.address,
         phone: user.phone
       });
     }
     setIsEdit(false);
+  };
+  // Fetch provinces when modal is open
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await locationService.getProvinces();
+        const proList = response.data.data;
+        setProvincesList(proList);
+        const province = proList.find((province: provinces) => province.name === user?.provinces);
+        setSelectedProvinceId(province?.id || '');
+      } catch (error) {
+        toast.error("Failed to load provinces");
+      }
+    }
+    fetchData();
+
+  }, [user]);
+
+  // Fetch districts based on selected province
+  useEffect(() => {
+    console.log(selectedProvinceId);
+    if (selectedProvinceId) {
+      const fetchData = async () => {
+        try {
+
+          const response = await locationService.getDistricts(selectedProvinceId);
+          const disList = response.data.data;
+          setDistrictsList(disList);
+          const district = disList.find((district: district) => district.name === user?.district);
+          setSelectedDistrictId(district?.id || '');
+        } catch (error) {
+          toast.error("Failed to load districts");
+        }
+      };
+      fetchData();
+    }
+  }, [selectedProvinceId]);
+
+  // Fetch wards based on selected district
+  useEffect(() => {
+    if (selectedDistrictId) {
+      const fetchData = async () => {
+        try {
+          const response = await locationService.getWards(selectedDistrictId);
+          const warList = response.data.data;
+          setWardsList(warList);
+          const ward = warList.find((ward: ward) => ward.name === user?.ward);
+          setSelectedWardId(ward?.id || '');
+        } catch (error) {
+          toast.error("Failed to load wards");
+        }
+      };
+      fetchData();
+    }
+  }, [selectedDistrictId]);
+
+  const handleSelectChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const { name, value } = e.target;
+    // console.log(value);
+    // console.log(name)
+    // Update selected province/district ID and formData
+    if (name === 'provinces') {
+      setSelectedProvinceId(value);
+      const province = provincesList.find(province => province.id === value);
+      setSelectedProvinceId(province?.id || '');
+      setEditedUser(prev => ({ ...prev, provinces: province?.name || '' }));
+      setEditedUser(prev => ({ ...prev, district: '' }));
+      setEditedUser(prev => ({ ...prev, ward: '' }));
+      setDistrictsList([]);
+      setWardsList([]);
+    } else if (name === 'district') {
+      setSelectedDistrictId(value);
+
+      const district = districtsList.find(district => district.id === value);
+      setSelectedDistrictId(district?.id || '');
+      setEditedUser(prev => ({ ...prev, district: district?.name || '' }));
+      setEditedUser(prev => ({ ...prev, ward: '' }));
+      setWardsList([]);
+    } else if (name === 'ward') {
+      const ward = wardsList.find(ward => ward.id === value);
+      setSelectedWardId(ward?.id || '');
+      setEditedUser(prev => ({ ...prev, ward: ward?.name || '' }));
+      console.log(editedUser)
+    }
   };
 
   return (
@@ -104,7 +215,7 @@ const SettingPage = () => {
             </CustomButton>
           )}
         </div>
-        
+
         <form onSubmit={handleSubmit} className="space-y-6">
           <div className="grid grid-cols-1 gap-6">
             <div className="grid grid-cols-3 gap-4">
@@ -146,8 +257,11 @@ const SettingPage = () => {
               </div>
             </div>
 
-
             <div>
+              <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">Birthday</label>
+
+            </div>
+            {/* <div>
               <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">Phone</label>
               <CustomInput
                 type="tel"
@@ -158,19 +272,81 @@ const SettingPage = () => {
                 variant="primary"
                 className="mt-1 block w-full"
               />
-            </div>
-
+            </div> */}
             <div>
-              <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">Address</label>
+              <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">Birthday</label>
+              <input
+                type="date"
+                name="birthday"
+                value={
+                  editedUser.birthday instanceof Date
+                    ? editedUser.birthday.toISOString().split('T')[0]
+                    : new Date(editedUser.birthday).toISOString().split('T')[0]
+                }
+                onChange={handleInputChange}
+                disabled={!isEdit}
+                className="mt-1 block w-full border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-300 disabled:border-gray-200 disabled:bg-gray-100 dark:disabled:border-gray-700 dark:disabled bg-gray-800 disabled:text-gray-400 dark:disabled:text-gray-500 px-4 py-2 rounded-md"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">Hamlet</label>
               <CustomInput
                 type="text"
-                name="address"
-                value={editedUser.address}
+                name="addressElements"
+                value={editedUser.addressElements}
                 onChange={handleInputChange}
                 disabled={!isEdit}
                 variant="primary"
                 className="mt-1 block w-full"
               />
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div>
+                <label htmlFor="provinces" >District</label>
+                <select
+                  id="provinces"
+                  name="provinces"
+                  value={selectedProvinceId}
+                  onChange={handleSelectChange}
+                  required
+                >
+                  <option value="">Select Provinces</option>
+                  {provincesList.map(province => (
+                    <option key={province.id} value={province.id}>{province.name}</option>
+                  ))}
+                </select>
+              </div>
+              <div>
+                <label htmlFor="district">District</label>
+                <select
+                  id="district"
+                  name="district"
+                  value={selectedDistrictId}
+                  onChange={handleSelectChange}
+                  required
+                >
+                  <option value="">Select District</option>
+                  {districtsList.map(district => (
+                    <option key={district.id} value={district.id}>{district.name}</option>
+                  ))}
+                </select>
+              </div>
+              <div>
+                <label htmlFor="ward">Ward</label>
+                <select
+                  id="ward"
+                  name="ward"
+                  value={selectedWardId}
+                  onChange={handleSelectChange}
+                  required
+                >
+                  <option value="">Select Ward</option>
+                  {wardsList.map(ward => (
+                    <option key={ward.id} value={ward.id}>{ward.name}</option>
+                  ))}
+                </select>
+              </div>
             </div>
           </div>
 
@@ -191,7 +367,7 @@ const SettingPage = () => {
                 className="px-8 py-3 text-lg font-semibold rounded-lg transform hover:scale-105 transition duration-200"
                 disabled={isLoading}
               >
-                {isLoading ? <><BiLoader/>Saving...</> : <><BiSave/>Save Changes</>}
+                {isLoading ? <><BiLoader />Saving...</> : <><BiSave />Save Changes</>}
               </CustomButton>
             </div>
           )}

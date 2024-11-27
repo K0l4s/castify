@@ -17,8 +17,8 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
-import java.util.ArrayList;
-import java.util.Optional;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class UserServiceImpl implements IUserService {
@@ -180,6 +180,10 @@ public UserDetailModel getProfileDetail(String username) throws Exception {
         userData.setMiddleName(updateUserModel.getMiddleName());
         userData.setLastName(updateUserModel.getLastName());
         userData.setBirthday(updateUserModel.getBirthday());
+        userData.setAddressElements(updateUserModel.getAddressElements());
+        userData.setProvinces(updateUserModel.getProvinces());
+        userData.setDistrict(updateUserModel.getDistrict());
+        userData.setWard(updateUserModel.getWard());
 //        userData.setAddressElements(u);
 //        userData.setAddress(updateUserModel.getAddress());
 //        userData.setLastUpdateUsername(LocalDateTime.now());
@@ -226,5 +230,38 @@ public UserDetailModel getProfileDetail(String username) throws Exception {
             return "Followed successfully.";
         }
     }
+    public List<UserEntity> suggestFriends(UserEntity currentUser) {
+        // Lấy danh sách tất cả người dùng
+        List<UserEntity> allUsers = userRepository.findAll();
 
+        // Lọc những người dùng khác với currentUser
+        List<UserEntity> potentialFriends = allUsers.stream()
+                .filter(user -> !user.getId().equals(currentUser.getId()))
+                .collect(Collectors.toList());
+
+        // Ưu tiên dựa trên địa điểm
+        List<UserEntity> locationMatched = potentialFriends.stream()
+                .filter(user ->
+                        Objects.equals(user.getWard(), currentUser.getWard()) &&
+                                Objects.equals(user.getDistrict(), currentUser.getDistrict()) &&
+                                Objects.equals(user.getProvinces(), currentUser.getProvinces())
+                ).collect(Collectors.toList());
+
+        // Tìm những người dùng có số lượng following tương tự
+        List<UserEntity> similarFollowing = potentialFriends.stream()
+                .filter(user -> {
+                    int commonFollowers = (int) user.getFollowing().stream()
+                            .filter(currentUser.getFollowing()::contains)
+                            .count();
+                    return commonFollowers > 2; // Điều kiện "tương tự" dựa trên số lượng following chung
+                })
+                .collect(Collectors.toList());
+
+        // Gộp danh sách và ưu tiên locationMatched trước
+        Set<UserEntity> suggestedFriends = new LinkedHashSet<>();
+        suggestedFriends.addAll(locationMatched);
+        suggestedFriends.addAll(similarFollowing);
+
+        return new ArrayList<>(suggestedFriends);
+    }
 }

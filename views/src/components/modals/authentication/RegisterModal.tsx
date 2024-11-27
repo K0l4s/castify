@@ -11,6 +11,7 @@ interface DefaultModalProps {
   trigger: () => void;
   isOpen: boolean;
   onClose: () => void;
+  toggleAuthView: () => void;
 }
 
 const RegisterModal = (props: DefaultModalProps) => {
@@ -20,6 +21,7 @@ const RegisterModal = (props: DefaultModalProps) => {
   const [wardsList, setWardsList] = useState<ward[]>([]);
   const [selectedProvinceId, setSelectedProvinceId] = useState<string>('');
   const [selectedDistrictId, setSelectedDistrictId] = useState<string>('');
+  const [isRequest,setIsRequest] = useState(false);
 
 
   const [formData, setFormData] = useState<userRegister>({
@@ -115,13 +117,16 @@ const RegisterModal = (props: DefaultModalProps) => {
       setWardsList([]);
     } else if (name === 'district') {
       setSelectedDistrictId(value);
+     
       const district = districtsList.find(district => district.id === value);
+      
       setFormData(prev => ({
         ...prev,
         district: district?.name || '',
         ward: '' // Reset ward when district changes
       }));
       setWardsList([]);
+      console.log(formData)
     } else if (name === 'ward') {
       // const
       setFormData(prev => ({
@@ -160,17 +165,24 @@ const RegisterModal = (props: DefaultModalProps) => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     toast.loading("Creating account...");
+    setIsRequest(true);
     try {
       await authenticateApi.register(formData).then(res => {
-        toast.success(res.data.message);
+        
+        setIsRequest(false);
+        toast.clearAllToasts();
         props.onClose();
+        props.toggleAuthView();
+        toast.success("Account created successfully, Please check your email to verify your account");
         // window.open('/login', '_blank');
       }).catch(err => {
         toast.error(err.response.data);
-        console.log(err)
+        setIsRequest(false);
+        toast.clearAllToasts();
       });
     } catch (error) {
-      toast.error("An error occurred during registration");
+      toast.clearAllToasts();
+      setIsRequest(false);
     }
   };
 
@@ -360,7 +372,7 @@ const RegisterModal = (props: DefaultModalProps) => {
                     className={inputClasses}
                     required
                   >
-                    <option value="">Select District</option>
+                    <option value="">Select Provinces</option>
                     {provincesList.map(province => (
                       <option key={province.id} value={province.id}>{province.name}</option>
                     ))}
@@ -406,15 +418,17 @@ const RegisterModal = (props: DefaultModalProps) => {
                 <button
                   type="button"
                   onClick={handleReturn}
-                  className={`${buttonClasses} bg-gray-600 hover:bg-gray-700`}
+                  className={`${buttonClasses} bg-gray-600 hover:bg-gray-700 ${isRequest && 'cursor-not-allowed bg-gray-400'}`}
+                  {...isRequest && {disabled: true}} 
                 >
-                  Return
+                  {isRequest ? 'Loading...' : '< Back'}
                 </button>
                 <button
                   type="submit"
-                  className={`${buttonClasses} bg-indigo-600 hover:bg-indigo-700`}
+                  className={`${buttonClasses} bg-indigo-600 hover:bg-indigo-700 ${isRequest && 'cursor-not-allowed bg-gray-600'}`}
+                  {...isRequest && {disabled: true}}
                 >
-                  Create Account
+                  {isRequest ? 'Loading...' : 'Create Account'}
                 </button>
               </div>
             </>

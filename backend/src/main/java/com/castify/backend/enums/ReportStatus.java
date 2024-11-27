@@ -1,2 +1,7 @@
-package com.castify.backend.enums;public class ReportStatus {
+package com.castify.backend.enums;
+
+public enum ReportStatus {
+    PENDING,
+    ACCEPTED,
+    DENIED
 }

@@ -102,6 +102,7 @@ public class AuthenticationService implements IAuthenticationService {
 //                .address(request.getAddress())
                 .provinces(request.getProvinces())
                 .ward(request.getWard())
+                .district(request.getDistrict())
                 .addressElements(request.getAddressElements())
                 .phone(request.getPhone()).birthday(request.getBirthday()).createdDay(LocalDateTime.now()).avatarUrl(null).coverUrl(null).isActive(false).username(request.getUsername()).isNonLocked(true).isNonBanned(true).build();
 
