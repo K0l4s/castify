@@ -8,6 +8,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Data
@@ -18,6 +19,10 @@ public class UpdateUserModel {
     private String middleName;
     private String lastName;
     private String username;
-    private LocalDate birthday;
-    private String address;
+    private LocalDateTime birthday;
+//    private String address;
+    private String addressElements;
+    private String provinces;
+    private String district;
+    private String ward;
 }

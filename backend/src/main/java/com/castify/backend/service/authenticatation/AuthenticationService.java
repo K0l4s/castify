@@ -98,7 +98,13 @@ public class AuthenticationService implements IAuthenticationService {
 
         var user = UserEntity.builder()
 //                .fullname(request.getFullname())
-                .firstName(request.getFirstName()).lastName(request.getLastName()).middleName(request.getMiddleName()).email(request.getEmail()).password(passwordEncoder.encode(request.getPassword())).role(Role.USER).address(request.getAddress()).phone(request.getPhone()).birthday(request.getBirthday()).createdDay(LocalDateTime.now()).avatarUrl(null).coverUrl(null).isActive(false).username(request.getUsername()).isNonLocked(true).isNonBanned(true).build();
+                .firstName(request.getFirstName()).lastName(request.getLastName()).middleName(request.getMiddleName()).email(request.getEmail()).password(passwordEncoder.encode(request.getPassword())).role(Role.USER)
+//                .address(request.getAddress())
+                .provinces(request.getProvinces())
+                .ward(request.getWard())
+                .district(request.getDistrict())
+                .addressElements(request.getAddressElements())
+                .phone(request.getPhone()).birthday(request.getBirthday()).createdDay(LocalDateTime.now()).avatarUrl(null).coverUrl(null).isActive(false).username(request.getUsername()).isNonLocked(true).isNonBanned(true).build();
 
 
         var savedUser = repository.save(user);

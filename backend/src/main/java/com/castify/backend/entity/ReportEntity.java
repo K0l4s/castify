@@ -1,5 +1,6 @@
 package com.castify.backend.entity;
 
+import com.castify.backend.enums.ReportStatus;
 import com.castify.backend.enums.ReportType;
 import org.springframework.data.annotation.Id; // Sửa dòng này
 import lombok.AllArgsConstructor;
@@ -23,7 +24,7 @@ public class ReportEntity {
     private ReportType type;
     private String target;
     private LocalDateTime createdDay;
-
+    private ReportStatus status;
     @DBRef
     private User user;
 

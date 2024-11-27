@@ -1,24 +1,18 @@
 import React from 'react';
 import ProfileMainContent from '../../../components/main/profile/ProfileMainContent';
-import { useParams } from 'react-router-dom';
-import { RootState } from '../../../redux/store';
-import { useSelector } from 'react-redux';
-import NotAccessPage from '../../informationPage/NotAccessPage';
 import PodcastCard from '../../../components/UI/podcast/PodcastCard';
 import CustomButton from '../../../components/UI/custom/CustomButton';
 
 const ProfilePage: React.FC = () => {
-  const username = useParams().username;
   
 
 
   
-  const isAuthenticated = useSelector((state: RootState) => state.auth.isAuthenticated);
 
  
-  if (!isAuthenticated && !username) {
-    return <NotAccessPage />;
-  }
+  // if (!isAuthenticated && !username) {
+  //   return <NotAccessPage />;
+  // }
 
   return (
     <div className="min-h-screen">

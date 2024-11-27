@@ -6,6 +6,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -18,7 +19,7 @@ public class UserDetailModel {
     private String username;
     private String avatarUrl;
     private String coverUrl;
-    private LocalDate birthday;
+    private LocalDateTime birthday;
     private String address;
     private String phone;
     private String email;

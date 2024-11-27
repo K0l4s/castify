@@ -34,8 +34,12 @@ public class UserEntity implements UserDetails {
     private String username;
     private String avatarUrl;
     private String coverUrl;
-    private LocalDate birthday;
-    private String address;
+    private LocalDateTime birthday;
+    private String addressElements;
+    private String ward;
+    private String district;
+    private String provinces;
+//    private String address;
     private String password;
     private String phone;
     @NotNull
@@ -91,12 +95,16 @@ public class UserEntity implements UserDetails {
     }
 
     public String getFullname(){
-        return lastName+" "+middleName+" "+firstName;
+        return firstName+" "+middleName+" "+lastName;
     }
     public int getAge(){
-        LocalDate today = LocalDate.now();
-        Period period = Period.between(birthday, today);
-        return period.getYears();
+        LocalDateTime today = LocalDateTime.now();
+        int ages = today.getYear() - birthday.getYear();
+//        if(birthday.getMonthValue() > today.getMonthValue()){
+//            if(birthday.getDayOfMonth()< today.getDayOfMonth())
+//                age=age-1;
+//        }
+        return ages;
     }
 
     public int getTotalFollowing(){
@@ -106,6 +114,31 @@ public class UserEntity implements UserDetails {
     public boolean isFollow(String targetId){
         return following.contains(targetId);
     }
+
+    public String getAddress() {
+        String address = "";
+
+        if (addressElements != null && !addressElements.isEmpty() && !addressElements.isBlank()) {
+            address += addressElements;
+        }
+
+        if (ward != null && !ward.isEmpty() && !ward.isBlank()) {
+            address += (address.isEmpty() ? "" : ", ") + ward;
+        }
+
+        if (district != null && !district.isEmpty() && !district.isBlank()) {
+            address += (address.isEmpty() ? "" : ", ") + district;
+        }
+
+        if (provinces != null && !provinces.isEmpty() && !provinces.isBlank()) {
+            address += (address.isEmpty() ? "" : ", ") + provinces;
+        }else{
+            address += ".";
+        }
+
+        return address;
+    }
+
 
 
 }

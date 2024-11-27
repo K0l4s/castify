@@ -56,7 +56,11 @@ export interface updateUser {
     middleName: string;
     lastName: string;
     birthday: Date;
-    address: string;
+    // address: string;
+    addressElements: string;
+    ward: string;
+    district: string;
+    provinces: string;
     phone: string;
 }
 export interface userCard {
@@ -96,7 +100,11 @@ export interface userRegister {
     password:string,
     confirmPassword:string,
     birthday:Date,
-    address:string,
+    // address:string,
+    addressElements: string,
+    ward:string,
+    district:string,
+    provinces:string,
     phone:string
 }
 export interface userConfirm {
