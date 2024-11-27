@@ -167,7 +167,7 @@ const RegisterModal = (props: DefaultModalProps) => {
     toast.loading("Creating account...");
     setIsRequest(true);
     try {
-      await authenticateApi.register(formData).then(res => {
+      await authenticateApi.register(formData).then(() => {
         
         setIsRequest(false);
         toast.clearAllToasts();
