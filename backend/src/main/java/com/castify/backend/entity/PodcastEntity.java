@@ -22,6 +22,10 @@ public class PodcastEntity {
     private String thumbnailUrl;
     private String videoUrl;
     private long views;
+
+    @DBRef(lazy = true)
+    private List<GenreEntity> genres;
+
     @DBRef(lazy = true)
     private List<CommentEntity> comments;
 

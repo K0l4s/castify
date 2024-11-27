@@ -6,6 +6,8 @@ import { createPodcast } from "../../../services/PodcastService";
 import { validateFileType } from "../../../utils/FileValidation";
 import CustomButton from "../../UI/custom/CustomButton";
 import { usePodcastContext } from "../../../context/PodcastContext";
+import PlaylistSection from "./PlaylistSelection";
+import { captureFrameFromVideo } from "../../../utils/FileUtils";
 
 interface PodcastUploadModalProps {
   isOpen: boolean;
@@ -25,11 +27,12 @@ const PodcastUploadModal: React.FC<PodcastUploadModalProps> = ({
   const [videoPreview, setVideoPreview] = useState<string | null>(null);
   const [videoFilename, setVideoFilename] = useState<string | null>(null);
   const [thumbnailPreview, setThumbnailPreview] = useState<string | null>(null);
+  const [thumbnailFile, setThumbnailFile] = useState<File | null>(null);
 
-  const [playlists, setPlaylists] = useState<{ _id: number; name: string }[]>(
+  const [playlists, setPlaylists] = useState<{ _id: string; name: string }[]>(
     []
   );
-  const [selectedPlaylists, setSelectedPlaylists] = useState<number[]>([]);
+  const [selectedPlaylists, setSelectedPlaylists] = useState<string[]>([]);
   const [showPlaylistModal, setShowPlaylistModal] = useState(false);
 
   const toast = useToast();
@@ -39,11 +42,11 @@ const PodcastUploadModal: React.FC<PodcastUploadModalProps> = ({
   // Mock API response
   useEffect(() => {
     const mockPlaylists = [
-      { _id: 1, name: "Playlist 1" },
-      { _id: 2, name: "Playlist 2" },
-      { _id: 3, name: "Playlist 3" },
-      { _id: 4, name: "Playlist 4" },
-      { _id: 5, name: "Playlist 5" },
+      { _id: "1", name: "Playlist 1" },
+      { _id: "2", name: "Playlist 2" },
+      { _id: "3", name: "Playlist 3" },
+      { _id: "4", name: "Playlist 4" },
+      { _id: "5", name: "Playlist 5" },
     ];
     setPlaylists(mockPlaylists);
   }, []);
@@ -84,6 +87,7 @@ const PodcastUploadModal: React.FC<PodcastUploadModalProps> = ({
 
       const thumbnailUrl = URL.createObjectURL(file);
       setThumbnailPreview(thumbnailUrl);
+      setThumbnailFile(file);
     }
   };
 
@@ -107,7 +111,7 @@ const PodcastUploadModal: React.FC<PodcastUploadModalProps> = ({
     }
   };
 
-  const handlePlaylistSelect = (playlistId: number) => {
+  const handlePlaylistChange = (playlistId: string) => {
     setSelectedPlaylists((prevSelected) =>
       prevSelected.includes(playlistId)
         ? prevSelected.filter((id) => id !== playlistId)
@@ -128,6 +132,7 @@ const PodcastUploadModal: React.FC<PodcastUploadModalProps> = ({
         title,
         content: desc,
         video: videoFile,
+        thumbnail: thumbnailFile || undefined,
       };
       await createPodcast(payload);
       toast.success("Podcast uploaded successfully!");
@@ -150,6 +155,7 @@ const PodcastUploadModal: React.FC<PodcastUploadModalProps> = ({
     setVideoPreview(null);
     setVideoFilename(null);
     setThumbnailPreview(null);
+    setThumbnailFile(null);
     setSelectedPlaylists([]);
   };
 
@@ -279,6 +285,16 @@ const PodcastUploadModal: React.FC<PodcastUploadModalProps> = ({
                 icon={<RiAiGenerate size={24} className="inline-block" />}
                 text="Auto generate"
                 variant="outline"
+                onClick={() => {
+                  if (!videoFile) {
+                    toast.error("Please select a video");
+                  } else {
+                    captureFrameFromVideo(videoFile, (thumbnail, thumbnailFile) => {
+                      setThumbnailPreview(thumbnail);
+                      setThumbnailFile(thumbnailFile);
+                    });
+                  }
+                }}
               />
               <input
                 id="thumbnail-input"
@@ -313,54 +329,14 @@ const PodcastUploadModal: React.FC<PodcastUploadModalProps> = ({
           </div>
         </div>
 
-        {/* Playlist */}
-        <div className="col-span-2">
-          <div className="flex flex-col w-1/2">
-            <label className="mb-2 text-sm font-medium text-gray-700 dark:text-gray-300">
-              Playlist
-            </label>
-            <CustomButton
-              onClick={() => setShowPlaylistModal(true)}
-              text={
-                selectedPlaylists.length > 0
-                  ? `${selectedPlaylists.length} Playlists Selected`
-                  : "Select Playlists"
-              }
-            />
-          </div>
-        </div>
-
-        <CustomModal
-          isOpen={showPlaylistModal}
-          onClose={() => setShowPlaylistModal(false)}
-          animation="zoom"
-          size="md"
-          title="Select Playlists"
-        >
-          <div className="max-h-64 overflow-y-auto">
-            {playlists.map((playlist) => (
-              <div key={playlist._id} className="flex items-center mb-2">
-                <input
-                  type="checkbox"
-                  id={`playlist-${playlist._id}`}
-                  checked={selectedPlaylists.includes(playlist._id)}
-                  onChange={() => handlePlaylistSelect(playlist._id)}
-                  className="mr-2"
-                />
-                <label
-                  htmlFor={`playlist-${playlist._id}`}
-                  className="cursor-pointer"
-                >
-                  {playlist.name}
-                </label>
-              </div>
-            ))}
-          </div>
-          <CustomButton
-            onClick={() => setShowPlaylistModal(false)}
-            text="Done"
-          />
-        </CustomModal>
+        {/* Playlist Selection Modal*/}
+        <PlaylistSection
+          selectedPlaylists={selectedPlaylists}
+          setShowPlaylistModal={setShowPlaylistModal}
+          showPlaylistModal={showPlaylistModal}
+          playlists={playlists}
+          handlePlaylistChange={handlePlaylistChange}
+        />
 
         <div className="col-span-3 flex justify-end">
           <CustomButton

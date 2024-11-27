@@ -46,7 +46,7 @@ public class PodcastServiceImpl implements IPodcastService {
     private IUserService userService;
 
     @Override
-    public PodcastModel createPodcast(CreatePodcastModel createPodcastModel, String videoPath) {
+    public PodcastModel createPodcast(CreatePodcastModel createPodcastModel) {
         PodcastEntity podcastEntity = modelMapper.map(createPodcastModel, PodcastEntity.class);
 
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -57,7 +57,8 @@ public class PodcastServiceImpl implements IPodcastService {
 
         podcastEntity.setTitle(createPodcastModel.getTitle());
         podcastEntity.setContent(createPodcastModel.getContent());
-        podcastEntity.setVideoUrl(videoPath);
+        podcastEntity.setVideoUrl(createPodcastModel.getVideoPath());
+        podcastEntity.setThumbnailUrl(createPodcastModel.getThumbnailPath());
 
         podcastEntity.setUser(userEntity);
         podcastEntity.setCreatedDay(LocalDateTime.now());

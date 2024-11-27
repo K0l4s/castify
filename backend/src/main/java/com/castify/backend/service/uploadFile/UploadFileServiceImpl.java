@@ -64,4 +64,20 @@ public class UploadFileServiceImpl implements IUploadFileService{
             throw new IOException("Failed to upload image to Cloudinary", e);
         }
     }
+
+    @Override
+    public String uploadImageBytes(byte[] imageBytes) throws IOException {
+        try {
+            // Upload image bytes to Cloudinary
+            Map<String, Object> uploadResult = cloudinary.uploader().upload(
+                    imageBytes,
+                    ObjectUtils.emptyMap()
+            );
+
+            // Return the secure URL of the uploaded image
+            return (String) uploadResult.get("secure_url");
+        } catch (Exception e) {
+            throw new IOException("Failed to upload image to Cloudinary", e);
+        }
+    }
 }
