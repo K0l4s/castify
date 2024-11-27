@@ -18,6 +18,7 @@ import CustomButton from "../UI/custom/CustomButton";
 const Authentication = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   // const [mode, setMode] = useState(localStorage.getItem('theme') || 'light');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const navigate = useNavigate();
@@ -26,6 +27,7 @@ const Authentication = () => {
   const toast = useToast();
   const dispatch = useDispatch();
   const handleLogout = () => {
+    setIsLoading(true);
     authenticateApi
       .logout()
       .then(() => {
@@ -36,10 +38,12 @@ const Authentication = () => {
       })
       .catch((error) => {
         toast.error("Logout failed " + error.message);
+      }).finally(() => {
+        setIsLoading(false);
       });
   };
   const isAuth = useSelector((state: RootState) => state.auth.isAuthenticated);
-  
+
   const handleOpen = () => setIsOpen(true);
   const handleClose = () => setIsOpen(false);
   const toggleUserMenu = () => {
@@ -82,19 +86,25 @@ const Authentication = () => {
 
             <button
               onClick={toggleUserMenu}
-              className="flex text-sm rounded-full focus:ring-2 focus:ring-blue-500 focus:outline-none transition-transform duration-200 hover:scale-105"
+              className={`flex text-sm rounded-full focus:ring-2 focus:ring-blue-500 focus:outline-none transition-transform duration-200 hover:scale-105 ${isLoading ? "animate-pulse" : ""
+                }`}
               aria-expanded={isUserMenuOpen}
               aria-label="User menu"
             >
-              <img
-                className="w-10 h-10 rounded-full object-cover border-2 border-transparent hover:border-blue-500 transition-colors duration-200"
-                src={
-                  user?.avatarUrl ||
-                  "https://cdn-icons-png.flaticon.com/512/9203/9203764.png"
-                }
-                alt="User avatar"
-              />
+              {isLoading ? (
+                <div className="w-10 h-10 bg-gray-300 dark:bg-gray-700 rounded-full animate-pulse"></div>
+              ) : (
+                <img
+                  className="w-10 h-10 rounded-full object-cover border-2 border-transparent hover:border-blue-500 transition-colors duration-200"
+                  src={
+                    user?.avatarUrl ||
+                    "https://cdn-icons-png.flaticon.com/512/9203/9203764.png"
+                  }
+                  alt="User avatar"
+                />
+              )}
             </button>
+
           </div>
         ) : (
           <div className="flex items-center gap-4">

@@ -3,9 +3,9 @@ import React from 'react';
 interface InputProps {
   className?: string;
   id?: string;
-  type?: 'text' | 'email' | 'password' | 'tel' | 'number';
+  type?: 'text' | 'email' | 'password' | 'tel' | 'number' | 'date';
   name?: string;
-  value?: string | number;
+  value?: string | number ;
   onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
   disabled?: boolean;
   placeholder?: string;

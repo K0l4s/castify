@@ -25,3 +25,11 @@ export const axiosInstanceFile = axios.create({
         Authorization: "Bearer " + Cookie.get("token"),
     },
 });
+
+
+export const axiosInstanceLocation = axios.create({
+    baseURL: "https://open.oapi.vn/location/",
+    headers: {
+        "Content-Type": "application/json",
+    },
+});

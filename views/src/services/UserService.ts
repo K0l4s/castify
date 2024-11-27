@@ -1,6 +1,6 @@
 import { updateUser } from "../models/User";
 import { axiosInstance, axiosInstanceAuth } from "../utils/axiosInstance";
-
+import Cookies from 'js-cookie';
 export const userService = {
     getUserByToken: async (token:string) => {
 
@@ -13,8 +13,17 @@ export const userService = {
         );
     },
     getUserDetails: async (username?:string) => {
+        const accessToken = Cookies.get('token');
         if(username)
-            return await axiosInstanceAuth.get(`/api/v1/user?username=${username}`);
+            // try{
+            // return await axiosInstanceAuth.get(`/api/v1/user?username=${username}`);
+            // }catch(e){
+            //     return await axiosInstance.get(`/api/v1/user?username=${username}`);
+            // }
+            if(accessToken)
+                return await axiosInstanceAuth.get(`/api/v1/user?username=${username}`);
+            else
+                return await axiosInstance.get(`/api/v1/user?username=${username}`);
         else
             return await axiosInstanceAuth.get(`/api/v1/user`);
     },
