@@ -9,7 +9,8 @@ import org.springframework.data.domain.Page;
 import java.util.List;
 
 public interface ICommentService {
-    CommentModel addComment(UserEntity user, CommentRequestDTO commentRequestDTO);
+    CommentModel addComment(CommentRequestDTO commentRequestDTO);
     PageDTO<CommentModel> getPodcastComments(String id, int page, int size, String sortBy);
     boolean toggleLikeOnComment(String id) throws Exception;
+    List<CommentModel> getReplies(String id);
 }
