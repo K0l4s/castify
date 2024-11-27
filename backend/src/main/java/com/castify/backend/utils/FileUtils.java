@@ -1,5 +1,6 @@
 package com.castify.backend.utils;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -7,6 +8,7 @@ import java.nio.file.Paths;
 import java.text.Normalizer;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Base64;
 
 public class FileUtils {
     // Format file name
@@ -46,4 +48,9 @@ public class FileUtils {
         }
         return userDir;
     }
+
+    public static byte[] encodeFileToBase64(File file) throws IOException {
+        return org.apache.commons.io.FileUtils.readFileToByteArray(file);
+    }
+
 }

@@ -27,6 +27,7 @@ const PodcastUploadModal: React.FC<PodcastUploadModalProps> = ({
   const [videoPreview, setVideoPreview] = useState<string | null>(null);
   const [videoFilename, setVideoFilename] = useState<string | null>(null);
   const [thumbnailPreview, setThumbnailPreview] = useState<string | null>(null);
+  const [thumbnailFile, setThumbnailFile] = useState<File | null>(null);
 
   const [playlists, setPlaylists] = useState<{ _id: string; name: string }[]>(
     []
@@ -86,6 +87,7 @@ const PodcastUploadModal: React.FC<PodcastUploadModalProps> = ({
 
       const thumbnailUrl = URL.createObjectURL(file);
       setThumbnailPreview(thumbnailUrl);
+      setThumbnailFile(file);
     }
   };
 
@@ -130,6 +132,7 @@ const PodcastUploadModal: React.FC<PodcastUploadModalProps> = ({
         title,
         content: desc,
         video: videoFile,
+        thumbnail: thumbnailFile || undefined,
       };
       await createPodcast(payload);
       toast.success("Podcast uploaded successfully!");
@@ -152,6 +155,7 @@ const PodcastUploadModal: React.FC<PodcastUploadModalProps> = ({
     setVideoPreview(null);
     setVideoFilename(null);
     setThumbnailPreview(null);
+    setThumbnailFile(null);
     setSelectedPlaylists([]);
   };
 
@@ -285,8 +289,9 @@ const PodcastUploadModal: React.FC<PodcastUploadModalProps> = ({
                   if (!videoFile) {
                     toast.error("Please select a video");
                   } else {
-                    captureFrameFromVideo(videoFile, (thumbnail) => {
+                    captureFrameFromVideo(videoFile, (thumbnail, thumbnailFile) => {
                       setThumbnailPreview(thumbnail);
+                      setThumbnailFile(thumbnailFile);
                     });
                   }
                 }}

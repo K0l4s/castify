@@ -5,6 +5,7 @@ interface CreatePodcastPayload {
   title: string;
   content: string;
   video: File;
+  thumbnail?: File;
 }
 
 export const createPodcast = async (payload: CreatePodcastPayload) => {
@@ -12,6 +13,9 @@ export const createPodcast = async (payload: CreatePodcastPayload) => {
   formData.append("title", payload.title);
   formData.append("content", payload.content);
   formData.append("video", payload.video);
+  if (payload.thumbnail) {
+    formData.append("thumbnail", payload.thumbnail);
+  }
 
   try {
     const response = await axiosInstanceFile.post(

@@ -40,4 +40,34 @@ public class ffmpegServiceImpl implements IFFmpegService {
 
         return outputPath;
     }
+
+    @Override
+    public String captureFrameFromVideo(String videoPath, String outputImagePath) throws IOException, InterruptedException {
+        // Build FFmpeg command to capture the first frame
+        ProcessBuilder processBuilder = new ProcessBuilder(
+                "ffmpeg",
+                "-i", videoPath,
+                "-vf", "thumbnail,scale=320:-1", // Capture the first frame and scale it
+                "-frames:v", "1", // Only 1 frame
+                outputImagePath
+        );
+
+        processBuilder.redirectErrorStream(true); // Redirect FFmpeg output to standard output
+        Process process = processBuilder.start();
+
+        // Capture FFmpeg logs
+        try (BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()))) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                System.out.println(line);
+            }
+        }
+
+        int exitCode = process.waitFor();
+        if (exitCode != 0) {
+            throw new IOException("FFmpeg process failed with exit code " + exitCode);
+        }
+
+        return outputImagePath;
+    }
 }

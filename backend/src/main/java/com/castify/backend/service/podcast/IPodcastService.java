@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.Map;
 
 public interface IPodcastService {
-    PodcastModel createPodcast(CreatePodcastModel createPodcastModel, String videoPath);
+    PodcastModel createPodcast(CreatePodcastModel createPodcastModel);
     Map<String, Object> getAllSelfPodcasts(int page, int size, Integer minViews,
                                            Integer minComments, String sortByViews,
                                            String sortByComments, String sortByCreatedDay);
