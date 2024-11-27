@@ -7,6 +7,7 @@ import { validateFileType } from "../../../utils/FileValidation";
 import CustomButton from "../../UI/custom/CustomButton";
 import { usePodcastContext } from "../../../context/PodcastContext";
 import PlaylistSection from "./PlaylistSelection";
+import { captureFrameFromVideo } from "../../../utils/FileUtils";
 
 interface PodcastUploadModalProps {
   isOpen: boolean;
@@ -280,6 +281,15 @@ const PodcastUploadModal: React.FC<PodcastUploadModalProps> = ({
                 icon={<RiAiGenerate size={24} className="inline-block" />}
                 text="Auto generate"
                 variant="outline"
+                onClick={() => {
+                  if (!videoFile) {
+                    toast.error("Please select a video");
+                  } else {
+                    captureFrameFromVideo(videoFile, (thumbnail) => {
+                      setThumbnailPreview(thumbnail);
+                    });
+                  }
+                }}
               />
               <input
                 id="thumbnail-input"
