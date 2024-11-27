@@ -4,12 +4,17 @@ import com.castify.backend.entity.UserEntity;
 import com.castify.backend.models.user.UpdateUserModel;
 import com.castify.backend.models.user.UserDetailModel;
 import com.castify.backend.models.user.UserModel;
+import com.castify.backend.models.user.UserSimple;
 import com.castify.backend.repository.PodcastRepository;
 import com.castify.backend.repository.UserRepository;
+import com.castify.backend.repository.template.UserRepositoryTemplate;
 import com.castify.backend.service.uploadFile.IUploadFileService;
-import com.castify.backend.service.uploadFile.UploadFileServiceImpl;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -30,6 +35,8 @@ public class UserServiceImpl implements IUserService {
     private ModelMapper modelMapper;
     @Autowired
     private IUploadFileService uploadFileService;
+    @Autowired
+    UserRepositoryTemplate userRepositoryTemplate;
 
 
 
@@ -45,49 +52,6 @@ public class UserServiceImpl implements IUserService {
             throw new Exception("Not found user with username " + username);
         }
     }
-
-//    @Override
-//    public UserDetailModel getProfileDetail(String username) throws Exception {
-//
-//        UserEntity targetData = userRepository.findUserEntityByUsername(username);
-//
-//        // Tạo custom mapping hoặc sử dụng logic thủ công
-//        UserDetailModel userDetail = modelMapper.map(targetData, UserDetailModel.class);
-//        long followerSize = userRepository.findUsersFollowing(targetData.getId()).size();
-//        userDetail.setTotalFollower(followerSize);
-//
-////        userDetail.setTotalFollowing(targetData.getTotalFollowing());
-//        long podcastSize = podcastRepository.countByUser(targetData);
-//        userDetail.setTotalPost(podcastSize);
-////        userDetail.isFollow = set (isFollow);
-//        try {
-//            UserEntity userData = getUserByAuthentication();
-//            if (userData.getFollowing() == null) {
-//                userData.setFollowing(new ArrayList<>());
-//            }
-//            userDetail.setIsFollow(userData.isFollow(targetData.getId()));
-//        }catch(Exception ex){
-//            userDetail.setIsFollow(false);
-//        }
-//        return userDetail;
-//    }
-//@Override
-//public UserDetailModel getSelfProfileDetail() throws Exception {
-//    UserEntity userData = getUserByAuthentication();
-//
-//
-//    // Tạo custom mapping hoặc sử dụng logic thủ công
-//    UserDetailModel userDetail = modelMapper.map(userData, UserDetailModel.class);
-////            userDetail.setFullname(userData.getFullname());
-//    long followerSize = userRepository.findUsersFollowing(userData.getId()).size();
-//    userDetail.setTotalFollower(followerSize);
-//
-//    userDetail.setTotalFollowing(userData.getTotalFollowing());
-//    long podcastSize = podcastRepository.countByUser(userData);
-//    userDetail.setTotalPost(podcastSize);
-//
-//    return userDetail;
-//}
 @Override
 public UserDetailModel getProfileDetail(String username) throws Exception {
     UserEntity targetData = userRepository.findUserEntityByUsername(username);
@@ -173,9 +137,6 @@ public UserDetailModel getProfileDetail(String username) throws Exception {
     @Override
     public UpdateUserModel updateUserInformationById(UpdateUserModel updateUserModel) throws Exception {
         UserEntity userData = getUserByAuthentication();
-//        LocalDateTime lastUpdateUsername = userData.getLastUpdateUsername();
-
-//        userData.setUsername(updateUserModel.getUsername());
         userData.setFirstName(updateUserModel.getFirstName());
         userData.setMiddleName(updateUserModel.getMiddleName());
         userData.setLastName(updateUserModel.getLastName());
@@ -184,9 +145,6 @@ public UserDetailModel getProfileDetail(String username) throws Exception {
         userData.setProvinces(updateUserModel.getProvinces());
         userData.setDistrict(updateUserModel.getDistrict());
         userData.setWard(updateUserModel.getWard());
-//        userData.setAddressElements(u);
-//        userData.setAddress(updateUserModel.getAddress());
-//        userData.setLastUpdateUsername(LocalDateTime.now());
 
         UserEntity updatedUser = userRepository.save(userData);
         return modelMapper.map(updatedUser, UpdateUserModel.class);
@@ -264,4 +222,24 @@ public UserDetailModel getProfileDetail(String username) throws Exception {
 
         return new ArrayList<>(suggestedFriends);
     }
+    @Override
+    public List<UserSimple> getRecommendUser() throws Exception {
+        UserEntity currentUser = getUserByAuthentication();
+
+        // Sử dụng PageRequest để tạo Pageable với trang đầu tiên và mỗi trang có 10 người dùng
+        Pageable pageable = PageRequest.of(0, 10);
+
+        // Lấy danh sách người dùng giống nhau, sử dụng Pageable
+        Page<UserEntity> similarUsers = userRepositoryTemplate.findSimilarUsers(currentUser, pageable);
+
+        // Chuyển đổi các UserEntity trong trang thành UserSimple sử dụng ModelMapper
+        List<UserSimple> resultUsers = similarUsers.getContent().stream()
+                .map(userEntity -> modelMapper.map(userEntity, UserSimple.class)) // Chuyển đổi từng UserEntity thành UserSimple
+                .collect(Collectors.toList());
+
+        // Trả về danh sách người dùng đã được chuyển đổi
+        return resultUsers;
+    }
+
+
 }

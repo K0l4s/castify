@@ -49,6 +49,14 @@ public class UserController {
                     .body("Error: " + e.getMessage());
         }
     }
+    @GetMapping("/recommend")
+    private ResponseEntity<?> getRecommendUser(){
+        try{
+            return ResponseEntity.ok((userService.getRecommendUser()));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Error: "+e.getMessage());
+        }
+    }
     @PutMapping("/image")
     private ResponseEntity<String> updateAvatar(
             @RequestPart("avatar") MultipartFile avatarFile
