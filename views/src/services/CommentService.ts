@@ -3,6 +3,8 @@ import { axiosInstance, axiosInstanceAuth } from "../utils/axiosInstance";
 interface AddCommentPayload {
   podcastId: string;
   content: string;
+  parentId?: string;
+  mentionedUser?: string;
 }
 
 export const addComment = async (payload: AddCommentPayload) => {
@@ -24,6 +26,16 @@ export const getPodcastComments = async (podcastId: string, page = 0, size = 10,
         sortBy,
       },
     });
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};
+
+export const getCommentReplies = async (commentId: string, isAuthenticated = false) => {
+  try {
+    const axiosInstanceToUse = isAuthenticated ? axiosInstanceAuth : axiosInstance;
+    const response = await axiosInstanceToUse.get(`/api/v1/comment/list/replies/${commentId}`);
     return response.data;
   } catch (error) {
     throw error;

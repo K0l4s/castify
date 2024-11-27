@@ -11,10 +11,10 @@ import Tooltip from "../custom/Tooltip";
 import { RiDeleteBin6Line } from "react-icons/ri";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "../../../redux/store";
-import { FaFlag } from "react-icons/fa";
+import { FaAngleDown, FaAngleUp, FaFlag } from "react-icons/fa";
 import { useToast } from "../../../context/ToastProvider";
 import { useNavigate } from "react-router-dom";
-import { addNewComment, fetchComments, likeCommentAction, resetComments } from "../../../redux/slice/commentSlice";
+import { addNewComment, fetchCommentReplies, fetchComments, likeCommentAction, resetComments } from "../../../redux/slice/commentSlice";
 import { AiOutlineLoading3Quarters } from "react-icons/ai";
 
 interface CommentSectionProps {
@@ -36,6 +36,12 @@ const CommentSection: React.FC<CommentSectionProps> = ({ podcastId, totalComment
   const [loadMoreLoading, setLoadMoreLoading] = useState(false);
 
   const commentDivRef = useRef<HTMLDivElement>(null);
+  const replyDivRef = useRef<{ [key: string]: HTMLDivElement | null }>({});
+
+  const replyInputRefs = useRef<{ [key: string]: HTMLDivElement | null }>({});
+  const [expandedReplies, setExpandedReplies] = useState<{ [key: string]: boolean }>({});
+
+  const [mentionedUser, setMentionedUser] = useState<{ [key: string]: string | null }>({});
 
   const dispatch = useDispatch<AppDispatch>();
   const { comments, loading, hasMore, page } = useSelector((state: RootState) => state.comments);
@@ -48,14 +54,24 @@ const CommentSection: React.FC<CommentSectionProps> = ({ podcastId, totalComment
   useEffect(() => {
     dispatch(resetComments())
     dispatch(fetchComments({ podcastId, page: 0, sortBy: filter, isAuthenticated }));
-  }, [dispatch, podcastId]);
+  }, [dispatch, podcastId, isAuthenticated]);
+  
+  const handleFetchReplies = (commentId: string) => {
+    if (expandedReplies[commentId]) {
+      // Nếu replies đang mở, thu gọn lại
+      setExpandedReplies({ ...expandedReplies, [commentId]: false });
+    } else {
+      // Nếu replies đang đóng, mở ra và fetch replies
+      setExpandedReplies({ ...expandedReplies, [commentId]: true });
+      dispatch(fetchCommentReplies({ commentId, isAuthenticated }));
+    }
+  };
 
   const handleCommentSubmit = async () => {
     if (commentContent.trim() === "") return;
 
     try {
       const formattedContent = commentContent.replace(/<div><br><\/div>/g, "\n").replace(/<br>/g, "\n").replace(/<div>/g, "\n").replace(/<\/div>/g, "");
-      // await addComment({ podcastId, content: formattedContent });
       await dispatch(addNewComment({ podcastId, content: formattedContent }));
       setCommentContent(""); // Clear the input field
       if (commentDivRef.current) {
@@ -70,16 +86,61 @@ const CommentSection: React.FC<CommentSectionProps> = ({ podcastId, totalComment
     if (replyContent[commentId]?.trim() === "") return;
 
     try {
-      // await addComment({ podcastId, content: replyContent[commentId] });
+      const replyText = replyContent[commentId].replace(/<div><br><\/div>/g, "\n").replace(/<br>/g, "\n").replace(/<div>/g, "\n").replace(/<\/div>/g, "");
+      let parentCommentId = commentId;
+
+      // Tìm comment cha (comment cấp cao nhất)
+      const parentComment = comments.find(comment => 
+        comment.id === commentId || 
+        comment.replies?.some(reply => reply.id === commentId)
+      );
+
+      if (parentComment) {
+        parentCommentId = parentComment.id;
+      }
+
+      const mentionedUserString = mentionedUser[commentId] ? mentionedUser[commentId] : undefined;
+
+      await dispatch(addNewComment({
+        podcastId,
+        content: replyText,
+        parentId: parentCommentId,
+        mentionedUser: mentionedUserString
+      }));
+
       setReplyContent({ ...replyContent, [commentId]: "" }); // Clear the input field
       setReplyingTo(null); // Close the reply input
-      // const commentsData = await getPodcastComments(podcastId); // Refresh comments
-      // setComments(commentsData);
+      setMentionedUser({ ...mentionedUser, [commentId]: null });
     } catch (error) {
       console.error("Error adding reply:", error);
     }
   };
 
+  useEffect(() => {
+    if (replyingTo) {
+      const replyInputRef = replyInputRefs.current[replyingTo];
+      if (replyInputRef) {
+        const replyText = replyContent[replyingTo] || "";
+        replyInputRef.textContent = replyText;
+      }
+    }
+  }, [replyingTo, replyContent]);
+
+  const handleReplyClick = (commentId: string, username: string) => {
+    if (!isAuthenticated) {
+      toast.warning("Please login to do this action");
+      return;
+    }
+
+    setReplyingTo(commentId);
+    const replyText = username === userRedux?.username ? "" : `@${username} `;
+    setReplyContent({ ...replyContent, [commentId]: replyText });
+    if (replyDivRef.current[commentId]) {
+      replyDivRef.current[commentId]!.scrollIntoView({ behavior: "smooth", block: "center" });
+      replyDivRef.current[commentId]!.focus();
+    }
+  };
+  
   const handleReplyCancel = () => {
     setReplyingTo(null);
   };
@@ -93,10 +154,6 @@ const CommentSection: React.FC<CommentSectionProps> = ({ podcastId, totalComment
 
   const handleInput = (e: React.FormEvent<HTMLDivElement>) => {
     setCommentContent(e.currentTarget.innerHTML || "");
-  };
-
-  const handleReplyInput = (commentId: string, e: React.FormEvent<HTMLDivElement>) => {
-    setReplyContent({ ...replyContent, [commentId]: e.currentTarget.innerHTML || "" });
   };
 
   const handeResetInput = () => {
@@ -207,6 +264,24 @@ const CommentSection: React.FC<CommentSectionProps> = ({ podcastId, totalComment
     };
   }, []);
 
+  const handleRemoveMentionedUser = (commentId: string) => {
+    setMentionedUser({ ...mentionedUser, [commentId]: null });
+  };
+  
+  const handleKeyDownReply = (e: React.KeyboardEvent<HTMLDivElement>, commentId: string) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      // Breakline
+    }
+
+    if (e.key === "Enter" && e.ctrlKey) {
+      e.preventDefault();
+      handleReplySubmit(commentId);
+    } else if (e.key === "Delete" && mentionedUser[commentId]) {
+      handleRemoveMentionedUser(commentId);
+    }
+  };
+
   return (
     <div className="mt-4">
       <div className="flex items-center gap-4 my-2">
@@ -237,6 +312,7 @@ const CommentSection: React.FC<CommentSectionProps> = ({ podcastId, totalComment
         </div>
       </div>
       
+      {/* Add comment Input Div */}
       {isAuthenticated ? (
         <div className="flex mb-4 gap-2">
           <img 
@@ -293,13 +369,14 @@ const CommentSection: React.FC<CommentSectionProps> = ({ podcastId, totalComment
         </div>
       }
 
+      {/* Render Comments */}
       {comments.map(comment => (
         <div key={comment.id} className="mb-4 p-4 border rounded-lg bg-gray-200 dark:bg-gray-800 border-gray-300 dark:border-gray-700">
           <div className="relative flex items-center mb-2">
             <img 
               src={comment.user.avatarUrl || defaultAvatar} 
               alt="avatar" 
-              className="w-10 h-10 rounded-full mr-2 cursor-pointer" 
+              className="w-8 h-8 rounded-full mr-2 cursor-pointer" 
               onClick={() => navigate(`/profile/${comment.user.username}`)}
             />
             <span 
@@ -373,24 +450,186 @@ const CommentSection: React.FC<CommentSectionProps> = ({ podcastId, totalComment
               variant="ghost"
               rounded="full"
               className="ml-2 dark:hover:bg-gray-900"
-              onClick={() => {
-                if (!isAuthenticated) {
-                  toast.warning("Please login to do this action");
-                }
-                setReplyingTo(comment.id)
-              }}
+              onClick={() => handleReplyClick(comment.id, comment.user.username)}
             />
           </div>
+          
+          {comment.totalReplies > 0 && (
+            <CustomButton 
+              text={`${comment.totalReplies} replies`}
+              icon={expandedReplies[comment.id] ? <FaAngleUp size={20} /> : <FaAngleDown size={20} />}
+              rounded="full"
+              variant="ghost"
+              onClick={() => handleFetchReplies(comment.id)}
+              className="dark:hover:bg-gray-900 text-blue-700 dark:text-blue-500"
+            />
+          )}
+
+          {/* Render Replies */}
+          {expandedReplies[comment.id] && comment.replies && comment.replies.map(reply => (
+            <div key={reply.id} className="ml-8 mt-4 p-4 border rounded-lg bg-gray-200 dark:bg-gray-800 border-gray-300 dark:border-gray-700">
+              <div className="relative flex items-center mb-2">
+                <img 
+                  src={reply.user.avatarUrl || defaultAvatar} 
+                  alt="avatar" 
+                  className="w-8 h-8 rounded-full mr-2 cursor-pointer" 
+                  onClick={() => navigate(`/profile/${reply.user.username}`)}
+                />
+                <span 
+                  className="text-base font-medium text-gray-800 dark:text-gray-200 cursor-pointer"
+                  onClick={() => navigate(`/profile/${reply.user.username}`)}
+                >
+                  @{reply.user.username}
+                </span>
+                <span className="ml-auto">{formatDateTime(reply.timestamp)}</span>
+
+                <CustomButton
+                  icon={<MdMoreVert size={20}/>}
+                  variant="ghost"
+                  rounded="full"
+                  size="xs"
+                  onClick={() => toggleOptions(reply.id)}
+                  className="ml-2 text-black dark:text-white dark:hover:bg-gray-900"
+                />
+                {showCommentOptions[reply.id] && (
+                  <div className="comment-options absolute -translate-y-1/2 -top-10 -right-10 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-lg shadow-lg mt-2 z-50">
+                    <ul className="py-1">
+                      {reply.user.id === userRedux?.id ? (
+                        <>
+                          <li className="px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer" 
+                            onClick={() => handleEdit(comment.id)}>
+                              <MdEdit className="inline-block mb-1 mr-2" />
+                              Edit
+                          </li>
+                          <li className="px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer" 
+                            onClick={() => handleDelete(comment.id)}>
+                              <RiDeleteBin6Line className="inline-block mb-1 mr-2" />
+                              Delete
+                          </li>
+                        </>
+                      ) : (
+                        <li className="px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer" 
+                          onClick={() => { 
+                            if (!isAuthenticated) {
+                              toast.warning("Please login to do this action");
+                            }
+                            handleReport(comment.id)} 
+                          }>
+                            <FaFlag className="inline-block mb-1 mr-2" />
+                            Report
+                        </li>
+                      )}
+                    </ul>
+                  </div>
+                )}
+              </div>
+              <pre className="text-base text-gray-800 dark:text-gray-200 whitespace-pre-wrap" style={{ fontFamily: 'inherit', fontSize: 'inherit' }}>
+                {reply.content}
+              </pre>
+              <div className="flex items-center text-gray-600 dark:text-gray-400 mt-2">
+                <Tooltip text="Reaction">
+                  <CustomButton 
+                    icon={<HeartIcon filled={reply.liked} color={reply.liked ? "#991f00" : "gray"} strokeColor="#991f00" />}
+                    variant="ghost"
+                    rounded="full"
+                    size="xs"
+                    onClick={() => handleLike(reply.id)}
+                  />
+                </Tooltip>
+                <span className="text-black dark:text-white font-medium">{reply.totalLikes}</span>
+                <CustomButton 
+                  text="Reply"
+                  variant="ghost"
+                  rounded="full"
+                  className="ml-2 dark:hover:bg-gray-900"
+                  onClick={() => handleReplyClick(reply.id, reply.user.username)}
+                />
+              </div>
+              
+              {/* Reply to a reply Input Div*/}
+              {(replyingTo === reply.id && isAuthenticated) && (
+                <div className="flex mt-4 ml-4 gap-2">
+                  <img src={userRedux?.avatarUrl || defaultAvatar} alt="avatar" className="w-10 h-10 rounded-full mr-2" />
+                  <div className="flex flex-col items-end w-full gap-3">
+                    <div
+                      ref={(el) => {
+                        replyInputRefs.current[reply.id] = el;
+                        if (el && replyContent[reply.id]) {
+                          el.textContent = replyContent[reply.id];
+                        }
+                      }}
+                      contentEditable
+                      className="comment-input flex-1 p-2 w-full border rounded-lg bg-gray-300 dark:bg-gray-700 dark:text-white resize-none h-auto min-h-[43px] overflow-auto"
+                      style={{ whiteSpace: "pre-wrap" }}
+                      data-placeholder="Add a reply..."
+                      onInput={(e) => {
+                        const target = e.target as HTMLDivElement;
+                        let content = target.innerHTML;
+
+                        // Loại bỏ thẻ <br/> nếu nó là nội dung duy nhất
+                        if (content === "<br>") {
+                          content = "";
+                          target.innerHTML = "";
+                        }
+
+                        setReplyContent({ ...replyContent, [reply.id]: content });
+                      }}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter" && e.ctrlKey) {
+                          e.preventDefault();
+                          handleReplySubmit(reply.id);
+                        }
+                      }}
+                    />
+                    <div className="flex gap-3">
+                      <Tooltip text="Cancel">
+                        <CustomButton
+                          icon={<RxReset size={20} />}
+                          onClick={handleReplyCancel}
+                          variant="ghost"
+                          className="py-3 dark:hover:bg-gray-900"
+                        />
+                      </Tooltip>
+                      <Tooltip text="Send">
+                        <CustomButton
+                          icon={<IoSend size={20} />}
+                          onClick={() => handleReplySubmit(reply.id)}
+                          variant="primary"
+                          className="bg-gray-600 hover:bg-gray-500 dark:bg-gray-600 hover:dark:bg-gray-500 py-3"
+                        />
+                      </Tooltip>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+            </div>
+          ))}
+
+          {/* Reply a comment Input Div */}
           {(replyingTo === comment.id && isAuthenticated) && (
-            <div className="flex mt-4 ml-4 gap-2">
-              <img src={defaultAvatar} alt="avatar" className="w-10 h-10 rounded-full mr-2" />
+            <div className="flex mt-4 ml-4 gap-2" ref={(el) => (replyDivRef.current[comment.id] = el)}>
+              <img src={userRedux?.avatarUrl || defaultAvatar} alt="avatar" className="w-10 h-10 rounded-full mr-2" />
               <div className="flex flex-col items-end w-full gap-3">
                 <div
+                  ref={(el) => {
+                    replyInputRefs.current[comment.id] = el;
+                    if (el && replyContent[comment.id]) {
+                      el.textContent = replyContent[comment.id];
+                    }
+                  }}
                   contentEditable
-                  onInput={(e) => handleReplyInput(comment.id, e)}
                   className="comment-input flex-1 p-2 w-full border rounded-lg bg-gray-300 dark:bg-gray-700 dark:text-white resize-none h-auto min-h-[43px] overflow-auto"
                   style={{ whiteSpace: "pre-wrap" }}
                   data-placeholder="Add a reply..."
+                  onInput={(e) => {
+                    const target = e.target as HTMLDivElement;
+                    const content = target.innerHTML.replace(/<br>/g, "\n");
+                    
+                    setReplyContent({ ...replyContent, [comment.id]: content });
+                    
+                  }}
+                  onKeyDown={(e) => handleKeyDownReply(e, comment.id)}
                 />
                 <div className="flex gap-3">
                   <Tooltip text="Cancel">
@@ -413,6 +652,7 @@ const CommentSection: React.FC<CommentSectionProps> = ({ podcastId, totalComment
               </div>
             </div>
           )}
+
         </div>
       ))}
       {hasMore && !loading && (

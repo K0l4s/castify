@@ -11,8 +11,9 @@ import java.util.List;
 
 @Repository
 public interface CommentRepository  extends MongoRepository<CommentEntity, String> {
+    // Find comments with likes for Popular Sort.
     @Aggregation(pipeline = {
-            "{ $match: { 'podcast.$id': ObjectId(?0) } }", // Lọc theo podcast ID
+            "{ $match: { 'podcast.$id': ObjectId(?0), 'parentId': null } }", // Lọc theo podcast ID
             "{ $lookup: { from: 'commentLike', localField: '_id', foreignField: 'commentEntity.$id', as: 'likes' } }", // Join với collection `commentLike`
             "{ $addFields: { likeCount: { $size: '$likes' } } }", // Tính tổng số `like`
             "{ $group: { _id: '$_id', doc: { $first: '$$ROOT' } } }", // Loại bỏ bản ghi trùng lặp
@@ -22,6 +23,8 @@ public interface CommentRepository  extends MongoRepository<CommentEntity, Strin
             "{ $limit: ?4 }" // Giới hạn số lượng (phân trang)
     })
     List<CommentEntity> findCommentsWithLikes(String podcastId, String sortField, int sortDirection, int skip, int limit);
+    List<CommentEntity> findByParentId(String parentId);
     Page<CommentEntity> findByPodcastId(String podcastId, Pageable pageable);
     long countByPodcastId(String podcastId);
+    Page<CommentEntity> findByPodcastIdAndParentIdIsNull(String podcastId, Pageable pageable);
 }

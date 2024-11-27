@@ -12,7 +12,9 @@ import java.time.LocalDateTime;
 @Data
 public class CommentModel {
     private String id;
+    private String parentId;
     private String content;
+    private String mentionedUser;
     private long totalLikes;
     private long totalReplies;
     private LocalDateTime timestamp;
