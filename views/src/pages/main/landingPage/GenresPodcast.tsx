@@ -1,27 +1,32 @@
 import React, { useEffect, useState } from 'react';
-import { getPodcastRecent } from '../../../services/PodcastService';
+import { getPodcastsByGenre } from '../../../services/PodcastService';
 import { Podcast } from '../../../models/PodcastModel';
 import PodcastTag from '../../../components/UI/podcast/PodcastTag';
 
-const RecentPodcast: React.FC = () => {
+interface GenresPodcastProps {
+  genreId: string;
+}
+
+const GenresPodcast: React.FC<GenresPodcastProps> = ({ genreId }) => {
   const [podcasts, setPodcasts] = useState<Podcast[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const fetchRecentPodcasts = async () => {
+    const fetchPodcastsByGenre = async () => {
+      setLoading(true);
       try {
-        const response = await getPodcastRecent(0, 20);
+        const response = await getPodcastsByGenre(genreId, 0, 10);
         setPodcasts(response.content);
         setLoading(false);
       } catch (error) {
-        setError('Failed to fetch recent podcasts');
+        setError('Failed to fetch podcasts');
         setLoading(false);
       }
     };
 
-    fetchRecentPodcasts();
-  }, []);
+    fetchPodcastsByGenre();
+  }, [genreId]);
 
   if (loading) {
     return <div>Loading...</div>;
@@ -32,7 +37,7 @@ const RecentPodcast: React.FC = () => {
   }
 
   return (
-    <div>
+    <div className="genres-podcast">
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
         {podcasts.map((podcast) => (
           <PodcastTag key={podcast.id} podcast={podcast} />
@@ -42,4 +47,4 @@ const RecentPodcast: React.FC = () => {
   );
 };
 
-export default RecentPodcast;
+export default GenresPodcast;
