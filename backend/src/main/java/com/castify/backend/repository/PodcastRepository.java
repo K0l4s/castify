@@ -18,4 +18,5 @@ public interface PodcastRepository extends MongoRepository<PodcastEntity, String
     Page<PodcastEntity> findByFilters(String userId, int minViews, Pageable pageable);
     long countByUser(UserEntity user);
     Page<PodcastEntity> findByIsActiveTrue(Pageable pageable);
+    Page<PodcastEntity> findByGenres_IdAndIsActiveTrue(String genreId, Pageable pageable);
 }

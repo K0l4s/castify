@@ -224,4 +224,27 @@ public class PodcastServiceImpl implements IPodcastService {
                 podcastPage.getTotalElements()
         );
     }
+
+    @Override
+    public PageDTO<PodcastModel> getPodcastsByGenre(String genreId, int page, int size) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdDay"));
+
+        // Tìm các podcast theo genreId
+        Page<PodcastEntity> podcastPage = podcastRepository.findByGenres_IdAndIsActiveTrue(genreId, pageable);
+
+        // Ánh xạ từ PodcastEntity sang PodcastModel
+        List<PodcastModel> podcastModels = podcastPage.getContent()
+                .stream()
+                .map(podcastEntity -> modelMapper.map(podcastEntity, PodcastModel.class))
+                .toList();
+
+        // Tạo PageDTO
+        return new PageDTO<>(
+                podcastModels,
+                podcastPage.getSize(),
+                podcastPage.getNumber(),
+                podcastPage.getTotalPages(),
+                podcastPage.getTotalElements()
+        );
+    }
 }
