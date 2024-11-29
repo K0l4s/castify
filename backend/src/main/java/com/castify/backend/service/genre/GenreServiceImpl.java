@@ -23,7 +23,7 @@ public class GenreServiceImpl implements IGenreService {
 
     @Override
     public List<GenreSimple> getAllGenreName() {
-        List<GenreEntity> genres = genreRepository.findAll();
+        List<GenreEntity> genres = genreRepository.findAllActiveGenres();
         return genres.stream()
                 .map(genreEntity -> modelMapper.map(genreEntity, GenreSimple.class))
                 .toList();
@@ -59,5 +59,13 @@ public class GenreServiceImpl implements IGenreService {
             return "Genre deleted";
         }
         return "Genre not found";
+    }
+
+    @Override
+    public List<GenreSimple> getGenresByIds(List<String> ids) {
+        List<GenreEntity> genreEntities =  genreRepository.findAllById(ids);
+        return genreEntities.stream()
+                .map(genreEntity -> modelMapper.map(genreEntity, GenreSimple.class))
+                .toList();
     }
 }

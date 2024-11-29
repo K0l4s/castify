@@ -1,11 +1,13 @@
 package com.castify.backend.models.podcast;
 
+import com.castify.backend.models.genre.GenreSimple;
 import com.castify.backend.models.user.UserSimple;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -16,6 +18,7 @@ public class PodcastModel {
     private String content;
     private String thumbnailUrl;
     private String videoUrl;
+    private List<GenreSimple> genres;
     private long views;
     private long totalLikes;
     private long totalComments;

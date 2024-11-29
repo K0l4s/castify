@@ -11,4 +11,5 @@ public interface IGenreService {
     List<GenreModel> getALlGenre();
     GenreModel createGenre(String name);
     String deleteGenre(String id);
+    List<GenreSimple> getGenresByIds(List<String> ids);
 }
