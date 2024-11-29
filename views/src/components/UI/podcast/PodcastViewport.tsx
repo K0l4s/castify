@@ -53,7 +53,7 @@ const PodcastViewport: React.FC = () => {
     const fetchSuggestedPodcasts = async () => {
       try {
         const suggestedData = await getSelfPodcastsInCreator(); // Temporary
-        setSuggestedPodcasts(suggestedData.podcasts);
+        setSuggestedPodcasts(suggestedData.content);
       } catch (error) {
         console.error("Error fetching suggested podcasts:", error);
       }
@@ -131,7 +131,7 @@ const PodcastViewport: React.FC = () => {
   return (
     <div className="flex flex-col lg:flex-row p-4 lg:p-8 bg-white text-black dark:bg-gray-900 dark:text-white">
       <div className="flex-1 lg:mr-8">
-        <video autoPlay className="w-full mb-4 rounded-lg" controls>
+        <video autoPlay className="w-full mb-4 rounded-lg" controls poster={podcast.thumbnailUrl || "/TEST.png"}>
           <source src={podcast.videoUrl} type="video/mp4" />
           Your browser does not support the video tag.
         </video>

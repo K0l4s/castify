@@ -1,16 +1,11 @@
 package com.castify.backend.service.podcast;
 
-import com.castify.backend.entity.CommentEntity;
-import com.castify.backend.entity.PodcastEntity;
-import com.castify.backend.entity.PodcastLikeEntity;
-import com.castify.backend.entity.UserEntity;
+import com.castify.backend.entity.*;
+import com.castify.backend.models.PageDTO;
 import com.castify.backend.models.comment.CommentModel;
 import com.castify.backend.models.podcast.CreatePodcastModel;
 import com.castify.backend.models.podcast.PodcastModel;
-import com.castify.backend.repository.CommentRepository;
-import com.castify.backend.repository.PodcastLikeRepository;
-import com.castify.backend.repository.PodcastRepository;
-import com.castify.backend.repository.UserRepository;
+import com.castify.backend.repository.*;
 import com.castify.backend.service.user.IUserService;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,6 +19,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class PodcastServiceImpl implements IPodcastService {
@@ -45,6 +41,9 @@ public class PodcastServiceImpl implements IPodcastService {
     @Autowired
     private IUserService userService;
 
+    @Autowired
+    private GenreRepository genreRepository;
+
     @Override
     public PodcastModel createPodcast(CreatePodcastModel createPodcastModel) {
         PodcastEntity podcastEntity = modelMapper.map(createPodcastModel, PodcastEntity.class);
@@ -55,11 +54,15 @@ public class PodcastServiceImpl implements IPodcastService {
         UserEntity userEntity = userRepository.findByEmailOrUsername(userEmail)
                 .orElseThrow(() -> new RuntimeException("User not found with email: " + userEmail));
 
+        List<GenreEntity> validGenres = genreRepository.findAllById(createPodcastModel.getGenresId());
+
+        podcastEntity.setId(null);
         podcastEntity.setTitle(createPodcastModel.getTitle());
         podcastEntity.setContent(createPodcastModel.getContent());
         podcastEntity.setVideoUrl(createPodcastModel.getVideoPath());
         podcastEntity.setThumbnailUrl(createPodcastModel.getThumbnailPath());
 
+        podcastEntity.setGenres(validGenres);
         podcastEntity.setUser(userEntity);
         podcastEntity.setCreatedDay(LocalDateTime.now());
         podcastEntity.setLastEdited(LocalDateTime.now());
@@ -71,7 +74,7 @@ public class PodcastServiceImpl implements IPodcastService {
     }
 
     @Override
-    public Map<String, Object> getAllSelfPodcasts(
+    public PageDTO<PodcastModel> getAllSelfPodcasts(
             int page,
             int size,
             Integer minViews,
@@ -126,17 +129,13 @@ public class PodcastServiceImpl implements IPodcastService {
                 .filter(Objects::nonNull)
                 .toList();
 
-        // Tính toán currentPage và totalPage
-        int currentPage = podcastEntities.getNumber();
-        int totalPages = podcastEntities.getTotalPages();
+        PageDTO<PodcastModel> pageDTO = new PageDTO<>();
+        pageDTO.setContent(podcastModels);
+        pageDTO.setCurrentPage(podcastEntities.getNumber());
+        pageDTO.setTotalPages(podcastEntities.getTotalPages());
+        pageDTO.setTotalElements((int) podcastEntities.getTotalElements());
 
-        // Thêm thông tin phân trang vào response
-        Map<String, Object> response = new HashMap<>();
-        response.put("currentPage", currentPage);
-        response.put("totalPages", totalPages);
-        response.put("podcasts", podcastModels);
-
-        return response;
+        return pageDTO;
     }
 
     @Override
@@ -205,5 +204,24 @@ public class PodcastServiceImpl implements IPodcastService {
             podcastLikeRepository.save(newLike);
         }
         return "Success";
+    }
+
+    @Override
+    public PageDTO<PodcastModel> getRecentPodcasts(int page, int size) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdDay"));
+        Page<PodcastEntity> podcastPage = podcastRepository.findByIsActiveTrue(pageable);
+
+        List<PodcastModel> podcastModels = podcastPage.getContent()
+                .stream()
+                .map(podcastEntity -> modelMapper.map(podcastEntity, PodcastModel.class))
+                .toList();
+
+        return new PageDTO<>(
+                podcastModels,
+                podcastPage.getSize(),
+                podcastPage.getNumber(),
+                podcastPage.getTotalPages(),
+                podcastPage.getTotalElements()
+        );
     }
 }

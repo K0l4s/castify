@@ -1,10 +1,13 @@
 package com.castify.backend.controller;
 
+import com.castify.backend.models.PageDTO;
+import com.castify.backend.models.genre.GenreSimple;
 import com.castify.backend.models.podcast.CreatePodcastModel;
 import com.castify.backend.models.podcast.LikePodcastDTO;
 import com.castify.backend.models.podcast.PodcastModel;
 import com.castify.backend.models.user.UserModel;
 import com.castify.backend.service.ffmpeg.IFFmpegService;
+import com.castify.backend.service.genre.IGenreService;
 import com.castify.backend.service.uploadFile.IUploadFileService;
 import com.castify.backend.service.user.IUserService;
 import com.castify.backend.service.user.UserServiceImpl;
@@ -50,6 +53,9 @@ public class PodcastController {
     @Autowired
     private IUploadFileService uploadFileService;
 
+    @Autowired
+    private IGenreService genreService;
+
     private static final Logger logger = Logger.getLogger(PodcastController.class.getName());
 
     @PostMapping(value = "/create", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
@@ -57,8 +63,14 @@ public class PodcastController {
             @RequestPart("title") String title,
             @RequestPart("content") String content,
             @RequestPart("video") MultipartFile videoFile,
-            @RequestParam(value = "thumbnail", required = false) MultipartFile thumbnail) {
+            @RequestParam(value = "thumbnail", required = false) MultipartFile thumbnail,
+            @RequestParam(value = "genreIds") List<String> genreIds) {
         try {
+            // Kiểm tra số lượng genre
+            if (genreIds.size() > 5) {
+                throw new RuntimeException("A podcast can have at most 5 genres");
+            }
+
             // Check if null
             if (videoFile == null || videoFile.isEmpty()) {
                 throw new RuntimeException("Empty video file");
@@ -106,7 +118,7 @@ public class PodcastController {
                 thumbnailUrl = uploadFileService.uploadImageBytes(FileUtils.encodeFileToBase64(tempThumbnailPath.toFile()));
             }
 
-            CreatePodcastModel createPodcastModel = new CreatePodcastModel(title, content, videoPath.toString(), thumbnailUrl);
+            CreatePodcastModel createPodcastModel = new CreatePodcastModel(title, content, videoPath.toString(), thumbnailUrl, genreIds);
 
             // Call service and pass video file path
             PodcastModel podcastModel = podcastService.createPodcast(createPodcastModel);
@@ -128,7 +140,7 @@ public class PodcastController {
             @RequestParam(required = false, defaultValue = "desc") String sortByCreatedDay // Sắp xếp theo ngày tạo tăng/giảm dần
     ) {
         try {
-            Map<String, Object> podcasts = podcastService.getAllSelfPodcasts(page, size, minViews, minComments,
+            PageDTO<PodcastModel> podcasts = podcastService.getAllSelfPodcasts(page, size, minViews, minComments,
                     sortByViews, sortByComments, sortByCreatedDay);
 
             return ResponseEntity.ok(podcasts);
@@ -196,4 +208,20 @@ public class PodcastController {
         return new ResponseEntity<>("Invalid JWT token format", HttpStatus.BAD_REQUEST);
     }
 
+
+
+
+
+    // Display podcast on home page
+    @GetMapping("/recent")
+    public ResponseEntity<?> getRecentPodcasts(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+        try {
+            PageDTO<PodcastModel> recentPodcasts = podcastService.getRecentPodcasts(page, size);
+            return ResponseEntity.ok(recentPodcasts);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error: " + e.getMessage());
+        }
+    }
 }

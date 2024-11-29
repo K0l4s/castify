@@ -6,6 +6,7 @@ export interface Podcast {
   content: string;
   thumbnailUrl: string | null;
   videoUrl: string;
+  genres: Genre[];
   views: number;
   totalLikes: number;
   totalComments: number;
@@ -18,8 +19,12 @@ export interface Podcast {
 }
 
 export interface PodcastResponse {
-  podcasts: Podcast[];
+  content: Podcast[];
   totalPages: number;
   currentPage: number;
 }
 
+export interface Genre {
+  id: string;
+  name: string;
+}

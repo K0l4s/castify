@@ -20,7 +20,7 @@ export const PodcastProvider: React.FC<{ children: React.ReactNode }> = ({ child
     console.log('fetchPodcasts called with:', { page, size, sortByViews, sortByComments, sortByCreatedDay });
     try {
       const data = await getSelfPodcastsInCreator(page, size, undefined, undefined, sortByViews, sortByComments, sortByCreatedDay);
-      setPodcasts(data.podcasts);
+      setPodcasts(data.content);
       setCurrentPage(data.currentPage);
       setTotalPages(data.totalPages);
     } catch (error) {
