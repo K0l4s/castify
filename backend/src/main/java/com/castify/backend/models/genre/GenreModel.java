@@ -1,22 +1,17 @@
-package com.castify.backend.entity;
+package com.castify.backend.models.genre;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.springframework.data.annotation.Id;
-import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.time.LocalDateTime;
 
-@Document(collection = "genre")
+@Data
 @AllArgsConstructor
 @NoArgsConstructor
-@Data
-public class GenreEntity {
-    @Id
+public class GenreModel {
     private String id;
     private String name;
-//    private String description;
     private boolean isActive;
     private LocalDateTime lastEdited;
 }
