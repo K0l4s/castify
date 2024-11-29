@@ -8,6 +8,9 @@ import CustomButton from "../../UI/custom/CustomButton";
 import { usePodcastContext } from "../../../context/PodcastContext";
 import PlaylistSection from "./PlaylistSelection";
 import { captureFrameFromVideo } from "../../../utils/FileUtils";
+import GenreSelection from "./GenreSelection";
+import { getGenres } from "../../../services/GenreService";
+import { BiSolidCategoryAlt } from "react-icons/bi";
 
 interface PodcastUploadModalProps {
   isOpen: boolean;
@@ -35,6 +38,11 @@ const PodcastUploadModal: React.FC<PodcastUploadModalProps> = ({
   const [selectedPlaylists, setSelectedPlaylists] = useState<string[]>([]);
   const [showPlaylistModal, setShowPlaylistModal] = useState(false);
 
+  const [genres, setGenres] = useState<{ id: string; name: string }[]>([]);
+  const [selectedGenres, setSelectedGenres] = useState<string[]>([]);
+  const [showGenreModal, setShowGenreModal] = useState(false);
+
+
   const toast = useToast();
 
   const { fetchPodcasts } = usePodcastContext();
@@ -50,6 +58,18 @@ const PodcastUploadModal: React.FC<PodcastUploadModalProps> = ({
     ];
     setPlaylists(mockPlaylists);
   }, []);
+
+   // Fetch genres when the modal is opened
+   useEffect(() => {
+    if (isOpen) {
+      getGenres()
+        .then((data) => setGenres(data))
+        .catch((error) => {
+          console.error("Failed to fetch genres:", error);
+          toast.error("Failed to fetch genres. Please try again.");
+        });
+    }
+  }, [isOpen]);
 
   const handleVideoChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -133,6 +153,7 @@ const PodcastUploadModal: React.FC<PodcastUploadModalProps> = ({
         content: desc,
         video: videoFile,
         thumbnail: thumbnailFile || undefined,
+        genreIds: selectedGenres,
       };
       await createPodcast(payload);
       toast.success("Podcast uploaded successfully!");
@@ -157,6 +178,7 @@ const PodcastUploadModal: React.FC<PodcastUploadModalProps> = ({
     setThumbnailPreview(null);
     setThumbnailFile(null);
     setSelectedPlaylists([]);
+    setSelectedGenres([]);
   };
 
   return (
@@ -338,6 +360,39 @@ const PodcastUploadModal: React.FC<PodcastUploadModalProps> = ({
           handlePlaylistChange={handlePlaylistChange}
         />
 
+        {/* Genre Selection Modal */}
+        <div className="col-span-2">
+          <div className="flex flex-col w-1/2 md:w-full">
+            <label className="my-2 text-sm font-medium text-gray-700 dark:text-gray-300">
+              Genres
+            </label>
+            <CustomButton
+              className="text-sm dark:text-white border-2 w-full md:w-1/2 py-4 border-dashed rounded hover:bg-gray-300 hover:dark:bg-gray-600"
+              text={
+                selectedGenres.length > 0
+                  ? `${selectedGenres.length} Genres Selected`
+                  : "Select Genres"
+              }
+              icon={<BiSolidCategoryAlt size={24} />}
+              variant="outline"
+              onClick={() => setShowGenreModal(true)}
+            />
+            <div className="flex flex-wrap gap-2 mt-4">
+              {selectedGenres.map((genreId) => {
+                const genre = genres.find((g) => g.id === genreId);
+                return (
+                  <span
+                    key={genreId}
+                    className="px-4 py-2 bg-blue-600 text-white rounded-full"
+                  >
+                    {genre?.name}
+                  </span>
+                );
+              })}
+            </div>
+          </div>
+        </div>
+
         <div className="col-span-3 flex justify-end">
           <CustomButton
             onClick={handleUpload}
@@ -347,6 +402,15 @@ const PodcastUploadModal: React.FC<PodcastUploadModalProps> = ({
           />
         </div>
       </div>
+
+      <GenreSelection
+        isOpen={showGenreModal}
+        onClose={() => setShowGenreModal(false)}
+        genres={genres}
+        selectedGenres={selectedGenres}
+        setSelectedGenres={setSelectedGenres}
+      />
+
     </CustomModal>
   );
 };
