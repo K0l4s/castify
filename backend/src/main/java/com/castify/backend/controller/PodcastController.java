@@ -1,5 +1,6 @@
 package com.castify.backend.controller;
 
+import com.castify.backend.models.PageDTO;
 import com.castify.backend.models.genre.GenreSimple;
 import com.castify.backend.models.podcast.CreatePodcastModel;
 import com.castify.backend.models.podcast.LikePodcastDTO;
@@ -207,4 +208,20 @@ public class PodcastController {
         return new ResponseEntity<>("Invalid JWT token format", HttpStatus.BAD_REQUEST);
     }
 
+
+
+
+
+    // Display podcast on home page
+    @GetMapping("/recent")
+    public ResponseEntity<?> getRecentPodcasts(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+        try {
+            PageDTO<PodcastModel> recentPodcasts = podcastService.getRecentPodcasts(page, size);
+            return ResponseEntity.ok(recentPodcasts);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error: " + e.getMessage());
+        }
+    }
 }

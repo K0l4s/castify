@@ -1,6 +1,7 @@
 package com.castify.backend.service.podcast;
 
 import com.castify.backend.entity.*;
+import com.castify.backend.models.PageDTO;
 import com.castify.backend.models.comment.CommentModel;
 import com.castify.backend.models.podcast.CreatePodcastModel;
 import com.castify.backend.models.podcast.PodcastModel;
@@ -18,6 +19,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class PodcastServiceImpl implements IPodcastService {
@@ -206,5 +208,24 @@ public class PodcastServiceImpl implements IPodcastService {
             podcastLikeRepository.save(newLike);
         }
         return "Success";
+    }
+
+    @Override
+    public PageDTO<PodcastModel> getRecentPodcasts(int page, int size) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdDay"));
+        Page<PodcastEntity> podcastPage = podcastRepository.findByIsActiveTrue(pageable);
+
+        List<PodcastModel> podcastModels = podcastPage.getContent()
+                .stream()
+                .map(podcastEntity -> modelMapper.map(podcastEntity, PodcastModel.class))
+                .toList();
+
+        return new PageDTO<>(
+                podcastModels,
+                podcastPage.getSize(),
+                podcastPage.getNumber(),
+                podcastPage.getTotalPages(),
+                podcastPage.getTotalElements()
+        );
     }
 }
