@@ -1,5 +1,5 @@
 
-import PodcastPlayer from "../../../components/UI/podcast/PodcastPlayer";
+// import PodcastPlayer from "../../../components/UI/podcast/PodcastPlayer";
 import RecentPodcast from "./RecentPodcast";
 
 const LandingPage = () => {
