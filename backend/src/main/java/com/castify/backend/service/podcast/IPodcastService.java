@@ -10,7 +10,7 @@ import java.util.Map;
 
 public interface IPodcastService {
     PodcastModel createPodcast(CreatePodcastModel createPodcastModel);
-    Map<String, Object> getAllSelfPodcasts(int page, int size, Integer minViews,
+    PageDTO<PodcastModel> getAllSelfPodcasts(int page, int size, Integer minViews,
                                            Integer minComments, String sortByViews,
                                            String sortByComments, String sortByCreatedDay);
     PodcastModel getPodcastById(String id);

@@ -53,7 +53,7 @@ export const getSelfPodcastsInCreator = async (
       }
     });
 
-    response.data.podcasts.forEach(podcast => {
+    response.data.content.forEach(podcast => {
       podcast.videoUrl = `http://localhost:8081/api/v1/podcast/video?path=${encodeURIComponent(podcast.videoUrl)}`;
     });
 
@@ -86,6 +86,23 @@ export const getPodcastByAnonymous = async (id: string) => {
 export const likePodcast = async (podcastId: string) => {
   try {
     const response = await axiosInstanceAuth.post(`/api/v1/podcast/reaction`, { podcastId });
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};
+
+export const getPodcastRecent = async (page: number, size: number) => {
+  try {
+    const response = await axiosInstance.get<PodcastResponse>("/api/v1/podcast/recent", {
+      params: {
+        page,
+        size
+      }
+    });
+    response.data.content.forEach(podcast => {
+      podcast.videoUrl = `http://localhost:8081/api/v1/podcast/video?path=${encodeURIComponent(podcast.videoUrl)}`;
+    });
     return response.data;
   } catch (error) {
     throw error;

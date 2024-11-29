@@ -140,7 +140,7 @@ public class PodcastController {
             @RequestParam(required = false, defaultValue = "desc") String sortByCreatedDay // Sắp xếp theo ngày tạo tăng/giảm dần
     ) {
         try {
-            Map<String, Object> podcasts = podcastService.getAllSelfPodcasts(page, size, minViews, minComments,
+            PageDTO<PodcastModel> podcasts = podcastService.getAllSelfPodcasts(page, size, minViews, minComments,
                     sortByViews, sortByComments, sortByCreatedDay);
 
             return ResponseEntity.ok(podcasts);

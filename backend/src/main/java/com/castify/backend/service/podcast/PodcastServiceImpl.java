@@ -74,7 +74,7 @@ public class PodcastServiceImpl implements IPodcastService {
     }
 
     @Override
-    public Map<String, Object> getAllSelfPodcasts(
+    public PageDTO<PodcastModel> getAllSelfPodcasts(
             int page,
             int size,
             Integer minViews,
@@ -129,17 +129,13 @@ public class PodcastServiceImpl implements IPodcastService {
                 .filter(Objects::nonNull)
                 .toList();
 
-        // Tính toán currentPage và totalPage
-        int currentPage = podcastEntities.getNumber();
-        int totalPages = podcastEntities.getTotalPages();
+        PageDTO<PodcastModel> pageDTO = new PageDTO<>();
+        pageDTO.setContent(podcastModels);
+        pageDTO.setCurrentPage(podcastEntities.getNumber());
+        pageDTO.setTotalPages(podcastEntities.getTotalPages());
+        pageDTO.setTotalElements((int) podcastEntities.getTotalElements());
 
-        // Thêm thông tin phân trang vào response
-        Map<String, Object> response = new HashMap<>();
-        response.put("currentPage", currentPage);
-        response.put("totalPages", totalPages);
-        response.put("podcasts", podcastModels);
-
-        return response;
+        return pageDTO;
     }
 
     @Override

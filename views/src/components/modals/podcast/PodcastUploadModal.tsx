@@ -367,7 +367,7 @@ const PodcastUploadModal: React.FC<PodcastUploadModalProps> = ({
               Genres
             </label>
             <CustomButton
-              className="text-sm dark:text-white border-2 w-full md:w-1/2 py-4 border-dashed rounded hover:bg-gray-300 hover:dark:bg-gray-600"
+              className="text-base dark:text-white border-2 w-full md:w-1/2 border-dashed rounded hover:bg-gray-300 hover:dark:bg-gray-600"
               text={
                 selectedGenres.length > 0
                   ? `${selectedGenres.length} Genres Selected`
