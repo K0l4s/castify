@@ -39,29 +39,29 @@ public class UserServiceImpl implements IUserService {
     UserRepositoryTemplate userRepositoryTemplate;
 
 
-
     @Override
     public UserModel getUserByUsername(String username) throws Exception {
 
         Optional<UserEntity> userData = userRepository.findByUsername(username);
         if (userData.isPresent()) {
             return modelMapper.map(userData.get(), UserModel.class);
-
-
         } else {
             throw new Exception("Not found user with username " + username);
         }
     }
-@Override
-public UserDetailModel getProfileDetail(String username) throws Exception {
-    UserEntity targetData = userRepository.findUserEntityByUsername(username);
-    return mapToUserDetailModel(targetData);
-}
+
+    @Override
+    public UserDetailModel getProfileDetail(String username) throws Exception {
+        UserEntity targetData = userRepository.findUserEntityByUsername(username);
+        return mapToUserDetailModel(targetData);
+    }
+
     @Override
     public UserDetailModel getSelfProfileDetail() throws Exception {
         UserEntity userData = getUserByAuthentication();
         return mapToUserDetailModel(userData);
     }
+
     @Override
     public UserDetailModel mapToUserDetailModel(UserEntity userEntity) throws Exception {
         // Tạo custom mapping hoặc sử dụng logic thủ công
@@ -88,7 +88,6 @@ public UserDetailModel getProfileDetail(String username) throws Exception {
 
         return userDetail;
     }
-
 
 
     @Override
@@ -188,6 +187,7 @@ public UserDetailModel getProfileDetail(String username) throws Exception {
             return "Followed successfully.";
         }
     }
+
     public List<UserEntity> suggestFriends(UserEntity currentUser) {
         // Lấy danh sách tất cả người dùng
         List<UserEntity> allUsers = userRepository.findAll();
@@ -222,6 +222,7 @@ public UserDetailModel getProfileDetail(String username) throws Exception {
 
         return new ArrayList<>(suggestedFriends);
     }
+
     @Override
     public List<UserSimple> getRecommendUser() throws Exception {
         UserEntity currentUser = getUserByAuthentication();
@@ -232,13 +233,44 @@ public UserDetailModel getProfileDetail(String username) throws Exception {
         // Lấy danh sách người dùng giống nhau, sử dụng Pageable
         Page<UserEntity> similarUsers = userRepositoryTemplate.findSimilarUsers(currentUser, pageable);
 
-        // Chuyển đổi các UserEntity trong trang thành UserSimple sử dụng ModelMapper
+        // Chuyển đổi các UserEntity thành UserSimple
         List<UserSimple> resultUsers = similarUsers.getContent().stream()
-                .map(userEntity -> modelMapper.map(userEntity, UserSimple.class)) // Chuyển đổi từng UserEntity thành UserSimple
+                .map(userEntity -> mapToUserSimple(userEntity, currentUser))
                 .collect(Collectors.toList());
 
         // Trả về danh sách người dùng đã được chuyển đổi
         return resultUsers;
+    }
+
+    private UserSimple mapToUserSimple(UserEntity userEntity, UserEntity currentUser) {
+        // Chuyển đổi UserEntity thành UserSimple
+        UserSimple userSimple = modelMapper.map(userEntity, UserSimple.class);
+
+        // Tính toán các thuộc tính bổ sung
+        userSimple.setTotalFollower(getFollowerCount(userEntity));
+        userSimple.setTotalPost(getPostCount(userEntity));
+        userSimple.setIsFollow(isUserFollowing(currentUser, userEntity));
+
+        return userSimple;
+    }
+
+    private long getFollowerCount(UserEntity userEntity) {
+        return userRepository.findUsersFollowing(userEntity.getId()).size();
+    }
+
+    private long getPostCount(UserEntity userEntity) {
+        return podcastRepository.countByUser(userEntity);
+    }
+
+    private boolean isUserFollowing(UserEntity currentUser, UserEntity targetUser) {
+        try {
+            if (currentUser.getFollowing() == null) {
+                currentUser.setFollowing(new ArrayList<>());
+            }
+            return currentUser.isFollow(targetUser.getId());
+        } catch (Exception ex) {
+            return false;
+        }
     }
 
 

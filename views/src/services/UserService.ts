@@ -1,5 +1,5 @@
 import { updateUser } from "../models/User";
-import { axiosInstance, axiosInstanceAuth } from "../utils/axiosInstance";
+import { axiosInstance, axiosInstanceAuth, axiosInstanceFile } from "../utils/axiosInstance";
 import Cookies from 'js-cookie';
 export const userService = {
     getUserByToken: async (token:string) => {
@@ -38,5 +38,13 @@ export const userService = {
     },
     followUser: async (targetUsername:string) => {
         return await axiosInstanceAuth.put(`/api/v1/user/follow?username=${targetUsername}`)
+    },
+    getSuggestUser: async () => {
+        return await axiosInstanceAuth.get(`/api/v1/user/recommend`);
+    },
+    changeAvatar: async (avatar:File) => {
+        const formData = new FormData();
+        formData.append('avatar', avatar);
+        return await axiosInstanceFile.put(`/api/v1/user/avatar`, formData);
     }
 };

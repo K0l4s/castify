@@ -11,6 +11,7 @@ import { GiCancel } from 'react-icons/gi';
 import Loading from '../../../components/UI/custom/Loading';
 
 const SettingPage = () => {
+
   const [isLoading, setIsLoading] = useState(true);
   const [user, setUser] = useState<User>();
   const [provincesList, setProvincesList] = useState<provinces[]>([]);
@@ -198,6 +199,27 @@ const SettingPage = () => {
     }
   };
 
+  const handleChangeAvatar = async(e: React.ChangeEvent<HTMLInputElement>) => {
+    toast.loading("Uploading avatar...");
+    const file = e.target.files?.[0];
+    if (file) {
+      // const formData = new FormData();
+      // formData.append('avatar', file);
+      await userService.changeAvatar(file).then(res => {
+        console.log(res);
+        toast.clearAllToasts();
+        toast.success("Avatar updated successfully");
+        setUser(prev => prev ? { ...prev, avatarUrl: URL.createObjectURL(file) } : prev);
+      }
+      ).catch(err => {
+        console.log(err);
+        toast.clearAllToasts();
+        toast.error("Error updating avatar");
+      });
+      // console.log(formData.get('avatar'));
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900 p-8">
       <div className="max-w-3xl mx-auto bg-white dark:bg-gray-800 rounded-2xl shadow-2xl p-8">
@@ -214,6 +236,24 @@ const SettingPage = () => {
               <BiEditAlt className="w-4 h-4" /> Edit Profile
             </CustomButton>
           )}
+        </div>
+        <div className='w-40 h-40 m-auto rounded-full border-solid border-4 border-green-400 relative group overflow-hidden'>
+          <img
+            className='rounded-full object-center object-cover w-full h-full transition-opacity duration-300 group-hover:opacity-80'
+            src={user?.avatarUrl ||
+              "https://media.istockphoto.com/id/517998264/vector/male-user-icon.jpg?s=612x612&w=0&k=20&c=4RMhqIXcJMcFkRJPq6K8h7ozuUoZhPwKniEke6KYa_k="}
+            alt="avatar"
+            id='avatarShown'
+          />
+
+          {/* Icon BiEditAlt */}
+          <label htmlFor="avatar"
+            className="absolute inset-0 flex items-center justify-center bg-black/20 rounded-full cursor-pointer opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+            <input type="file" id="avatar" className="hidden" 
+            onChange={handleChangeAvatar}
+            />
+            <BiEditAlt className="text-white w-8 h-8" />
+          </label>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-6">
@@ -257,10 +297,10 @@ const SettingPage = () => {
               </div>
             </div>
 
-            <div>
+            {/* <div>
               <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">Birthday</label>
 
-            </div>
+            </div> */}
             {/* <div>
               <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">Phone</label>
               <CustomInput
