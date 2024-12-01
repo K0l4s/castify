@@ -1,7 +1,7 @@
 // import axios from "axios";
 
 import { LoginInput } from "../models/Authentication";
-import { userRegister } from "../models/User";
+// import { userRegister } from "../models/User";
 // import Cookies from 'js-cookie';
 import { axiosInstance } from "../utils/axiosInstance";
 
