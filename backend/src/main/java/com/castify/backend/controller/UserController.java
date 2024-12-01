@@ -73,7 +73,22 @@ public class UserController {
                     .body("Error"+e.getMessage());
         }
     }
+    @PutMapping("/cover")
+    private ResponseEntity<String> updateCover(
+            @RequestPart("cover") MultipartFile avatarFile
+    )
+    {
+        try{
+            return ResponseEntity.ok(
+                    userService.updateCover(avatarFile)
+            );
 
+        }catch (Exception e){
+            return ResponseEntity
+                    .status(HttpStatus.BAD_REQUEST)
+                    .body("Error"+e.getMessage());
+        }
+    }
     @PutMapping("")
     private ResponseEntity<?> updateInformationByToken(
             @RequestBody UpdateUserModel updateUserModel

@@ -124,6 +124,14 @@ public class UserServiceImpl implements IUserService {
         userRepository.save(userData);
         return imageUrl;
     }
+    @Override
+    public String updateCover(MultipartFile imageFile) throws Exception {
+        UserEntity userData = getUserByAuthentication();
+        String imageUrl = uploadFileService.uploadImage(imageFile);
+        userData.setCoverUrl(imageUrl);
+        userRepository.save(userData);
+        return imageUrl;
+    }
 
     @Override
     public UserEntity getUserByAuthentication() throws Exception {

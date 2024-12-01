@@ -24,6 +24,8 @@ public interface IUserService {
 
     String updateAvatar(MultipartFile imageFile) throws Exception;
 
+    String updateCover(MultipartFile imageFile) throws Exception;
+
     UserEntity getUserByAuthentication() throws Exception;
 
     UpdateUserModel updateUserInformationById(UpdateUserModel updateUserModel) throws Exception;
