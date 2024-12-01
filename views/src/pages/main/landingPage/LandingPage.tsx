@@ -1,16 +1,13 @@
 
 // import PodcastPlayer from "../../../components/UI/podcast/PodcastPlayer";
 import RecentPodcast from "./RecentPodcast";
-import SuggestFollow from "./SuggestFollow";
 
 const LandingPage = () => {
 
   return (
     <div className="px-8 py-4">
       {/* Recent Podcasts */}
-      
       <div className="m-auto">
-        <SuggestFollow/>
         <RecentPodcast />
       </div>
       {/* <PodcastPlayer
