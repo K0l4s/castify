@@ -12,7 +12,7 @@ export const authenticateApi = {
             
     },
     
-    register: async (registerValue: userRegister) => {
+    register: async (registerValue: any) => {
         return axiosInstance.post(`api/v1/auth/register`, registerValue);
         // return response.data;
     },

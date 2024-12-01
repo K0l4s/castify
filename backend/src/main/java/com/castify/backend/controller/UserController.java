@@ -34,7 +34,7 @@ public class UserController {
                     .ok(userService.getSelfProfileDetail());
         } catch (Exception e) {
             return ResponseEntity
-                    .status(HttpStatus.UNAUTHORIZED)
+                        .status(HttpStatus.BAD_REQUEST)
                     .body("Error: " + e.getMessage());
         }
     }
@@ -57,7 +57,7 @@ public class UserController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Error: "+e.getMessage());
         }
     }
-    @PutMapping("/image")
+    @PutMapping("/avatar")
     private ResponseEntity<String> updateAvatar(
             @RequestPart("avatar") MultipartFile avatarFile
             )
