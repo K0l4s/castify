@@ -8,7 +8,7 @@ interface PodcastCardProps {
     username: string;
   };
   thumbnailUrl: string;
-  duration: string;
+  duration?: string;
 }
 
 const PodcastCard: React.FC<PodcastCardProps> = ({
