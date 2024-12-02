@@ -244,4 +244,18 @@ public class PodcastController {
         podcastService.incrementPodcastViews(id);
         return ResponseEntity.noContent().build();
     }
+
+    @GetMapping("/user")
+    public ResponseEntity<PageDTO<PodcastModel>> getUserPodcasts(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "newest") String sortBy
+    ) {
+        try {
+            PageDTO<PodcastModel> result = podcastService.getUserPodcasts(page, size, sortBy);
+            return ResponseEntity.ok(result);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
 }

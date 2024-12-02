@@ -7,10 +7,12 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.data.mongodb.repository.Query;
+import org.springframework.stereotype.Repository;
 
 import java.util.List;
 import java.util.Optional;
 
+@Repository
 public interface PodcastRepository extends MongoRepository<PodcastEntity, String> {
     Optional<List<PodcastEntity>> findAllByUserId(String userId);
 
@@ -19,4 +21,6 @@ public interface PodcastRepository extends MongoRepository<PodcastEntity, String
     long countByUser(UserEntity user);
     Page<PodcastEntity> findByIsActiveTrue(Pageable pageable);
     Page<PodcastEntity> findByGenres_IdAndIsActiveTrue(String genreId, Pageable pageable);
+    @Query("{ 'user.id': ?0 }")
+    Page<PodcastEntity> findAllByUserId(String userId, Pageable pageable);
 }
