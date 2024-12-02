@@ -167,24 +167,37 @@ const RegisterModal = (props: DefaultModalProps) => {
     toast.loading("Creating account...");
     setIsRequest(true);
     try {
-      await authenticateApi.register(formData).then(() => {
-        
-        setIsRequest(false);
-        toast.clearAllToasts();
-        props.onClose();
-        props.toggleAuthView();
-        toast.success("Account created successfully, Please check your email to verify your account");
-        // window.open('/login', '_blank');
-      }).catch(err => {
-        toast.error(err.response.data);
-        setIsRequest(false);
-        toast.clearAllToasts();
-      });
+      // Chuyển đổi ngày sinh thành chuỗi định dạng ISO với thời gian mặc định là "00:00:00"
+      const date = new Date(formData.birthday);
+      const localDateTime = new Date(date.getTime() - date.getTimezoneOffset() * 60000)
+        .toISOString()
+        .split("T")[0] + "T00:00:00";
+  
+      await authenticateApi
+        .register({
+          ...formData,
+          birthday: localDateTime, // Gửi lên với định dạng yyyy-MM-ddTHH:mm:ss
+        })
+        .then(() => {
+          setIsRequest(false);
+          toast.clearAllToasts();
+          props.onClose();
+          props.toggleAuthView();
+          toast.success(
+            "Account created successfully, Please check your email to verify your account"
+          );
+        })
+        .catch((err) => {
+          toast.error(err.response.data);
+          setIsRequest(false);
+          toast.clearAllToasts();
+        });
     } catch (error) {
       toast.clearAllToasts();
       setIsRequest(false);
     }
   };
+  
 
   const inputClasses = "mt-1 block w-full px-3 py-2 bg-gray-800/30 border border-gray-700 rounded-md " +
     "focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 text-white placeholder-gray-500";
@@ -286,7 +299,17 @@ const RegisterModal = (props: DefaultModalProps) => {
                     required
                   />
                 </div>
-
+                <div>
+                  <label htmlFor="middleName" className={labelClasses}>Middle Name</label>
+                  <input
+                    type="text"
+                    id="middleName"
+                    name="middleName"
+                    value={formData.middleName}
+                    onChange={handleInputChange}
+                    className={inputClasses}
+                  />
+                </div>
                 <div>
                   <label htmlFor="firstName" className={labelClasses}>First Name</label>
                   <input
@@ -299,24 +322,13 @@ const RegisterModal = (props: DefaultModalProps) => {
                     required
                   />
                 </div>
-                <div>
-                  <label htmlFor="middleName" className={labelClasses}>Middle Name</label>
-                  <input
-                    type="text"
-                    id="middleName"
-                    name="middleName"
-                    value={formData.middleName}
-                    onChange={handleInputChange}
-                    className={inputClasses}
-                  />
-                </div>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div>
                   <label htmlFor="birthday" className={labelClasses}>Birthday</label>
                   <input
-                    type="date"
+                    type="Date"
                     id="birthday"
                     name="birthday"
                     value={formData.birthday instanceof Date ? formData.birthday.toISOString().split('T')[0] : formData.birthday}

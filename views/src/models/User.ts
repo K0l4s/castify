@@ -64,13 +64,17 @@ export interface updateUser {
     phone: string;
 }
 export interface userCard {
-    id: number;
-    email: string;
-    firstName: string;
-    middleName: string;
-    lastName: string;
+    id: string;
+    // firstName: string;
+    // middleName: string;
+    // lastName: string;
+    fullname:string;
+    username: string;
     avatarUrl: string;
-    coverUrl: string;
+    follow:boolean;
+    totalFollower:number;
+    totalFollowing:number;
+    totalPost:number;
     // [key: string]: any;
 }
 

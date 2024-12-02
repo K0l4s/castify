@@ -8,9 +8,8 @@ import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Repository;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Repository
 public class UserRepositoryTemplate {
@@ -65,7 +64,11 @@ public class UserRepositoryTemplate {
 
         // Thực thi truy vấn và lấy kết quả
         List<UserEntity> users = mongoTemplate.find(query, UserEntity.class);
+        Set<String> followingSet = new HashSet<>(currentUser.getFollowing());
 
+        List<UserEntity> resultUser = users.stream()
+                .filter(userEntity -> !followingSet.contains(userEntity.getId()))
+                .collect(Collectors.toList());
         // Kiểm tra nếu không có kết quả, lấy ngẫu nhiên
         if (users.isEmpty()) {
             // Lấy ngẫu nhiên các người dùng từ database nếu không tìm thấy ai khớp
@@ -76,7 +79,7 @@ public class UserRepositoryTemplate {
                 // Random một người dùng (hoặc n người dùng)
                 int randomSkip = new Random().nextInt((int) totalCount);
                 query.skip(randomSkip).limit(pageable.getPageSize());
-                users = mongoTemplate.find(query, UserEntity.class);
+                resultUser = mongoTemplate.find(query, UserEntity.class);
             }
         }
 
@@ -84,6 +87,6 @@ public class UserRepositoryTemplate {
         long totalCount = mongoTemplate.count(query, UserEntity.class);
 
         // Trả về Page chứa kết quả phân trang
-        return new PageImpl<>(users, pageable, totalCount);
+        return new PageImpl<>(resultUser, pageable, totalCount);
     }
 }
