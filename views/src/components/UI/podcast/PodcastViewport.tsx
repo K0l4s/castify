@@ -126,8 +126,8 @@ const PodcastViewport: React.FC = () => {
     // Add save logic here
   };
 
-  const userInfo = podcast?.user.lastName + " " + podcast?.user.middleName + " " +podcast?.user.firstName;
-  
+  // const userInfo = podcast?.user.lastName + " " + podcast?.user.middleName + " " +podcast?.user.firstName;
+  const userInfo = podcast?.user.fullname;
   return (
     <div className="flex flex-col lg:flex-row p-4 lg:p-8 bg-white text-black dark:bg-gray-900 dark:text-white">
       <div className="flex-1 lg:mr-8">

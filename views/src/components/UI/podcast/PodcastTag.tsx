@@ -9,11 +9,11 @@ interface PodcastTagProps {
 }
 
 const PodcastTag: React.FC<PodcastTagProps> = ({ podcast }) => {
-  const author = `${podcast.user.lastName} ${podcast.user.middleName} ${podcast.user.firstName}`;
+  const author = podcast.user.fullname;
   const createdDay = formatDistanceToNow(new Date(podcast.createdDay), { addSuffix: true });
 
   return (
-    <div className="rounded-lg overflow-hidden transform transition-transform duration-300 hover:scale-105">
+    <div className="rounded-lg overflow-hidden transform transition-transform duration-300">
       <Link to={`/watch?pid=${podcast.id}`}>
         <img src={podcast.thumbnailUrl || "/TEST.png"} alt={podcast.title} className="w-full h-56 object-fit" />
       </Link>

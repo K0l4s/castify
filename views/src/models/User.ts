@@ -130,9 +130,10 @@ export interface userUpdate {
 
 export interface UserSimple {
     id: string;
-    firstName: string;
-    middleName: string;
-    lastName: string;
+    // firstName: string;
+    // middleName: string;
+    // lastName: string;
+    fullname: string;
     username: string;
     avatarUrl: string;
 }
