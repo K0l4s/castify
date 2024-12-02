@@ -50,6 +50,7 @@ public class SecurityConfiguration {
             "/api/v1/podcast/anonymous/**",
             "/api/v1/comment/list/{id}",
             "/api/v1/comment/list/replies/{id}",
+            "/api/v1/genre/names",
             "/v2/api-docs",
             "/v3/api-docs",
             "/v3/api-docs/**",

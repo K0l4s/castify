@@ -13,6 +13,10 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -43,6 +47,9 @@ public class PodcastServiceImpl implements IPodcastService {
 
     @Autowired
     private GenreRepository genreRepository;
+
+    @Autowired
+    private MongoTemplate mongoTemplate;
 
     @Override
     public PodcastModel createPodcast(CreatePodcastModel createPodcastModel) {
@@ -246,5 +253,12 @@ public class PodcastServiceImpl implements IPodcastService {
                 podcastPage.getTotalPages(),
                 podcastPage.getTotalElements()
         );
+    }
+
+    @Override
+    public void incrementPodcastViews(String podcastId) {
+        Query query = new Query(Criteria.where("_id").is(podcastId));
+        Update update = new Update().inc("views", 1);
+        mongoTemplate.updateFirst(query, update, PodcastEntity.class);
     }
 }

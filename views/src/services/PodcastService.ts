@@ -126,3 +126,12 @@ export const getPodcastsByGenre = async (genreId: string, page: number, size: nu
     throw error;
   }
 };
+
+export const incrementPodcastViews = async (podcastId: string) => {
+  try {
+    const response = await axiosInstanceAuth.post(`/api/v1/podcast/${podcastId}/inc-views`);
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};

@@ -238,4 +238,10 @@ public class PodcastController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error: " + e.getMessage());
         }
     }
+
+    @PostMapping("/{id}/inc-views")
+    public ResponseEntity<Void> incrementViews(@PathVariable String id) {
+        podcastService.incrementPodcastViews(id);
+        return ResponseEntity.noContent().build();
+    }
 }
