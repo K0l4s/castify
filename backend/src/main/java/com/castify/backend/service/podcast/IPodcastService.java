@@ -19,4 +19,5 @@ public interface IPodcastService {
     PageDTO<PodcastModel> getRecentPodcasts(int page, int size);
     PageDTO<PodcastModel> getPodcastsByGenre(String genreId, int page, int size);
     void incrementPodcastViews(String podcastId);
+    PageDTO<PodcastModel> getUserPodcasts(int page, int size, String sortBy) throws Exception;
 }

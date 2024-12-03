@@ -261,4 +261,48 @@ public class PodcastServiceImpl implements IPodcastService {
         Update update = new Update().inc("views", 1);
         mongoTemplate.updateFirst(query, update, PodcastEntity.class);
     }
+
+    @Override
+    public PageDTO<PodcastModel> getUserPodcasts(int page, int size, String sortBy) throws Exception {
+        // Lấy thông tin UserEntity từ userService
+        UserEntity userEntity = userService.getUserByAuthentication();
+
+        Sort sort;
+        if ("oldest".equalsIgnoreCase(sortBy)) {
+            sort = Sort.by(Sort.Direction.ASC, "createdDay");
+        } else if ("views".equalsIgnoreCase(sortBy)) {
+            sort = Sort.by(Sort.Direction.DESC, "views")
+                    .and(Sort.by(Sort.Direction.DESC, "createdDay"));;
+        } else {
+            // Default là newest
+            sort = Sort.by(Sort.Direction.DESC, "createdDay");
+        }
+
+        // Tạo Pageable với sắp xếp
+        Pageable pageable = PageRequest.of(page, size, sort);
+
+        Page<PodcastEntity> podcastEntities = podcastRepository.findAllByUserId(userEntity.getId(), pageable);
+
+        return convertPodcastEntitiesToPageDTO(podcastEntities);
+    }
+
+    private PageDTO<PodcastModel> convertPodcastEntitiesToPageDTO(Page<PodcastEntity> podcastEntities) {
+        List<PodcastModel> podcastModels = podcastEntities.getContent().stream()
+                .map(podcast -> {
+                    PodcastModel podcastModel = modelMapper.map(podcast, PodcastModel.class);
+                    podcastModel.setTotalComments(commentRepository.countByPodcastId(podcast.getId()));
+                    podcastModel.setTotalLikes(podcastLikeRepository.countByPodcastEntityId(podcast.getId()));
+                    podcastModel.setUsername(podcast.getUser().getUsername());
+                    return podcastModel;
+                })
+                .toList();
+
+        PageDTO<PodcastModel> pageDTO = new PageDTO<>();
+        pageDTO.setContent(podcastModels);
+        pageDTO.setCurrentPage(podcastEntities.getNumber());
+        pageDTO.setTotalPages(podcastEntities.getTotalPages());
+        pageDTO.setTotalElements((int) podcastEntities.getTotalElements());
+
+        return pageDTO;
+    }
 }

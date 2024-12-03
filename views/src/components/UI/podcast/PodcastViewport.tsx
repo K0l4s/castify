@@ -14,13 +14,13 @@ import { useSelector } from "react-redux";
 import { RootState } from "../../../redux/store";
 import { useToast } from "../../../context/ToastProvider";
 import { formatDistanceToNow } from 'date-fns';
+import { setupVideoViewTracking } from "./video";
 
 const PodcastViewport: React.FC = () => {
   const location = useLocation();
   const queryParams = new URLSearchParams(location.search);
   const id = queryParams.get("pid");
 
-  const timesViewUpdate = 10;
   const [podcast, setPodcast] = useState<Podcast | null>(null);
   const [suggestedPodcasts, setSuggestedPodcasts] = useState<any[]>([]);
   const [isDescriptionExpanded, setIsDescriptionExpanded] = useState(false);
@@ -66,33 +66,11 @@ const PodcastViewport: React.FC = () => {
     fetchSuggestedPodcasts();
   }, [id, isAuthenticated]);
 
+  // increment podcast views
   useEffect(() => {
     if (videoRef.current) {
-      const videoElement = videoRef.current;
-
-      const handleLoadedMetadata = () => {
-        console.log("Podcast:", podcast);
-        const handleTimeUpdate = () => {
-          if (videoElement.currentTime >= timesViewUpdate) {
-            incrementPodcastViews(id!)
-              .then(response => {
-                console.log("Views incremented:", response);
-              })
-              .catch(error => {
-                console.error("Failed to increment views:", error);
-              });
-            videoElement.removeEventListener('timeupdate', handleTimeUpdate);
-          }
-        };
-
-        videoElement.addEventListener('timeupdate', handleTimeUpdate);
-      };
-
-      videoElement.addEventListener('loadedmetadata', handleLoadedMetadata);
-
-      return () => {
-        videoElement.removeEventListener('loadedmetadata', handleLoadedMetadata);
-      };
+      const cleanup = setupVideoViewTracking(videoRef.current, incrementPodcastViews, id!);
+      return cleanup;
     }
   }, [id, isAuthenticated, podcast]);
 
