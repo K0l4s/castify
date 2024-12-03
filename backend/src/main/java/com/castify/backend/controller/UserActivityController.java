@@ -35,4 +35,24 @@ public class UserActivityController {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
     }
+
+    @DeleteMapping("/remove/{id}")
+    public ResponseEntity<Void> removeViewPodcastActivity(@PathVariable String id) {
+        try {
+            userActivityService.removeViewPodcastActivity(id);
+            return ResponseEntity.noContent().build();
+        } catch (Exception e) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+    }
+
+    @DeleteMapping("/remove/all")
+    public ResponseEntity<Void> removeViewPodcastActivity() {
+        try {
+            userActivityService.removeAllViewPodcastActivities();
+            return ResponseEntity.noContent().build();
+        } catch (Exception e) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+    }
 }

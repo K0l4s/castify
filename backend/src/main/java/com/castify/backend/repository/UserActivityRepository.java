@@ -17,5 +17,6 @@ import java.util.List;
 public interface UserActivityRepository extends MongoRepository<UserActivityEntity, String> {
     List<UserActivityEntity> findAllByUserIdAndType(String userId, ActivityType type, Sort sort);
     UserActivityEntity findByUserAndTypeAndPodcast(UserEntity user, ActivityType type, PodcastEntity podcast);
-
+    UserActivityEntity findByIdAndType(String id, ActivityType type);
+    List<UserActivityEntity> findAllByUserIdAndType(String userId, ActivityType type);
 }
