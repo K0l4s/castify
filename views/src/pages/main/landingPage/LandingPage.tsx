@@ -1,14 +1,46 @@
 
 // import PodcastPlayer from "../../../components/UI/podcast/PodcastPlayer";
+import { useEffect, useState } from "react";
 import RecentPodcast from "./RecentPodcast";
+import { getGenres } from "../../../services/GenreService";
+import TabNavigation from "./TabNavigation";
+import GenresPodcast from "./GenresPodcast";
 
 const LandingPage = () => {
+  const [selectedTab, setSelectedTab] = useState('Recent');
+  const [genres, setGenres] = useState<{ id: string; name: string }[]>([]);
+  
+  useEffect(() => {
+    const fetchGenres = async () => {
+      try {
+        const response = await getGenres();
+        setGenres(response);
+      } catch (error) {
+        console.error('Failed to fetch genres:', error);
+      }
+    };
 
+    fetchGenres();
+  }, []);
+
+  const renderContent = () => {
+    switch (selectedTab) {
+      case 'Popular':
+        return <RecentPodcast />;
+      case 'Recent':
+        return <RecentPodcast />;
+      default:
+        const selectedGenre = genres.find((genre) => genre.name === selectedTab);
+        return selectedGenre ? <GenresPodcast genreId={selectedGenre.id} /> : <RecentPodcast />;
+    }
+  };
   return (
     <div className="px-8 py-4">
-      {/* Recent Podcasts */}
+      {/* Tab Navigation */}
+      <TabNavigation selectedTab={selectedTab} onSelectTab={setSelectedTab} genres={genres} />
+      {/* Content */}
       <div className="m-auto">
-        <RecentPodcast />
+        {renderContent()}
       </div>
       {/* <PodcastPlayer
         isPlaying={false}

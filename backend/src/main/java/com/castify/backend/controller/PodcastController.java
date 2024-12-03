@@ -224,4 +224,38 @@ public class PodcastController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error: " + e.getMessage());
         }
     }
+
+    @GetMapping("/by-genre")
+    public ResponseEntity<?> getPodcastsByGenre(
+            @RequestParam(required = true) String genreId,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size
+    ) {
+        try {
+            PageDTO<PodcastModel> podcastsByGenre = podcastService.getPodcastsByGenre(genreId, page, size);
+            return ResponseEntity.ok(podcastsByGenre);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error: " + e.getMessage());
+        }
+    }
+
+    @PostMapping("/{id}/inc-views")
+    public ResponseEntity<Void> incrementViews(@PathVariable String id) {
+        podcastService.incrementPodcastViews(id);
+        return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/user")
+    public ResponseEntity<PageDTO<PodcastModel>> getUserPodcasts(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "newest") String sortBy
+    ) {
+        try {
+            PageDTO<PodcastModel> result = podcastService.getUserPodcasts(page, size, sortBy);
+            return ResponseEntity.ok(result);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
 }

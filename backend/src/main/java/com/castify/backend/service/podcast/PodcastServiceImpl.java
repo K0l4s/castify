@@ -1,18 +1,25 @@
 package com.castify.backend.service.podcast;
 
 import com.castify.backend.entity.*;
+import com.castify.backend.enums.ActivityType;
 import com.castify.backend.models.PageDTO;
 import com.castify.backend.models.comment.CommentModel;
 import com.castify.backend.models.podcast.CreatePodcastModel;
 import com.castify.backend.models.podcast.PodcastModel;
+import com.castify.backend.models.userActivity.AddActivityRequestDTO;
 import com.castify.backend.repository.*;
 import com.castify.backend.service.user.IUserService;
+import com.castify.backend.service.userActivity.UserActivityServiceImpl;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -43,6 +50,12 @@ public class PodcastServiceImpl implements IPodcastService {
 
     @Autowired
     private GenreRepository genreRepository;
+
+    @Autowired
+    private MongoTemplate mongoTemplate;
+
+    @Autowired
+    private UserActivityServiceImpl userActivityService;
 
     @Override
     public PodcastModel createPodcast(CreatePodcastModel createPodcastModel) {
@@ -139,7 +152,7 @@ public class PodcastServiceImpl implements IPodcastService {
     }
 
     @Override
-    public PodcastModel getPodcastById(String podcastId) {
+    public PodcastModel getPodcastById(String podcastId) throws Exception {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String userEmail = authentication.getName();
 
@@ -148,6 +161,12 @@ public class PodcastServiceImpl implements IPodcastService {
 
         PodcastEntity podcastEntity = podcastRepository.findById(podcastId)
                 .orElseThrow(() -> new RuntimeException("Podcast not found"));
+
+        // Tạo activity khi user xem podcast
+        AddActivityRequestDTO activityDTO = new AddActivityRequestDTO();
+        activityDTO.setType(ActivityType.VIEW_PODCAST);
+        activityDTO.setPodcastId(podcastId);
+        userActivityService.addActivity(activityDTO);
 
         long totalComments = commentRepository.countByPodcastId(podcastId);
         long totalLikes = podcastLikeRepository.countByPodcastEntityId(podcastId);
@@ -223,5 +242,79 @@ public class PodcastServiceImpl implements IPodcastService {
                 podcastPage.getTotalPages(),
                 podcastPage.getTotalElements()
         );
+    }
+
+    @Override
+    public PageDTO<PodcastModel> getPodcastsByGenre(String genreId, int page, int size) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdDay"));
+
+        // Tìm các podcast theo genreId
+        Page<PodcastEntity> podcastPage = podcastRepository.findByGenres_IdAndIsActiveTrue(genreId, pageable);
+
+        // Ánh xạ từ PodcastEntity sang PodcastModel
+        List<PodcastModel> podcastModels = podcastPage.getContent()
+                .stream()
+                .map(podcastEntity -> modelMapper.map(podcastEntity, PodcastModel.class))
+                .toList();
+
+        // Tạo PageDTO
+        return new PageDTO<>(
+                podcastModels,
+                podcastPage.getSize(),
+                podcastPage.getNumber(),
+                podcastPage.getTotalPages(),
+                podcastPage.getTotalElements()
+        );
+    }
+
+    @Override
+    public void incrementPodcastViews(String podcastId) {
+        Query query = new Query(Criteria.where("_id").is(podcastId));
+        Update update = new Update().inc("views", 1);
+        mongoTemplate.updateFirst(query, update, PodcastEntity.class);
+    }
+
+    @Override
+    public PageDTO<PodcastModel> getUserPodcasts(int page, int size, String sortBy) throws Exception {
+        // Lấy thông tin UserEntity từ userService
+        UserEntity userEntity = userService.getUserByAuthentication();
+
+        Sort sort;
+        if ("oldest".equalsIgnoreCase(sortBy)) {
+            sort = Sort.by(Sort.Direction.ASC, "createdDay");
+        } else if ("views".equalsIgnoreCase(sortBy)) {
+            sort = Sort.by(Sort.Direction.DESC, "views")
+                    .and(Sort.by(Sort.Direction.DESC, "createdDay"));;
+        } else {
+            // Default là newest
+            sort = Sort.by(Sort.Direction.DESC, "createdDay");
+        }
+
+        // Tạo Pageable với sắp xếp
+        Pageable pageable = PageRequest.of(page, size, sort);
+
+        Page<PodcastEntity> podcastEntities = podcastRepository.findAllByUserId(userEntity.getId(), pageable);
+
+        return convertPodcastEntitiesToPageDTO(podcastEntities);
+    }
+
+    private PageDTO<PodcastModel> convertPodcastEntitiesToPageDTO(Page<PodcastEntity> podcastEntities) {
+        List<PodcastModel> podcastModels = podcastEntities.getContent().stream()
+                .map(podcast -> {
+                    PodcastModel podcastModel = modelMapper.map(podcast, PodcastModel.class);
+                    podcastModel.setTotalComments(commentRepository.countByPodcastId(podcast.getId()));
+                    podcastModel.setTotalLikes(podcastLikeRepository.countByPodcastEntityId(podcast.getId()));
+                    podcastModel.setUsername(podcast.getUser().getUsername());
+                    return podcastModel;
+                })
+                .toList();
+
+        PageDTO<PodcastModel> pageDTO = new PageDTO<>();
+        pageDTO.setContent(podcastModels);
+        pageDTO.setCurrentPage(podcastEntities.getNumber());
+        pageDTO.setTotalPages(podcastEntities.getTotalPages());
+        pageDTO.setTotalElements((int) podcastEntities.getTotalElements());
+
+        return pageDTO;
     }
 }

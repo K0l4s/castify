@@ -1,18 +1,20 @@
 import React, { useEffect, useRef, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { getPodcastByAnonymous, getPodcastById, getSelfPodcastsInCreator, likePodcast } from "../../../services/PodcastService";
+import { getPodcastByAnonymous, getPodcastById, getSelfPodcastsInCreator, incrementPodcastViews, likePodcast } from "../../../services/PodcastService";
 import { Podcast } from "../../../models/PodcastModel";
 import defaultAvatar from "../../../assets/images/default_avatar.jpg";
 import CustomButton from "../custom/CustomButton";
 import { HeartIcon } from "../custom/SVG_Icon";
 import { FaBookmark, FaEye, FaFlag, FaShareAlt } from "react-icons/fa";
 import { TfiMoreAlt } from "react-icons/tfi";
-import { formatDateTime } from "../../../utils/DateUtils";
+// import { formatDateTime } from "../../../utils/DateUtils";
 import CommentSection from "./CommentSection";
 import Tooltip from "../custom/Tooltip";
 import { useSelector } from "react-redux";
 import { RootState } from "../../../redux/store";
 import { useToast } from "../../../context/ToastProvider";
+import { formatDistanceToNow } from 'date-fns';
+import { setupVideoViewTracking } from "./video";
 
 const PodcastViewport: React.FC = () => {
   const location = useLocation();
@@ -26,6 +28,7 @@ const PodcastViewport: React.FC = () => {
   const [showOptions, setShowOptions] = useState(false);
 
   const descriptionRef = useRef<HTMLPreElement>(null);
+  const videoRef = useRef<HTMLVideoElement>(null);
 
   const userRedux = useSelector((state: RootState) => state.auth.user);
   const isAuthenticated = useSelector((state: RootState) => state.auth.isAuthenticated);
@@ -63,6 +66,14 @@ const PodcastViewport: React.FC = () => {
     fetchSuggestedPodcasts();
   }, [id, isAuthenticated]);
 
+  // increment podcast views
+  useEffect(() => {
+    if (videoRef.current) {
+      const cleanup = setupVideoViewTracking(videoRef.current, incrementPodcastViews, id!);
+      return cleanup;
+    }
+  }, [id, isAuthenticated, podcast]);
+
   useEffect(() => {
     if (descriptionRef.current) {
       const lineHeight = parseInt(window.getComputedStyle(descriptionRef.current).lineHeight, 10);
@@ -70,7 +81,7 @@ const PodcastViewport: React.FC = () => {
       setShowDescToggle(lines > 5);
     }
   }, [podcast?.content]);
-
+  
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       const target = event.target as Node;
@@ -126,12 +137,12 @@ const PodcastViewport: React.FC = () => {
     // Add save logic here
   };
 
-  const userInfo = podcast?.user.lastName + " " + podcast?.user.middleName + " " +podcast?.user.firstName;
-  
+  // const userInfo = podcast?.user.lastName + " " + podcast?.user.middleName + " " +podcast?.user.firstName;
+  const userInfo = podcast?.user.fullname;
   return (
     <div className="flex flex-col lg:flex-row p-4 lg:p-8 bg-white text-black dark:bg-gray-900 dark:text-white">
       <div className="flex-1 lg:mr-8">
-        <video autoPlay className="w-full mb-4 rounded-lg" controls poster={podcast.thumbnailUrl || "/TEST.png"}>
+        <video ref={videoRef} autoPlay className="w-full mb-4 rounded-lg" controls poster={podcast.thumbnailUrl || "/TEST.png"}>
           <source src={podcast.videoUrl} type="video/mp4" />
           Your browser does not support the video tag.
         </video>
@@ -231,8 +242,9 @@ const PodcastViewport: React.FC = () => {
         {/* Description */}
         <div className="p-4 rounded-lg bg-gray-200 dark:bg-gray-800">
           <p className="text-gray-700 dark:text-white text-base font-bold mb-2">
-            Upload day:
-            {" " + formatDateTime(podcast.createdDay)}
+            Uploaded:
+            {/* {" " + formatDateTime(podcast.createdDay)} */}
+            {" " + formatDistanceToNow(new Date(podcast.createdDay), { addSuffix: true })}
           </p>
           <pre ref={descriptionRef} className={`text-black dark:text-white whitespace-pre-wrap ${isDescriptionExpanded ? '' : 'line-clamp-5'}`} style={{ fontFamily: 'inherit', fontSize: 'inherit' }}>
             {podcast.content}
