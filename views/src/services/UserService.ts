@@ -46,5 +46,8 @@ export const userService = {
         const formData = new FormData();
         formData.append('avatar', avatar);
         return await axiosInstanceFile.put(`/api/v1/user/avatar`, formData);
+    },
+    getAllUser: async (pageNumber: number, pageSize:number) => {
+        return await axiosInstanceAuth.get(`/api/v1/user/admin?pageNumber=${pageNumber}&pageSize=${pageSize}`);
     }
 };

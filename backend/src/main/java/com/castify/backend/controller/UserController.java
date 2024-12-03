@@ -73,7 +73,22 @@ public class UserController {
                     .body("Error"+e.getMessage());
         }
     }
+    @PutMapping("/cover")
+    private ResponseEntity<String> updateCover(
+            @RequestPart("cover") MultipartFile avatarFile
+    )
+    {
+        try{
+            return ResponseEntity.ok(
+                    userService.updateCover(avatarFile)
+            );
 
+        }catch (Exception e){
+            return ResponseEntity
+                    .status(HttpStatus.BAD_REQUEST)
+                    .body("Error"+e.getMessage());
+        }
+    }
     @PutMapping("")
     private ResponseEntity<?> updateInformationByToken(
             @RequestBody UpdateUserModel updateUserModel
@@ -98,6 +113,22 @@ public class UserController {
             );
         }catch (Exception ex){
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body("Error"+ex.getMessage());
+        }
+    }
+
+    @GetMapping("/admin")
+    private ResponseEntity<?> getAllUser(
+            @RequestParam(value = "pageNumber") Integer pageNumber,
+            @RequestParam(value="pageSize") Integer pageSize
+    ) throws Exception {
+        try{
+            return ResponseEntity.ok(
+                    userService.getAllUser(pageNumber,pageSize)
+            );
+        }
+        catch (Exception ex){
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                     .body("Error"+ex.getMessage());
         }
     }

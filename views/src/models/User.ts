@@ -137,3 +137,23 @@ export interface UserSimple {
     username: string;
     avatarUrl: string;
 }
+
+export interface BasicUser {
+    id: string;
+    fullname: string;
+    username: string;
+    avatarUrl: string;
+    coverUrl: string;
+    birthday: Date;
+    address: string;
+    phone: string;
+    email: string;
+    badgesId: string[];
+    role: Role;
+    totalFollower: number;
+    totalFollowing: number;
+    totalPost: number;
+    active: boolean;
+    nonBanned: boolean;
+    nonLocked: boolean;
+}

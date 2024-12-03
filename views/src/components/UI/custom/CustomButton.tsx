@@ -79,12 +79,12 @@ const CustomButton = ({
     };
     return animations[animation] || '';
   };
-
+  // focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500
+  // dark:focus:ring-offset-gray-900 dark:focus:ring-blue-400
   const baseClasses = `
     inline-flex items-center justify-center
     font-medium transition-all duration-200
-    focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500
-    dark:focus:ring-offset-gray-900 dark:focus:ring-blue-400
+    
     ${getVariantClasses()}
     ${getSizeClasses()}
     ${getRoundedClasses()}
