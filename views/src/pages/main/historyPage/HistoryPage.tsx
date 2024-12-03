@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from "react";
-import { getUserActivities } from "../../../services/UserActivityService";
+import { getUserActivities, removeUserActivity, removeAllUserActivities } from "../../../services/UserActivityService";
 import CustomButton from "../../../components/UI/custom/CustomButton";
 import { FiLoader } from "react-icons/fi";
 import PodcastHistory from "../../../components/UI/podcast/PodcastHistory";
+import { useToast } from "../../../context/ToastProvider";
 
 const History: React.FC = () => {
   const [activities, setActivities] = useState<any[]>([]);
@@ -12,15 +13,21 @@ const History: React.FC = () => {
   const [hasMore, setHasMore] = useState<boolean>(true);
   const [searchTerm, setSearchTerm] = useState<string>("");
 
+  const toast = useToast();
+
   const fetchActivities = async (page: number) => {
     setLoading(true);
     try {
       const data = await getUserActivities(page);
-      setActivities(prevActivities => [
-        ...prevActivities,
-        { date: new Date(data.content[0].timestamp).toLocaleDateString(), activities: data.content }
-      ]);
-      setHasMore(data.content.length > 0 && (page + 1) < data.totalPages);
+      if (data.content.length === 0 && page === 0) {
+        setHasMore(false);
+      } else {
+        setActivities(prevActivities => [
+          ...prevActivities,
+          { date: new Date(data.content[0]?.timestamp).toLocaleDateString(), activities: data.content }
+        ]);
+        setHasMore(data.content.length > 0 && (page + 1) < data.totalPages);
+      }
     } catch (error) {
       setError('Failed to fetch activities');
     } finally {
@@ -42,19 +49,28 @@ const History: React.FC = () => {
     setSearchTerm(event.target.value);
   };
 
-  const clearHistory = () => {
-    // Implement clear history functionality here
-    console.log("Clear history");
+  const clearHistory = async () => {
+    try {
+      await removeAllUserActivities();
+      setActivities([]);
+      setHasMore(false);
+      toast.success("Remove activities successfully");
+    } catch (error) {
+      setError('Failed to clear history');
+    }
   };
 
-  const handleDelete = (id: string) => {
-    // Implement delete functionality here
-    console.log("Delete podcast with id:", id);
-  };
-
-  const handleMenuClick = (id: string) => {
-    // Implement menu click functionality here
-    console.log("Menu clicked for podcast with id:", id);
+  const handleDelete = async (id: string) => {
+    try {
+      await removeUserActivity(id);
+      setActivities(prevActivities => prevActivities.map(group => ({
+        ...group,
+        activities: group.activities.filter((activity: any) => activity.id !== id)
+      })));
+      toast.success("Remove activities successfully");
+    } catch (error) {
+      setError('Failed to delete activity');
+    }
   };
 
   const filteredActivities = activities.flatMap(group =>
@@ -69,6 +85,10 @@ const History: React.FC = () => {
 
   if (error) {
     return <div className="text-red-500 text-center mt-4">{error}</div>;
+  }
+
+  if (activities.length === 0) {
+    return <div className="text-center mt-4 text-gray-500 font-medium text-lg">No history available</div>;
   }
 
   return (
@@ -87,7 +107,6 @@ const History: React.FC = () => {
                     <PodcastHistory
                       podcast={activity.podcast}
                       onDelete={() => handleDelete(activity.id)}
-                      onMenuClick={() => handleMenuClick(activity.id)}
                     />
                   </li>
                 </ul>

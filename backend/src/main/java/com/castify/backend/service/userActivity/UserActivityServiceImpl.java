@@ -23,10 +23,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -93,6 +90,16 @@ public class UserActivityServiceImpl implements IUserActivityService{
                 Sort.by(Sort.Direction.DESC, "timestamp")
         );
 
+        // Nếu không có hoạt động nào, trả về PageDTO với nội dung rỗng
+        if (activities.isEmpty()) {
+            PageDTO<UserActivityModel> emptyPageDTO = new PageDTO<>();
+            emptyPageDTO.setContent(Collections.emptyList());
+            emptyPageDTO.setCurrentPage(page);
+            emptyPageDTO.setTotalPages(0);
+            emptyPageDTO.setTotalElements(0);
+            return emptyPageDTO;
+        }
+
         // Nhóm hoạt động theo ngày
         Map<LocalDate, List<UserActivityEntity>> groupedByDate = activities.stream()
                 .collect(Collectors.groupingBy(activity -> activity.getTimestamp().toLocalDate()));
@@ -135,5 +142,26 @@ public class UserActivityServiceImpl implements IUserActivityService{
         pageDTO.setTotalElements(activities.size());
 
         return pageDTO;
+    }
+
+    @Override
+    public void removeViewPodcastActivity(String actId) {
+        UserActivityEntity userActivity = userActivityRepository.findByIdAndType(actId, ActivityType.VIEW_PODCAST);
+        if (userActivity == null) return;
+
+        userActivityRepository.delete(userActivity);
+    }
+
+    @Override
+    public void removeAllViewPodcastActivities() throws Exception {
+        UserEntity user = userService.getUserByAuthentication();
+        // Lấy danh sách các activity của user có type VIEW_PODCAST
+        List<UserActivityEntity> activities = userActivityRepository.findAllByUserIdAndType(user.getId(), ActivityType.VIEW_PODCAST);
+
+        if (activities.isEmpty()) {
+            return;
+        }
+
+        userActivityRepository.deleteAll(activities);
     }
 }
