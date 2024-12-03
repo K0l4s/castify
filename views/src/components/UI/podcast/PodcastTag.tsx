@@ -24,10 +24,10 @@ const PodcastTag: React.FC<PodcastTagProps> = ({ podcast }) => {
         </div>
       </Link>
       <div className="p-2 flex">
-        <Link to={`/profile/${podcast.user.username}`}>
+        <Link to={`/profile/${podcast.user.username}`} className='flex-shrink-0'>
           <img src={podcast.user.avatarUrl || default_avatar} alt={author} className="w-10 h-10 object-fit rounded-full mr-4" />
         </Link>
-        <div className="flex flex-col justify-between">
+        <div className="flex flex-col justify-between flex-grow">
           <div>
             <Link to={`/watch?pid=${podcast.id}`}>
               <h3 className="text-lg font-bold line-clamp-2 text-black dark:text-white" title={podcast.title}>{podcast.title}</h3>
