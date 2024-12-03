@@ -52,11 +52,6 @@ const History: React.FC = () => {
     console.log("Delete podcast with id:", id);
   };
 
-  const handleMenuClick = (id: string) => {
-    // Implement menu click functionality here
-    console.log("Menu clicked for podcast with id:", id);
-  };
-
   const filteredActivities = activities.flatMap(group =>
     group.activities.filter((activity: any) =>
       activity.podcast.title.toLowerCase().includes(searchTerm.toLowerCase())
@@ -87,7 +82,6 @@ const History: React.FC = () => {
                     <PodcastHistory
                       podcast={activity.podcast}
                       onDelete={() => handleDelete(activity.id)}
-                      onMenuClick={() => handleMenuClick(activity.id)}
                     />
                   </li>
                 </ul>
