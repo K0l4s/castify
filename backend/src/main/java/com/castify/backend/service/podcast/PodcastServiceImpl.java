@@ -1,12 +1,15 @@
 package com.castify.backend.service.podcast;
 
 import com.castify.backend.entity.*;
+import com.castify.backend.enums.ActivityType;
 import com.castify.backend.models.PageDTO;
 import com.castify.backend.models.comment.CommentModel;
 import com.castify.backend.models.podcast.CreatePodcastModel;
 import com.castify.backend.models.podcast.PodcastModel;
+import com.castify.backend.models.userActivity.AddActivityRequestDTO;
 import com.castify.backend.repository.*;
 import com.castify.backend.service.user.IUserService;
+import com.castify.backend.service.userActivity.UserActivityServiceImpl;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -50,6 +53,9 @@ public class PodcastServiceImpl implements IPodcastService {
 
     @Autowired
     private MongoTemplate mongoTemplate;
+
+    @Autowired
+    private UserActivityServiceImpl userActivityService;
 
     @Override
     public PodcastModel createPodcast(CreatePodcastModel createPodcastModel) {
@@ -146,7 +152,7 @@ public class PodcastServiceImpl implements IPodcastService {
     }
 
     @Override
-    public PodcastModel getPodcastById(String podcastId) {
+    public PodcastModel getPodcastById(String podcastId) throws Exception {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String userEmail = authentication.getName();
 
@@ -155,6 +161,12 @@ public class PodcastServiceImpl implements IPodcastService {
 
         PodcastEntity podcastEntity = podcastRepository.findById(podcastId)
                 .orElseThrow(() -> new RuntimeException("Podcast not found"));
+
+        // Tạo activity khi user xem podcast
+        AddActivityRequestDTO activityDTO = new AddActivityRequestDTO();
+        activityDTO.setType(ActivityType.VIEW_PODCAST);
+        activityDTO.setPodcastId(podcastId);
+        userActivityService.addActivity(activityDTO);
 
         long totalComments = commentRepository.countByPodcastId(podcastId);
         long totalLikes = podcastLikeRepository.countByPodcastEntityId(podcastId);
