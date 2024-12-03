@@ -33,11 +33,11 @@ const PodcastHistory: React.FC<PodcastHistoryProps> = ({
 
   return (
     <div className="flex rounded-lg dark:bg-gray-900">
-      <Link to={`/watch?pid=${podcast.id}`} className="block flex-shrink-0">
+      <Link to={`/watch?pid=${podcast.id}`} className="block flex-shrink-0 w-3/4 md:w-2/4 lg:w-1/4">
         <img
           src={podcast.thumbnailUrl || "/TEST.png"}
           alt={podcast.title}
-          className="w-62 h-44 object-fit rounded-lg"
+          className="w-full h-44 object-fit rounded-lg"
         />
       </Link>
       <div className="flex-grow ml-4">
@@ -57,7 +57,9 @@ const PodcastHistory: React.FC<PodcastHistoryProps> = ({
               className="w-8 h-8 object-cover rounded-full mr-2"
             />
           </Link>
-          <p className="text-black dark:text-white font-medium">{author}</p>
+          <Link to={`/profile/${podcast.user.username}`}>
+            <p className="text-black dark:text-white font-medium">{author}</p>
+          </Link>
           <p className="ml-8 font-medium text-black dark:text-white">
             {podcast.views}
             <FaEye className="inline-block mb-1 ml-2" />
