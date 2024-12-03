@@ -1,10 +1,9 @@
 package com.castify.backend.service.user;
 
 import com.castify.backend.entity.UserEntity;
-import com.castify.backend.models.user.UpdateUserModel;
-import com.castify.backend.models.user.UserDetailModel;
-import com.castify.backend.models.user.UserModel;
-import com.castify.backend.models.user.UserSimple;
+import com.castify.backend.models.paginated.PaginatedResponse;
+import com.castify.backend.models.user.*;
+import org.springframework.data.domain.Page;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
@@ -35,4 +34,10 @@ public interface IUserService {
     String toggleFollow(String username) throws Exception;
 
     List<UserSimple> getRecommendUser() throws Exception;
+
+
+    PaginatedResponse<BasicUserModel> getAllUser(Integer pageNumber, Integer pageSize) throws Exception;
+
+
+    void checkAdmin() throws Exception;
 }

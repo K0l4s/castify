@@ -54,7 +54,7 @@ public class UserEntity implements UserDetails {
 //    @Enumerated(EnumType.STRING)
     private Role role;
     private List<String> following = new ArrayList<>();
-
+    private List<String> readNotifications = new ArrayList<>();
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
@@ -93,7 +93,15 @@ public class UserEntity implements UserDetails {
         return false;
 //        return isActive;
     }
+    public void markNotificationAsRead(String notificationId) {
+        if (!readNotifications.contains(notificationId)) {
+            readNotifications.add(notificationId);
+        }
+    }
 
+    public boolean isNotificationRead(String notificationId) {
+        return readNotifications.contains(notificationId);
+    }
     public String getFullname(){
         return firstName+" "+middleName+" "+lastName;
     }

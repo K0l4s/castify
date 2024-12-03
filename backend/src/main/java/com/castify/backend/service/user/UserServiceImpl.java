@@ -1,10 +1,9 @@
 package com.castify.backend.service.user;
 
 import com.castify.backend.entity.UserEntity;
-import com.castify.backend.models.user.UpdateUserModel;
-import com.castify.backend.models.user.UserDetailModel;
-import com.castify.backend.models.user.UserModel;
-import com.castify.backend.models.user.UserSimple;
+import com.castify.backend.enums.Role;
+import com.castify.backend.models.paginated.PaginatedResponse;
+import com.castify.backend.models.user.*;
 import com.castify.backend.repository.PodcastRepository;
 import com.castify.backend.repository.UserRepository;
 import com.castify.backend.repository.template.UserRepositoryTemplate;
@@ -249,6 +248,37 @@ public class UserServiceImpl implements IUserService {
         // Trả về danh sách người dùng đã được chuyển đổi
         return resultUsers;
     }
+    @Override
+    public PaginatedResponse<BasicUserModel> getAllUser(Integer pageNumber, Integer pageSize) throws Exception {
+        checkAdmin();
+
+        Pageable pageable = PageRequest.of(pageNumber,pageSize);
+
+        Page<UserEntity> similarUsers = userRepository.findAll(pageable);
+
+        List<BasicUserModel> resultUsers = similarUsers.getContent().stream()
+                .map(this::mapToBasicUser)
+                .collect(Collectors.toList());
+        int totalPages = similarUsers.getTotalPages();
+        return new PaginatedResponse<>(resultUsers, totalPages);
+    }
+//    @Override
+//    public Page<UserEntity> getAllUserA(Integer pageNumber, Integer pageSize) throws Exception {
+//        checkAdmin();
+//
+//        Pageable pageable = PageRequest.of(pageNumber,pageSize);
+//
+//        Page<UserEntity> similarUsers = userRepository.findAll(pageable);
+//        return similarUsers;
+//    }
+
+    @Override
+    public void checkAdmin() throws Exception {
+        UserEntity userRequest = getUserByAuthentication();
+        if(!userRequest.getRole().equals(Role.ADMIN))
+           throw new Exception("You don't have permission to send this request! Please login with admin role!");
+
+    }
 
     private UserSimple mapToUserSimple(UserEntity userEntity, UserEntity currentUser) {
         // Chuyển đổi UserEntity thành UserSimple
@@ -280,6 +310,15 @@ public class UserServiceImpl implements IUserService {
             return false;
         }
     }
+    private BasicUserModel mapToBasicUser(UserEntity userEntity) {
+        // Chuyển đổi UserEntity thành UserSimple
+        BasicUserModel userSimple = modelMapper.map(userEntity, BasicUserModel.class);
 
+        // Tính toán các thuộc tính bổ sung
+        userSimple.setTotalFollower(getFollowerCount(userEntity));
+        userSimple.setTotalPost(getPostCount(userEntity));
+
+        return userSimple;
+    }
 
 }

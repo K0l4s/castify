@@ -116,6 +116,22 @@ public class UserController {
                     .body("Error"+ex.getMessage());
         }
     }
+
+    @GetMapping("/admin")
+    private ResponseEntity<?> getAllUser(
+            @RequestParam(value = "pageNumber") Integer pageNumber,
+            @RequestParam(value="pageSize") Integer pageSize
+    ) throws Exception {
+        try{
+            return ResponseEntity.ok(
+                    userService.getAllUser(pageNumber,pageSize)
+            );
+        }
+        catch (Exception ex){
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body("Error"+ex.getMessage());
+        }
+    }
     @ExceptionHandler(MalformedJwtException.class)
     public ResponseEntity<String> handleMalformedJwtException(MalformedJwtException ex) {
         return new ResponseEntity<>("Invalid JWT token format", HttpStatus.BAD_REQUEST);

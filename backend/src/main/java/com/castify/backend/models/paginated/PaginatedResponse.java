@@ -10,6 +10,6 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 public class PaginatedResponse<T> {
-    private List<T> items;
+    private List<T> data;
     private int totalPages;
 }

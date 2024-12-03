@@ -38,7 +38,7 @@ const Router = () => {
 
                 <Route path="/admin/*" element={isAdmin ? <AdminLayout /> : <NotAccessPage />}>
                     <Route path='' element={<AdminLadingPage />} />
-                    <Route path="users" element={<AdminUserPage />} />
+                    <Route path="user" element={<AdminUserPage />} />
                 </Route>
 
                 <Route path='/creator/*' element={<CreatorLayout />} >
