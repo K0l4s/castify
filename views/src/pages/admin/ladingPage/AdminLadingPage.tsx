@@ -1,108 +1,131 @@
+import { useEffect, useState } from "react";
+import { DashboardModel } from "../../../models/DashboardModel";
+import { DashboardService } from "../../../services/DashboardService";
+import { Podcast } from "../../../models/PodcastModel";
+import { BasicUser } from "../../../models/User";
 
 const AdminLadingPage = () => {
+  const [dashboard, setDashboard] = useState<DashboardModel>({
+    newUsers: [],
+    newPodcasts: [],
+    totalUsers: 0,
+    totalPodcasts: 0,
+    totalLikes: 0,
+    totalComments: 0,
+  });
+
+  const fetchDashboard = async () => {
+    try {
+      const response = await DashboardService.getDashboardInformation();
+      setDashboard(response.data);
+    } catch (error) {
+      console.error("Failed to fetch dashboard information", error);
+    }
+  };
+
+  useEffect(() => {
+    fetchDashboard();
+  }, []);
+
   return (
-    <div>
-      <p>
-Հայերեն Shqip ‫العربية Български Català 中文简体 Hrvatski Česky Dansk Nederlands English Eesti Filipino Suomi Français ქართული Deutsch Ελληνικά ‫עברית हिन्दी Magyar Indonesia Italiano Latviski Lietuviškai македонски Melayu Norsk Polski Português Româna Pyccкий Српски Slovenčina Slovenščina Español Svenska ไทย Türkçe Українська Tiếng Việt
-Lorem Ipsum
-"Neque porro quisquam est qui dolorem ipsum quia dolor sit amet, consectetur, adipisci velit..."
-"There is no one who loves pain itself, who seeks after it and wants to have it, simply because it is pain..."
-Lorem ipsum dolor sit amet, consectetur adipiscing elit. Proin lacus quam, cursus fermentum accumsan vitae, tempus at sem. Suspendisse elit arcu, luctus vel magna non, convallis ullamcorper nulla. In id lorem et tellus hendrerit suscipit. Duis ultrices libero ut eleifend tempor. Duis ex nisi, malesuada nec nisi ut, scelerisque tempus eros. Fusce sit amet vulputate erat. Sed vestibulum, massa et vehicula efficitur, dolor mauris interdum augue, quis dapibus ligula ipsum in ex. Maecenas dictum, erat vitae fringilla scelerisque, sapien ligula suscipit dolor, eu euismod turpis est eget ex. Maecenas ultricies enim urna, non convallis magna fermentum ac. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Aenean vitae feugiat turpis. Donec malesuada finibus tellus eget commodo. Vivamus tincidunt lobortis leo vel finibus. Vivamus ornare laoreet urna at gravida. Maecenas feugiat nisl in enim efficitur, a laoreet ipsum semper.
+    <div className="p-8 text-black dark:text-white min-h-screen">
+      <h1 className="text-3xl font-bold mb-8">Blankcil Overview</h1>
+      
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        {/* Tổng số người dùng */}
+        <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md">
+          <h2 className="text-xl font-semibold">Total Users</h2>
+          <p className="text-4xl font-bold text-blue-500 dark:text-blue-400">
+            {dashboard.totalUsers}
+          </p>
+        </div>
 
-Ut rhoncus lorem eget malesuada rutrum. Vestibulum ac semper purus. Donec nec rutrum ipsum. Orci varius natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Duis eu velit odio. Duis tempor eros metus, vitae commodo urna euismod ut. Aenean aliquam lacus odio, lobortis pharetra erat tempus sed. Nullam pretium suscipit mauris non laoreet. Cras venenatis porta lobortis. Curabitur ut urna sed lorem mollis pellentesque. Aenean pellentesque mi dui, quis accumsan sem tincidunt non. Mauris dolor leo, tempus ut eleifend sed, ornare at massa. Maecenas ipsum ipsum, sagittis quis quam nec, suscipit aliquet diam. Sed tincidunt sagittis gravida. In aliquet magna a nisl scelerisque, a volutpat lacus suscipit. Nullam vel urna mauris.
+        {/* Tổng số podcasts */}
+        <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md">
+          <h2 className="text-xl font-semibold">Total Podcasts</h2>
+          <p className="text-4xl font-bold text-green-500 dark:text-green-400">
+            {dashboard.totalPodcasts}
+          </p>
+        </div>
 
-Vestibulum et scelerisque mauris. Nam enim eros, scelerisque vel urna vel, hendrerit ultricies mauris. Mauris ultricies odio est, eu suscipit justo consequat eu. Pellentesque molestie sapien ex. Mauris tristique dignissim mauris ut accumsan. Sed convallis augue sem, nec pellentesque odio ultricies vel. Nam libero justo, gravida ut eros at, varius tincidunt risus. Nullam malesuada laoreet ipsum ac viverra. Sed dictum lorem in orci fringilla hendrerit. Nunc lorem lectus, malesuada vel magna sit amet, sollicitudin viverra velit. Pellentesque malesuada faucibus metus id commodo. Maecenas hendrerit pellentesque tellus sit amet malesuada. Maecenas quam lacus, faucibus vel posuere convallis, finibus vel lectus.
+        {/* Tổng số likes */}
+        <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md">
+          <h2 className="text-xl font-semibold">Total Likes</h2>
+          <p className="text-4xl font-bold text-red-500 dark:text-red-400">
+            {dashboard.totalLikes}
+          </p>
+        </div>
 
-Praesent semper lectus nec elit pulvinar, ut dapibus ligula posuere. Nulla euismod erat id lacus consequat, nec pellentesque erat dignissim. Vestibulum eleifend justo ullamcorper urna condimentum, ut venenatis magna efficitur. Vivamus semper ullamcorper faucibus. Donec suscipit euismod augue ut pellentesque. Donec massa ante, mattis sed elit ac, lobortis condimentum risus. Vivamus a nisi iaculis, lobortis mauris et, posuere lacus. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia curae; Vivamus consectetur cursus dui nec pulvinar.
+        {/* Tổng số comments */}
+        <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md">
+          <h2 className="text-xl font-semibold">Total Comments</h2>
+          <p className="text-4xl font-bold text-purple-500 dark:text-purple-400">
+            {dashboard.totalComments}
+          </p>
+        </div>
+      </div>
 
-Nam sit amet vulputate leo. Nam laoreet dapibus ex, et pulvinar leo vulputate rhoncus. Duis nec risus id massa dignissim tempus vitae nec sapien. Fusce orci turpis, suscipit ut mi ac, fringilla sollicitudin augue. Etiam vitae rutrum orci. Mauris est mi, ornare ut magna vitae, malesuada vehicula nulla. Nullam dignissim, ligula ut sodales euismod, odio erat posuere tellus, ut pellentesque sapien elit eu risus. Mauris dapibus euismod dolor, sed ornare sem rhoncus nec. Donec quis bibendum nibh. Aliquam at urna purus. Nulla convallis, arcu sed sodales laoreet, urna enim elementum lacus, vitae vulputate sem arcu a ipsum. Aenean eu ex a odio rhoncus feugiat in a nunc.
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        {/* Danh sách người dùng mới */}
+        <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md">
+          <h2 className="text-xl font-semibold mb-4">New Users Register</h2>
+          <ul>
+            {dashboard.newUsers.length === 0 ? (
+              <p>No new users</p>
+            ) : (
+              dashboard.newUsers.map((user: BasicUser) => (
+                <li key={user.id} className="flex items-center mb-4">
+                  <img
+                    src={user.avatarUrl}
+                    alt={user.fullname}
+                    className="w-12 h-12 rounded-full mr-4"
+                  />
+                  <div>
+                    <p className="font-semibold">{user.fullname}</p>
+                    <p className="text-sm text-gray-500 dark:text-gray-400">
+                      @{user.username}
+                    </p>
+                  </div>
+                </li>
+              ))
+            )}
+          </ul>
+        </div>
 
-Generated 5 paragraphs, 538 words, 3667 bytes of Lorem Ipsum
-help@lipsum.com
-Privacy Policy · Հայերեն Shqip ‫العربية Български Català 中文简体 Hrvatski Česky Dansk Nederlands English Eesti Filipino Suomi Français ქართული Deutsch Ελληνικά ‫עברית हिन्दी Magyar Indonesia Italiano Latviski Lietuviškai македонски Melayu Norsk Polski Português Româna Pyccкий Српски Slovenčina Slovenščina Español Svenska ไทย Türkçe Українська Tiếng Việt
-Lorem Ipsum
-"Neque porro quisquam est qui dolorem ipsum quia dolor sit amet, consectetur, adipisci velit..."
-"There is no one who loves pain itself, who seeks after it and wants to have it, simply because it is pain..."
-Lorem ipsum dolor sit amet, consectetur adipiscing elit. Proin lacus quam, cursus fermentum accumsan vitae, tempus at sem. Suspendisse elit arcu, luctus vel magna non, convallis ullamcorper nulla. In id lorem et tellus hendrerit suscipit. Duis ultrices libero ut eleifend tempor. Duis ex nisi, malesuada nec nisi ut, scelerisque tempus eros. Fusce sit amet vulputate erat. Sed vestibulum, massa et vehicula efficitur, dolor mauris interdum augue, quis dapibus ligula ipsum in ex. Maecenas dictum, erat vitae fringilla scelerisque, sapien ligula suscipit dolor, eu euismod turpis est eget ex. Maecenas ultricies enim urna, non convallis magna fermentum ac. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Aenean vitae feugiat turpis. Donec malesuada finibus tellus eget commodo. Vivamus tincidunt lobortis leo vel finibus. Vivamus ornare laoreet urna at gravida. Maecenas feugiat nisl in enim efficitur, a laoreet ipsum semper.
-
-Ut rhoncus lorem eget malesuada rutrum. Vestibulum ac semper purus. Donec nec rutrum ipsum. Orci varius natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Duis eu velit odio. Duis tempor eros metus, vitae commodo urna euismod ut. Aenean aliquam lacus odio, lobortis pharetra erat tempus sed. Nullam pretium suscipit mauris non laoreet. Cras venenatis porta lobortis. Curabitur ut urna sed lorem mollis pellentesque. Aenean pellentesque mi dui, quis accumsan sem tincidunt non. Mauris dolor leo, tempus ut eleifend sed, ornare at massa. Maecenas ipsum ipsum, sagittis quis quam nec, suscipit aliquet diam. Sed tincidunt sagittis gravida. In aliquet magna a nisl scelerisque, a volutpat lacus suscipit. Nullam vel urna mauris.
-
-Vestibulum et scelerisque mauris. Nam enim eros, scelerisque vel urna vel, hendrerit ultricies mauris. Mauris ultricies odio est, eu suscipit justo consequat eu. Pellentesque molestie sapien ex. Mauris tristique dignissim mauris ut accumsan. Sed convallis augue sem, nec pellentesque odio ultricies vel. Nam libero justo, gravida ut eros at, varius tincidunt risus. Nullam malesuada laoreet ipsum ac viverra. Sed dictum lorem in orci fringilla hendrerit. Nunc lorem lectus, malesuada vel magna sit amet, sollicitudin viverra velit. Pellentesque malesuada faucibus metus id commodo. Maecenas hendrerit pellentesque tellus sit amet malesuada. Maecenas quam lacus, faucibus vel posuere convallis, finibus vel lectus.
-
-Praesent semper lectus nec elit pulvinar, ut dapibus ligula posuere. Nulla euismod erat id lacus consequat, nec pellentesque erat dignissim. Vestibulum eleifend justo ullamcorper urna condimentum, ut venenatis magna efficitur. Vivamus semper ullamcorper faucibus. Donec suscipit euismod augue ut pellentesque. Donec massa ante, mattis sed elit ac, lobortis condimentum risus. Vivamus a nisi iaculis, lobortis mauris et, posuere lacus. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia curae; Vivamus consectetur cursus dui nec pulvinar.
-
-Nam sit amet vulputate leo. Nam laoreet dapibus ex, et pulvinar leo vulputate rhoncus. Duis nec risus id massa dignissim tempus vitae nec sapien. Fusce orci turpis, suscipit ut mi ac, fringilla sollicitudin augue. Etiam vitae rutrum orci. Mauris est mi, ornare ut magna vitae, malesuada vehicula nulla. Nullam dignissim, ligula ut sodales euismod, odio erat posuere tellus, ut pellentesque sapien elit eu risus. Mauris dapibus euismod dolor, sed ornare sem rhoncus nec. Donec quis bibendum nibh. Aliquam at urna purus. Nulla convallis, arcu sed sodales laoreet, urna enim elementum lacus, vitae vulputate sem arcu a ipsum. Aenean eu ex a odio rhoncus feugiat in a nunc.
-
-Generated 5 paragraphs, 538 words, 3667 bytes of Lorem Ipsum
-help@lipsum.com
-Privacy Policy ·Հայերեն Shqip ‫العربية Български Català 中文简体 Hrvatski Česky Dansk Nederlands English Eesti Filipino Suomi Français ქართული Deutsch Ελληνικά ‫עברית हिन्दी Magyar Indonesia Italiano Latviski Lietuviškai македонски Melayu Norsk Polski Português Româna Pyccкий Српски Slovenčina Slovenščina Español Svenska ไทย Türkçe Українська Tiếng Việt
-Lorem Ipsum
-"Neque porro quisquam est qui dolorem ipsum quia dolor sit amet, consectetur, adipisci velit..."
-"There is no one who loves pain itself, who seeks after it and wants to have it, simply because it is pain..."
-Lorem ipsum dolor sit amet, consectetur adipiscing elit. Proin lacus quam, cursus fermentum accumsan vitae, tempus at sem. Suspendisse elit arcu, luctus vel magna non, convallis ullamcorper nulla. In id lorem et tellus hendrerit suscipit. Duis ultrices libero ut eleifend tempor. Duis ex nisi, malesuada nec nisi ut, scelerisque tempus eros. Fusce sit amet vulputate erat. Sed vestibulum, massa et vehicula efficitur, dolor mauris interdum augue, quis dapibus ligula ipsum in ex. Maecenas dictum, erat vitae fringilla scelerisque, sapien ligula suscipit dolor, eu euismod turpis est eget ex. Maecenas ultricies enim urna, non convallis magna fermentum ac. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Aenean vitae feugiat turpis. Donec malesuada finibus tellus eget commodo. Vivamus tincidunt lobortis leo vel finibus. Vivamus ornare laoreet urna at gravida. Maecenas feugiat nisl in enim efficitur, a laoreet ipsum semper.
-
-Ut rhoncus lorem eget malesuada rutrum. Vestibulum ac semper purus. Donec nec rutrum ipsum. Orci varius natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Duis eu velit odio. Duis tempor eros metus, vitae commodo urna euismod ut. Aenean aliquam lacus odio, lobortis pharetra erat tempus sed. Nullam pretium suscipit mauris non laoreet. Cras venenatis porta lobortis. Curabitur ut urna sed lorem mollis pellentesque. Aenean pellentesque mi dui, quis accumsan sem tincidunt non. Mauris dolor leo, tempus ut eleifend sed, ornare at massa. Maecenas ipsum ipsum, sagittis quis quam nec, suscipit aliquet diam. Sed tincidunt sagittis gravida. In aliquet magna a nisl scelerisque, a volutpat lacus suscipit. Nullam vel urna mauris.
-
-Vestibulum et scelerisque mauris. Nam enim eros, scelerisque vel urna vel, hendrerit ultricies mauris. Mauris ultricies odio est, eu suscipit justo consequat eu. Pellentesque molestie sapien ex. Mauris tristique dignissim mauris ut accumsan. Sed convallis augue sem, nec pellentesque odio ultricies vel. Nam libero justo, gravida ut eros at, varius tincidunt risus. Nullam malesuada laoreet ipsum ac viverra. Sed dictum lorem in orci fringilla hendrerit. Nunc lorem lectus, malesuada vel magna sit amet, sollicitudin viverra velit. Pellentesque malesuada faucibus metus id commodo. Maecenas hendrerit pellentesque tellus sit amet malesuada. Maecenas quam lacus, faucibus vel posuere convallis, finibus vel lectus.
-
-Praesent semper lectus nec elit pulvinar, ut dapibus ligula posuere. Nulla euismod erat id lacus consequat, nec pellentesque erat dignissim. Vestibulum eleifend justo ullamcorper urna condimentum, ut venenatis magna efficitur. Vivamus semper ullamcorper faucibus. Donec suscipit euismod augue ut pellentesque. Donec massa ante, mattis sed elit ac, lobortis condimentum risus. Vivamus a nisi iaculis, lobortis mauris et, posuere lacus. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia curae; Vivamus consectetur cursus dui nec pulvinar.
-
-Nam sit amet vulputate leo. Nam laoreet dapibus ex, et pulvinar leo vulputate rhoncus. Duis nec risus id massa dignissim tempus vitae nec sapien. Fusce orci turpis, suscipit ut mi ac, fringilla sollicitudin augue. Etiam vitae rutrum orci. Mauris est mi, ornare ut magna vitae, malesuada vehicula nulla. Nullam dignissim, ligula ut sodales euismod, odio erat posuere tellus, ut pellentesque sapien elit eu risus. Mauris dapibus euismod dolor, sed ornare sem rhoncus nec. Donec quis bibendum nibh. Aliquam at urna purus. Nulla convallis, arcu sed sodales laoreet, urna enim elementum lacus, vitae vulputate sem arcu a ipsum. Aenean eu ex a odio rhoncus feugiat in a nunc.
-
-Generated 5 paragraphs, 538 words, 3667 bytes of Lorem Ipsum
-help@lipsum.com
-Privacy Policy ·Հայերեն Shqip ‫العربية Български Català 中文简体 Hrvatski Česky Dansk Nederlands English Eesti Filipino Suomi Français ქართული Deutsch Ελληνικά ‫עברית हिन्दी Magyar Indonesia Italiano Latviski Lietuviškai македонски Melayu Norsk Polski Português Româna Pyccкий Српски Slovenčina Slovenščina Español Svenska ไทย Türkçe Українська Tiếng Việt
-Lorem Ipsum
-"Neque porro quisquam est qui dolorem ipsum quia dolor sit amet, consectetur, adipisci velit..."
-"There is no one who loves pain itself, who seeks after it and wants to have it, simply because it is pain..."
-Lorem ipsum dolor sit amet, consectetur adipiscing elit. Proin lacus quam, cursus fermentum accumsan vitae, tempus at sem. Suspendisse elit arcu, luctus vel magna non, convallis ullamcorper nulla. In id lorem et tellus hendrerit suscipit. Duis ultrices libero ut eleifend tempor. Duis ex nisi, malesuada nec nisi ut, scelerisque tempus eros. Fusce sit amet vulputate erat. Sed vestibulum, massa et vehicula efficitur, dolor mauris interdum augue, quis dapibus ligula ipsum in ex. Maecenas dictum, erat vitae fringilla scelerisque, sapien ligula suscipit dolor, eu euismod turpis est eget ex. Maecenas ultricies enim urna, non convallis magna fermentum ac. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Aenean vitae feugiat turpis. Donec malesuada finibus tellus eget commodo. Vivamus tincidunt lobortis leo vel finibus. Vivamus ornare laoreet urna at gravida. Maecenas feugiat nisl in enim efficitur, a laoreet ipsum semper.
-
-Ut rhoncus lorem eget malesuada rutrum. Vestibulum ac semper purus. Donec nec rutrum ipsum. Orci varius natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Duis eu velit odio. Duis tempor eros metus, vitae commodo urna euismod ut. Aenean aliquam lacus odio, lobortis pharetra erat tempus sed. Nullam pretium suscipit mauris non laoreet. Cras venenatis porta lobortis. Curabitur ut urna sed lorem mollis pellentesque. Aenean pellentesque mi dui, quis accumsan sem tincidunt non. Mauris dolor leo, tempus ut eleifend sed, ornare at massa. Maecenas ipsum ipsum, sagittis quis quam nec, suscipit aliquet diam. Sed tincidunt sagittis gravida. In aliquet magna a nisl scelerisque, a volutpat lacus suscipit. Nullam vel urna mauris.
-
-Vestibulum et scelerisque mauris. Nam enim eros, scelerisque vel urna vel, hendrerit ultricies mauris. Mauris ultricies odio est, eu suscipit justo consequat eu. Pellentesque molestie sapien ex. Mauris tristique dignissim mauris ut accumsan. Sed convallis augue sem, nec pellentesque odio ultricies vel. Nam libero justo, gravida ut eros at, varius tincidunt risus. Nullam malesuada laoreet ipsum ac viverra. Sed dictum lorem in orci fringilla hendrerit. Nunc lorem lectus, malesuada vel magna sit amet, sollicitudin viverra velit. Pellentesque malesuada faucibus metus id commodo. Maecenas hendrerit pellentesque tellus sit amet malesuada. Maecenas quam lacus, faucibus vel posuere convallis, finibus vel lectus.
-
-Praesent semper lectus nec elit pulvinar, ut dapibus ligula posuere. Nulla euismod erat id lacus consequat, nec pellentesque erat dignissim. Vestibulum eleifend justo ullamcorper urna condimentum, ut venenatis magna efficitur. Vivamus semper ullamcorper faucibus. Donec suscipit euismod augue ut pellentesque. Donec massa ante, mattis sed elit ac, lobortis condimentum risus. Vivamus a nisi iaculis, lobortis mauris et, posuere lacus. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia curae; Vivamus consectetur cursus dui nec pulvinar.
-
-Nam sit amet vulputate leo. Nam laoreet dapibus ex, et pulvinar leo vulputate rhoncus. Duis nec risus id massa dignissim tempus vitae nec sapien. Fusce orci turpis, suscipit ut mi ac, fringilla sollicitudin augue. Etiam vitae rutrum orci. Mauris est mi, ornare ut magna vitae, malesuada vehicula nulla. Nullam dignissim, ligula ut sodales euismod, odio erat posuere tellus, ut pellentesque sapien elit eu risus. Mauris dapibus euismod dolor, sed ornare sem rhoncus nec. Donec quis bibendum nibh. Aliquam at urna purus. Nulla convallis, arcu sed sodales laoreet, urna enim elementum lacus, vitae vulputate sem arcu a ipsum. Aenean eu ex a odio rhoncus feugiat in a nunc.
-
-Generated 5 paragraphs, 538 words, 3667 bytes of Lorem Ipsum
-help@lipsum.com
-Privacy Policy ·Հայերեն Shqip ‫العربية Български Català 中文简体 Hrvatski Česky Dansk Nederlands English Eesti Filipino Suomi Français ქართული Deutsch Ελληνικά ‫עברית हिन्दी Magyar Indonesia Italiano Latviski Lietuviškai македонски Melayu Norsk Polski Português Româna Pyccкий Српски Slovenčina Slovenščina Español Svenska ไทย Türkçe Українська Tiếng Việt
-Lorem Ipsum
-"Neque porro quisquam est qui dolorem ipsum quia dolor sit amet, consectetur, adipisci velit..."
-"There is no one who loves pain itself, who seeks after it and wants to have it, simply because it is pain..."
-Lorem ipsum dolor sit amet, consectetur adipiscing elit. Proin lacus quam, cursus fermentum accumsan vitae, tempus at sem. Suspendisse elit arcu, luctus vel magna non, convallis ullamcorper nulla. In id lorem et tellus hendrerit suscipit. Duis ultrices libero ut eleifend tempor. Duis ex nisi, malesuada nec nisi ut, scelerisque tempus eros. Fusce sit amet vulputate erat. Sed vestibulum, massa et vehicula efficitur, dolor mauris interdum augue, quis dapibus ligula ipsum in ex. Maecenas dictum, erat vitae fringilla scelerisque, sapien ligula suscipit dolor, eu euismod turpis est eget ex. Maecenas ultricies enim urna, non convallis magna fermentum ac. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Aenean vitae feugiat turpis. Donec malesuada finibus tellus eget commodo. Vivamus tincidunt lobortis leo vel finibus. Vivamus ornare laoreet urna at gravida. Maecenas feugiat nisl in enim efficitur, a laoreet ipsum semper.
-
-Ut rhoncus lorem eget malesuada rutrum. Vestibulum ac semper purus. Donec nec rutrum ipsum. Orci varius natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Duis eu velit odio. Duis tempor eros metus, vitae commodo urna euismod ut. Aenean aliquam lacus odio, lobortis pharetra erat tempus sed. Nullam pretium suscipit mauris non laoreet. Cras venenatis porta lobortis. Curabitur ut urna sed lorem mollis pellentesque. Aenean pellentesque mi dui, quis accumsan sem tincidunt non. Mauris dolor leo, tempus ut eleifend sed, ornare at massa. Maecenas ipsum ipsum, sagittis quis quam nec, suscipit aliquet diam. Sed tincidunt sagittis gravida. In aliquet magna a nisl scelerisque, a volutpat lacus suscipit. Nullam vel urna mauris.
-
-Vestibulum et scelerisque mauris. Nam enim eros, scelerisque vel urna vel, hendrerit ultricies mauris. Mauris ultricies odio est, eu suscipit justo consequat eu. Pellentesque molestie sapien ex. Mauris tristique dignissim mauris ut accumsan. Sed convallis augue sem, nec pellentesque odio ultricies vel. Nam libero justo, gravida ut eros at, varius tincidunt risus. Nullam malesuada laoreet ipsum ac viverra. Sed dictum lorem in orci fringilla hendrerit. Nunc lorem lectus, malesuada vel magna sit amet, sollicitudin viverra velit. Pellentesque malesuada faucibus metus id commodo. Maecenas hendrerit pellentesque tellus sit amet malesuada. Maecenas quam lacus, faucibus vel posuere convallis, finibus vel lectus.
-
-Praesent semper lectus nec elit pulvinar, ut dapibus ligula posuere. Nulla euismod erat id lacus consequat, nec pellentesque erat dignissim. Vestibulum eleifend justo ullamcorper urna condimentum, ut venenatis magna efficitur. Vivamus semper ullamcorper faucibus. Donec suscipit euismod augue ut pellentesque. Donec massa ante, mattis sed elit ac, lobortis condimentum risus. Vivamus a nisi iaculis, lobortis mauris et, posuere lacus. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia curae; Vivamus consectetur cursus dui nec pulvinar.
-
-Nam sit amet vulputate leo. Nam laoreet dapibus ex, et pulvinar leo vulputate rhoncus. Duis nec risus id massa dignissim tempus vitae nec sapien. Fusce orci turpis, suscipit ut mi ac, fringilla sollicitudin augue. Etiam vitae rutrum orci. Mauris est mi, ornare ut magna vitae, malesuada vehicula nulla. Nullam dignissim, ligula ut sodales euismod, odio erat posuere tellus, ut pellentesque sapien elit eu risus. Mauris dapibus euismod dolor, sed ornare sem rhoncus nec. Donec quis bibendum nibh. Aliquam at urna purus. Nulla convallis, arcu sed sodales laoreet, urna enim elementum lacus, vitae vulputate sem arcu a ipsum. Aenean eu ex a odio rhoncus feugiat in a nunc.
-
-Generated 5 paragraphs, 538 words, 3667 bytes of Lorem Ipsum
-help@lipsum.com
-Privacy Policy ·Հայերեն Shqip ‫العربية Български Català 中文简体 Hrvatski Česky Dansk Nederlands English Eesti Filipino Suomi Français ქართული Deutsch Ελληνικά ‫עברית हिन्दी Magyar Indonesia Italiano Latviski Lietuviškai македонски Melayu Norsk Polski Português Româna Pyccкий Српски Slovenčina Slovenščina Español Svenska ไทย Türkçe Українська Tiếng Việt
-Lorem Ipsum
-"Neque porro quisquam est qui dolorem ipsum quia dolor sit amet, consectetur, adipisci velit..."
-"There is no one who loves pain itself, who seeks after it and wants to have it, simply because it is pain..."
-Lorem ipsum dolor sit amet, consectetur adipiscing elit. Proin lacus quam, cursus fermentum accumsan vitae, tempus at sem. Suspendisse elit arcu, luctus vel magna non, convallis ullamcorper nulla. In id lorem et tellus hendrerit suscipit. Duis ultrices libero ut eleifend tempor. Duis ex nisi, malesuada nec nisi ut, scelerisque tempus eros. Fusce sit amet vulputate erat. Sed vestibulum, massa et vehicula efficitur, dolor mauris interdum augue, quis dapibus ligula ipsum in ex. Maecenas dictum, erat vitae fringilla scelerisque, sapien ligula suscipit dolor, eu euismod turpis est eget ex. Maecenas ultricies enim urna, non convallis magna fermentum ac. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Aenean vitae feugiat turpis. Donec malesuada finibus tellus eget commodo. Vivamus tincidunt lobortis leo vel finibus. Vivamus ornare laoreet urna at gravida. Maecenas feugiat nisl in enim efficitur, a laoreet ipsum semper.
-
-Ut rhoncus lorem eget malesuada rutrum. Vestibulum ac semper purus. Donec nec rutrum ipsum. Orci varius natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Duis eu velit odio. Duis tempor eros metus, vitae commodo urna euismod ut. Aenean aliquam lacus odio, lobortis pharetra erat tempus sed. Nullam pretium suscipit mauris non laoreet. Cras venenatis porta lobortis. Curabitur ut urna sed lorem mollis pellentesque. Aenean pellentesque mi dui, quis accumsan sem tincidunt non. Mauris dolor leo, tempus ut eleifend sed, ornare at massa. Maecenas ipsum ipsum, sagittis quis quam nec, suscipit aliquet diam. Sed tincidunt sagittis gravida. In aliquet magna a nisl scelerisque, a volutpat lacus suscipit. Nullam vel urna mauris.
-
-Vestibulum et scelerisque mauris. Nam enim eros, scelerisque vel urna vel, hendrerit ultricies mauris. Mauris ultricies odio est, eu suscipit justo consequat eu. Pellentesque molestie sapien ex. Mauris tristique dignissim mauris ut accumsan. Sed convallis augue sem, nec pellentesque odio ultricies vel. Nam libero justo, gravida ut eros at, varius tincidunt risus. Nullam malesuada laoreet ipsum ac viverra. Sed dictum lorem in orci fringilla hendrerit. Nunc lorem lectus, malesuada vel magna sit amet, sollicitudin viverra velit. Pellentesque malesuada faucibus metus id commodo. Maecenas hendrerit pellentesque tellus sit amet malesuada. Maecenas quam lacus, faucibus vel posuere convallis, finibus vel lectus.
-
-Praesent semper lectus nec elit pulvinar, ut dapibus ligula posuere. Nulla euismod erat id lacus consequat, nec pellentesque erat dignissim. Vestibulum eleifend justo ullamcorper urna condimentum, ut venenatis magna efficitur. Vivamus semper ullamcorper faucibus. Donec suscipit euismod augue ut pellentesque. Donec massa ante, mattis sed elit ac, lobortis condimentum risus. Vivamus a nisi iaculis, lobortis mauris et, posuere lacus. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia curae; Vivamus consectetur cursus dui nec pulvinar.
-
-Nam sit amet vulputate leo. Nam laoreet dapibus ex, et pulvinar leo vulputate rhoncus. Duis nec risus id massa dignissim tempus vitae nec sapien. Fusce orci turpis, suscipit ut mi ac, fringilla sollicitudin augue. Etiam vitae rutrum orci. Mauris est mi, ornare ut magna vitae, malesuada vehicula nulla. Nullam dignissim, ligula ut sodales euismod, odio erat posuere tellus, ut pellentesque sapien elit eu risus. Mauris dapibus euismod dolor, sed ornare sem rhoncus nec. Donec quis bibendum nibh. Aliquam at urna purus. Nulla convallis, arcu sed sodales laoreet, urna enim elementum lacus, vitae vulputate sem arcu a ipsum. Aenean eu ex a odio rhoncus feugiat in a nunc.
-
-Generated 5 paragraphs, 538 words, 3667 bytes of Lorem Ipsum
-help@lipsum.com
-Privacy Policy ·
-</p>
+        {/* Danh sách podcast mới */}
+        <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md">
+          <h2 className="text-xl font-semibold mb-4">New Podcasts Uploaded</h2>
+          <ul>
+            {dashboard.newPodcasts.length === 0 ? (
+              <p>No new podcasts</p>
+            ) : (
+              dashboard.newPodcasts.map((podcast: Podcast) => (
+                <li key={podcast.id} className="mb-4">
+                  <div className="flex items-center">
+                    {podcast.thumbnailUrl ? (
+                      <img
+                        src={podcast.thumbnailUrl}
+                        alt={podcast.title}
+                        className="w-16 h-16 rounded-lg mr-4"
+                      />
+                    ) : (
+                      <div className="w-16 h-16 bg-gray-300 dark:bg-gray-600 rounded-lg mr-4"></div>
+                    )}
+                    <div>
+                      <p className="font-semibold">{podcast.title}</p>
+                      <p className="text-sm text-gray-500 dark:text-gray-400">
+                        By {podcast.username} | {podcast.views} views
+                      </p>
+                    </div>
+                  </div>
+                </li>
+              ))
+            )}
+          </ul>
+        </div>
+      </div>
     </div>
-  )
-}
+  );
+};
 
-export default AdminLadingPage
+export default AdminLadingPage;

@@ -9,6 +9,7 @@ import org.springframework.data.mongodb.core.aggregation.Aggregation;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Repository;
+import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.HashMap;
@@ -16,13 +17,10 @@ import java.util.List;
 import java.util.Map;
 
 @Repository
-public class DashboardRepositoryTemplate {
+public class DashboardTemplate {
     @Autowired
     private MongoTemplate mongoTemplate;
 
-    /**
-     * Lấy tổng số liệu thống kê cho Dashboard trong khoảng thời gian
-     */
     public Map<String, Object> getDashboardStatistics(LocalDateTime startDate, LocalDateTime endDate) {
         Map<String, Object> statistics = new HashMap<>();
 

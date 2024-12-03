@@ -40,4 +40,6 @@ public interface IUserService {
 
 
     void checkAdmin() throws Exception;
+
+    BasicUserModel mapToBasicUser(UserEntity userEntity);
 }

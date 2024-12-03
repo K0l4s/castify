@@ -12,7 +12,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 @Repository
-public class UserRepositoryTemplate {
+public class UserTemplate {
     @Autowired
     private MongoTemplate mongoTemplate;
 

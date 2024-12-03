@@ -6,7 +6,7 @@ import com.castify.backend.models.paginated.PaginatedResponse;
 import com.castify.backend.models.user.*;
 import com.castify.backend.repository.PodcastRepository;
 import com.castify.backend.repository.UserRepository;
-import com.castify.backend.repository.template.UserRepositoryTemplate;
+import com.castify.backend.repository.template.UserTemplate;
 import com.castify.backend.service.uploadFile.IUploadFileService;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,7 +35,7 @@ public class UserServiceImpl implements IUserService {
     @Autowired
     private IUploadFileService uploadFileService;
     @Autowired
-    UserRepositoryTemplate userRepositoryTemplate;
+    UserTemplate userRepositoryTemplate;
 
 
     @Override
@@ -310,7 +310,8 @@ public class UserServiceImpl implements IUserService {
             return false;
         }
     }
-    private BasicUserModel mapToBasicUser(UserEntity userEntity) {
+    @Override
+    public BasicUserModel mapToBasicUser(UserEntity userEntity) {
         // Chuyển đổi UserEntity thành UserSimple
         BasicUserModel userSimple = modelMapper.map(userEntity, BasicUserModel.class);
 

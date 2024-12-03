@@ -17,7 +17,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Repository
-public class NotificationRepositoryTemplate {
+public class NotificationTemplate {
 
     @Autowired
     private MongoTemplate mongoTemplate;

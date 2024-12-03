@@ -1,12 +1,19 @@
 package com.castify.backend.controller;
 
-import com.castify.backend.repository.template.DashboardRepositoryTemplate;
+import com.castify.backend.models.dashboard.OverviewModel;
+import com.castify.backend.repository.template.DashboardTemplate;
+import com.castify.backend.service.dashboard.DashboardServiceImpl;
+import com.castify.backend.service.dashboard.IDashboardService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+
 import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.temporal.TemporalAdjusters;
 import java.util.Map;
 
 @RestController
@@ -14,15 +21,25 @@ import java.util.Map;
 public class DashboardController {
 
     @Autowired
-    private DashboardRepositoryTemplate dashboardRepository;
-
+//    private DashboardTemplate dashboardRepository;
+    private IDashboardService dashboardService = new DashboardServiceImpl();
     /**
      * API trả về tổng số liệu thống kê cho Dashboard
      */
     @GetMapping("/statistics")
-    public Map<String, Object> getStatistics() {
-        LocalDateTime startDate = LocalDateTime.of(2024, 11, 1, 0, 0, 0, 0);
-        LocalDateTime endDate = LocalDateTime.of(2024, 11, 30, 23, 59, 59, 999999);
-        return dashboardRepository.getDashboardStatistics(startDate, endDate);
+    public OverviewModel getStatistics(
+            @RequestParam(value = "startDate", required = false) LocalDateTime startDate,
+            @RequestParam(value = "endDate", required = false) LocalDateTime endDate
+    ) {
+        if (startDate == null) {
+            startDate = LocalDateTime.now().withDayOfMonth(1).with(LocalTime.MIN);
+        }
+
+        if (endDate == null) {
+            endDate = LocalDateTime.now().with(TemporalAdjusters.lastDayOfMonth()).with(LocalTime.MAX);
+        }
+
+        return dashboardService.getOverviewInformation(startDate,endDate);
     }
+
 }

@@ -14,10 +14,12 @@ import java.util.List;
 @AllArgsConstructor
 public class OverviewModel {
     private List<BasicUserModel> newUsers = new ArrayList<>();
-    private List<BasicUserModel> activeUsers = new ArrayList<>();
+//    private List<BasicUserModel> activeUsers = new ArrayList<>();
     private List<PodcastModel> newPodcasts = new ArrayList<>();
+    private long totalUsers;
+    private long totalPodcasts;
     private long totalLikes;
     private long totalComments;
-    private long totalViews;
-    private long totalReportsAwait;
+//    private long totalViews;
+//    private long totalReportsAwait;
 }
