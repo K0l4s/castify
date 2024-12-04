@@ -15,4 +15,11 @@ public class PageDTO<T> {
     private int currentPage;
     private int totalPages;
     private long totalElements;
+
+    public PageDTO(List<T> content, int currentPage, int totalPages, int totalElements) {
+        this.content = content;
+        this.currentPage = currentPage;
+        this.totalPages = totalPages;
+        this.totalElements = totalElements;
+    }
 }

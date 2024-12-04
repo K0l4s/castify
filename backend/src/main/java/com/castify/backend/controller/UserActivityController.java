@@ -2,12 +2,15 @@ package com.castify.backend.controller;
 
 import com.castify.backend.models.PageDTO;
 import com.castify.backend.models.userActivity.AddActivityRequestDTO;
+import com.castify.backend.models.userActivity.UserActivityGroupedByDate;
 import com.castify.backend.models.userActivity.UserActivityModel;
 import com.castify.backend.service.userActivity.UserActivityServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/activities")
@@ -51,6 +54,17 @@ public class UserActivityController {
         try {
             userActivityService.removeAllViewPodcastActivities();
             return ResponseEntity.noContent().build();
+        } catch (Exception e) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+    }
+
+    @GetMapping("/search")
+    public ResponseEntity<List<UserActivityGroupedByDate>> searchActivitiesByPodcastTitle(
+            @RequestParam("title") String title) {
+        try {
+            List<UserActivityGroupedByDate> result = userActivityService.searchActivitiesByPodcastTitleAndGroupByDate(title);
+            return ResponseEntity.ok(result);
         } catch (Exception e) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }

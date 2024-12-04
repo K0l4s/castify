@@ -29,3 +29,15 @@ export const removeAllUserActivities = async () => {
     throw error;
   }
 };
+
+export const searchUserActivities = async (title: string) => {
+  try {
+    const response = await axiosInstanceAuth.get(`/api/v1/activities/search`, {
+      params: { title }
+    });
+    return response.data;
+  } catch (error) {
+    console.error('Error searching user activities:', error);
+    throw error;
+  }
+};

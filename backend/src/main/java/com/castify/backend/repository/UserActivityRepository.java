@@ -19,4 +19,6 @@ public interface UserActivityRepository extends MongoRepository<UserActivityEnti
     UserActivityEntity findByUserAndTypeAndPodcast(UserEntity user, ActivityType type, PodcastEntity podcast);
     UserActivityEntity findByIdAndType(String id, ActivityType type);
     List<UserActivityEntity> findAllByUserIdAndType(String userId, ActivityType type);
+    @Query("{ 'user.$id': ?0, 'podcast.title': { $regex: ?1, $options: 'i' } }")
+    List<UserActivityEntity> findAllByUserIdAndPodcastTitle(String userId, String podcastTitle);
 }
