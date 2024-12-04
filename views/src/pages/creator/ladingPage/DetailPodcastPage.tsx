@@ -10,6 +10,7 @@ import { MdLockPerson } from "react-icons/md";
 import { useToast } from "../../../context/ToastProvider";
 import { validateFileType } from "../../../utils/FileValidation";
 import GenreSelection from "../../../components/modals/podcast/GenreSelection";
+import Loading from "../../../components/UI/custom/Loading";
 
 const DetailPodcastPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -24,6 +25,7 @@ const DetailPodcastPage: React.FC = () => {
   const [isActive, setIsActive] = useState<boolean>(true);
   const [genres, setGenres] = useState<{ id: string; name: string }[]>([]);
   const [isGenreModalOpen, setIsGenreModalOpen] = useState<boolean>(false);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
 
   useEffect(() => {
     const fetchPodcast = async () => {
@@ -55,12 +57,30 @@ const DetailPodcastPage: React.FC = () => {
   }, [id]);
 
   const handleUpdate = async () => {
+    if (
+      title === initialPodcast?.title &&
+      content === initialPodcast?.content &&
+      genreIds.sort().toString() === initialPodcast.genres!.map((genre) => genre.id).sort().toString() &&
+      thumbnailPreview === initialPodcast.thumbnailUrl
+    ) {
+      toast.info("No changes to save.");
+      return;
+    }
+
+    setIsLoading(true);
     try {
       await updatePodcast(id!, title, content, thumbnail!, genreIds);
+      const updatedPodcast = await getPodcastById(id!);
+      setPodcast(updatedPodcast);
+      setInitialPodcast(updatedPodcast);
+      setThumbnailPreview(updatedPodcast.thumbnailUrl);
+      setThumbnail(null);
       toast.success("Podcast updated successfully!");
     } catch (error) {
       console.error("Failed to update podcast", error);
       toast.error("Failed to update podcast. Please try again.");
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -105,6 +125,7 @@ const DetailPodcastPage: React.FC = () => {
 
   return (
     <div className="container mx-auto min-h-screen p-4">
+      {isLoading && <Loading />}
       <div className="flex justify-between items-center mb-4">
         <h1 className="text-2xl font-bold text-black dark:text-white">
           Detail Video
