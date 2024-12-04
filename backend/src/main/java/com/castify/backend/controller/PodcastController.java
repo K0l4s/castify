@@ -290,13 +290,13 @@ public class PodcastController {
         }
     }
 
-    @PutMapping("/toggle/{id}")
-    public ResponseEntity<?> togglePodcast(@PathVariable String id) {
+    @PutMapping("/toggle")
+    public ResponseEntity<?> togglePodcasts(@RequestBody List<String> podcastIds) {
         try {
-            podcastService.togglePodcastDisplayMode(id);
+            podcastService.togglePodcastDisplayMode(podcastIds);
             return ResponseEntity.ok().build();
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
         }
     }
 }

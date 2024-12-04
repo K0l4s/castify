@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { IoIosArrowBack, IoIosArrowForward } from "react-icons/io";
+import { IoClose } from "react-icons/io5";
 import { usePodcastContext } from "../../../context/PodcastContext";
 import { useSelector } from "react-redux";
 import { RootState } from "../../../redux/store";
@@ -9,6 +10,9 @@ import { formatDate } from "../../../utils/DateUtils";
 import { MdLockPerson } from "react-icons/md";
 import { FaGlobeAsia } from "react-icons/fa";
 import { IoFilter } from "react-icons/io5";
+import "./animation.css";
+import CustomButton from "../../../components/UI/custom/CustomButton";
+import { togglePodcasts } from "../../../services/PodcastService";
 
 const MyPodcastPage: React.FC = () => {
   const isAuthenticated = useSelector((state: RootState) => state.auth.isAuthenticated);
@@ -21,6 +25,7 @@ const MyPodcastPage: React.FC = () => {
   const [selectedPodcasts, setSelectedPodcasts] = useState<string[]>([]);
   const [filter, setFilter] = useState<string>("");
   const [filterValue, setFilterValue] = useState<string>("");
+  const [isExpanded, setIsExpanded] = useState<boolean>(false);
 
   const defaultParams = {
     page: 0,
@@ -57,7 +62,6 @@ const MyPodcastPage: React.FC = () => {
     const sortByCreatedDay = searchParams.get("sortByCreatedDay") || "desc";
 
     fetchPodcasts(page, size, sortByViews, sortByComments, sortByCreatedDay);
-
   };
 
   const handlePageChange = (newPage: number) => {
@@ -105,12 +109,68 @@ const MyPodcastPage: React.FC = () => {
     setFilterValue("");
   };
 
+  const handleDeleteSelected = () => {
+    // Implement the logic to delete selected podcasts
+    console.log("Deleting selected podcasts:", selectedPodcasts);
+    setSelectedPodcasts([]);
+  };
+
+  const handleToggleDisplayMode = async () => {
+    try {
+      await togglePodcasts(selectedPodcasts);
+      fetchPodcastsFromParams(new URLSearchParams(location.search));
+      setSelectedPodcasts([]);
+    } catch (error) {
+      console.error("Failed to toggle display mode", error);
+    }
+  };
+
+  const handleClose = () => {
+    setIsExpanded(false);
+    setTimeout(() => {
+      setSelectedPodcasts([]);
+    }, 500); // Match the duration of the collapse transition
+  };
+
+  useEffect(() => {
+    setIsExpanded(selectedPodcasts.length > 0);
+  }, [selectedPodcasts]);
+
   return (
     <div className="container mx-auto p-4">
       <h1 className="text-2xl font-bold mb-4 text-black dark:text-white">
         My Podcast Content
       </h1>
       <div className="flex flex-col gap-4 bg-gray-200 dark:bg-gray-800 rounded min-h-[73vh]">
+        <div className={`expandable-row ${isExpanded ? 'expanded' : ''}`}>
+          <div className="flex items-center justify-between px-4 py-2 bg-gray-700 dark:bg-gray-200">
+            <span className="text-white dark:text-black border-r-2 border-gray-500 px-4">
+              {selectedPodcasts.length} selected
+            </span>
+            <div className="flex items-center gap-2">
+              <CustomButton
+                text="Toggle display mode"
+                variant="ghost"
+                rounded="full"
+                onClick={handleToggleDisplayMode}
+                className="text-white dark:text-black hover:bg-gray-500 hover:dark:bg-gray-400"
+              />
+              <CustomButton
+                text="Delete permanently"
+                variant="ghost"
+                rounded="full"
+                onClick={handleDeleteSelected}
+                className="text-white dark:text-black hover:bg-gray-500 hover:dark:bg-gray-400"
+              />
+              <button
+                onClick={handleClose}
+                className="text-white dark:text-black hover:bg-gray-500 rounded-full p-1 transition-colors"
+              >
+                <IoClose size={28} />
+              </button>
+            </div>
+          </div>
+        </div>
         {/* Filter Row */}
         <div className="flex items-center justify-between px-4 py-2 bg-gray-300 dark:bg-gray-700">
           <div className="flex items-center gap-4">
@@ -218,7 +278,6 @@ const MyPodcastPage: React.FC = () => {
                   Private
                 </>
               )}
-              {/* <p>{podcast.active ? "Public" : "Private"}</p> */}
             </div>
             {/* Created Day */}
             <div className="flex items-center justify-center col-span-1">

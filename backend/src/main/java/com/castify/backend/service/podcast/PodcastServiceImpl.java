@@ -304,13 +304,19 @@ public class PodcastServiceImpl implements IPodcastService {
     }
 
     @Override
-    public void togglePodcastDisplayMode(String podcastId) throws Exception {
+    public void togglePodcastDisplayMode(List<String> podcastIds) throws Exception {
         UserEntity user = userService.getUserByAuthentication();
-        PodcastEntity podcastEntity = podcastRepository.findById(podcastId)
-                .orElseThrow(() -> new RuntimeException("Podcast not found"));
+        List<PodcastEntity> podcasts = podcastRepository.findAllById(podcastIds);
 
-        podcastEntity.setActive(!podcastEntity.isActive());
-        podcastRepository.save(podcastEntity);
+        if (podcasts.isEmpty() || podcasts.size() != podcastIds.size()) {
+            throw new RuntimeException("One or more podcasts not found.");
+        }
+
+        for (PodcastEntity podcast : podcasts) {
+            podcast.setActive(!podcast.isActive());
+        }
+
+        podcastRepository.saveAll(podcasts);
     }
 
     @Override

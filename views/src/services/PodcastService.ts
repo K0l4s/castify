@@ -184,3 +184,12 @@ export const getUserPodcasts = async (
     throw error;
   }
 };
+
+export const togglePodcasts = async (podcastIds: string[]) => {
+  try {
+    const response = await axiosInstanceAuth.put(`/api/v1/podcast/toggle`, podcastIds);
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};

@@ -21,6 +21,6 @@ public interface IPodcastService {
     PageDTO<PodcastModel> getPodcastsByGenre(String genreId, int page, int size);
     void incrementPodcastViews(String podcastId);
     PageDTO<PodcastModel> getUserPodcasts(int page, int size, String sortBy) throws Exception;
-    void togglePodcastDisplayMode(String podcastId) throws Exception;
+    void togglePodcastDisplayMode(List<String> podcastIds) throws Exception;
     PodcastModel updatePodcast(String podcastId, EditPodcastDTO editPodcastDTO);
 }
