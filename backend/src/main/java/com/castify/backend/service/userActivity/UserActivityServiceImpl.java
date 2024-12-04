@@ -8,21 +8,29 @@ import com.castify.backend.enums.ActivityType;
 import com.castify.backend.models.PageDTO;
 import com.castify.backend.models.podcast.PodcastModel;
 import com.castify.backend.models.userActivity.AddActivityRequestDTO;
+import com.castify.backend.models.userActivity.UserActivityGroupedByDate;
 import com.castify.backend.models.userActivity.UserActivityModel;
 import com.castify.backend.repository.CommentRepository;
 import com.castify.backend.repository.PodcastRepository;
 import com.castify.backend.repository.UserActivityRepository;
 import com.castify.backend.service.user.UserServiceImpl;
+import org.bson.Document;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.aggregation.Aggregation;
+import org.springframework.data.mongodb.core.aggregation.AggregationResults;
+import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.stereotype.Service;
 
+import javax.sql.DataSource;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -42,6 +50,9 @@ public class UserActivityServiceImpl implements IUserActivityService{
 
     @Autowired
     private ModelMapper modelMapper;
+
+    @Autowired
+    private MongoTemplate mongoTemplate;
 
     @Override
     public void addActivity(AddActivityRequestDTO requestDTO) throws Exception {
@@ -89,59 +100,7 @@ public class UserActivityServiceImpl implements IUserActivityService{
                 ActivityType.VIEW_PODCAST,
                 Sort.by(Sort.Direction.DESC, "timestamp")
         );
-
-        // Nếu không có hoạt động nào, trả về PageDTO với nội dung rỗng
-        if (activities.isEmpty()) {
-            PageDTO<UserActivityModel> emptyPageDTO = new PageDTO<>();
-            emptyPageDTO.setContent(Collections.emptyList());
-            emptyPageDTO.setCurrentPage(page);
-            emptyPageDTO.setTotalPages(0);
-            emptyPageDTO.setTotalElements(0);
-            return emptyPageDTO;
-        }
-
-        // Nhóm hoạt động theo ngày
-        Map<LocalDate, List<UserActivityEntity>> groupedByDate = activities.stream()
-                .collect(Collectors.groupingBy(activity -> activity.getTimestamp().toLocalDate()));
-
-        // Chuyển đổi Map sang danh sách được phân trang
-        List<LocalDate> dates = new ArrayList<>(groupedByDate.keySet());
-        dates.sort(Comparator.reverseOrder()); // Sắp xếp theo ngày giảm dần
-
-        if (page >= dates.size()) {
-            throw new RuntimeException("Page out of range");
-        }
-
-        // Lấy danh sách hoạt động theo ngày của trang hiện tại
-        LocalDate selectedDate = dates.get(page);
-        List<UserActivityEntity> activitiesForSelectedDate = groupedByDate.get(selectedDate);
-
-        // Chuyển đổi sang UserActivityModel
-        List<UserActivityModel> activityModels = activitiesForSelectedDate.stream()
-                .map(entity -> {
-                    UserActivityModel model = new UserActivityModel();
-                    model.setId(entity.getId());
-                    model.setType(entity.getType());
-
-                    // Mapping PodcastEntity sang PodcastModel (nếu có)
-                    if (entity.getPodcast() != null) {
-                        PodcastModel podcastModel = modelMapper.map(entity.getPodcast(), PodcastModel.class);
-                        model.setPodcast(podcastModel);
-                    }
-
-                    model.setTimestamp(entity.getTimestamp());
-                    return model;
-                })
-                .toList();
-
-        // Tạo đối tượng PageDTO
-        PageDTO<UserActivityModel> pageDTO = new PageDTO<>();
-        pageDTO.setContent(activityModels);
-        pageDTO.setCurrentPage(page);
-        pageDTO.setTotalPages(dates.size());
-        pageDTO.setTotalElements(activities.size());
-
-        return pageDTO;
+        return getActivitiesGroupedByDate(activities, page);
     }
 
     @Override
@@ -163,5 +122,80 @@ public class UserActivityServiceImpl implements IUserActivityService{
         }
 
         userActivityRepository.deleteAll(activities);
+    }
+
+    @Override
+    public List<UserActivityGroupedByDate> searchActivitiesByPodcastTitleAndGroupByDate(String title) throws Exception {
+        UserEntity user = userService.getUserByAuthentication();
+        List<UserActivityEntity> activities = userActivityRepository.findAllByUserIdAndType(user.getId(), ActivityType.VIEW_PODCAST);
+
+        // Lọc dữ liệu ở Java
+        List<UserActivityEntity> filteredActivities = activities.stream()
+                .filter(activity -> activity.getPodcast() != null &&
+                        activity.getPodcast().getTitle().toLowerCase().contains(title.toLowerCase()))
+                .toList();
+
+        // Gom nhóm và format lại
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+        Map<String, List<UserActivityModel>> groupedByDate = filteredActivities.stream()
+                .map(activity -> modelMapper.map(activity, UserActivityModel.class))
+                .collect(Collectors.groupingBy(activity -> activity.getTimestamp().format(formatter)));
+
+        // Sắp xếp theo ngày giảm dần và sắp xếp `activities` theo timestamp giảm dần
+        return groupedByDate.entrySet().stream()
+                .sorted((e1, e2) -> e2.getKey().compareTo(e1.getKey())) // Sắp xếp ngày giảm dần
+                .map(entry -> {
+                    // Sắp xếp `activities` trong từng nhóm giảm dần theo timestamp
+                    List<UserActivityModel> sortedActivities = entry.getValue().stream()
+                            .sorted((a1, a2) -> a2.getTimestamp().compareTo(a1.getTimestamp()))
+                            .collect(Collectors.toList());
+                    return new UserActivityGroupedByDate(entry.getKey(), sortedActivities);
+                })
+                .collect(Collectors.toList());
+    }
+
+    private PageDTO<UserActivityModel> getActivitiesGroupedByDate(
+            List<UserActivityEntity> activities, int page) {
+        if (activities.isEmpty()) {
+            return new PageDTO<>(Collections.emptyList(), 0, page, 0, 0);
+        }
+
+        // Nhóm theo ngày
+        Map<LocalDate, List<UserActivityEntity>> groupedByDate = activities.stream()
+                .collect(Collectors.groupingBy(activity -> activity.getTimestamp().toLocalDate()));
+
+        // Sắp xếp danh sách các ngày giảm dần
+        List<LocalDate> dates = new ArrayList<>(groupedByDate.keySet());
+        dates.sort(Comparator.reverseOrder());
+
+        // Kiểm tra nếu page vượt quá phạm vi
+        if (page >= dates.size()) {
+            throw new RuntimeException("Page out of range");
+        }
+
+        // Lấy ngày hiện tại
+        LocalDate selectedDate = dates.get(page);
+        List<UserActivityEntity> activitiesForSelectedDate = groupedByDate.get(selectedDate);
+
+        // Chuyển đổi sang UserActivityModel
+        List<UserActivityModel> activityModels = activitiesForSelectedDate.stream()
+                .map(entity -> {
+                    UserActivityModel model = new UserActivityModel();
+                    model.setId(entity.getId());
+                    model.setType(entity.getType());
+
+                    // Mapping PodcastEntity sang PodcastModel
+                    if (entity.getPodcast() != null) {
+                        PodcastModel podcastModel = modelMapper.map(entity.getPodcast(), PodcastModel.class);
+                        model.setPodcast(podcastModel);
+                    }
+
+                    model.setTimestamp(entity.getTimestamp());
+                    return model;
+                })
+                .toList();
+
+        // Tạo PageDTO
+        return new PageDTO<>(activityModels, activitiesForSelectedDate.size(), page, dates.size(), activities.size());
     }
 }

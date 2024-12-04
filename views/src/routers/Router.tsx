@@ -20,7 +20,7 @@ import MyPodcastPage from '../pages/creator/ladingPage/MyPodcastPage'
 import SettingPage from '../pages/main/profile/SettingPage'
 import ProfileLayout from './layouts/ProfileLayout'
 import PodcastViewport from '../components/UI/podcast/PodcastViewport'
-import History from '../pages/main/historyPage/HistoryPage'
+import HistoryPage from '../pages/main/historyPage/HistoryPage'
 
 const Router = () => {
     const isAdmin = useSelector((state: RootState) => state.auth.user?.role === Role.A);
@@ -53,7 +53,7 @@ const Router = () => {
                     <Route path='/feed' element={<LandingPage />} />
                     <Route path='/feed/follow' element={<LandingPage />} />
                     <Route path='/feed/trend' element={<LandingPage />} />
-                    <Route path='/feed/history' element={<History />} />
+                    <Route path='/feed/history' element={<HistoryPage />} />
                     <Route path='/watch' element={<PodcastViewport />} />
                 </Route>
                 <Route element={<ProfileLayout />}>

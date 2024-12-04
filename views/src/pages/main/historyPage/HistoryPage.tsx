@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from "react";
-import { getUserActivities, removeUserActivity, removeAllUserActivities } from "../../../services/UserActivityService";
+import { getUserActivities, removeUserActivity, removeAllUserActivities, searchUserActivities } from "../../../services/UserActivityService";
 import CustomButton from "../../../components/UI/custom/CustomButton";
 import { FiLoader, FiSettings } from "react-icons/fi";
 import PodcastHistory from "../../../components/UI/podcast/PodcastHistory";
 import { useToast } from "../../../context/ToastProvider";
 import { FaRegTrashCan } from "react-icons/fa6";
+import { IoCloseOutline } from "react-icons/io5";
 
 const History: React.FC = () => {
   const [activities, setActivities] = useState<any[]>([]);
@@ -13,6 +14,7 @@ const History: React.FC = () => {
   const [page, setPage] = useState<number>(0);
   const [hasMore, setHasMore] = useState<boolean>(true);
   const [searchTerm, setSearchTerm] = useState<string>("");
+  const [isSearching, setIsSearching] = useState<boolean>(false);
 
   const toast = useToast();
 
@@ -37,8 +39,10 @@ const History: React.FC = () => {
   };
 
   useEffect(() => {
-    fetchActivities(page);
-  }, [page]);
+    if (!isSearching) {
+      fetchActivities(page);
+    }
+  }, [page, isSearching]);
 
   const loadMore = () => {
     if (!loading) {
@@ -46,8 +50,35 @@ const History: React.FC = () => {
     }
   };
 
-  const handleSearch = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const searchActivities = async (title: string) => {
+    setLoading(true);
+    setIsSearching(true);
+    try {
+      const data = await searchUserActivities(title);
+      setActivities(data);
+      setHasMore(false);
+    } catch (error) {
+      setError('Failed to search activities');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleSearch = (event: React.KeyboardEvent<HTMLInputElement>) => {
+    if (event.key === 'Enter') {
+      searchActivities(searchTerm);
+    }
+  };
+
+  const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setSearchTerm(event.target.value);
+  };
+
+  const clearSearch = () => {
+    setSearchTerm("");
+    setActivities([]);
+    setIsSearching(false);
+    setPage(0);
   };
 
   const clearHistory = async () => {
@@ -75,9 +106,7 @@ const History: React.FC = () => {
   };
 
   const filteredActivities = activities.flatMap(group =>
-    group.activities.filter((activity: any) =>
-      activity.podcast.title.toLowerCase().includes(searchTerm.toLowerCase())
-    ).map((activity: any) => ({ ...activity, date: group.date }))
+    group.activities.map((activity: any) => ({ ...activity, date: group.date }))
   );
 
   if (loading && page === 0) {
@@ -128,13 +157,24 @@ const History: React.FC = () => {
       <div className="w-1/4 pl-4 mt-4">
         <div className="rounded-lg p-4 mb-4">
           <h2 className="text-xl text-black dark:text-white font-semibold mb-2">Search History</h2>
-          <input
-            type="text"
-            value={searchTerm}
-            onChange={handleSearch}
-            className="w-full p-2 border border-gray-300 rounded-lg bg-white dark:bg-gray-800"
-            placeholder="Search by podcast title"
-          />
+          <div className="relative">
+            <input
+              type="text"
+              value={searchTerm}
+              onChange={handleInputChange}
+              onKeyDown={handleSearch}
+              className="w-full p-2 border border-gray-300 rounded-lg bg-white dark:bg-gray-800"
+              placeholder="Search by podcast title"
+            />
+            {searchTerm && (
+              <button
+                onClick={clearSearch}
+                className="absolute right-2 top-2 text-gray-500 dark:text-gray-300"
+              >
+                <IoCloseOutline size={24} />
+              </button>
+            )}
+          </div>
           <CustomButton
             text="Clear all viewed history"
             icon={<FaRegTrashCan />}
