@@ -6,7 +6,7 @@ export interface Podcast {
   content: string;
   thumbnailUrl: string | null;
   videoUrl: string;
-  genres: Genre[];
+  genres?: Genre[];
   views: number;
   totalLikes: number;
   totalComments: number;

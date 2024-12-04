@@ -1,3 +1,4 @@
+import { Link } from "react-router-dom";
 import Authentication from "./Authentication";
 
 const CreatorHeader = () => {
@@ -44,12 +45,12 @@ const CreatorHeader = () => {
                 ></path>
               </svg>
             </button>
-            <a href="/" className="flex ms-2 md:me-24">
+            <Link to="/creator" className="flex ms-2 md:me-24">
               <img src="/logo.png" className="h-8 me-3" alt=" Logo" />
-              <span className="self-center text-xl font-semibold sm:text-2xl whitespace-nowrap dark:text-white">
-                Castify
+              <span className="self-center text-xl font-semibold sm:text-2xl whitespace-nowrap text-black dark:text-white">
+                Studio
               </span>
-            </a>
+            </Link>
           </div>
 
           <Authentication />

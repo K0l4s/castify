@@ -153,14 +153,14 @@ const MyPodcastPage: React.FC = () => {
                 variant="ghost"
                 rounded="full"
                 onClick={handleToggleDisplayMode}
-                className="text-white dark:text-black hover:bg-gray-500 hover:dark:bg-gray-400"
+                className="text-white dark:text-gray-900 hover:bg-gray-500 hover:dark:bg-gray-400"
               />
               <CustomButton
                 text="Delete permanently"
                 variant="ghost"
                 rounded="full"
                 onClick={handleDeleteSelected}
-                className="text-white dark:text-black hover:bg-gray-500 hover:dark:bg-gray-400"
+                className="text-white dark:text-gray-900 hover:bg-gray-500 hover:dark:bg-gray-400"
               />
               <button
                 onClick={handleClose}

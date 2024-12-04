@@ -21,7 +21,7 @@ import SettingPage from '../pages/main/profile/SettingPage'
 import ProfileLayout from './layouts/ProfileLayout'
 import PodcastViewport from '../components/UI/podcast/PodcastViewport'
 import HistoryPage from '../pages/main/historyPage/HistoryPage'
-import EditPodcastPage from '../pages/creator/ladingPage/EditPodcastPage'
+import DetailPodcastPage from '../pages/creator/ladingPage/DetailPodcastPage'
 
 const Router = () => {
     const isAdmin = useSelector((state: RootState) => state.auth.user?.role === Role.A);
@@ -46,7 +46,7 @@ const Router = () => {
                 <Route path='/creator/*' element={<CreatorLayout />} >
                     <Route path='' element={<CreatorLandingPage />} />
                     <Route path='contents' element={<MyPodcastPage />} />
-                    <Route path='edit-podcast/:id' element={<EditPodcastPage />} />
+                    <Route path='edit-podcast/:id' element={<DetailPodcastPage />} />
                     <Route path='video-editor' element={<VideoEditor />} />
                 </Route>
 
