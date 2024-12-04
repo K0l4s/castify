@@ -1,13 +1,14 @@
 import React, { useEffect, useState } from 'react';
 import { FaEdit, FaFlag, FaMapMarkerAlt, FaUserCheck, FaUserPlus } from 'react-icons/fa';
 import { userDetail } from '../../../models/User';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import { RootState } from '../../../redux/store';
 import CustomButton from '../../UI/custom/CustomButton';
 import { userService } from '../../../services/UserService';
 import { useToast } from '../../../context/ToastProvider';
 import Tooltip from '../../UI/custom/Tooltip';
+import SettingModals from '../../modals/user/SettingModal';
 
 interface ProfileMainContentProps {
 
@@ -44,9 +45,9 @@ const ProfileMainContent: React.FC<ProfileMainContentProps> = ({
     const username = useParams().username;
     const [isLoading, setIsLoading] = useState(true);
     const isAuthenticated = useSelector((state: RootState) => state.auth.isAuthenticated);
+    const [isOpenEditModel,setIsOpenEditModel] = useState(false);
 
     const toast = useToast();
-    const navigate = useNavigate();
     const [user, setUser] = useState<userDetail>(defaultUser);
     useEffect(() => {
         const fetchUserDetails = async () => {
@@ -108,7 +109,7 @@ const ProfileMainContent: React.FC<ProfileMainContentProps> = ({
                         ) : (
                             <img
                                 className="w-full h-full object-cover object-center transform transition-transform duration-700 hover:scale-105"
-                                src={user.coverUrl || "https://png.pngtree.com/thumb_back/fw800/background/20231005/pngtree-3d-illustration-captivating-podcast-experience-image_13529585.png"}
+                                src={isOwner? currentUser?.coverUrl : user.coverUrl || "https://png.pngtree.com/thumb_back/fw800/background/20231005/pngtree-3d-illustration-captivating-podcast-experience-image_13529585.png"}
                                 alt="Profile Banner"
                             />
                         )}
@@ -138,7 +139,7 @@ const ProfileMainContent: React.FC<ProfileMainContentProps> = ({
                                 ) : (
                                     <img
                                         className="w-full h-full object-cover object-center transform transition-transform duration-500"
-                                        src={user.avatarUrl || "https://flowbite.com/docs/images/people/profile-picture-5.jpg"}
+                                        src={isOwner? currentUser?.avatarUrl : user.avatarUrl || ""}
                                         alt="Profile Picture"
                                         onError={(e) => {
                                             const target = e.target as HTMLImageElement;
@@ -174,7 +175,7 @@ const ProfileMainContent: React.FC<ProfileMainContentProps> = ({
                                 )}
                             </div>
                             {isOwner ? (
-                                <CustomButton isShining={true} onClick={() => navigate('/setting')}>
+                                <CustomButton isShining={true} onClick={() => setIsOpenEditModel(true)}>
                                     <FaEdit className="mr-2" />
                                     Edit Profile
                                 </CustomButton>
@@ -229,6 +230,7 @@ const ProfileMainContent: React.FC<ProfileMainContentProps> = ({
                 </div>
             </div>
         </div>
+        <SettingModals isOpen={isOpenEditModel} onClose={()=>setIsOpenEditModel(false)}/>
         </div >
 
     );

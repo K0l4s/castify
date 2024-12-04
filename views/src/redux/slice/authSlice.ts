@@ -1,4 +1,4 @@
-import { createSlice } from '@reduxjs/toolkit';
+import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { User } from '../../models/User';
 
 
@@ -35,8 +35,19 @@ const authSlice = createSlice({
       console.log(action.payload);
       state.user = { ...state.user, ...action.payload };
     },
+    updateAvatar(state, action: PayloadAction<string>) {
+      if (state.user) {
+        state.user.avatarUrl = action.payload;
+      }
+    },
+    updateCover(state, action: PayloadAction<string>) {
+      if (state.user) {
+        state.user.coverUrl = action.payload;
+      }
+    },
+    
   },
 });
 
-export const { login, logout, checkAuthStatus, setAuthLoading, setUser } = authSlice.actions;
+export const { login, logout, checkAuthStatus, setAuthLoading, setUser,updateAvatar, updateCover } = authSlice.actions;
 export default authSlice.reducer;

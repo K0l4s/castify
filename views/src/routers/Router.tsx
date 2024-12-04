@@ -17,7 +17,7 @@ import VertifyPage from '../pages/main/vertifyPage/VertifyPage'
 import TermsPage from '../pages/main/policyPage/TearmsPage'
 import PrivacyPolicy from '../pages/main/policyPage/PrivacyPolicy'
 import MyPodcastPage from '../pages/creator/ladingPage/MyPodcastPage'
-import SettingPage from '../pages/main/profile/SettingPage'
+// import SettingPage from '../pages/main/profile/SettingPage'
 import ProfileLayout from './layouts/ProfileLayout'
 import PodcastViewport from '../components/UI/podcast/PodcastViewport'
 import History from '../pages/main/historyPage/HistoryPage'
@@ -59,7 +59,7 @@ const Router = () => {
                 <Route element={<ProfileLayout />}>
                     <Route path='/profile' element={<ProfilePage />} />
                     <Route path='/profile/:username' element={<ProfilePage />} />
-                    <Route path='/setting' element={<SettingPage />} />
+                    {/* <Route path='/setting' element={<SettingPage />} /> */}
                 </Route>
                 <Route path='*' element={<NotFoundPage />} />
             </Routes>
