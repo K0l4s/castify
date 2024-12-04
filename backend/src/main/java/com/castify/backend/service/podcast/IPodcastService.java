@@ -3,6 +3,7 @@ package com.castify.backend.service.podcast;
 import com.castify.backend.models.PageDTO;
 import com.castify.backend.models.comment.CommentModel;
 import com.castify.backend.models.podcast.CreatePodcastModel;
+import com.castify.backend.models.podcast.EditPodcastDTO;
 import com.castify.backend.models.podcast.PodcastModel;
 
 import java.util.List;
@@ -20,4 +21,6 @@ public interface IPodcastService {
     PageDTO<PodcastModel> getPodcastsByGenre(String genreId, int page, int size);
     void incrementPodcastViews(String podcastId);
     PageDTO<PodcastModel> getUserPodcasts(int page, int size, String sortBy) throws Exception;
+    void togglePodcastDisplayMode(String podcastId) throws Exception;
+    PodcastModel updatePodcast(String podcastId, EditPodcastDTO editPodcastDTO);
 }

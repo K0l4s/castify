@@ -21,6 +21,6 @@ public interface PodcastRepository extends MongoRepository<PodcastEntity, String
     long countByUser(UserEntity user);
     Page<PodcastEntity> findByIsActiveTrue(Pageable pageable);
     Page<PodcastEntity> findByGenres_IdAndIsActiveTrue(String genreId, Pageable pageable);
-    @Query("{ 'user.id': ?0 }")
-    Page<PodcastEntity> findAllByUserId(String userId, Pageable pageable);
+    @Query("{ 'user.id': ?0, 'isActive': true }")
+    Page<PodcastEntity> findAllByUserIdAndIsActiveTrue(String userId, Pageable pageable);
 }
