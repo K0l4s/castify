@@ -4,13 +4,19 @@ import { userService } from '../../../services/UserService';
 import { useToast } from '../../../context/ToastProvider';
 import { district, provinces, ward } from '../../../models/Location';
 import { locationService } from '../../../services/LocationService';
-import CustomButton from '../../../components/UI/custom/CustomButton';
-import CustomInput from '../../../components/UI/custom/CustomInput';
+import CustomButton from '../../UI/custom/CustomButton';
+import CustomInput from '../../UI/custom/CustomInput';
 import { BiEditAlt, BiLoader, BiSave } from 'react-icons/bi';
 import { GiCancel } from 'react-icons/gi';
-import Loading from '../../../components/UI/custom/Loading';
-
-const SettingPage = () => {
+import Loading from '../../UI/custom/Loading';
+import CustomModal from '../../UI/custom/CustomModal';
+import { useDispatch } from 'react-redux';
+import { updateAvatar, updateCover } from '../../../redux/slice/authSlice';
+interface SettingModals{
+  isOpen: boolean;
+  onClose: ()=> void;
+}
+const SettingModals = (props:SettingModals) => {
 
   const [isLoading, setIsLoading] = useState(true);
   const [user, setUser] = useState<User>();
@@ -168,7 +174,7 @@ const SettingPage = () => {
       fetchData();
     }
   }, [selectedDistrictId]);
-
+  const dispatch = useDispatch();
   const handleSelectChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const { name, value } = e.target;
     // console.log(value);
@@ -199,7 +205,7 @@ const SettingPage = () => {
     }
   };
 
-  const handleChangeAvatar = async(e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleChangeAvatar = async (e: React.ChangeEvent<HTMLInputElement>) => {
     toast.loading("Uploading avatar...");
     const file = e.target.files?.[0];
     if (file) {
@@ -210,6 +216,7 @@ const SettingPage = () => {
         toast.clearAllToasts();
         toast.success("Avatar updated successfully");
         setUser(prev => prev ? { ...prev, avatarUrl: URL.createObjectURL(file) } : prev);
+        dispatch(updateAvatar(URL.createObjectURL(file)))
       }
       ).catch(err => {
         console.log(err);
@@ -220,24 +227,59 @@ const SettingPage = () => {
     }
   };
 
+  const handleChangeCover = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    toast.loading("Uploading cover...");
+    const file = e.target.files?.[0];
+    if (file) {
+      // const formData = new FormData();
+      // formData.append('avatar', file);
+      await userService.changeCover(file).then(res => {
+        console.log(res);
+        toast.clearAllToasts();
+        toast.success("Cover updated successfully");
+        setUser(prev => prev ? { ...prev, coverUrl: URL.createObjectURL(file) } : prev);
+        dispatch(updateCover(URL.createObjectURL(file)))
+      }
+      ).catch(err => {
+        console.log(err);
+        toast.clearAllToasts();
+        toast.error("Error updating cover");
+      });
+      // console.log(formData.get('avatar'));
+    }
+  };
+
+  
+  
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 p-8">
-      <div className="max-w-3xl mx-auto bg-white dark:bg-gray-800 rounded-2xl shadow-2xl p-8">
-        <div className="flex justify-between items-center mb-8">
-          <h2 className="text-3xl font-bold text-gray-800 dark:text-white">Profile Settings</h2>
-          {!isEdit && (
-            <CustomButton
-              type="button"
-              isShining={true}
-              variant="success"
-              onClick={() => setIsEdit(true)}
-              className="px-4 py-2 text-sm font-semibold rounded-lg"
-            >
-              <BiEditAlt className="w-4 h-4" /> Edit Profile
-            </CustomButton>
-          )}
+    // <div className="min-h-screen bg-gray-50 dark:bg-gray-900 p-8">
+    <CustomModal title='Setting' isOpen={props.isOpen} onClose={props.onClose} size='xl'>
+      <div className=" mx-auto">
+        <div className="relative">
+          {/* Banner Image */}
+          <div className="w-full relative h-48 sm:h-56 md:h-64 relative overflow-hidden">
+            <div className="absolute inset-0 bg-gradient-to-r from-purple-900/30 via-blue-900/30 to-pink-900/30 mix-blend-overlay dark:mix-blend-multiply"></div>
+            {isLoading ? (
+              <div className="w-full h-full object-cover object-center transform transition-transform duration-700 ">
+                <div className="animate-pulse w-full h-full bg-gray-300 dark:bg-gray-700"></div>
+              </div>
+            ) : (
+              <img
+                className="w-full h-full object-cover object-center rounded-xl transform transition-transform duration-700 "
+                src={user?.coverUrl || "https://png.pngtree.com/thumb_back/fw800/background/20231005/pngtree-3d-illustration-captivating-podcast-experience-image_13529585.png"}
+                alt="Profile Banner"
+              />
+            )}
+          </div>
+          <label htmlFor="cover"
+            className="absolute inset-0 flex items-center justify-center bg-black/20 rounded-full cursor-pointer opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+            <input type="file" id="cover" className="hidden"
+              onChange={handleChangeCover}
+            />
+            <BiEditAlt className="text-white w-8 h-8" />
+          </label>
         </div>
-        <div className='w-40 h-40 m-auto rounded-full border-solid border-4 border-green-400 relative group overflow-hidden'>
+        <div className='w-40 h-40 m-auto rounded-full border-solid border-4 border-green-400 relative group overflow-hidden -mt-20'>
           <img
             className='rounded-full object-center object-cover w-full h-full transition-opacity duration-300 group-hover:opacity-80'
             src={user?.avatarUrl ||
@@ -249,28 +291,41 @@ const SettingPage = () => {
           {/* Icon BiEditAlt */}
           <label htmlFor="avatar"
             className="absolute inset-0 flex items-center justify-center bg-black/20 rounded-full cursor-pointer opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-            <input type="file" id="avatar" className="hidden" 
-            onChange={handleChangeAvatar}
+            <input type="file" id="avatar" className="hidden"
+              onChange={handleChangeAvatar}
             />
             <BiEditAlt className="text-white w-8 h-8" />
           </label>
         </div>
-
+        {!isEdit && (
+          <div className='flex justify-end'>
+            <CustomButton
+              type="button"
+              isShining={true}
+              variant="success"
+              onClick={() => setIsEdit(true)}
+              className="px-4 py-2 text-sm font-semibold rounded-lg mb-2"
+            >
+              <BiEditAlt className="w-4 h-4" />
+            </CustomButton>
+          </div>
+        )}
         <form onSubmit={handleSubmit} className="space-y-6">
           <div className="grid grid-cols-1 gap-6">
             <div className="grid grid-cols-3 gap-4">
-              <div>
-                <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">First Name</label>
+            <div>
+                <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">Last Name</label>
                 <CustomInput
                   type="text"
-                  name="firstName"
-                  value={editedUser.firstName}
+                  name="lastName"
+                  value={editedUser.lastName}
                   onChange={handleInputChange}
                   disabled={!isEdit}
                   variant="primary"
                   className="mt-1 block w-full"
                 />
               </div>
+              
               <div>
                 <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">Middle Name</label>
                 <CustomInput
@@ -284,11 +339,11 @@ const SettingPage = () => {
                 />
               </div>
               <div>
-                <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">Last Name</label>
+                <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">First Name</label>
                 <CustomInput
                   type="text"
-                  name="lastName"
-                  value={editedUser.lastName}
+                  name="firstName"
+                  value={editedUser.firstName}
                   onChange={handleInputChange}
                   disabled={!isEdit}
                   variant="primary"
@@ -296,23 +351,6 @@ const SettingPage = () => {
                 />
               </div>
             </div>
-
-            {/* <div>
-              <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">Birthday</label>
-
-            </div> */}
-            {/* <div>
-              <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">Phone</label>
-              <CustomInput
-                type="tel"
-                name="phone"
-                value={editedUser.phone}
-                onChange={handleInputChange}
-                disabled={!isEdit}
-                variant="primary"
-                className="mt-1 block w-full"
-              />
-            </div> */}
             <div>
               <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">Birthday</label>
               <input
@@ -342,14 +380,16 @@ const SettingPage = () => {
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div>
-                <label htmlFor="provinces" >District</label>
+              <div className="flex flex-col items-start">
+                <label htmlFor="provinces" className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">District</label>
                 <select
                   id="provinces"
                   name="provinces"
                   value={selectedProvinceId}
                   onChange={handleSelectChange}
                   required
+                  disabled={!isEdit}
+                  className="mt-1 block w-full border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-300 disabled:border-gray-200 disabled:bg-gray-100 dark:disabled:border-gray-700 dark:disabled bg-gray-800 disabled:text-gray-400 dark:disabled:text-gray-500 px-4 py-2 rounded-md"
                 >
                   <option value="">Select Provinces</option>
                   {provincesList.map(province => (
@@ -357,14 +397,16 @@ const SettingPage = () => {
                   ))}
                 </select>
               </div>
-              <div>
-                <label htmlFor="district">District</label>
+              <div className="flex flex-col items-start">
+                <label htmlFor="district" className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">District</label>
                 <select
                   id="district"
                   name="district"
                   value={selectedDistrictId}
                   onChange={handleSelectChange}
                   required
+                  disabled={!isEdit}
+                  className="mt-1 block w-full border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-300 disabled:border-gray-200 disabled:bg-gray-100 dark:disabled:border-gray-700 dark:disabled bg-gray-800 disabled:text-gray-400 dark:disabled:text-gray-500 px-4 py-2 rounded-md"
                 >
                   <option value="">Select District</option>
                   {districtsList.map(district => (
@@ -372,14 +414,16 @@ const SettingPage = () => {
                   ))}
                 </select>
               </div>
-              <div>
-                <label htmlFor="ward">Ward</label>
+              <div className="flex flex-col items-start">
+                <label htmlFor="ward" className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">Ward</label>
                 <select
                   id="ward"
                   name="ward"
                   value={selectedWardId}
                   onChange={handleSelectChange}
                   required
+                  disabled={!isEdit}
+                  className="mt-1 block w-full border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-300 disabled:border-gray-200 disabled:bg-gray-100 dark:disabled:border-gray-700 dark:disabled bg-gray-800 disabled:text-gray-400 dark:disabled:text-gray-500 px-4 py-2 rounded-md"
                 >
                   <option value="">Select Ward</option>
                   {wardsList.map(ward => (
@@ -414,8 +458,9 @@ const SettingPage = () => {
         </form>
       </div>
       {isLoading && <Loading />}
-    </div>
+    {/* </div> */}
+    </CustomModal>
   );
 };
 
-export default SettingPage;
+export default SettingModals;
