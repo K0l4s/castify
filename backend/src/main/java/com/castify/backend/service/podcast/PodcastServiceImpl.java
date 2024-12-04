@@ -5,9 +5,11 @@ import com.castify.backend.enums.ActivityType;
 import com.castify.backend.models.PageDTO;
 import com.castify.backend.models.comment.CommentModel;
 import com.castify.backend.models.podcast.CreatePodcastModel;
+import com.castify.backend.models.podcast.EditPodcastDTO;
 import com.castify.backend.models.podcast.PodcastModel;
 import com.castify.backend.models.userActivity.AddActivityRequestDTO;
 import com.castify.backend.repository.*;
+import com.castify.backend.service.uploadFile.UploadFileServiceImpl;
 import com.castify.backend.service.user.IUserService;
 import com.castify.backend.service.userActivity.UserActivityServiceImpl;
 import org.modelmapper.ModelMapper;
@@ -56,6 +58,9 @@ public class PodcastServiceImpl implements IPodcastService {
 
     @Autowired
     private UserActivityServiceImpl userActivityService;
+
+    @Autowired
+    private UploadFileServiceImpl uploadFileService;
 
     @Override
     public PodcastModel createPodcast(CreatePodcastModel createPodcastModel) {
@@ -293,9 +298,54 @@ public class PodcastServiceImpl implements IPodcastService {
         // Tạo Pageable với sắp xếp
         Pageable pageable = PageRequest.of(page, size, sort);
 
-        Page<PodcastEntity> podcastEntities = podcastRepository.findAllByUserId(userEntity.getId(), pageable);
+        Page<PodcastEntity> podcastEntities = podcastRepository.findAllByUserIdAndIsActiveTrue(userEntity.getId(), pageable);
 
         return convertPodcastEntitiesToPageDTO(podcastEntities);
+    }
+
+    @Override
+    public void togglePodcastDisplayMode(List<String> podcastIds) throws Exception {
+        UserEntity user = userService.getUserByAuthentication();
+        List<PodcastEntity> podcasts = podcastRepository.findAllById(podcastIds);
+
+        if (podcasts.isEmpty() || podcasts.size() != podcastIds.size()) {
+            throw new RuntimeException("One or more podcasts not found.");
+        }
+
+        for (PodcastEntity podcast : podcasts) {
+            podcast.setActive(!podcast.isActive());
+        }
+
+        podcastRepository.saveAll(podcasts);
+    }
+
+    @Override
+    public PodcastModel updatePodcast(String podcastId, EditPodcastDTO editPodcastDTO) {
+        PodcastEntity podcast = podcastRepository.findById(podcastId)
+                .orElseThrow(() -> new RuntimeException("Podcast not found"));
+
+        if (editPodcastDTO.getTitle() != null) {
+            podcast.setTitle(editPodcastDTO.getTitle());
+        }
+
+        if (editPodcastDTO.getContent() != null) {
+            podcast.setContent(editPodcastDTO.getContent());
+        }
+
+        if (editPodcastDTO.getThumbnailPath() != null) {
+            podcast.setThumbnailUrl(editPodcastDTO.getThumbnailPath());
+        }
+
+        if (editPodcastDTO.getGenresId() != null) {
+            List<GenreEntity> genres = genreRepository.findAllById(editPodcastDTO.getGenresId());
+            podcast.setGenres(genres);
+        }
+
+        podcast.setLastEdited(LocalDateTime.now());
+
+        podcastRepository.save(podcast);
+
+        return modelMapper.map(podcast, PodcastModel.class);
     }
 
     private PageDTO<PodcastModel> convertPodcastEntitiesToPageDTO(Page<PodcastEntity> podcastEntities) {

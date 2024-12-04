@@ -30,6 +30,30 @@ export const createPodcast = async (payload: CreatePodcastPayload) => {
   }
 };
 
+export const updatePodcast = async (
+  id: string,
+  title?: string,
+  content?: string,
+  thumbnail?: File,
+  genreIds?: string[]
+) => {
+  const formData = new FormData();
+  if (title) formData.append("title", title);
+  if (content) formData.append("content", content);
+  if (thumbnail) formData.append("thumbnail", thumbnail);
+  if (genreIds) genreIds.forEach((id) => formData.append("genreIds", id));
+
+  try {
+    const response = await axiosInstanceFile.put(
+      `/api/v1/podcast/edit/${id}`,
+      formData
+    );
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};
+
 export const getSelfPodcastsInCreator = async (
   page = 0,
   size = 10,
@@ -155,6 +179,15 @@ export const getUserPodcasts = async (
       podcast.videoUrl = `http://localhost:8081/api/v1/podcast/video?path=${encodeURIComponent(podcast.videoUrl)}`;
     });
 
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};
+
+export const togglePodcasts = async (podcastIds: string[]) => {
+  try {
+    const response = await axiosInstanceAuth.put(`/api/v1/podcast/toggle`, podcastIds);
     return response.data;
   } catch (error) {
     throw error;

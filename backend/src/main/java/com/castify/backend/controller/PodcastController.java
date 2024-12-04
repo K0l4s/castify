@@ -1,8 +1,8 @@
 package com.castify.backend.controller;
 
 import com.castify.backend.models.PageDTO;
-import com.castify.backend.models.genre.GenreSimple;
 import com.castify.backend.models.podcast.CreatePodcastModel;
+import com.castify.backend.models.podcast.EditPodcastDTO;
 import com.castify.backend.models.podcast.LikePodcastDTO;
 import com.castify.backend.models.podcast.PodcastModel;
 import com.castify.backend.models.user.UserModel;
@@ -29,7 +29,6 @@ import org.springframework.web.multipart.MultipartFile;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
-import java.util.Map;
 import java.util.logging.Logger;
 
 @RestController
@@ -126,6 +125,38 @@ public class PodcastController {
             return ResponseEntity.ok(podcastModel);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Error: " + e.getMessage());
+        }
+    }
+
+    @PutMapping(value = "/edit/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<PodcastModel> updatePodcast(
+            @PathVariable("id") String id,
+            @RequestPart(value = "title", required = false) String title,
+            @RequestPart(value = "content", required = false) String content,
+            @RequestParam(value = "thumbnail", required = false) MultipartFile thumbnail,
+            @RequestParam(value = "genreIds", required = false) List<String> genreIds) {
+        try {
+            // Kiểm tra số lượng genre
+            if (genreIds.size() > 5) {
+                throw new Exception("A podcast can have at most 5 genres");
+            }
+
+            EditPodcastDTO editPodcastDTO = new EditPodcastDTO();
+            editPodcastDTO.setTitle(title);
+            editPodcastDTO.setContent(content);
+            editPodcastDTO.setGenresId(genreIds);
+
+            // Nếu có thumbnail, gán vào DTO
+            if (thumbnail != null && !thumbnail.isEmpty()) {
+                String thumbnailUrl = uploadFileService.uploadImage(thumbnail);
+                editPodcastDTO.setThumbnailPath(thumbnailUrl);
+            }
+
+            PodcastModel updatedPodcast = podcastService.updatePodcast(id, editPodcastDTO);
+
+            return ResponseEntity.ok(updatedPodcast);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
         }
     }
 
@@ -256,6 +287,16 @@ public class PodcastController {
             return ResponseEntity.ok(result);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
+    @PutMapping("/toggle")
+    public ResponseEntity<?> togglePodcasts(@RequestBody List<String> podcastIds) {
+        try {
+            podcastService.togglePodcastDisplayMode(podcastIds);
+            return ResponseEntity.ok().build();
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
         }
     }
 }
