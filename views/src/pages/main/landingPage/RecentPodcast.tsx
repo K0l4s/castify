@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { getPodcastRecent } from '../../../services/PodcastService';
 import { Podcast } from '../../../models/PodcastModel';
 import PodcastTag from '../../../components/UI/podcast/PodcastTag';
+import { FiLoader } from 'react-icons/fi';
 
 const RecentPodcast: React.FC = () => {
   const [podcasts, setPodcasts] = useState<Podcast[]>([]);
@@ -25,11 +26,11 @@ const RecentPodcast: React.FC = () => {
   }, []);
 
   if (loading) {
-    return <div>Loading...</div>;
+    return <div className="flex justify-center h-screen"><FiLoader size={48} className="text-black dark:text-white animate-spin"/></div>;
   }
 
   if (error) {
-    return <div>{error}</div>;
+    return <div className='text-black dark:text-white flex justify-center'>{error}</div>;
   }
 
   return (

@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from "react";
 import { getUserActivities, removeUserActivity, removeAllUserActivities } from "../../../services/UserActivityService";
 import CustomButton from "../../../components/UI/custom/CustomButton";
-import { FiLoader } from "react-icons/fi";
+import { FiLoader, FiSettings } from "react-icons/fi";
 import PodcastHistory from "../../../components/UI/podcast/PodcastHistory";
 import { useToast } from "../../../context/ToastProvider";
+import { FaRegTrashCan } from "react-icons/fa6";
 
 const History: React.FC = () => {
   const [activities, setActivities] = useState<any[]>([]);
@@ -87,15 +88,13 @@ const History: React.FC = () => {
     return <div className="text-red-500 text-center mt-4">{error}</div>;
   }
 
-  if (activities.length === 0) {
-    return <div className="text-center mt-4 text-gray-500 font-medium text-lg">No history available</div>;
-  }
-
   return (
     <div className="container mx-auto p-4 flex rounded-lg">
       <div className="w-3/4 pr-4">
-        <h1 className="text-3xl font-bold mb-4 text-black dark:text-white">View History</h1>
-        {filteredActivities.length > 0 && (
+        <h1 className="text-3xl font-bold mb-4 text-black dark:text-white">Viewed History</h1>
+        {activities.length === 0 ? (
+          <div className="text-center mt-4 text-gray-500 font-medium text-lg">No history available</div>
+        ) : (
           <div>
             {filteredActivities.map((activity, index) => (
               <React.Fragment key={activity.id}>
@@ -126,25 +125,29 @@ const History: React.FC = () => {
           </div>
         )}
       </div>
-      <div className="w-1/4 pl-4">
-        <div className="bg-white shadow-md rounded-lg p-4 mb-4">
-          <h2 className="text-xl text-black font-semibold mb-2">Search History</h2>
+      <div className="w-1/4 pl-4 mt-4">
+        <div className="rounded-lg p-4 mb-4">
+          <h2 className="text-xl text-black dark:text-white font-semibold mb-2">Search History</h2>
           <input
             type="text"
             value={searchTerm}
             onChange={handleSearch}
-            className="w-full p-2 border border-gray-300 rounded-lg"
-            placeholder="Search..."
+            className="w-full p-2 border border-gray-300 rounded-lg bg-white dark:bg-gray-800"
+            placeholder="Search by podcast title"
           />
-        </div>
-        <div className="bg-white shadow-md rounded-lg p-4">
-          <h2 className="text-xl font-semibold mb-2">Actions</h2>
           <CustomButton
+            text="Clear all viewed history"
+            icon={<FaRegTrashCan />}
+            variant="ghost"
             onClick={clearHistory}
-            className="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 w-full"
-          >
-            Clear All History
-          </CustomButton>
+            className="mt-2 w-full text-gray-900 dark:text-white"
+          />
+          <CustomButton
+            text="Manage your comment"
+            icon={<FiSettings />}
+            variant="ghost"
+            className="mt-2 w-full text-gray-900 dark:text-white"
+          />
         </div>
       </div>
     </div>
