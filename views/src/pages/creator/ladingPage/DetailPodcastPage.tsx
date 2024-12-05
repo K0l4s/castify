@@ -11,6 +11,9 @@ import { useToast } from "../../../context/ToastProvider";
 import { validateFileType } from "../../../utils/FileValidation";
 import GenreSelection from "../../../components/modals/podcast/GenreSelection";
 import Loading from "../../../components/UI/custom/Loading";
+import CommentSection from "../../../components/UI/podcast/CommentSection";
+import { useSelector } from "react-redux";
+import { RootState } from "../../../redux/store";
 
 const DetailPodcastPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -28,6 +31,8 @@ const DetailPodcastPage: React.FC = () => {
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [titleError, setTitleError] = useState<string>("");
   const [contentError, setContentError] = useState<string>("");
+
+  const userRedux = useSelector((state: RootState) => state.auth.user);
 
   useEffect(() => {
     const fetchPodcast = async () => {
@@ -344,6 +349,19 @@ const DetailPodcastPage: React.FC = () => {
         selectedGenres={genreIds}
         setSelectedGenres={setGenreIds}
       />
+
+      
+      {/* Comment Section */}
+      <h1 className="text-2xl font-semibold mt-4 text-black dark:text-white">Manage your podcast comments</h1>
+      <div className="bg-gray-300 dark:bg-gray-800 px-4 py-1 rounded-lg mt-2">
+        {podcast && (
+          <CommentSection
+            podcastId={podcast.id}
+            totalComments={podcast.totalComments}
+            currentUserId={userRedux?.id!}
+          />
+        )}
+      </div>
     </div>
   );
 };

@@ -78,7 +78,7 @@ const MyPodcastPage: React.FC = () => {
   };
 
   const handleEdit = (id: string) => {
-    navigate(`/creator/edit-podcast/${id}`);
+    navigate(`/creator/podcast/${id}`);
   };
 
   const handleCheckboxChange = (id: string) => {
@@ -284,7 +284,9 @@ const MyPodcastPage: React.FC = () => {
                 >
                   {podcast.title}
                 </h2>
-                <p className="text-sm line-clamp-2 text-slate-700 dark:text-gray-200">{podcast.content}</p>
+                <p className="text-sm line-clamp-2 text-slate-700 dark:text-gray-200">
+                  {podcast.content}
+                </p>
               </div>
             </div>
             {/* Display mode */}
