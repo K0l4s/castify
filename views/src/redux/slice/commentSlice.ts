@@ -65,7 +65,10 @@ const commentsSlice = createSlice({
       })
       .addCase(fetchComments.fulfilled, (state, action: PayloadAction<any>) => {
         const { content, currentPage, totalPages } = action.payload;
-        state.comments = [...state.comments, ...content];
+        const newComments = content.filter(
+          (newComment: Comment) => !state.comments.some((comment) => comment.id === newComment.id)
+        );
+        state.comments = [...state.comments, ...newComments];
         state.hasMore = currentPage < totalPages - 1;
         state.page = currentPage;
         state.loading = false;

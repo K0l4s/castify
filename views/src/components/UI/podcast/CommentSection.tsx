@@ -54,7 +54,7 @@ const CommentSection: React.FC<CommentSectionProps> = ({ podcastId, totalComment
   useEffect(() => {
     dispatch(resetComments())
     dispatch(fetchComments({ podcastId, page: 0, sortBy: filter, isAuthenticated }));
-  }, [dispatch, podcastId, isAuthenticated]);
+  }, [dispatch, podcastId, isAuthenticated, filter]);
   
   const handleFetchReplies = (commentId: string) => {
     if (expandedReplies[commentId]) {
