@@ -23,9 +23,9 @@ public class ReportEntity {
     private String detail;
     private ReportType type;
     private String target;
-    private LocalDateTime createdDay;
-    private ReportStatus status;
+    private LocalDateTime createdDay = LocalDateTime.now();
+    private ReportStatus status = ReportStatus.PENDING;
     @DBRef
-    private User user;
+    private UserEntity userRequest;
 
 }

@@ -1,8 +1,11 @@
 package com.castify.backend.repository.template;
 
+import com.castify.backend.controller.UserActivityController;
 import com.castify.backend.entity.CommentEntity;
 import com.castify.backend.entity.PodcastEntity;
+import com.castify.backend.entity.ReportEntity;
 import com.castify.backend.entity.UserEntity;
+import com.castify.backend.enums.ReportStatus;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.aggregation.Aggregation;
@@ -68,6 +71,11 @@ public class DashboardTemplate {
                 .sum();
 
         statistics.put("totalLikes", totalLikes);
+
+        Criteria statusCriteria = Criteria.where("status").is(ReportStatus.PENDING);
+        Query reportQuery = new Query(new Criteria().andOperator(dateCriteria, statusCriteria));
+        long totalReportsAwait = mongoTemplate.count(reportQuery, ReportEntity.class);
+        statistics.put("totalReportsAwait", totalReportsAwait);
 
         return statistics;
     }

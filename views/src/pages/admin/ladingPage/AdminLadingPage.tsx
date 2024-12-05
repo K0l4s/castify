@@ -12,6 +12,7 @@ const AdminLadingPage = () => {
     totalPodcasts: 0,
     totalLikes: 0,
     totalComments: 0,
+    totalReportsAwait: 0,
   });
 
   const fetchDashboard = async () => {
@@ -31,7 +32,7 @@ const AdminLadingPage = () => {
     <div className="p-8 text-black dark:text-white min-h-screen">
       <h1 className="text-3xl font-bold mb-8">Blankcil Overview</h1>
       
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6 mb-8">
         {/* Tổng số người dùng */}
         <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md">
           <h2 className="text-xl font-semibold">Total Users</h2>
@@ -61,6 +62,12 @@ const AdminLadingPage = () => {
           <h2 className="text-xl font-semibold">Total Comments</h2>
           <p className="text-4xl font-bold text-purple-500 dark:text-purple-400">
             {dashboard.totalComments}
+          </p>
+        </div>
+        <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md">
+          <h2 className="text-xl font-semibold">Total Reports Await</h2>
+          <p className="text-4xl font-bold text-purple-500 dark:text-purple-400">
+            {dashboard.totalReportsAwait}
           </p>
         </div>
       </div>
