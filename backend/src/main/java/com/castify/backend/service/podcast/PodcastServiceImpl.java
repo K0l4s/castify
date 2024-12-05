@@ -49,6 +49,12 @@ public class PodcastServiceImpl implements IPodcastService {
     private CommentRepository commentRepository;
 
     @Autowired
+    private CommentLikeRepository commentLikeRepository;
+
+    @Autowired
+    private UserActivityRepository userActivityRepository;
+
+    @Autowired
     private IUserService userService;
 
     @Autowired
@@ -254,7 +260,11 @@ public class PodcastServiceImpl implements IPodcastService {
 
         if (existingLike.isPresent()) {
             // Nếu đã like, thì unlike
-            podcastLikeRepository.delete(existingLike.get());
+            PodcastLikeEntity likeToRemove = existingLike.get();
+            podcastLikeRepository.delete(likeToRemove);
+
+            // Gỡ bỏ tham chiếu ngược
+            podcastEntity.getLikes().remove(likeToRemove);
         } else {
             // Nếu chưa like, thì thêm like
             PodcastLikeEntity newLike = new PodcastLikeEntity();
@@ -262,7 +272,15 @@ public class PodcastServiceImpl implements IPodcastService {
             newLike.setPodcastEntity(podcastEntity);
             newLike.setTimestamp(LocalDateTime.now());
             podcastLikeRepository.save(newLike);
+
+            // Thêm tham chiếu ngược
+            if (podcastEntity.getLikes() == null) {
+                podcastEntity.setLikes(new ArrayList<>());
+            }
+            podcastEntity.getLikes().add(newLike);
         }
+
+        podcastRepository.save(podcastEntity);
         return "Success";
     }
 
@@ -382,6 +400,61 @@ public class PodcastServiceImpl implements IPodcastService {
         podcastRepository.save(podcast);
 
         return modelMapper.map(podcast, PodcastModel.class);
+    }
+
+    @Override
+    public void deletePodcastsByIds(List<String> podcastIds, boolean isAdmin) throws Exception {
+        List<PodcastEntity> podcasts = podcastRepository.findAllById(podcastIds);
+        if (podcasts.isEmpty() || podcasts.size() != podcastIds.size()) {
+            throw new RuntimeException("One or more podcasts not found.");
+        }
+
+        // Lấy người dùng hiện tại
+        UserEntity currentUser = userService.getUserByAuthentication();
+
+        for (PodcastEntity podcast : podcasts) {
+            // Nếu không phải admin, kiểm tra quyền sở hữu podcast
+            if (!isAdmin && !podcast.getUser().getId().equals(currentUser.getId())) {
+                throw new RuntimeException("You do not have permission to delete this podcast.");
+            }
+
+            // Xóa các comment liên quan đến podcast
+            List<CommentEntity> comments = commentRepository.findByPodcastId(podcast.getId());
+            System.out.println("List comments: " + comments);
+
+            if (comments != null && !comments.isEmpty()) {
+                for (CommentEntity comment : comments) {
+                    // Xóa comment likes liên quan
+                    if (comment.getLikes() != null && !comment.getLikes().isEmpty()) {
+                        commentLikeRepository.deleteAll(comment.getLikes());
+                    }
+
+                    // Xóa các reply liên quan
+                    if (comment.getReplies() != null && !comment.getReplies().isEmpty()) {
+                        commentRepository.deleteAll(comment.getReplies());
+                    }
+                }
+                commentRepository.deleteAll(comments);
+            }
+
+            // Xóa các like của podcast
+            if (podcast.getLikes() != null && !podcast.getLikes().isEmpty()) {
+                podcastLikeRepository.deleteAll(podcast.getLikes());
+            }
+
+            // Xóa các comment khỏi PodcastEntity để tránh orphan records
+            if (podcast.getComments() != null) {
+                podcast.getComments().clear(); // Xóa tất cả các comments liên kết với podcast
+            }
+
+            // Xóa các hoạt động liên quan đến podcast
+            List<UserActivityEntity> activities = userActivityRepository.findByPodcast(podcast);
+            if (activities != null && !activities.isEmpty()) {
+                userActivityRepository.deleteAll(activities);
+            }
+
+            podcastRepository.delete(podcast);
+        }
     }
 
     private PageDTO<PodcastModel> convertPodcastEntitiesToPageDTO(Page<PodcastEntity> podcastEntities) {

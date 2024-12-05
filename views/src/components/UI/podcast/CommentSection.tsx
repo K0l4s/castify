@@ -34,6 +34,7 @@ const CommentSection: React.FC<CommentSectionProps> = ({ podcastId, totalComment
   const [filter, setFilter] = useState("latest");
   const [filterLoading, setFilterLoading] = useState(false);
   const [loadMoreLoading, setLoadMoreLoading] = useState(false);
+  const [commentError, setCommentError] = useState<string | null>(null);
 
   const commentDivRef = useRef<HTMLDivElement>(null);
   const replyDivRef = useRef<{ [key: string]: HTMLDivElement | null }>({});
@@ -54,7 +55,7 @@ const CommentSection: React.FC<CommentSectionProps> = ({ podcastId, totalComment
   useEffect(() => {
     dispatch(resetComments())
     dispatch(fetchComments({ podcastId, page: 0, sortBy: filter, isAuthenticated }));
-  }, [dispatch, podcastId, isAuthenticated]);
+  }, [dispatch, podcastId, isAuthenticated, filter]);
   
   const handleFetchReplies = (commentId: string) => {
     if (expandedReplies[commentId]) {
@@ -70,8 +71,17 @@ const CommentSection: React.FC<CommentSectionProps> = ({ podcastId, totalComment
   const handleCommentSubmit = async () => {
     if (commentContent.trim() === "") return;
 
+    if (commentContent.length > 2000) {
+      setCommentError("Comment cannot exceed 2000 characters");
+      return;
+    }
+    
     try {
-      const formattedContent = commentContent.replace(/<div><br><\/div>/g, "\n").replace(/<br>/g, "\n").replace(/<div>/g, "\n").replace(/<\/div>/g, "");
+      const formattedContent = commentContent
+        .replace(/<div><br><\/div>/g, "\n")
+        .replace(/<br>/g, "\n")
+        .replace(/<div>/g, "\n")
+        .replace(/<\/div>/g, "");
       await dispatch(addNewComment({ podcastId, content: formattedContent }));
       setCommentContent(""); // Clear the input field
       if (commentDivRef.current) {
@@ -86,7 +96,11 @@ const CommentSection: React.FC<CommentSectionProps> = ({ podcastId, totalComment
     if (replyContent[commentId]?.trim() === "") return;
 
     try {
-      const replyText = replyContent[commentId].replace(/<div><br><\/div>/g, "\n").replace(/<br>/g, "\n").replace(/<div>/g, "\n").replace(/<\/div>/g, "");
+      const replyText = replyContent[commentId]
+        .replace(/<div><br><\/div>/g, "\n")
+        .replace(/<br>/g, "\n")
+        .replace(/<div>/g, "\n")
+        .replace(/<\/div>/g, "");
       let parentCommentId = commentId;
 
       // Tìm comment cha (comment cấp cao nhất)
@@ -153,7 +167,20 @@ const CommentSection: React.FC<CommentSectionProps> = ({ podcastId, totalComment
   };
 
   const handleInput = (e: React.FormEvent<HTMLDivElement>) => {
-    setCommentContent(e.currentTarget.innerHTML || "");
+    const content = e.currentTarget.innerText || "";
+    if (content.length <= 2000) {
+      setCommentContent(content);
+      setCommentError("");
+    } else {
+      setCommentError("Comment cannot exceed 2000 characters");
+      e.currentTarget.innerText = content.substring(0, 2000); // Giới hạn số ký tự
+      const range = document.createRange();
+      const sel = window.getSelection();
+      range.setStart(e.currentTarget.childNodes[0], 2000);
+      range.collapse(true);
+      sel?.removeAllRanges();
+      sel?.addRange(range);
+      }
   };
 
   const handeResetInput = () => {
@@ -282,15 +309,10 @@ const CommentSection: React.FC<CommentSectionProps> = ({ podcastId, totalComment
     }
   };
 
-  // console.log("Loading ", loading);
-  // console.log("FilterLoading ", filterLoading);
-  // console.log("LoadMoreLoading ", loadMoreLoading);
-  // console.log("HasMore ", hasMore);
-
   return (
     <div className="mt-4 min-h-screen">
       <div className="flex items-center gap-4 my-2">
-        <h2 className="text-xl font-semibold mb-2">{totalComments} comments</h2>
+        <h2 className="text-xl text-black dark:text-white font-semibold mb-2">{totalComments} comments</h2>
         <div className="relative">
           <CustomButton 
             text="Filter"
@@ -326,16 +348,26 @@ const CommentSection: React.FC<CommentSectionProps> = ({ podcastId, totalComment
             className="w-10 h-10 rounded-full mr-2 cursor-pointer" 
             onClick={() => navigate(`/profile/${userRedux?.username}`)}
           />
-          <div className="flex flex-col w-full items-end gap-4">
+          <div className="flex flex-col w-full items-end gap-2">
             <div
               ref={commentDivRef}
               contentEditable
               onInput={handleInput}
               onKeyDown={handleKeyDown}
-              className="comment-input flex-1 p-2 w-full border rounded-lg bg-gray-200 dark:bg-gray-700 dark:text-white resize-none h-auto min-h-[43px] overflow-auto"
-              style={{ whiteSpace: "pre-wrap" }}
+              className={`comment-input flex-1 p-2 w-full border rounded-lg bg-gray-200 dark:bg-gray-700 dark:text-white resize-none h-auto max-h-48 overflow-auto ${
+                commentContent.length > 2000 ? "text-red-500" : ""
+              }`}
+              style={{ whiteSpace: "pre-wrap", wordBreak: "break-word" }}
               data-placeholder="Add a comment..."
             />
+            <div className="flex justify-between w-full">
+              {commentError && (
+                <div className="text-sm text-red-500">{commentError}</div>
+              )}
+              <div className="text-right text-xs text-gray-500 dark:text-gray-400">
+                {commentContent.length} / 2000
+              </div>
+            </div>
             <div className="flex gap-3">
               <Tooltip text="Undo">
                 <CustomButton
@@ -565,7 +597,7 @@ const CommentSection: React.FC<CommentSectionProps> = ({ podcastId, totalComment
                       }}
                       contentEditable
                       className="comment-input flex-1 p-2 w-full border rounded-lg bg-gray-300 dark:bg-gray-700 dark:text-white resize-none h-auto min-h-[43px] overflow-auto"
-                      style={{ whiteSpace: "pre-wrap" }}
+                      style={{ whiteSpace: "pre-wrap", wordBreak: "break-word" }}
                       data-placeholder="Add a reply..."
                       onInput={(e) => {
                         const target = e.target as HTMLDivElement;
@@ -625,7 +657,7 @@ const CommentSection: React.FC<CommentSectionProps> = ({ podcastId, totalComment
                   }}
                   contentEditable
                   className="comment-input flex-1 p-2 w-full border rounded-lg bg-gray-300 dark:bg-gray-700 dark:text-white resize-none h-auto min-h-[43px] overflow-auto"
-                  style={{ whiteSpace: "pre-wrap" }}
+                  style={{ whiteSpace: "pre-wrap", wordBreak: "break-word" }}
                   data-placeholder="Add a reply..."
                   onInput={(e) => {
                     const target = e.target as HTMLDivElement;

@@ -12,7 +12,9 @@ import { FaGlobeAsia } from "react-icons/fa";
 import { IoFilter } from "react-icons/io5";
 import "./animation.css";
 import CustomButton from "../../../components/UI/custom/CustomButton";
-import { togglePodcasts } from "../../../services/PodcastService";
+import { deletePodcasts, togglePodcasts } from "../../../services/PodcastService";
+import ConfirmDeleteModal from "../../../components/modals/utils/ConfirmDelete";
+import { useToast } from "../../../context/ToastProvider";
 
 const MyPodcastPage: React.FC = () => {
   const isAuthenticated = useSelector((state: RootState) => state.auth.isAuthenticated);
@@ -26,6 +28,10 @@ const MyPodcastPage: React.FC = () => {
   const [filter, setFilter] = useState<string>("");
   const [filterValue, setFilterValue] = useState<string>("");
   const [isExpanded, setIsExpanded] = useState<boolean>(false);
+
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+
+  const toast = useToast();
 
   const defaultParams = {
     page: 0,
@@ -72,7 +78,7 @@ const MyPodcastPage: React.FC = () => {
   };
 
   const handleEdit = (id: string) => {
-    navigate(`/creator/edit-podcast/${id}`);
+    navigate(`/creator/podcast/${id}`);
   };
 
   const handleCheckboxChange = (id: string) => {
@@ -109,10 +115,17 @@ const MyPodcastPage: React.FC = () => {
     setFilterValue("");
   };
 
-  const handleDeleteSelected = () => {
-    // Implement the logic to delete selected podcasts
-    console.log("Deleting selected podcasts:", selectedPodcasts);
-    setSelectedPodcasts([]);
+  const handleDeleteSelected = async () => {
+    try {
+      await deletePodcasts(selectedPodcasts);
+      fetchPodcastsFromParams(new URLSearchParams(location.search));
+      setSelectedPodcasts([]);
+      setIsDeleteModalOpen(false);
+      toast.success("Deleted podcasts successfully");
+    } catch (error) {
+      console.error("Error deleting podcasts:", error);
+      toast.error("Failed to delete podcasts");
+    }
   };
 
   const handleToggleDisplayMode = async () => {
@@ -135,6 +148,10 @@ const MyPodcastPage: React.FC = () => {
   useEffect(() => {
     setIsExpanded(selectedPodcasts.length > 0);
   }, [selectedPodcasts]);
+
+  const openDeleteModal = () => {
+    setIsDeleteModalOpen(true);
+  };
 
   return (
     <div className="container mx-auto p-4">
@@ -159,8 +176,13 @@ const MyPodcastPage: React.FC = () => {
                 text="Delete permanently"
                 variant="ghost"
                 rounded="full"
-                onClick={handleDeleteSelected}
+                onClick={openDeleteModal}
                 className="text-white dark:text-gray-900 hover:bg-gray-500 hover:dark:bg-gray-400"
+              />
+              <ConfirmDeleteModal
+                isOpen={isDeleteModalOpen}
+                onClose={() => setIsDeleteModalOpen(false)}
+                onConfirm={handleDeleteSelected}
               />
               <button
                 onClick={handleClose}
@@ -262,7 +284,9 @@ const MyPodcastPage: React.FC = () => {
                 >
                   {podcast.title}
                 </h2>
-                <p className="text-sm line-clamp-2 text-slate-700 dark:text-gray-200">{podcast.content}</p>
+                <p className="text-sm line-clamp-2 text-slate-700 dark:text-gray-200">
+                  {podcast.content}
+                </p>
               </div>
             </div>
             {/* Display mode */}

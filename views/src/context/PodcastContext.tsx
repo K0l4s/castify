@@ -17,7 +17,7 @@ export const PodcastProvider: React.FC<{ children: React.ReactNode }> = ({ child
   const [totalPages, setTotalPages] = useState(1);
 
   const fetchPodcasts = async (page = 0, size = 5, sortByViews = 'asc', sortByComments = 'asc', sortByCreatedDay = 'desc') => {
-    console.log('fetchPodcasts called with:', { page, size, sortByViews, sortByComments, sortByCreatedDay });
+    // console.log('fetchPodcasts called with:', { page, size, sortByViews, sortByComments, sortByCreatedDay });
     try {
       const data = await getSelfPodcastsInCreator(page, size, undefined, undefined, sortByViews, sortByComments, sortByCreatedDay);
       setPodcasts(data.content);

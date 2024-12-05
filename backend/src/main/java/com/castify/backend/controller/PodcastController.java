@@ -1,5 +1,7 @@
 package com.castify.backend.controller;
 
+import com.castify.backend.entity.UserEntity;
+import com.castify.backend.enums.Role;
 import com.castify.backend.models.PageDTO;
 import com.castify.backend.models.podcast.CreatePodcastModel;
 import com.castify.backend.models.podcast.EditPodcastDTO;
@@ -295,6 +297,21 @@ public class PodcastController {
     public ResponseEntity<?> togglePodcasts(@RequestBody List<String> podcastIds) {
         try {
             podcastService.togglePodcastDisplayMode(podcastIds);
+            return ResponseEntity.ok().build();
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+        }
+    }
+
+    @DeleteMapping("/delete")
+    public ResponseEntity<?> deletePodcasts(@RequestBody List<String> podcastIds) {
+        try {
+            UserEntity currentUser = userService.getUserByAuthentication();
+
+            // Kiem tra quyen admin
+            boolean isAdmin = currentUser.getRole() == Role.ADMIN;
+
+            podcastService.deletePodcastsByIds(podcastIds, isAdmin);
             return ResponseEntity.ok().build();
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());

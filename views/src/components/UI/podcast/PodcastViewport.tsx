@@ -16,6 +16,7 @@ import { useToast } from "../../../context/ToastProvider";
 import { formatDistanceToNow } from 'date-fns';
 import { setupVideoViewTracking } from "./video";
 import { userService } from "../../../services/UserService";
+import { FiLoader } from "react-icons/fi";
 
 const PodcastViewport: React.FC = () => {
   const location = useLocation();
@@ -27,10 +28,12 @@ const PodcastViewport: React.FC = () => {
   const [isDescriptionExpanded, setIsDescriptionExpanded] = useState(false);
   const [showDescToggle, setShowDescToggle] = useState(false);
   const [showOptions, setShowOptions] = useState(false);
+  const [errorRes, setErrorRes] = useState<string | null>(null);
 
   const descriptionRef = useRef<HTMLPreElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
 
+  
   const userRedux = useSelector((state: RootState) => state.auth.user);
   const isAuthenticated = useSelector((state: RootState) => state.auth.isAuthenticated);
 
@@ -50,7 +53,12 @@ const PodcastViewport: React.FC = () => {
           setPodcast(podcastData);
         }
       } catch (error) {
-        console.error("Error fetching podcast:", error);
+        if ((error as any).response?.data === "Error: Podcast not found") {
+          setErrorRes("Podcast not found");
+        } else {
+          console.error("Error fetching podcast:", error);
+          setErrorRes("An error occurred while fetching the podcast");
+        }
       }
     };
 
@@ -97,8 +105,21 @@ const PodcastViewport: React.FC = () => {
     };
   }, []);
 
+  if (errorRes) {
+    return (
+      <div className="flex justify-center items-center h-screen">
+        <div className="text-center">
+          <h1 className="text-2xl font-bold mb-4">{errorRes}</h1>
+          <CustomButton text="Go back" onClick={() => navigate("/")} variant="primary" />
+        </div>
+      </div>
+    );
+  }
+
   if (!podcast) {
-    return <div className="flex justify-center items-center h-screen">Loading...</div>;
+    return <div className="flex justify-center items-center h-screen">
+      <FiLoader size={48} className="text-black dark:text-white animate-spin"/>
+    </div>;
   }
 
   const toggleDescription = () => {
