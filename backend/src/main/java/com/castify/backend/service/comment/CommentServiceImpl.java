@@ -14,8 +14,6 @@ import com.castify.backend.repository.UserRepository;
 import com.castify.backend.service.user.IUserService;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.*;
-import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -207,4 +205,15 @@ public class CommentServiceImpl implements ICommentService {
         }
         return null;
     }
+
+    @Override
+    public CommentModel getById(String id) {
+        Optional<CommentEntity> comment = commentRepository.findById(id);
+        if (comment.isPresent()) {
+            return modelMapper.map(comment.get(), CommentModel.class);
+        } else {
+            throw new RuntimeException("Comment not found with id: " + id); // Hoặc xử lý lỗi tùy ý
+        }
+    }
+
 }

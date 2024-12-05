@@ -69,4 +69,18 @@ public class CommentController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error: " + e.getMessage());
         }
     }
+    @GetMapping("/detail")
+    private ResponseEntity<?> getUserByUserId(
+            @RequestParam("commentId") String commentId
+    ) throws Exception {
+        try{
+            return ResponseEntity.ok(
+                    commentService.getById(commentId)
+            );
+        }
+        catch (Exception ex){
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body("Error"+ex.getMessage());
+        }
+    }
 }

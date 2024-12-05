@@ -32,17 +32,17 @@ const AdminUserPage = () => {
   const [totalPages, setTotalPages] = useState(0);
   const [selectedUserBan, setSelectedUserBan] = useState<BasicUser >(initBasicUser);
   const [currentPage,
-    // setCurrentPage
+    setCurrentPage
   ] = useState(1);
 
   useEffect(() => {
     const fetchUsers = async () => {
-      const response = await userService.getAllUser(currentPage - 1, 10);
+      const response = await userService.getAllUser(currentPage - 1, 9);
       setUsers(response.data.data);
       setTotalPages(response.data.totalPages);
     };
     fetchUsers();
-  }, []);
+  }, [currentPage]);
   const [isConfirmOpen, setIsConfirmOpen] = useState(false);
 
   const handleOpenConfirm = () => {
@@ -146,11 +146,13 @@ const AdminUserPage = () => {
       )}
       {/* paginated */}
       <div className="flex justify-center mt-8 gap-2">
-        <button className={`bg-blue-500 text-white px-4 py-2 rounded-md ${currentPage - 1 <= 0 && 'bg-gray-500 cursor-not-allowed'}`}
-          disabled={currentPage - 1 <= 0}><BiLeftArrow /></button>
+        <button className={`bg-blue-500 text-white px-4 py-2 rounded-md ${currentPage <= 1 && 'bg-gray-500 cursor-not-allowed'}`}
+        onClick={() => currentPage > 1 && setCurrentPage(currentPage - 1)}
+          disabled={currentPage <= 1}><BiLeftArrow /></button>
         <button className={`bg-blue-500 text-white px-4 py-2 rounded-md `}>{currentPage}</button>
-        <button className={`bg-blue-500 text-white px-4 py-2 rounded-md ${currentPage + 1 >= totalPages && 'bg-gray-500 cursor-not-allowed'}`}
-          disabled={currentPage + 1 >= totalPages}><BiRightArrow /></button>
+        <button className={`bg-blue-500 text-white px-4 py-2 rounded-md ${currentPage >= totalPages && 'bg-gray-500 cursor-not-allowed'}`}
+                onClick={() => currentPage < totalPages && setCurrentPage(currentPage + 1)}
+          disabled={currentPage >= totalPages}><BiRightArrow /></button>
       </div>
 
     </div>

@@ -15,11 +15,28 @@ public class AdminUserController {
     @GetMapping("")
     private ResponseEntity<?> getAllUser(
             @RequestParam(value = "pageNumber") Integer pageNumber,
-            @RequestParam(value="pageSize") Integer pageSize
+            @RequestParam(value="pageSize") Integer pageSize,
+            @RequestParam(value="keyword",required = false) String keyword
+    ) throws Exception {
+        try{
+            if(keyword==null)
+                return ResponseEntity.ok(
+                        userService.getAllUser(pageNumber,pageSize));
+            return ResponseEntity.ok(
+                    userService.findUser(pageNumber,pageSize,keyword));
+        }
+        catch (Exception ex){
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body("Error"+ex.getMessage());
+        }
+    }
+    @GetMapping("/detail")
+    private ResponseEntity<?> getUserByUserId(
+            @RequestParam("userId") String userId
     ) throws Exception {
         try{
             return ResponseEntity.ok(
-                    userService.getAllUser(pageNumber,pageSize)
+                    userService.getByUserId(userId)
             );
         }
         catch (Exception ex){
