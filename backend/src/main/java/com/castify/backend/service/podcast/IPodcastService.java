@@ -23,5 +23,5 @@ public interface IPodcastService {
     PageDTO<PodcastModel> getUserPodcasts(String username, int page, int size, String sortBy) throws Exception;
     void togglePodcastDisplayMode(List<String> podcastIds) throws Exception;
     PodcastModel updatePodcast(String podcastId, EditPodcastDTO editPodcastDTO);
-    void deletePodcastsByIds(List<String> podcastIds) throws Exception;
+    void deletePodcastsByIds(List<String> podcastIds, boolean isAdmin) throws Exception;
 }

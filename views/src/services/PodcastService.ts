@@ -194,3 +194,14 @@ export const togglePodcasts = async (podcastIds: string[]) => {
     throw error;
   }
 };
+
+export const deletePodcasts = async (podcastIds: string[]) => {
+  try {
+    const response = await axiosInstanceAuth.delete(`/api/v1/podcast/delete`, {
+      data: podcastIds
+    });
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};

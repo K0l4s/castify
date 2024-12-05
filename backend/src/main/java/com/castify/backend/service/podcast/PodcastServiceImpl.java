@@ -403,13 +403,21 @@ public class PodcastServiceImpl implements IPodcastService {
     }
 
     @Override
-    public void deletePodcastsByIds(List<String> podcastIds) throws Exception {
+    public void deletePodcastsByIds(List<String> podcastIds, boolean isAdmin) throws Exception {
         List<PodcastEntity> podcasts = podcastRepository.findAllById(podcastIds);
         if (podcasts.isEmpty() || podcasts.size() != podcastIds.size()) {
             throw new RuntimeException("One or more podcasts not found.");
         }
 
+        // Lấy người dùng hiện tại
+        UserEntity currentUser = userService.getUserByAuthentication();
+
         for (PodcastEntity podcast : podcasts) {
+            // Nếu không phải admin, kiểm tra quyền sở hữu podcast
+            if (!isAdmin && !podcast.getUser().getId().equals(currentUser.getId())) {
+                throw new RuntimeException("You do not have permission to delete this podcast.");
+            }
+
             // Xóa các comment liên quan đến podcast
             List<CommentEntity> comments = commentRepository.findByPodcastId(podcast.getId());
             System.out.println("List comments: " + comments);
