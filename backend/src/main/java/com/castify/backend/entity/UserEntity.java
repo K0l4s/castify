@@ -136,7 +136,8 @@ public class UserEntity implements UserDetails {
 
         return address;
     }
-
-
+    public void setNonBanned(boolean isNotBanned){
+        this.isNonBanned = isNotBanned;
+    }
 
 }

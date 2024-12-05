@@ -109,7 +109,8 @@ const ProfileMainContent: React.FC<ProfileMainContentProps> = ({
                         ) : (
                             <img
                                 className="w-full h-full object-cover object-center transform transition-transform duration-700 hover:scale-105"
-                                src={isOwner? currentUser?.coverUrl : user.coverUrl || "https://png.pngtree.com/thumb_back/fw800/background/20231005/pngtree-3d-illustration-captivating-podcast-experience-image_13529585.png"}
+                                src={isOwner? currentUser?.coverUrl || "https://png.pngtree.com/thumb_back/fw800/background/20231005/pngtree-3d-illustration-captivating-podcast-experience-image_13529585.png"
+                                    : user.coverUrl || "https://png.pngtree.com/thumb_back/fw800/background/20231005/pngtree-3d-illustration-captivating-podcast-experience-image_13529585.png"}
                                 alt="Profile Banner"
                             />
                         )}
@@ -139,8 +140,11 @@ const ProfileMainContent: React.FC<ProfileMainContentProps> = ({
                                 ) : (
                                     <img
                                         className="w-full h-full object-cover object-center transform transition-transform duration-500"
-                                        src={isOwner? currentUser?.avatarUrl : user.avatarUrl || ""}
-                                        alt="Profile Picture"
+                                        src={
+                                            isOwner 
+                                              ? currentUser?.avatarUrl || "https://flowbite.com/docs/images/people/profile-picture-5.jpg" 
+                                              : user.avatarUrl || "https://flowbite.com/docs/images/people/profile-picture-5.jpg"
+                                          }                                                                                  alt="Profile Picture"
                                         onError={(e) => {
                                             const target = e.target as HTMLImageElement;
                                             target.onerror = null;

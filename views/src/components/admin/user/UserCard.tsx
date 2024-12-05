@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { BasicUser } from "../../../models/User";
 import ConfirmBox from "../../UI/dialogBox/ConfirmBox";
+import { userService } from "../../../services/UserService";
 
 interface UserCardProps {
     user: BasicUser;
@@ -13,9 +14,15 @@ const UserCard: React.FC<UserCardProps> = ({ user }) => {
         setIsConfirmOpen(true);
     };
 
-    const handleConfirm = () => {
+    const handleConfirm = async () => {
         console.log('Đã xác nhận!');
-        setIsConfirmOpen(false);
+        await userService.toggleBanUser(user.id).then(
+            () => {
+                user.nonBanned = !user.nonBanned;
+                setIsConfirmOpen(false);
+            }
+        );
+
     };
 
     const handleCancel = () => {
@@ -23,7 +30,7 @@ const UserCard: React.FC<UserCardProps> = ({ user }) => {
         setIsConfirmOpen(false);
     };
     return (
-        <div className="bg-white dark:bg-gray-900 text-black dark:text-white rounded-lg shadow-md overflow-hidden">
+        <div className="bg-white dark:bg-gray-900 text-black dark:text-white rounded-lg shadow-md overflow-hidden h-full">
             <img
                 src={user.coverUrl}
                 alt="cover"
@@ -40,17 +47,6 @@ const UserCard: React.FC<UserCardProps> = ({ user }) => {
                         <h2 className="text-xl font-semibold">{user.fullname}</h2>
                         <p className="text-gray-500">@{user.username}</p>
                     </div>
-                </div>
-                <div className="mt-4 text-sm">
-                    <p>
-                        <span className="font-medium">Email:</span> {user.email}
-                    </p>
-                    <p>
-                        <span className="font-medium">Phone:</span> {user.phone}
-                    </p>
-                    <p>
-                        <span className="font-medium">Address:</span> {user.address}
-                    </p>
                 </div>
                 <div className="mt-4 flex justify-between items-center">
                     <span
@@ -70,8 +66,9 @@ const UserCard: React.FC<UserCardProps> = ({ user }) => {
                     <button className="w-full text-white bg-blue-500 hover:bg-blue-600 px-4 py-2 rounded-md">
                         Chi tiết
                     </button>
+
                     <button className="w-full text-white bg-red-500 hover:bg-red-600 px-4 py-2 rounded-md" onClick={handleOpenConfirm}>
-                        Khóa
+                        {user.nonBanned ? "Khóa" : "Mở khóa"}
                     </button>
                 </div>
             </div>

@@ -23,7 +23,8 @@ public class EmailServiceImpl implements IEmailService {
     @Value("${spring.mail.username}")
     private String from;
 
-    private final String frontendDomain = "http://localhost:3000";
+    @Value("${FRONT_END_DOMAIN}")
+    private String frontendDomain;
 //    private final String frontendDomain = "https://blankcil.vercel.app";
 
     private void sendEmail(String to, String subject,String content){

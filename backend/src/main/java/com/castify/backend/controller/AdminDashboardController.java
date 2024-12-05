@@ -1,7 +1,6 @@
 package com.castify.backend.controller;
 
 import com.castify.backend.models.dashboard.OverviewModel;
-import com.castify.backend.repository.template.DashboardTemplate;
 import com.castify.backend.service.dashboard.DashboardServiceImpl;
 import com.castify.backend.service.dashboard.IDashboardService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,19 +13,16 @@ import org.springframework.web.bind.annotation.RestController;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.temporal.TemporalAdjusters;
-import java.util.Map;
 
 @RestController
-@RequestMapping("/api/v1/dashboard")
-public class DashboardController {
+@RequestMapping("/api/v1/admin/statistics")
+public class AdminDashboardController {
 
     @Autowired
 //    private DashboardTemplate dashboardRepository;
     private IDashboardService dashboardService = new DashboardServiceImpl();
-    /**
-     * API trả về tổng số liệu thống kê cho Dashboard
-     */
-    @GetMapping("/statistics")
+
+    @GetMapping("")
     public OverviewModel getStatistics(
             @RequestParam(value = "startDate", required = false) LocalDateTime startDate,
             @RequestParam(value = "endDate", required = false) LocalDateTime endDate
