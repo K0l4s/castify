@@ -26,7 +26,7 @@ const ConfirmBox: React.FC<ConfirmBoxProps> = ({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 backdrop-blur-sm duration-300 ease-in-out">
       <div
         className={`bg-white dark:bg-gray-900 rounded-lg shadow-lg w-96 p-6 ${className}`}
       >

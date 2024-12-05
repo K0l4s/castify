@@ -39,6 +39,17 @@ public interface IUserService {
     PaginatedResponse<BasicUserModel> getAllUser(Integer pageNumber, Integer pageSize) throws Exception;
 
 
+    //    @Override
+    //    public Page<UserEntity> getAllUserA(Integer pageNumber, Integer pageSize) throws Exception {
+    //        checkAdmin();
+    //
+    //        Pageable pageable = PageRequest.of(pageNumber,pageSize);
+    //
+    //        Page<UserEntity> similarUsers = userRepository.findAll(pageable);
+    //        return similarUsers;
+    //    }
+    String toggleBanUser(String userId) throws Exception;
+
     void checkAdmin() throws Exception;
 
     BasicUserModel mapToBasicUser(UserEntity userEntity);
