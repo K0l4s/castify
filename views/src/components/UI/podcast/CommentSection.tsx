@@ -282,8 +282,13 @@ const CommentSection: React.FC<CommentSectionProps> = ({ podcastId, totalComment
     }
   };
 
+  // console.log("Loading ", loading);
+  // console.log("FilterLoading ", filterLoading);
+  // console.log("LoadMoreLoading ", loadMoreLoading);
+  // console.log("HasMore ", hasMore);
+
   return (
-    <div className="mt-4">
+    <div className="mt-4 min-h-screen">
       <div className="flex items-center gap-4 my-2">
         <h2 className="text-xl font-semibold mb-2">{totalComments} comments</h2>
         <div className="relative">

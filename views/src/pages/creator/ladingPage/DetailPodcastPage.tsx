@@ -141,6 +141,8 @@ const DetailPodcastPage: React.FC = () => {
       setGenreIds(initialPodcast.genres!.map((genre) => genre.id));
       setThumbnailPreview(initialPodcast.thumbnailUrl);
       setThumbnail(null);
+      setTitleError("");
+      setContentError("");
     }
   };
 
