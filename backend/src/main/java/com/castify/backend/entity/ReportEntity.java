@@ -11,6 +11,8 @@ import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Document(collection = "report")
 @NoArgsConstructor
@@ -28,4 +30,7 @@ public class ReportEntity {
     @DBRef
     private UserEntity userRequest;
 
+    @DBRef
+    private UserEntity userResponse;
+    private List<String> handleMethod = new ArrayList<>();
 }

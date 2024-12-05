@@ -65,7 +65,7 @@ public class SecurityConfiguration {
             "/api/v1/user",
             "/api/v1/user/search",
             "/ws/**",
-
+            "api/v1/search/**"
     };
     private final JwtAuthenticationFilter jwtAuthFilter;
     private final AuthenticationProvider authenticationProvider;
@@ -106,6 +106,7 @@ public class SecurityConfiguration {
 
         return http.build();
     }
+
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         List patterns = new ArrayList<>();

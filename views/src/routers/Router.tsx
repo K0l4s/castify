@@ -22,6 +22,8 @@ import ProfileLayout from './layouts/ProfileLayout'
 import PodcastViewport from '../components/UI/podcast/PodcastViewport'
 import HistoryPage from '../pages/main/historyPage/HistoryPage'
 import DetailPodcastPage from '../pages/creator/ladingPage/DetailPodcastPage'
+import AdminReportPage from '../pages/admin/reportPage/AdminReportPage'
+import SearchPage from '../pages/main/searchPage/SearchPage'
 
 const Router = () => {
     const isAdmin = useSelector((state: RootState) => state.auth.user?.role === Role.A);
@@ -40,7 +42,9 @@ const Router = () => {
 
                 <Route path="/admin/*" element={isAdmin ? <AdminLayout /> : <NotAccessPage />}>
                     <Route path='' element={<AdminLadingPage />} />
+                    <Route path='dashboard' element={<AdminLadingPage />} />
                     <Route path="user" element={<AdminUserPage />} />
+                    <Route path="report" element={<AdminReportPage />} />
                 </Route>
 
                 <Route path='/creator/*' element={<CreatorLayout />} >
@@ -57,6 +61,7 @@ const Router = () => {
                     <Route path='/feed/trend' element={<LandingPage />} />
                     <Route path='/feed/history' element={<HistoryPage />} />
                     <Route path='/watch' element={<PodcastViewport />} />
+                    <Route path='/search' element={<SearchPage />} />
                 </Route>
                 <Route element={<ProfileLayout />}>
                     <Route path='/profile' element={<ProfilePage />} />

@@ -11,6 +11,8 @@ import java.util.List;
 public interface IUserService {
     UserModel getUserByUsername(String username) throws Exception;
 
+    UserModel getByUserId(String userId) throws Exception;
+
     UserDetailModel getProfileDetail(String username) throws Exception;
 
     UserDetailModel getSelfProfileDetail() throws Exception;
@@ -39,6 +41,8 @@ public interface IUserService {
     PaginatedResponse<BasicUserModel> getAllUser(Integer pageNumber, Integer pageSize) throws Exception;
 
 
+    PaginatedResponse<BasicUserModel> findUser(Integer pageNumber, Integer pageSize, String keyword) throws Exception;
+
     //    @Override
     //    public Page<UserEntity> getAllUserA(Integer pageNumber, Integer pageSize) throws Exception {
     //        checkAdmin();
@@ -49,6 +53,9 @@ public interface IUserService {
     //        return similarUsers;
     //    }
     String toggleBanUser(String userId) throws Exception;
+
+
+    void banAccount(String userId) throws Exception;
 
     void checkAdmin() throws Exception;
 

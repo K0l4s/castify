@@ -13,4 +13,6 @@ public interface ICommentService {
     PageDTO<CommentModel> getPodcastComments(String id, int page, int size, String sortBy);
     boolean toggleLikeOnComment(String id) throws Exception;
     List<CommentModel> getReplies(String id);
+
+    CommentModel getById(String id);
 }

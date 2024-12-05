@@ -48,6 +48,16 @@ public class UserServiceImpl implements IUserService {
             throw new Exception("Not found user with username " + username);
         }
     }
+    @Override
+    public UserModel getByUserId(String userId) throws Exception {
+
+        Optional<UserEntity> userData = userRepository.findById(userId);
+        if (userData.isPresent()) {
+            return modelMapper.map(userData.get(), UserModel.class);
+        } else {
+            throw new Exception("Not found user with username " + userId);
+        }
+    }
 
     @Override
     public UserDetailModel getProfileDetail(String username) throws Exception {
@@ -250,8 +260,6 @@ public class UserServiceImpl implements IUserService {
     }
     @Override
     public PaginatedResponse<BasicUserModel> getAllUser(Integer pageNumber, Integer pageSize) throws Exception {
-//        checkAdmin();
-
         Pageable pageable = PageRequest.of(pageNumber,pageSize);
 
         Page<UserEntity> similarUsers = userRepository.findAll(pageable);
@@ -262,15 +270,17 @@ public class UserServiceImpl implements IUserService {
         int totalPages = similarUsers.getTotalPages();
         return new PaginatedResponse<>(resultUsers, totalPages);
     }
-//    @Override
-//    public Page<UserEntity> getAllUserA(Integer pageNumber, Integer pageSize) throws Exception {
-//        checkAdmin();
-//
-//        Pageable pageable = PageRequest.of(pageNumber,pageSize);
-//
-//        Page<UserEntity> similarUsers = userRepository.findAll(pageable);
-//        return similarUsers;
-//    }
+    @Override
+    public PaginatedResponse<BasicUserModel> findUser(Integer pageNumber, Integer pageSize,String keyword) throws Exception {
+        Pageable pageable = PageRequest.of(pageNumber,pageSize);
+        Page<UserEntity> similarUsers = userRepository.findByKeyword(keyword,pageable);
+
+        List<BasicUserModel> resultUsers = similarUsers.getContent().stream()
+                .map(this::mapToBasicUser)
+                .collect(Collectors.toList());
+        int totalPages = similarUsers.getTotalPages();
+        return new PaginatedResponse<>(resultUsers, totalPages);
+    }
     @Override
     public String toggleBanUser(String userId) throws Exception {
         UserEntity userBan = userRepository.findUserEntityById(userId);
@@ -280,6 +290,13 @@ public class UserServiceImpl implements IUserService {
         if(userBan.isNonBanned())
             return "Unban Account Successfully";
         return "Ban Account Successfully";
+    }
+    @Override
+    public void banAccount(String userId) throws Exception {
+        UserEntity userBan = userRepository.findUserEntityById(userId);
+//        userBan.isNonBanned(!userBan.isNonBanned());
+        userBan.setNonBanned(false);
+        userRepository.save(userBan);
     }
     @Override
     public void checkAdmin() throws Exception {

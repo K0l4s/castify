@@ -16,7 +16,7 @@ export interface User {
     createDay: Date,
     isActive: boolean,
     isLock: boolean,
-    nickName: string,
+    username: string,
     role: Role
     [key: string]: any;
 }
@@ -158,4 +158,10 @@ export interface BasicUser {
     active: boolean;
     nonBanned: boolean;
     nonLocked: boolean;
+}
+
+export interface shortUser {
+    id:string;
+    fullname:string;
+    avatarUrl:string;
 }

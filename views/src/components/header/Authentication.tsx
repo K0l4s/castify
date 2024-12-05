@@ -14,6 +14,7 @@ import { IoIosNotifications } from "react-icons/io";
 import Tooltip from "../UI/custom/Tooltip";
 import PodcastUploadModal from "../modals/podcast/PodcastUploadModal";
 import CustomButton from "../UI/custom/CustomButton";
+import { Role } from "../../constants/Role";
 
 const Authentication = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -130,12 +131,6 @@ const Authentication = () => {
             } w-64 mt-2 bg-white dark:bg-gray-800 rounded-xl shadow-lg ring-1 ring-black ring-opacity-5 divide-y divide-gray-100 dark:divide-gray-700 transform opacity-100 scale-100 transition-all duration-200`}
           id="dropdown-user"
         >
-          <div className="px-4 py-3 space-y-1">
-            <p className="text-sm font-medium text-gray-900 dark:text-white">Admin</p>
-            <p className="text-xs text-gray-500 dark:text-gray-400">
-              Switch to user
-            </p>
-          </div>
           <ul className="py-1">
             <li>
               <Link
@@ -145,14 +140,15 @@ const Authentication = () => {
                 Profile
               </Link>
             </li>
+            {user?.role === Role.A && (
             <li>
               <Link
                 to="/"
                 className="flex items-center px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 dark:text-gray-300 dark:hover:bg-gray-700/50 transition-colors duration-200"
               >
-                Settings
+                Admin Management
               </Link>
-            </li>
+            </li>)}
             <li>
               <div className=" px-4 py-2.5">
                 <span className="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300">Theme
