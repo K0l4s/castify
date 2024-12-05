@@ -136,6 +136,8 @@ export interface UserSimple {
     fullname: string;
     username: string;
     avatarUrl: string;
+    totalFollower: number;
+    follow: boolean;
 }
 
 export interface BasicUser {

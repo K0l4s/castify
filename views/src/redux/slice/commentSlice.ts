@@ -64,9 +64,12 @@ const commentsSlice = createSlice({
         state.loading = true;
       })
       .addCase(fetchComments.fulfilled, (state, action: PayloadAction<any>) => {
-        const { content, currentPage, totalPage } = action.payload;
-        state.comments = [...state.comments, ...content];
-        state.hasMore = currentPage < totalPage - 1;
+        const { content, currentPage, totalPages } = action.payload;
+        const newComments = content.filter(
+          (newComment: Comment) => !state.comments.some((comment) => comment.id === newComment.id)
+        );
+        state.comments = [...state.comments, ...newComments];
+        state.hasMore = currentPage < totalPages - 1;
         state.page = currentPage;
         state.loading = false;
       })
@@ -93,7 +96,7 @@ const commentsSlice = createSlice({
         } else {
           state.comments = [action.payload, ...state.comments];
         }
-        console.log("Updated state:", state); // Log to check the entire state
+        // console.log("Updated state:", state); // Log to check the entire state
       })
       .addCase(likeCommentAction.fulfilled, (state, action: PayloadAction<{ commentId: string, liked: boolean }>) => {
         const { commentId, liked } = action.payload;

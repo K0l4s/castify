@@ -15,6 +15,8 @@ import { RootState } from "../../../redux/store";
 import { useToast } from "../../../context/ToastProvider";
 import { formatDistanceToNow } from 'date-fns';
 import { setupVideoViewTracking } from "./video";
+import { userService } from "../../../services/UserService";
+import { FiLoader } from "react-icons/fi";
 
 const PodcastViewport: React.FC = () => {
   const location = useLocation();
@@ -26,10 +28,12 @@ const PodcastViewport: React.FC = () => {
   const [isDescriptionExpanded, setIsDescriptionExpanded] = useState(false);
   const [showDescToggle, setShowDescToggle] = useState(false);
   const [showOptions, setShowOptions] = useState(false);
+  const [errorRes, setErrorRes] = useState<string | null>(null);
 
   const descriptionRef = useRef<HTMLPreElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
 
+  
   const userRedux = useSelector((state: RootState) => state.auth.user);
   const isAuthenticated = useSelector((state: RootState) => state.auth.isAuthenticated);
 
@@ -49,7 +53,12 @@ const PodcastViewport: React.FC = () => {
           setPodcast(podcastData);
         }
       } catch (error) {
-        console.error("Error fetching podcast:", error);
+        if ((error as any).response?.data === "Error: Podcast not found") {
+          setErrorRes("Podcast not found");
+        } else {
+          console.error("Error fetching podcast:", error);
+          setErrorRes("An error occurred while fetching the podcast");
+        }
       }
     };
 
@@ -96,8 +105,21 @@ const PodcastViewport: React.FC = () => {
     };
   }, []);
 
+  if (errorRes) {
+    return (
+      <div className="flex justify-center items-center h-screen">
+        <div className="text-center">
+          <h1 className="text-2xl font-bold mb-4">{errorRes}</h1>
+          <CustomButton text="Go back" onClick={() => navigate("/")} variant="primary" />
+        </div>
+      </div>
+    );
+  }
+
   if (!podcast) {
-    return <div className="flex justify-center items-center h-screen">Loading...</div>;
+    return <div className="flex justify-center items-center h-screen">
+      <FiLoader size={48} className="text-black dark:text-white animate-spin"/>
+    </div>;
   }
 
   const toggleDescription = () => {
@@ -115,6 +137,20 @@ const PodcastViewport: React.FC = () => {
       setPodcast(updatedPodcast);
     } catch (error) {
       console.error("Error liking podcast:", error);
+    }
+  };
+
+  const handleFollow = async (targetUsername: string) => {
+    if (!isAuthenticated) {
+      toast.warning("Please login to do this action");
+      return;
+    }
+    try {
+      await userService.followUser(targetUsername);
+      const updatedPodcast = await getPodcastById(id!);
+      setPodcast(updatedPodcast);
+    } catch (error) {
+      console.error("Error following user:", error);
     }
   };
 
@@ -156,27 +192,25 @@ const PodcastViewport: React.FC = () => {
               src={podcast.user.avatarUrl || defaultAvatar} 
               alt="avatar" 
               className="w-10 h-10 rounded-full cursor-pointer" 
-              onClick={() => navigate(`/profile/${userRedux?.username}`)}
+              onClick={() => navigate(`/profile/${podcast.username}`)}
             />
             <div className="flex flex-col">
               <span 
                 className="text-base font-medium text-black dark:text-white cursor-pointer" 
-                onClick={() => navigate(`/profile/${userRedux?.username}`)}>
+                onClick={() => navigate(`/profile/${podcast.username}`)}>
                 {userInfo}
               </span>
-              <span className="text-sm text-gray-700 dark:text-gray-300">100K Follow</span>
+              <span className="text-sm text-gray-700 dark:text-gray-300">{podcast.user.totalFollower} follower</span>
             </div>
             {podcast.user.id !== userRedux?.id ? (
               <CustomButton
-                text="Follow"
+                text={`${podcast.user.follow ? "Unfollow" : "Follow" } `}
                 variant="primary"
                 rounded="full"
-                onClick={() => {
-                  if (!isAuthenticated) {
-                    toast.warning("Please login to do this action");
-                  }
-                }}
-                className="bg-gray-600 hover:bg-gray-500 dark:bg-gray-600 hover:dark:bg-gray-500"
+                onClick={() => handleFollow(podcast.user.username)}
+                className={`bg-gray-600 hover:bg-gray-500 
+                  ${!podcast.user.follow ? "bg-blue-700 hover:bg-blue-900 dark:bg-gray-100 dark:text-gray-800 hover:dark:bg-gray-400" 
+                    : "hover:bg-gray-100 dark:bg-gray-600 dark:hover:bg-gray-500 dark:text-white"}`}
               />
             ): (
               <CustomButton

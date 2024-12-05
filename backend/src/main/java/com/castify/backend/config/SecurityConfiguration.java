@@ -42,6 +42,7 @@ import static org.springframework.security.config.http.SessionCreationPolicy.STA
 public class SecurityConfiguration {
 
     private static final String[] WHITE_LIST_URL = {"/api/v1/auth/**",
+            "/api/v1/podcast/user/{username}/**",
             "/api/v1/podcast/all",
             "/api/v1/podcast/recent",
             "/api/v1/podcast/by-genre",

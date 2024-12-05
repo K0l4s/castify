@@ -161,13 +161,14 @@ export const incrementPodcastViews = async (podcastId: string) => {
 };
 
 export const getUserPodcasts = async (
+  username: string,
   page = 0,
   size = 12,
   sortBy: 'newest' | 'oldest' | 'views' = 'newest'
 ) => {
   try {
-    const response = await axiosInstanceAuth.get<PodcastResponse>(
-      "/api/v1/podcast/user", {
+    const response = await axiosInstance.get<PodcastResponse>(
+      `/api/v1/podcast/user/${username}`, {
       params: {
         page,
         size,
@@ -188,6 +189,17 @@ export const getUserPodcasts = async (
 export const togglePodcasts = async (podcastIds: string[]) => {
   try {
     const response = await axiosInstanceAuth.put(`/api/v1/podcast/toggle`, podcastIds);
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};
+
+export const deletePodcasts = async (podcastIds: string[]) => {
+  try {
+    const response = await axiosInstanceAuth.delete(`/api/v1/podcast/delete`, {
+      data: podcastIds
+    });
     return response.data;
   } catch (error) {
     throw error;

@@ -11,6 +11,9 @@ import { useToast } from "../../../context/ToastProvider";
 import { validateFileType } from "../../../utils/FileValidation";
 import GenreSelection from "../../../components/modals/podcast/GenreSelection";
 import Loading from "../../../components/UI/custom/Loading";
+import CommentSection from "../../../components/UI/podcast/CommentSection";
+import { useSelector } from "react-redux";
+import { RootState } from "../../../redux/store";
 
 const DetailPodcastPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -26,6 +29,10 @@ const DetailPodcastPage: React.FC = () => {
   const [genres, setGenres] = useState<{ id: string; name: string }[]>([]);
   const [isGenreModalOpen, setIsGenreModalOpen] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [titleError, setTitleError] = useState<string>("");
+  const [contentError, setContentError] = useState<string>("");
+
+  const userRedux = useSelector((state: RootState) => state.auth.user);
 
   useEffect(() => {
     const fetchPodcast = async () => {
@@ -66,6 +73,16 @@ const DetailPodcastPage: React.FC = () => {
       toast.info("No changes to save.");
       return;
     }
+    
+    if (titleError || contentError) {
+      toast.error("Please fix errors before saving.");
+      return;
+    }
+
+    if (genreIds.length === 0) {
+      toast.error("Please select at least one genre.");
+      return;
+    }
 
     setIsLoading(true);
     try {
@@ -102,6 +119,26 @@ const DetailPodcastPage: React.FC = () => {
     }
   };
 
+  const handleTitleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    if (value.length <= 100) {
+      setTitle(value);
+      setTitleError(value.length === 0 ? "Title is required" : "");
+    } else {
+      setTitleError("Title cannot exceed 100 characters");
+    }
+  };
+
+  const handleContentChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    const value = e.target.value;
+    if (value.length <= 5000) {
+      setContent(value);
+      setContentError(value.length === 0 ? "Please describe your content" : "");
+    } else {
+      setContentError("Content cannot exceed 5000 characters");
+    }
+  };
+
   const handleCancel = () => {
     if (initialPodcast) {
       setTitle(initialPodcast.title);
@@ -109,6 +146,8 @@ const DetailPodcastPage: React.FC = () => {
       setGenreIds(initialPodcast.genres!.map((genre) => genre.id));
       setThumbnailPreview(initialPodcast.thumbnailUrl);
       setThumbnail(null);
+      setTitleError("");
+      setContentError("");
     }
   };
 
@@ -128,7 +167,7 @@ const DetailPodcastPage: React.FC = () => {
       {isLoading && <Loading />}
       <div className="flex justify-between items-center mb-4">
         <h1 className="text-2xl font-bold text-black dark:text-white">
-          Detail Video
+          Detail Podcast
         </h1>
         <div className="flex gap-2">
           <div className="flex gap-2 items-center mr-12">
@@ -178,25 +217,48 @@ const DetailPodcastPage: React.FC = () => {
         <div className="flex flex-col md:col-span-2 col-span-3">
           {/* Title */}
           <label className="mb-1 text-sm font-medium text-gray-700 dark:text-gray-300">
-            Title
+            Title (required)
           </label>
           <input
             type="text"
             value={title}
-            onChange={(e) => setTitle(e.target.value)}
-            className="mb-4 w-full p-2 text-black dark:text-white border border-gray-300 rounded bg-white dark:bg-gray-800"
+            onChange={handleTitleChange}
+            className={`mb-2 w-full p-2 text-black dark:text-white border border-gray-300 rounded bg-white dark:bg-gray-800
+              ${titleError ? "border-red-500" : ""}
+            `}
           />
+          <div className="flex justify-between mb-2">
+            {titleError ? (
+              <div className="text-sm text-red-500">{titleError}</div>
+            ) : (
+              <span></span>
+            )}
+            <div className="text-right text-xs text-gray-500 dark:text-gray-400">
+              {title.length} / 100
+            </div>
+          </div>
 
           {/* Content */}
           <label className="mb-1 text-sm font-medium text-gray-700 dark:text-gray-300">
-            Content
+            Content (required)
           </label>
           <textarea
             value={content}
-            onChange={(e) => setContent(e.target.value)}
-            className="mb-4 w-full h-48 p-2 text-black dark:text-white border border-gray-300 rounded resize-none bg-white dark:bg-gray-800"
+            onChange={handleContentChange}
+            className={`mb-2 w-full h-48 p-2 text-black dark:text-white border border-gray-300 rounded resize-none bg-white dark:bg-gray-800
+              ${contentError ? "border-red-500" : ""}`}
           />
-
+          <div className="flex justify-between mb-2">
+            {contentError ? (
+              <div className="text-sm text-red-500">{contentError}</div>
+            ) : (
+              <span></span>
+            )}
+            <div className="text-right text-xs text-gray-500 dark:text-gray-400">
+              {content?.length} / 5000
+            </div>
+          </div>
+          
           {/* Genres */}
           <label className="mb-1 text-sm font-medium text-gray-700 dark:text-gray-300">
             Genres
@@ -287,6 +349,19 @@ const DetailPodcastPage: React.FC = () => {
         selectedGenres={genreIds}
         setSelectedGenres={setGenreIds}
       />
+
+      
+      {/* Comment Section */}
+      <h1 className="text-2xl font-semibold mt-4 text-black dark:text-white">Manage your podcast comments</h1>
+      <div className="bg-gray-300 dark:bg-gray-800 px-4 py-1 rounded-lg mt-2">
+        {podcast && (
+          <CommentSection
+            podcastId={podcast.id}
+            totalComments={podcast.totalComments}
+            currentUserId={userRedux?.id!}
+          />
+        )}
+      </div>
     </div>
   );
 };

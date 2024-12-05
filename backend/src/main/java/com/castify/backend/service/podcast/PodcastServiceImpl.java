@@ -7,6 +7,7 @@ import com.castify.backend.models.comment.CommentModel;
 import com.castify.backend.models.podcast.CreatePodcastModel;
 import com.castify.backend.models.podcast.EditPodcastDTO;
 import com.castify.backend.models.podcast.PodcastModel;
+import com.castify.backend.models.user.UserSimple;
 import com.castify.backend.models.userActivity.AddActivityRequestDTO;
 import com.castify.backend.repository.*;
 import com.castify.backend.service.uploadFile.UploadFileServiceImpl;
@@ -46,6 +47,12 @@ public class PodcastServiceImpl implements IPodcastService {
 
     @Autowired
     private CommentRepository commentRepository;
+
+    @Autowired
+    private CommentLikeRepository commentLikeRepository;
+
+    @Autowired
+    private UserActivityRepository userActivityRepository;
 
     @Autowired
     private IUserService userService;
@@ -184,6 +191,30 @@ public class PodcastServiceImpl implements IPodcastService {
         boolean isLiked = podcastLikeRepository.existsByUserEntityIdAndPodcastEntityId(userEntity.getId(), podcastId);
         podcastModel.setLiked(isLiked);
 
+        // Ánh xạ UserSimple
+        UserEntity podcastUser = podcastEntity.getUser();
+        UserSimple userSimple = modelMapper.map(podcastUser, UserSimple.class);
+
+        // Tính tổng follower
+        long followerSize = userRepository.findUsersFollowing(podcastUser.getId()).size();
+        userSimple.setTotalFollower(followerSize);
+
+        // Tính tổng following
+        long followingCount = podcastUser.getFollowing().size();
+        userSimple.setTotalFollowing(followingCount);
+
+        // Kiểm tra người dùng hiện tại có follow người này không
+        try {
+            if (userEntity.getFollowing() == null) {
+                userEntity.setFollowing(new ArrayList<>());
+            }
+            userSimple.setIsFollow(userEntity.isFollow(podcastUser.getId()));
+        } catch (Exception ex) {
+            userSimple.setIsFollow(false);
+        }
+
+        podcastModel.setUser(userSimple);
+
         return podcastModel;
     }
 
@@ -202,6 +233,17 @@ public class PodcastServiceImpl implements IPodcastService {
 
         podcastModel.setLiked(false);
 
+        // Ánh xạ UserSimple
+        UserEntity podcastUser = podcastEntity.getUser();
+        UserSimple userSimple = modelMapper.map(podcastUser, UserSimple.class);
+
+        // Tính tổng follower
+        long followerSize = userRepository.findUsersFollowing(podcastUser.getId()).size();
+        System.out.println("followerSize " + followerSize);
+        userSimple.setTotalFollower(followerSize);
+
+        podcastModel.setUser(userSimple);
+
         return podcastModel;
     }
 
@@ -218,7 +260,11 @@ public class PodcastServiceImpl implements IPodcastService {
 
         if (existingLike.isPresent()) {
             // Nếu đã like, thì unlike
-            podcastLikeRepository.delete(existingLike.get());
+            PodcastLikeEntity likeToRemove = existingLike.get();
+            podcastLikeRepository.delete(likeToRemove);
+
+            // Gỡ bỏ tham chiếu ngược
+            podcastEntity.getLikes().remove(likeToRemove);
         } else {
             // Nếu chưa like, thì thêm like
             PodcastLikeEntity newLike = new PodcastLikeEntity();
@@ -226,7 +272,15 @@ public class PodcastServiceImpl implements IPodcastService {
             newLike.setPodcastEntity(podcastEntity);
             newLike.setTimestamp(LocalDateTime.now());
             podcastLikeRepository.save(newLike);
+
+            // Thêm tham chiếu ngược
+            if (podcastEntity.getLikes() == null) {
+                podcastEntity.setLikes(new ArrayList<>());
+            }
+            podcastEntity.getLikes().add(newLike);
         }
+
+        podcastRepository.save(podcastEntity);
         return "Success";
     }
 
@@ -280,9 +334,9 @@ public class PodcastServiceImpl implements IPodcastService {
     }
 
     @Override
-    public PageDTO<PodcastModel> getUserPodcasts(int page, int size, String sortBy) throws Exception {
-        // Lấy thông tin UserEntity từ userService
-        UserEntity userEntity = userService.getUserByAuthentication();
+    public PageDTO<PodcastModel> getUserPodcasts(String username, int page, int size, String sortBy) throws Exception {
+        UserEntity user = userRepository.findByUsername(username)
+            .orElseThrow(() -> new RuntimeException("User not found"));
 
         Sort sort;
         if ("oldest".equalsIgnoreCase(sortBy)) {
@@ -298,7 +352,7 @@ public class PodcastServiceImpl implements IPodcastService {
         // Tạo Pageable với sắp xếp
         Pageable pageable = PageRequest.of(page, size, sort);
 
-        Page<PodcastEntity> podcastEntities = podcastRepository.findAllByUserIdAndIsActiveTrue(userEntity.getId(), pageable);
+        Page<PodcastEntity> podcastEntities = podcastRepository.findAllByUserIdAndIsActiveTrue(user.getId(), pageable);
 
         return convertPodcastEntitiesToPageDTO(podcastEntities);
     }
@@ -346,6 +400,61 @@ public class PodcastServiceImpl implements IPodcastService {
         podcastRepository.save(podcast);
 
         return modelMapper.map(podcast, PodcastModel.class);
+    }
+
+    @Override
+    public void deletePodcastsByIds(List<String> podcastIds, boolean isAdmin) throws Exception {
+        List<PodcastEntity> podcasts = podcastRepository.findAllById(podcastIds);
+        if (podcasts.isEmpty() || podcasts.size() != podcastIds.size()) {
+            throw new RuntimeException("One or more podcasts not found.");
+        }
+
+        // Lấy người dùng hiện tại
+        UserEntity currentUser = userService.getUserByAuthentication();
+
+        for (PodcastEntity podcast : podcasts) {
+            // Nếu không phải admin, kiểm tra quyền sở hữu podcast
+            if (!isAdmin && !podcast.getUser().getId().equals(currentUser.getId())) {
+                throw new RuntimeException("You do not have permission to delete this podcast.");
+            }
+
+            // Xóa các comment liên quan đến podcast
+            List<CommentEntity> comments = commentRepository.findByPodcastId(podcast.getId());
+            System.out.println("List comments: " + comments);
+
+            if (comments != null && !comments.isEmpty()) {
+                for (CommentEntity comment : comments) {
+                    // Xóa comment likes liên quan
+                    if (comment.getLikes() != null && !comment.getLikes().isEmpty()) {
+                        commentLikeRepository.deleteAll(comment.getLikes());
+                    }
+
+                    // Xóa các reply liên quan
+                    if (comment.getReplies() != null && !comment.getReplies().isEmpty()) {
+                        commentRepository.deleteAll(comment.getReplies());
+                    }
+                }
+                commentRepository.deleteAll(comments);
+            }
+
+            // Xóa các like của podcast
+            if (podcast.getLikes() != null && !podcast.getLikes().isEmpty()) {
+                podcastLikeRepository.deleteAll(podcast.getLikes());
+            }
+
+            // Xóa các comment khỏi PodcastEntity để tránh orphan records
+            if (podcast.getComments() != null) {
+                podcast.getComments().clear(); // Xóa tất cả các comments liên kết với podcast
+            }
+
+            // Xóa các hoạt động liên quan đến podcast
+            List<UserActivityEntity> activities = userActivityRepository.findByPodcast(podcast);
+            if (activities != null && !activities.isEmpty()) {
+                userActivityRepository.deleteAll(activities);
+            }
+
+            podcastRepository.delete(podcast);
+        }
     }
 
     private PageDTO<PodcastModel> convertPodcastEntitiesToPageDTO(Page<PodcastEntity> podcastEntities) {

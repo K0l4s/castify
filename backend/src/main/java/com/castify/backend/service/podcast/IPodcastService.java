@@ -20,7 +20,8 @@ public interface IPodcastService {
     PageDTO<PodcastModel> getRecentPodcasts(int page, int size);
     PageDTO<PodcastModel> getPodcastsByGenre(String genreId, int page, int size);
     void incrementPodcastViews(String podcastId);
-    PageDTO<PodcastModel> getUserPodcasts(int page, int size, String sortBy) throws Exception;
+    PageDTO<PodcastModel> getUserPodcasts(String username, int page, int size, String sortBy) throws Exception;
     void togglePodcastDisplayMode(List<String> podcastIds) throws Exception;
     PodcastModel updatePodcast(String podcastId, EditPodcastDTO editPodcastDTO);
+    void deletePodcastsByIds(List<String> podcastIds, boolean isAdmin) throws Exception;
 }
