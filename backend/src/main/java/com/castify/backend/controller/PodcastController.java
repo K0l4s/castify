@@ -276,14 +276,15 @@ public class PodcastController {
         return ResponseEntity.noContent().build();
     }
 
-    @GetMapping("/user")
+    @GetMapping("/user/{username}")
     public ResponseEntity<PageDTO<PodcastModel>> getUserPodcasts(
+            @PathVariable String username,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
             @RequestParam(defaultValue = "newest") String sortBy
     ) {
         try {
-            PageDTO<PodcastModel> result = podcastService.getUserPodcasts(page, size, sortBy);
+            PageDTO<PodcastModel> result = podcastService.getUserPodcasts(username, page, size, sortBy);
             return ResponseEntity.ok(result);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();

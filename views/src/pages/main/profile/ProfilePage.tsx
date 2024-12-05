@@ -19,10 +19,12 @@ const ProfilePage: React.FC = () => {
   const [currentPage, setCurrentPage] = useState<number>(0);
   const [totalPages, setTotalPages] = useState<number>(0);
   const [sortBy, setSortBy] = useState<'newest' | 'views' | 'oldest'>(initialSortBy);
-  
-  const fetchPodcasts = async (page: number, sortBy: 'newest' | 'views' | 'oldest') => {
+
+  const username = location.pathname.split("/")[2];
+
+  const fetchPodcasts = async (username: string, page: number, sortBy: 'newest' | 'views' | 'oldest') => {
     try {
-      const response = await getUserPodcasts(page, 12, sortBy);
+      const response = await getUserPodcasts(username, page, 12, sortBy);
       setPodcasts((prevPodcasts) => {
         const newPodcasts = response.content.filter(
           (newPodcast) => !prevPodcasts.some((podcast) => podcast.id === newPodcast.id)
@@ -38,7 +40,7 @@ const ProfilePage: React.FC = () => {
   };
 
   useEffect(() => {
-    fetchPodcasts(currentPage, sortBy);
+    fetchPodcasts(username, currentPage, sortBy);
   }, [currentPage, sortBy]);
 
   const loadMorePodcasts = () => {
@@ -49,7 +51,7 @@ const ProfilePage: React.FC = () => {
 
   const handleSortChange = (newSortBy: 'newest' | 'views' | 'oldest') => {
     if (sortBy === newSortBy) {
-      fetchPodcasts(0, newSortBy);
+      fetchPodcasts(username, 0, newSortBy);
     } else {
       setSortBy(newSortBy);
       setCurrentPage(0);
