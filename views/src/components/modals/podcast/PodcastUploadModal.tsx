@@ -125,7 +125,7 @@ const PodcastUploadModal: React.FC<PodcastUploadModalProps> = ({
     const value = e.target.value;
     if (value.length <= 5000) {
       setDesc(value);
-      setDescError("");
+      setDescError(value.length === 0 ? "Content is required" : "");
     } else {
       setDescError("Description can not exceed 5000 characters");
     }
@@ -140,10 +140,16 @@ const PodcastUploadModal: React.FC<PodcastUploadModalProps> = ({
   };
 
   const handleUpload = async () => {
-    if (!title || !videoFile) {
+    if (!title || !desc || !videoFile) {
       toast.error("Please fill in all required fields");
       return;
     }
+
+    if (selectedGenres.length === 0) {
+      toast.error("Please select at least one genre");
+      return;
+    }
+
     const loadingToastId = toast.loading("Uploading podcast, please wait...");
     onClose();
 
@@ -227,7 +233,7 @@ const PodcastUploadModal: React.FC<PodcastUploadModalProps> = ({
               descError ? "text-red-600 dark:text-red-600" : ""
             }`}
           >
-            Description
+            Content (required)
           </label>
           <textarea
             placeholder="Tell viewers about your video"
