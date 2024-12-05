@@ -250,7 +250,7 @@ public class UserServiceImpl implements IUserService {
     }
     @Override
     public PaginatedResponse<BasicUserModel> getAllUser(Integer pageNumber, Integer pageSize) throws Exception {
-        checkAdmin();
+//        checkAdmin();
 
         Pageable pageable = PageRequest.of(pageNumber,pageSize);
 
@@ -271,7 +271,16 @@ public class UserServiceImpl implements IUserService {
 //        Page<UserEntity> similarUsers = userRepository.findAll(pageable);
 //        return similarUsers;
 //    }
-
+    @Override
+    public String toggleBanUser(String userId) throws Exception {
+        UserEntity userBan = userRepository.findUserEntityById(userId);
+//        userBan.isNonBanned(!userBan.isNonBanned());
+        userBan.setNonBanned(!userBan.isNonBanned());
+        userRepository.save(userBan);
+        if(userBan.isNonBanned())
+            return "Unban Account Successfully";
+        return "Ban Account Successfully";
+    }
     @Override
     public void checkAdmin() throws Exception {
         UserEntity userRequest = getUserByAuthentication();

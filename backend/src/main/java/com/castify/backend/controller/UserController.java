@@ -1,5 +1,7 @@
 package com.castify.backend.controller;
 
+import com.castify.backend.enums.Permission;
+import com.castify.backend.enums.Role;
 import com.castify.backend.models.user.UpdateUserModel;
 import com.castify.backend.models.user.UserModel;
 import com.castify.backend.service.uploadFile.IUploadFileService;
@@ -11,6 +13,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -116,22 +119,8 @@ public class UserController {
                     .body("Error"+ex.getMessage());
         }
     }
+//    @PreAuthorize("hasRole('ADMIN')")
 
-    @GetMapping("/admin")
-    private ResponseEntity<?> getAllUser(
-            @RequestParam(value = "pageNumber") Integer pageNumber,
-            @RequestParam(value="pageSize") Integer pageSize
-    ) throws Exception {
-        try{
-            return ResponseEntity.ok(
-                    userService.getAllUser(pageNumber,pageSize)
-            );
-        }
-        catch (Exception ex){
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                    .body("Error"+ex.getMessage());
-        }
-    }
     @ExceptionHandler(MalformedJwtException.class)
     public ResponseEntity<String> handleMalformedJwtException(MalformedJwtException ex) {
         return new ResponseEntity<>("Invalid JWT token format", HttpStatus.BAD_REQUEST);

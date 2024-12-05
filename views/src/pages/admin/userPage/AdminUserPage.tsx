@@ -5,12 +5,33 @@ import UserCard from "../../../components/admin/user/UserCard";
 import CustomTable from "../../../components/UI/custom/CustomTable";
 import { BiLeftArrow, BiRightArrow, BiTable } from "react-icons/bi";
 import { BsCardHeading } from "react-icons/bs";
-
+import ConfirmBox from "../../../components/UI/dialogBox/ConfirmBox";
+import { Role } from "../../../constants/Role";
+const initBasicUser: BasicUser = {
+  id: '',
+  fullname: '',
+  username: '',
+  avatarUrl: '',
+  coverUrl: '',
+  birthday: new Date(),
+  address: '',
+  phone: '',
+  email: '',
+  badgesId: [],
+  role: Role.U,
+  totalFollower: 0,
+  totalFollowing: 0,
+  totalPost: 0,
+  active: false,
+  nonBanned: false,
+  nonLocked: false
+};
 const AdminUserPage = () => {
   const [users, setUsers] = useState<BasicUser[]>([]);
   const [isTable, setIsTable] = useState(false);
   const [totalPages, setTotalPages] = useState(0);
-  const [currentPage, 
+  const [selectedUserBan, setSelectedUserBan] = useState<BasicUser >(initBasicUser);
+  const [currentPage,
     // setCurrentPage
   ] = useState(1);
 
@@ -22,7 +43,28 @@ const AdminUserPage = () => {
     };
     fetchUsers();
   }, []);
- 
+  const [isConfirmOpen, setIsConfirmOpen] = useState(false);
+
+  const handleOpenConfirm = () => {
+      setIsConfirmOpen(true);
+  };
+
+  const handleConfirm = async () => {
+      console.log('Đã xác nhận!');
+      await userService.toggleBanUser(selectedUserBan.id).then(
+          () => {
+            selectedUserBan.nonBanned = !selectedUserBan.nonBanned;
+            setUsers(users.map(user => user.id === selectedUserBan.id ? selectedUserBan : user));
+              setIsConfirmOpen(false);
+          }
+      );
+
+  };
+
+  const handleCancel = () => {
+      console.log('Đã hủy!');
+      setIsConfirmOpen(false);
+  };
   return (
     <div className="p-8 min-h-screen">
       <h1 className="text-3xl font-bold mb-6 text-black dark:text-white">Quản lý người dùng</h1>
@@ -48,15 +90,12 @@ const AdminUserPage = () => {
         <BiTable onClick={() => setIsTable(true)} className={`text-2xl cursor-pointer  ${isTable && 'text-blue-500'}`} />
       </div>
       {isTable ? (
-        <CustomTable headers={["ID", "Fullname", "Username", "Email", "Phone", "Address", "Active", "Banned"]}>
+        <CustomTable headers={["ID", "Fullname", "Username", "Active", "Banned","Action"]}>
           {users.map((user) => (
             <tr key={user.id}>
               <td className="px-6 py-4 whitespace-nowrap">{user.id}</td>
               <td className="px-6 py-4 whitespace-nowrap">{user.fullname}</td>
               <td className="px-6 py-4 whitespace-nowrap">{user.username}</td>
-              <td className="px-6 py-4 whitespace-nowrap">{user.email}</td>
-              <td className="px-6 py-4 whitespace-nowrap">{user.phone}</td>
-              <td className="px-6 py-4 whitespace-nowrap">{user.address}</td>
               <td className="px-6 py-4 whitespace-nowrap">
                 <span
                   className={`px-3 py-1 rounded-full ${user.active ? "bg-green-100 text-green-700" : "bg-red-100 text-red-700"
@@ -73,15 +112,37 @@ const AdminUserPage = () => {
                   {user.nonBanned ? "Not Banned" : "Banned"}
                 </span>
               </td>
+              <td>
+                <button className="w-full text-white bg-red-500 hover:bg-red-600 px-4 py-2 rounded-md"
+                  onClick={() => {
+                    setSelectedUserBan(user);
+                    handleOpenConfirm();
+                  }}
+                >
+                  Ban
+                </button>
+              </td>
+              <ConfirmBox
+                isOpen={isConfirmOpen}
+                title="Xác nhận hành động"
+                message="Do you want to lock this account?"
+                onConfirm={handleConfirm}
+                onCancel={handleCancel}
+                confirmText="Đồng ý"
+                cancelText="Hủy"
+            />
             </tr>
           ))}
         </CustomTable>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-3 gap-6">
           {users.map((user) => (
-            <UserCard key={user.id} user={user} />
+            <div key={user.id} className="flex flex-col h-full">
+              <UserCard user={user} />
+            </div>
           ))}
         </div>
+
       )}
       {/* paginated */}
       <div className="flex justify-center mt-8 gap-2">
@@ -91,7 +152,7 @@ const AdminUserPage = () => {
         <button className={`bg-blue-500 text-white px-4 py-2 rounded-md ${currentPage + 1 >= totalPages && 'bg-gray-500 cursor-not-allowed'}`}
           disabled={currentPage + 1 >= totalPages}><BiRightArrow /></button>
       </div>
-     
+
     </div>
 
   );

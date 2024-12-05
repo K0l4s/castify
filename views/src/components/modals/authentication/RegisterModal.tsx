@@ -21,7 +21,7 @@ const RegisterModal = (props: DefaultModalProps) => {
   const [wardsList, setWardsList] = useState<ward[]>([]);
   const [selectedProvinceId, setSelectedProvinceId] = useState<string>('');
   const [selectedDistrictId, setSelectedDistrictId] = useState<string>('');
-  const [isRequest,setIsRequest] = useState(false);
+  const [isRequest, setIsRequest] = useState(false);
 
 
   const [formData, setFormData] = useState<userRegister>({
@@ -117,9 +117,9 @@ const RegisterModal = (props: DefaultModalProps) => {
       setWardsList([]);
     } else if (name === 'district') {
       setSelectedDistrictId(value);
-     
+
       const district = districtsList.find(district => district.id === value);
-      
+
       setFormData(prev => ({
         ...prev,
         district: district?.name || '',
@@ -172,7 +172,7 @@ const RegisterModal = (props: DefaultModalProps) => {
       const localDateTime = new Date(date.getTime() - date.getTimezoneOffset() * 60000)
         .toISOString()
         .split("T")[0] + "T00:00:00";
-  
+
       await authenticateApi
         .register({
           ...formData,
@@ -197,7 +197,7 @@ const RegisterModal = (props: DefaultModalProps) => {
       setIsRequest(false);
     }
   };
-  
+
 
   const inputClasses = "mt-1 block w-full px-3 py-2 bg-gray-800/30 border border-gray-700 rounded-md " +
     "focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 text-white placeholder-gray-500";
@@ -288,12 +288,12 @@ const RegisterModal = (props: DefaultModalProps) => {
               {/* Step 2 Fields */}
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div>
-                  <label htmlFor="lastName" className={labelClasses}>Last Name</label>
+                  <label htmlFor="firstName" className={labelClasses}>First Name</label>
                   <input
                     type="text"
-                    id="lastName"
-                    name="lastName"
-                    value={formData.lastName}
+                    id="firstName"
+                    name="firstName"
+                    value={formData.firstName}
                     onChange={handleInputChange}
                     className={inputClasses}
                     required
@@ -311,12 +311,12 @@ const RegisterModal = (props: DefaultModalProps) => {
                   />
                 </div>
                 <div>
-                  <label htmlFor="firstName" className={labelClasses}>First Name</label>
+                  <label htmlFor="lastName" className={labelClasses}>Last Name</label>
                   <input
                     type="text"
-                    id="firstName"
-                    name="firstName"
-                    value={formData.firstName}
+                    id="lastName"
+                    name="lastName"
+                    value={formData.lastName}
                     onChange={handleInputChange}
                     className={inputClasses}
                     required
@@ -375,7 +375,7 @@ const RegisterModal = (props: DefaultModalProps) => {
               </div>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div>
-                  <label htmlFor="provinces" className={labelClasses}>District</label>
+                  <label htmlFor="provinces" className={labelClasses}>Province/ City</label>
                   <select
                     id="provinces"
                     name="provinces"
@@ -431,14 +431,14 @@ const RegisterModal = (props: DefaultModalProps) => {
                   type="button"
                   onClick={handleReturn}
                   className={`${buttonClasses} bg-gray-600 hover:bg-gray-700 ${isRequest && 'cursor-not-allowed bg-gray-400'}`}
-                  {...isRequest && {disabled: true}} 
+                  {...isRequest && { disabled: true }}
                 >
                   {isRequest ? 'Loading...' : '< Back'}
                 </button>
                 <button
                   type="submit"
                   className={`${buttonClasses} bg-indigo-600 hover:bg-indigo-700 ${isRequest && 'cursor-not-allowed bg-gray-600'}`}
-                  {...isRequest && {disabled: true}}
+                  {...isRequest && { disabled: true }}
                 >
                   {isRequest ? 'Loading...' : 'Create Account'}
                 </button>
