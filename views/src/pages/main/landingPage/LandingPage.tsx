@@ -5,8 +5,8 @@ import RecentPodcast from "./RecentPodcast";
 import { getGenres } from "../../../services/GenreService";
 import TabNavigation from "./TabNavigation";
 import GenresPodcast from "./GenresPodcast";
-import ReportModal from "../../../components/modals/report/ReportModal";
-import { ReportType } from "../../../models/Report";
+// import ReportModal from "../../../components/modals/report/ReportModal";
+// import { ReportType } from "../../../models/Report";
 
 const LandingPage = () => {
   const [selectedTab, setSelectedTab] = useState('Recent');
