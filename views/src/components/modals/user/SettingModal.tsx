@@ -73,7 +73,7 @@ const SettingModals = (props:SettingModals) => {
     };
 
     fetchUserDetails();
-  }, []);
+  }, [props.isOpen]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
