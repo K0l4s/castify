@@ -21,5 +21,5 @@ public class OverviewModel {
     private long totalLikes;
     private long totalComments;
 //    private long totalViews;
-//    private long totalReportsAwait;
+    private long totalReportsAwait;
 }

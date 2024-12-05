@@ -10,4 +10,5 @@ export interface DashboardModel {
     totalPodcasts: number;
     totalLikes: number;
     totalComments: number;
+    totalReportsAwait:number;
 }

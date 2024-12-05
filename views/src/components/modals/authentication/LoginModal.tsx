@@ -69,6 +69,8 @@ const LoginModal = ({ trigger, isOpen, onClose }: DefaultModalProps) => {
       dispatch(login());
       dispatch(setUser(user));
       // toast.success('Login successful!');
+      // refresh page
+      window.location.reload();
       toast.clearAllToasts();
       toast.success('Login successful!');
       
