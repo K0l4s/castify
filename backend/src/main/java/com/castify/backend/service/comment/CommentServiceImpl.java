@@ -87,6 +87,15 @@ public class CommentServiceImpl implements ICommentService {
                 commentRepository.save(commentEntity);
             }
 
+            // Thêm ref trong PodcastEntity
+            if (podcastEntity.getComments() == null) {
+                podcastEntity.setComments(new ArrayList<>());
+            }
+
+            podcastEntity.getComments().add(commentEntity);
+
+            podcastRepository.save(podcastEntity);
+
             return modelMapper.map(commentEntity, CommentModel.class);
         } catch (Exception e) {
             System.out.println("Error saving comment: " + e.getMessage());
