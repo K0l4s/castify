@@ -22,10 +22,10 @@ const AdminSidebar = () => {
                 className={childrenClass}>
                 <FaUsersCog />
                 User Management</Link>
-              <Link to="/admin/podcast"
+              {/* <Link to="/admin/podcast"
                 className={childrenClass}>
                 <PiApplePodcastsLogoFill />
-                Podcast Management</Link>
+                Podcast Management</Link> */}
               <Link to="/admin/report"
                 className={childrenClass}>
                 <TbReport />

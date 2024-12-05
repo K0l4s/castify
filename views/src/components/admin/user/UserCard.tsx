@@ -63,8 +63,12 @@ const UserCard: React.FC<UserCardProps> = ({ user }) => {
                     </span>
                 </div>
                 <div className="mt-4 flex gap-2">
-                    <button className="w-full text-white bg-blue-500 hover:bg-blue-600 px-4 py-2 rounded-md">
-                        Chi tiết
+                    <button className="w-full text-white bg-blue-500 hover:bg-blue-600 px-4 py-2 rounded-md"
+                    // onClick={() => window.location.href = `/profile/${user.username}`}
+                    // open in new tab
+                    onClick={() => window.open(`/profile/${user.username}`, '_blank')}
+                    >
+                        Xem Profile
                     </button>
 
                     <button className="w-full text-white bg-red-500 hover:bg-red-600 px-4 py-2 rounded-md" onClick={handleOpenConfirm}>

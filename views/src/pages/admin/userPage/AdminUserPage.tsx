@@ -30,10 +30,11 @@ const AdminUserPage = () => {
   const [users, setUsers] = useState<BasicUser[]>([]);
   const [isTable, setIsTable] = useState(false);
   const [totalPages, setTotalPages] = useState(0);
-  const [selectedUserBan, setSelectedUserBan] = useState<BasicUser >(initBasicUser);
+  const [selectedUserBan, setSelectedUserBan] = useState<BasicUser>(initBasicUser);
   const [currentPage,
     setCurrentPage
   ] = useState(1);
+  const [searchQuery, setSearchQuery] = useState("");
 
   useEffect(() => {
     const fetchUsers = async () => {
@@ -46,24 +47,37 @@ const AdminUserPage = () => {
   const [isConfirmOpen, setIsConfirmOpen] = useState(false);
 
   const handleOpenConfirm = () => {
-      setIsConfirmOpen(true);
+    setIsConfirmOpen(true);
   };
-
+  const handleSearch = async (event: React.KeyboardEvent<HTMLInputElement>) => {
+    if (event.key === 'Enter') {
+      try {
+        // setLoading(true); // Uncomment nếu cần
+        const response = await userService.getAllUser(currentPage - 1, 9, searchQuery);
+        setUsers(response.data.data);
+        // setLoading(false); // Uncomment nếu cần
+      } catch (error) {
+        console.error("Error fetching reports:", error);
+        // setLoading(false); // Uncomment nếu cần
+      }
+      console.log("he")
+    }
+  };
   const handleConfirm = async () => {
-      console.log('Đã xác nhận!');
-      await userService.toggleBanUser(selectedUserBan.id).then(
-          () => {
-            selectedUserBan.nonBanned = !selectedUserBan.nonBanned;
-            setUsers(users.map(user => user.id === selectedUserBan.id ? selectedUserBan : user));
-              setIsConfirmOpen(false);
-          }
-      );
+    console.log('Đã xác nhận!');
+    await userService.toggleBanUser(selectedUserBan.id).then(
+      () => {
+        selectedUserBan.nonBanned = !selectedUserBan.nonBanned;
+        setUsers(users.map(user => user.id === selectedUserBan.id ? selectedUserBan : user));
+        setIsConfirmOpen(false);
+      }
+    );
 
   };
 
   const handleCancel = () => {
-      console.log('Đã hủy!');
-      setIsConfirmOpen(false);
+    console.log('Đã hủy!');
+    setIsConfirmOpen(false);
   };
   return (
     <div className="p-8 min-h-screen">
@@ -74,10 +88,9 @@ const AdminUserPage = () => {
         </svg>
         <input
           type="search"
-          // value={searchQuery}
-          // onChange={handleSearch}
-          // onFocus={handleSearchFocus}
-          // onBlur={handleSearchBlur}
+          value={searchQuery}
+          onChange={(e) => { setSearchQuery(e.target.value) }}
+          onKeyDown={handleSearch}
           placeholder="Search for username, email, phone..."
           className="w-full bg-transparent text-black dark:text-white outline-none text-sm placeholder-gray-500 focus:placeholder-gray-400 transition-colors duration-200"
           aria-label="Search"
@@ -86,11 +99,11 @@ const AdminUserPage = () => {
 
       </div>
       <div className="flex gap-2 justify-self-end mb-2 text-black dark:text-white">
-        <BsCardHeading onClick={() => setIsTable(false)} className={`text-2xl cursor-pointer ${!isTable && 'text-blue-500'}`} />
-        <BiTable onClick={() => setIsTable(true)} className={`text-2xl cursor-pointer  ${isTable && 'text-blue-500'}`} />
+        <BiTable onClick={() => setIsTable(false)} className={`text-2xl cursor-pointer ${!isTable && 'text-blue-500'}`} />
+        < BsCardHeading onClick={() => setIsTable(true)} className={`text-2xl cursor-pointer  ${isTable && 'text-blue-500'}`} />
       </div>
       {isTable ? (
-        <CustomTable headers={["ID", "Fullname", "Username", "Active", "Banned","Action"]}>
+        <CustomTable headers={["ID", "Fullname", "Username", "Active", "Banned", "Action"]}>
           {users.map((user) => (
             <tr key={user.id}>
               <td className="px-6 py-4 whitespace-nowrap">{user.id}</td>
@@ -113,14 +126,21 @@ const AdminUserPage = () => {
                 </span>
               </td>
               <td>
-                <button className="w-full text-white bg-red-500 hover:bg-red-600 px-4 py-2 rounded-md"
-                  onClick={() => {
-                    setSelectedUserBan(user);
-                    handleOpenConfirm();
-                  }}
-                >
-                  Ban
-                </button>
+                <div className="flex gap-2 ">
+                  <button className="w-full text-white bg-green-500 hover:bg-green-600 px-4 py-1 m-2 rounded-md"
+                    onClick={() => window.open(`/profile/${user.username}`, '_blank')}
+                  >
+                    Xem Profile
+                  </button>
+                  <button className="w-full text-white bg-red-500 hover:bg-red-600 px-4 py-1 m-2 rounded-md"
+                    onClick={() => {
+                      setSelectedUserBan(user);
+                      handleOpenConfirm();
+                    }}
+                  >
+                    Ban
+                  </button>
+                </div>
               </td>
               <ConfirmBox
                 isOpen={isConfirmOpen}
@@ -130,7 +150,7 @@ const AdminUserPage = () => {
                 onCancel={handleCancel}
                 confirmText="Đồng ý"
                 cancelText="Hủy"
-            />
+              />
             </tr>
           ))}
         </CustomTable>
@@ -147,11 +167,11 @@ const AdminUserPage = () => {
       {/* paginated */}
       <div className="flex justify-center mt-8 gap-2">
         <button className={`bg-blue-500 text-white px-4 py-2 rounded-md ${currentPage <= 1 && 'bg-gray-500 cursor-not-allowed'}`}
-        onClick={() => currentPage > 1 && setCurrentPage(currentPage - 1)}
+          onClick={() => currentPage > 1 && setCurrentPage(currentPage - 1)}
           disabled={currentPage <= 1}><BiLeftArrow /></button>
         <button className={`bg-blue-500 text-white px-4 py-2 rounded-md `}>{currentPage}</button>
         <button className={`bg-blue-500 text-white px-4 py-2 rounded-md ${currentPage >= totalPages && 'bg-gray-500 cursor-not-allowed'}`}
-                onClick={() => currentPage < totalPages && setCurrentPage(currentPage + 1)}
+          onClick={() => currentPage < totalPages && setCurrentPage(currentPage + 1)}
           disabled={currentPage >= totalPages}><BiRightArrow /></button>
       </div>
 

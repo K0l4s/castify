@@ -52,7 +52,9 @@ export const userService = {
         formData.append('cover', cover);
         return await axiosInstanceFile.put(`/api/v1/user/cover`, formData);
     },
-    getAllUser: async (pageNumber: number, pageSize:number) => {
+    getAllUser: async (pageNumber: number, pageSize:number,keyword?:string) => {
+        if(keyword)
+            return await axiosInstanceAuth.get(`/api/v1/admin/user?pageNumber=${pageNumber}&pageSize=${pageSize}&keyword=${keyword}`);
         return await axiosInstanceAuth.get(`/api/v1/admin/user?pageNumber=${pageNumber}&pageSize=${pageSize}`);
     },
     toggleBanUser: async (userId:string) => {

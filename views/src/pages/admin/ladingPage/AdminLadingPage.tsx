@@ -4,8 +4,10 @@ import { DashboardService } from "../../../services/DashboardService";
 import { Podcast } from "../../../models/PodcastModel";
 import { BasicUser } from "../../../models/User";
 import CustomButton from "../../../components/UI/custom/CustomButton";
+import { useNavigate } from "react-router-dom";
 
 const AdminLadingPage = () => {
+  const navigate = useNavigate();
   const [dashboard, setDashboard] = useState<DashboardModel>({
     newUsers: [],
     newPodcasts: [],
@@ -104,43 +106,47 @@ const AdminLadingPage = () => {
           Day
         </CustomButton>
       </div>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6 mb-8">
+      <div className="grid grid-cols-1 md:grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
         {/* Card component */}
         {[
           {
-            title: 'Total Users',
+            title: 'New Users',
             value: dashboard.totalUsers,
             prevValue: prevDashboard.totalUsers,
             color: 'text-blue-500 dark:text-blue-400',
             icon: 'fas fa-users',
+            link: '/admin/user',
           },
           {
-            title: 'Total Podcasts',
+            title: 'New Podcasts',
             value: dashboard.totalPodcasts,
             prevValue: prevDashboard.totalPodcasts,
             color: 'text-green-500 dark:text-green-400',
             icon: 'fas fa-podcast',
+            link: null,
           },
-          {
-            title: 'Total Likes',
-            value: dashboard.totalLikes,
-            prevValue: prevDashboard.totalLikes,
-            color: 'text-red-500 dark:text-red-400',
-            icon: 'fas fa-thumbs-up',
-          },
-          {
-            title: 'Total Comments',
-            value: dashboard.totalComments,
-            prevValue: prevDashboard.totalComments,
-            color: 'text-purple-500 dark:text-purple-400',
-            icon: 'fas fa-comments',
-          },
+
+          // {
+          //   title: 'Total Likes',
+          //   value: dashboard.totalLikes,
+          //   prevValue: prevDashboard.totalLikes,
+          //   color: 'text-red-500 dark:text-red-400',
+          //   icon: 'fas fa-thumbs-up',
+          // },
+          // {
+          //   title: 'Total Comments',
+          //   value: dashboard.totalComments,
+          //   prevValue: prevDashboard.totalComments,
+          //   color: 'text-purple-500 dark:text-purple-400',
+          //   icon: 'fas fa-comments',
+          // },
           {
             title: 'Reports Await',
             value: dashboard.totalReportsAwait,
             prevValue: prevDashboard.totalReportsAwait,
             color: 'text-yellow-500 dark:text-yellow-400',
             icon: 'fas fa-exclamation-circle',
+            link: '/admin/report',
           },
         ].map((item, index) => {
           const diff = item.value - item.prevValue;
@@ -149,7 +155,10 @@ const AdminLadingPage = () => {
           return (
             <div
               key={index}
-              className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300 flex flex-col items-center"
+              className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300 flex flex-col items-center
+              hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer
+              "
+              onClick={() => item.link ? navigate(item.link) : null}
             >
               <div className="flex items-center gap-3">
                 <i className={`${item.icon} text-3xl ${item.color}`}></i>
@@ -181,7 +190,9 @@ const AdminLadingPage = () => {
               <p>No new users</p>
             ) : (
               dashboard.newUsers.map((user: BasicUser) => (
-                <li key={user.id} className="flex items-center mb-4">
+                <li key={user.id} className="flex items-center mb-4 hover:bg-gray-200 dark:hover:bg-gray-700 p-2 rounded-full cursor-pointer"
+                onClick={() => window.open(`/profile/${user.username}`, "_blank")}
+                >
                   <img
                     src={user.avatarUrl}
                     alt={user.fullname}
@@ -207,7 +218,9 @@ const AdminLadingPage = () => {
               <p>No new podcasts</p>
             ) : (
               dashboard.newPodcasts.map((podcast: Podcast) => (
-                <li key={podcast.id} className="mb-4">
+                <li key={podcast.id} className="mb-4 hover:bg-gray-200 dark:hover:bg-gray-700 px-4 py-3 rounded-xl cursor-pointer"
+                onClick={() => window.open(`/watch?pid=${podcast.id}`, "_blank")}
+                >
                   <div className="flex items-center">
                     {podcast.thumbnailUrl ? (
                       <img
