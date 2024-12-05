@@ -15,6 +15,7 @@ import { RootState } from "../../../redux/store";
 import { useToast } from "../../../context/ToastProvider";
 import { formatDistanceToNow } from 'date-fns';
 import { setupVideoViewTracking } from "./video";
+import { userService } from "../../../services/UserService";
 
 const PodcastViewport: React.FC = () => {
   const location = useLocation();
@@ -118,6 +119,20 @@ const PodcastViewport: React.FC = () => {
     }
   };
 
+  const handleFollow = async (targetUsername: string) => {
+    if (!isAuthenticated) {
+      toast.warning("Please login to do this action");
+      return;
+    }
+    try {
+      await userService.followUser(targetUsername);
+      const updatedPodcast = await getPodcastById(id!);
+      setPodcast(updatedPodcast);
+    } catch (error) {
+      console.error("Error following user:", error);
+    }
+  };
+
   const toggleOptions = () => {
     setShowOptions(!showOptions);
   };
@@ -156,27 +171,25 @@ const PodcastViewport: React.FC = () => {
               src={podcast.user.avatarUrl || defaultAvatar} 
               alt="avatar" 
               className="w-10 h-10 rounded-full cursor-pointer" 
-              onClick={() => navigate(`/profile/${userRedux?.username}`)}
+              onClick={() => navigate(`/profile/${podcast.username}`)}
             />
             <div className="flex flex-col">
               <span 
                 className="text-base font-medium text-black dark:text-white cursor-pointer" 
-                onClick={() => navigate(`/profile/${userRedux?.username}`)}>
+                onClick={() => navigate(`/profile/${podcast.username}`)}>
                 {userInfo}
               </span>
-              <span className="text-sm text-gray-700 dark:text-gray-300">100K Follow</span>
+              <span className="text-sm text-gray-700 dark:text-gray-300">{podcast.user.totalFollower} follower</span>
             </div>
             {podcast.user.id !== userRedux?.id ? (
               <CustomButton
-                text="Follow"
+                text={`${podcast.user.follow ? "Unfollow" : "Follow" } `}
                 variant="primary"
                 rounded="full"
-                onClick={() => {
-                  if (!isAuthenticated) {
-                    toast.warning("Please login to do this action");
-                  }
-                }}
-                className="bg-gray-600 hover:bg-gray-500 dark:bg-gray-600 hover:dark:bg-gray-500"
+                onClick={() => handleFollow(podcast.user.username)}
+                className={`bg-gray-600 hover:bg-gray-500 
+                  ${!podcast.user.follow ? "bg-blue-700 hover:bg-blue-900 dark:bg-gray-100 dark:text-gray-800 hover:dark:bg-gray-400" 
+                    : "hover:bg-gray-100 dark:bg-gray-600 dark:hover:bg-gray-500 dark:text-white"}`}
               />
             ): (
               <CustomButton

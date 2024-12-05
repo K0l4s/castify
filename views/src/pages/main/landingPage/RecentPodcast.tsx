@@ -14,7 +14,6 @@ const RecentPodcast: React.FC = () => {
       try {
         const response = await getPodcastRecent(0, 20);
         setPodcasts(response.content);
-        console.log(response.content);
         setLoading(false);
       } catch (error) {
         setError('Failed to fetch recent podcasts');

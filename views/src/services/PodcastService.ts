@@ -161,13 +161,14 @@ export const incrementPodcastViews = async (podcastId: string) => {
 };
 
 export const getUserPodcasts = async (
+  username: string,
   page = 0,
   size = 12,
   sortBy: 'newest' | 'oldest' | 'views' = 'newest'
 ) => {
   try {
-    const response = await axiosInstanceAuth.get<PodcastResponse>(
-      "/api/v1/podcast/user", {
+    const response = await axiosInstance.get<PodcastResponse>(
+      `/api/v1/podcast/user/${username}`, {
       params: {
         page,
         size,
