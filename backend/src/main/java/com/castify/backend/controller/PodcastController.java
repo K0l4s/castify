@@ -239,9 +239,7 @@ public class PodcastController {
         return new ResponseEntity<>("Invalid JWT token format", HttpStatus.BAD_REQUEST);
     }
 
-
-
-
+    
 
     // Display podcast on home page
     @GetMapping("/recent")

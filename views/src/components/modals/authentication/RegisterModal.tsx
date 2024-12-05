@@ -51,7 +51,7 @@ const RegisterModal = (props: DefaultModalProps) => {
           const response = await locationService.getProvinces();
           setProvincesList(response.data.data);
         } catch (error) {
-          toast.error("Failed to load provinces");
+          // toast.error("Failed to load provinces");
         }
       }
       fetchData();

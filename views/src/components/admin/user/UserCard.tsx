@@ -2,6 +2,7 @@ import { useState } from "react";
 import { BasicUser } from "../../../models/User";
 import ConfirmBox from "../../UI/dialogBox/ConfirmBox";
 import { userService } from "../../../services/UserService";
+import { Role } from "../../../constants/Role";
 
 interface UserCardProps {
     user: BasicUser;
@@ -30,12 +31,18 @@ const UserCard: React.FC<UserCardProps> = ({ user }) => {
         setIsConfirmOpen(false);
     };
     return (
-        <div className="bg-white dark:bg-gray-900 text-black dark:text-white rounded-lg shadow-md overflow-hidden h-full">
+        <div className="relative bg-white dark:bg-gray-900 text-black dark:text-white rounded-lg shadow-md overflow-hidden h-full">
             <img
                 src={user.coverUrl}
                 alt="cover"
                 className="h-32 w-full object-cover"
             />
+            <span
+                className={`text-sm top-2 right-2 px-3 absolute py-1 rounded-full ${user.role == Role.A ? "bg-green-100 text-green-700" : "bg-red-100 text-red-700"
+                    }`}
+            >
+                {user.role == Role.A ? "QUẢN TRỊ VIÊN" : "NGƯỜI DÙNG"}
+            </span>
             <div className="p-4">
                 <div className="flex items-center gap-4">
                     <img
@@ -61,12 +68,13 @@ const UserCard: React.FC<UserCardProps> = ({ user }) => {
                     >
                         {user.nonBanned ? "Not Banned" : "Banned"}
                     </span>
+
                 </div>
                 <div className="mt-4 flex gap-2">
                     <button className="w-full text-white bg-blue-500 hover:bg-blue-600 px-4 py-2 rounded-md"
-                    // onClick={() => window.location.href = `/profile/${user.username}`}
-                    // open in new tab
-                    onClick={() => window.open(`/profile/${user.username}`, '_blank')}
+                        // onClick={() => window.location.href = `/profile/${user.username}`}
+                        // open in new tab
+                        onClick={() => window.open(`/profile/${user.username}`, '_blank')}
                     >
                         Xem Profile
                     </button>

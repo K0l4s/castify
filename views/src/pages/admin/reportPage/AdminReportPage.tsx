@@ -92,14 +92,13 @@ const AdminReportPage = () => {
             console.error("Error fetching reports:", error);
             // setLoading(false); // Uncomment nếu cần
           }
-          console.log("he")
         }
       };
       
     return (
         <div className="min-h-screen">
             {/* Status and Type Filters */}
-            <div className="flex justify-center items-center space-x-4">
+            <div className="flex justify-center items-center space-x-4 py-2 w-6/12 m-auto bg-gray-300 dark:bg-gray-800 rounded-full">
                 {statusOptions.map((status) => (
                     <CustomButton
                         key={status.value}
@@ -114,7 +113,7 @@ const AdminReportPage = () => {
 
             <div className="mt-4">
                 {/* Add filter for Report Type */}
-                <div className="flex justify-center items-center space-x-4">
+                <div className="flex justify-center items-center space-x-4 py-2 w-6/12 m-auto bg-gray-300 dark:bg-gray-800 rounded-full">
                     {typeOptions.map((type) => (
                         <CustomButton
                             key={type.value}
