@@ -12,7 +12,7 @@ interface PodcastCardProps {
     username: string;
   };
   thumbnailUrl: string;
-  videoUrl: string;
+  videoUrl?: string;
   views: number;
 }
 
@@ -29,7 +29,7 @@ const PodcastCard: React.FC<PodcastCardProps> = ({
   useEffect(() => {
     const fetchDuration = async () => {
       try {
-        const durationInSeconds = await getVideoDuration(videoUrl);
+        const durationInSeconds = await getVideoDuration(videoUrl!);
         const minutes = Math.floor(durationInSeconds / 60);
         const seconds = Math.floor(durationInSeconds % 60);
         setDuration(`${minutes}:${seconds < 10 ? '0' : ''}${seconds}`);
