@@ -75,11 +75,12 @@ public class ReportServiceImpl implements IReportService {
                     podcastService.deletePodcastsByIds(ids,true);
                     report.getHandleMethod().add("Delete Podcast " + rep.getTargetId());
                 }
-//                else if (rep.getType() == ReportProgressType.DEL_COMMENT){
-//                    List<String> ids = new ArrayList<>();
-//                    ids.add(rep.getTargetId());
-//                    commentService.(ids,true);
-//                }
+                else if (rep.getType() == ReportProgressType.DEL_COMMENT){
+                    List<String> ids = new ArrayList<>();
+                    ids.add(rep.getTargetId());
+                    commentService.deleteCommentsByIds(ids,true);
+                    report.getHandleMethod().add("Delete Comment " + rep.getTargetId());
+                }
             }
         report.setUserResponse(userService.getUserByAuthentication());
         reportRepository.save(report);
