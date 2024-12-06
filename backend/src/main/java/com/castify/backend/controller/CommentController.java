@@ -1,6 +1,7 @@
 package com.castify.backend.controller;
 
 import com.castify.backend.entity.UserEntity;
+import com.castify.backend.enums.Role;
 import com.castify.backend.models.PageDTO;
 import com.castify.backend.models.comment.LikeCommentDTO;
 import com.castify.backend.models.comment.CommentRequestDTO;
@@ -20,6 +21,9 @@ import java.util.List;
 public class CommentController {
     @Autowired
     private ICommentService commentService;
+
+    @Autowired
+    private IUserService userService;
 
     @PostMapping("/add")
     public ResponseEntity<CommentModel> addComment(@RequestBody CommentRequestDTO commentRequestDTO) {
@@ -81,6 +85,21 @@ public class CommentController {
         catch (Exception ex){
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                     .body("Error"+ex.getMessage());
+        }
+    }
+
+    @DeleteMapping("/delete")
+    public ResponseEntity<?> deletePodcasts(@RequestBody List<String> commentIds) {
+        try {
+            UserEntity currentUser = userService.getUserByAuthentication();
+
+            // Kiem tra quyen admin
+            boolean isAdmin = currentUser.getRole() == Role.ADMIN;
+
+            commentService.deleteCommentsByIds(commentIds, isAdmin);
+            return ResponseEntity.ok().build();
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
         }
     }
 }

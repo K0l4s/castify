@@ -1,6 +1,6 @@
 import { createSlice, PayloadAction, createAsyncThunk } from '@reduxjs/toolkit';
 import { Comment } from '../../models/CommentModel';
-import { addComment, getCommentReplies, getPodcastComments, likeComment } from '../../services/CommentService';
+import { addComment, deleteComment, getCommentReplies, getPodcastComments, likeComment } from '../../services/CommentService';
 
 interface CommentsState {
   comments: Comment[];
@@ -45,6 +45,14 @@ export const likeCommentAction = createAsyncThunk(
   async ({ commentId }: { commentId: string }) => {
     const response = await likeComment(commentId);
     return { commentId, liked: response };
+  }
+);
+
+export const deleteCommentAction = createAsyncThunk(
+  'comments/deleteComment',
+  async ({ commentIds }: { commentIds: string[] }) => {
+    await deleteComment(commentIds);
+    return commentIds;
   }
 );
 
@@ -113,6 +121,15 @@ const commentsSlice = createSlice({
             }
           });
         }
+      })
+      .addCase(deleteCommentAction.fulfilled, (state, action: PayloadAction<string[]>) => {
+        const commentIds = action.payload;
+        state.comments = state.comments.filter(comment => !commentIds.includes(comment.id));
+        state.comments.forEach(comment => {
+          if (comment.replies) {
+            comment.replies = comment.replies.filter(reply => !commentIds.includes(reply.id));
+          }
+        });
       });
   },
 });

@@ -14,7 +14,7 @@ import { AppDispatch, RootState } from "../../../redux/store";
 import { FaAngleDown, FaAngleUp, FaFlag } from "react-icons/fa";
 import { useToast } from "../../../context/ToastProvider";
 import { useNavigate } from "react-router-dom";
-import { addNewComment, fetchCommentReplies, fetchComments, likeCommentAction, resetComments } from "../../../redux/slice/commentSlice";
+import { addNewComment, deleteCommentAction, fetchCommentReplies, fetchComments, likeCommentAction, resetComments } from "../../../redux/slice/commentSlice";
 import { AiOutlineLoading3Quarters } from "react-icons/ai";
 
 interface CommentSectionProps {
@@ -224,9 +224,14 @@ const CommentSection: React.FC<CommentSectionProps> = ({ podcastId, totalComment
     // Thêm logic xử lý báo cáo ở đây
   };
 
-  const handleDelete = (commentId: string) => {
-    console.log(`Delete comment: ${commentId}`);
-    // Thêm logic xử lý xóa ở đây
+  const handleDelete = async (commentId: string) => {
+    try {
+      dispatch(deleteCommentAction({ commentIds: [commentId] }));
+      toast.success("Comment deleted successfully");
+    } catch (error) {
+      console.error(`Failed to delete comment: ${commentId}`, error);
+      toast.error("Failed to delete comment");
+    }
   };
 
   const handleEdit = (commentId: string) => {
@@ -539,7 +544,7 @@ const CommentSection: React.FC<CommentSectionProps> = ({ podcastId, totalComment
                               Edit
                           </li>
                           <li className="px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer" 
-                            onClick={() => handleDelete(comment.id)}>
+                            onClick={() => handleDelete(reply.id)}>
                               <RiDeleteBin6Line className="inline-block mb-1 mr-2" />
                               Delete
                           </li>
