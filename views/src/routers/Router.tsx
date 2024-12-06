@@ -24,6 +24,7 @@ import HistoryPage from '../pages/main/historyPage/HistoryPage'
 import DetailPodcastPage from '../pages/creator/ladingPage/DetailPodcastPage'
 import AdminReportPage from '../pages/admin/reportPage/AdminReportPage'
 import SearchPage from '../pages/main/searchPage/SearchPage'
+import CreatorFollower from '../pages/creator/creatorFollower/CreatorFollower'
 
 const Router = () => {
     const isAdmin = useSelector((state: RootState) => state.auth.user?.role === Role.A);
@@ -49,9 +50,11 @@ const Router = () => {
 
                 <Route path='/creator/*' element={<CreatorLayout />} >
                     <Route path='' element={<CreatorLandingPage />} />
+                    <Route path='dashboard' element={<CreatorLandingPage />} />
                     <Route path='contents' element={<MyPodcastPage />} />
                     <Route path='podcast/:id' element={<DetailPodcastPage />} />
                     <Route path='video-editor' element={<VideoEditor />} />
+                    <Route path='followers' element={<CreatorFollower />} />
                 </Route>
 
                 <Route element={<MainLayout />} >

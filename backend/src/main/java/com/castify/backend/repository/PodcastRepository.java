@@ -34,5 +34,6 @@ public interface PodcastRepository extends MongoRepository<PodcastEntity, String
             "]}")
     Page<PodcastEntity> searchPodcastByFields(String keyword, Pageable pageable);
 
+    List<PodcastEntity> findByUserId(String userId);
 
 }

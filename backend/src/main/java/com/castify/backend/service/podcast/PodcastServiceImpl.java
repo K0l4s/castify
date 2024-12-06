@@ -192,7 +192,7 @@ public class PodcastServiceImpl implements IPodcastService {
         UserSimple userSimple = modelMapper.map(podcastUser, UserSimple.class);
 
         // Tính tổng follower
-        long followerSize = userRepository.findUsersFollowing(podcastUser.getId()).size();
+        long followerSize = userRepository.findUsersFollowers(podcastUser.getId()).size();
         userSimple.setTotalFollower(followerSize);
 
         // Tính tổng following
@@ -245,7 +245,7 @@ public class PodcastServiceImpl implements IPodcastService {
         UserSimple userSimple = modelMapper.map(podcastUser, UserSimple.class);
 
         // Tính tổng follower
-        long followerSize = userRepository.findUsersFollowing(podcastUser.getId()).size();
+        long followerSize = userRepository.findUsersFollowers(podcastUser.getId()).size();
         userSimple.setTotalFollower(followerSize);
 
         // Tính tổng số người đang theo dõi
@@ -287,7 +287,7 @@ public class PodcastServiceImpl implements IPodcastService {
         UserSimple userSimple = modelMapper.map(podcastUser, UserSimple.class);
 
         // Tính tổng follower
-        long followerSize = userRepository.findUsersFollowing(podcastUser.getId()).size();
+        long followerSize = userRepository.findUsersFollowers(podcastUser.getId()).size();
         System.out.println("followerSize " + followerSize);
         userSimple.setTotalFollower(followerSize);
 

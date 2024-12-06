@@ -66,9 +66,6 @@ export interface updateUser {
 }
 export interface userCard {
     id: string;
-    // firstName: string;
-    // middleName: string;
-    // lastName: string;
     fullname:string;
     username: string;
     avatarUrl: string;
@@ -76,7 +73,6 @@ export interface userCard {
     totalFollower:number;
     totalFollowing:number;
     totalPost:number;
-    // [key: string]: any;
 }
 
 export interface userLogin {

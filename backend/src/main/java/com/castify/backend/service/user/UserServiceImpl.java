@@ -77,7 +77,7 @@ public class UserServiceImpl implements IUserService {
         UserDetailModel userDetail = modelMapper.map(userEntity, UserDetailModel.class);
 
         // Tính toán số lượng follower
-        long followerSize = userRepository.findUsersFollowing(userEntity.getId()).size();
+        long followerSize = userRepository.findUsersFollowers(userEntity.getId()).size();
         userDetail.setTotalFollower(followerSize);
 
         // Tính toán số lượng posts
@@ -317,6 +317,28 @@ public class UserServiceImpl implements IUserService {
         int totalPages = similarUsers.getTotalPages();
         return new PaginatedResponse<>(resultUsers, totalPages);
     }
+    @Override
+    public PaginatedResponse<UserSimple> getFollowerUserListByUser(int pageNumber, int pageSize) throws Exception {
+        // Lấy thông tin người dùng hiện tại
+        UserEntity currentUser = getUserByAuthentication();
+
+        // Tạo Pageable để hỗ trợ phân trang
+        Pageable pageable = PageRequest.of(pageNumber, pageSize);
+
+        // Truy vấn danh sách người theo dõi từ repository
+        Page<UserEntity> followersPage = userRepository.findFollowersList(currentUser.getId(), pageable);
+
+        // Sử dụng ModelMapper để ánh xạ từ UserEntity sang UserSimple
+        ModelMapper modelMapper = new ModelMapper();
+        List<UserSimple> followers = followersPage.getContent().stream()
+                .map(this::mapToUserSimpleAnonymous)
+                .toList();
+
+        // Trả về response với dữ liệu và số trang
+        return new PaginatedResponse<>(followers, followersPage.getTotalPages());
+    }
+
+
     private UserSimple mapToUserSimpleAnonymous(UserEntity userEntity) {
         // Chuyển đổi UserEntity thành UserSimple
         UserSimple userSimple = modelMapper.map(userEntity, UserSimple.class);
@@ -346,7 +368,7 @@ public class UserServiceImpl implements IUserService {
     }
 
     private long getFollowerCount(UserEntity userEntity) {
-        return userRepository.findUsersFollowing(userEntity.getId()).size();
+        return userRepository.findUsersFollowers(userEntity.getId()).size();
     }
 
     private long getPostCount(UserEntity userEntity) {
