@@ -205,12 +205,12 @@ const PodcastViewport: React.FC = () => {
             {podcast.user.id !== userRedux?.id ? (
               <CustomButton
                 text={`${podcast.user.follow ? "Unfollow" : "Follow" } `}
-                variant="primary"
+                variant="ghost"
                 rounded="full"
                 onClick={() => handleFollow(podcast.user.username)}
                 className={`bg-gray-600 hover:bg-gray-500 
-                  ${!podcast.user.follow ? "bg-blue-700 hover:bg-blue-900 dark:bg-gray-100 dark:text-gray-800 hover:dark:bg-gray-400" 
-                    : "hover:bg-gray-100 dark:bg-gray-600 dark:hover:bg-gray-500 dark:text-white"}`}
+                  ${!podcast.user.follow ? "bg-gray-800 text-white hover:bg-gray-700 dark:bg-gray-100 dark:text-gray-800 hover:dark:bg-gray-400" 
+                    : "text-black bg-white border border-black hover:bg-gray-800 hover:text-white dark:bg-gray-600 dark:hover:bg-gray-500 dark:text-white"}`}
               />
             ): (
               <CustomButton
