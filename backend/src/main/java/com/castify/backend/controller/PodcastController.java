@@ -119,7 +119,9 @@ public class PodcastController {
                 thumbnailUrl = uploadFileService.uploadImageBytes(FileUtils.encodeFileToBase64(tempThumbnailPath.toFile()));
             }
 
-            CreatePodcastModel createPodcastModel = new CreatePodcastModel(title, content, videoPath.toString(), thumbnailUrl, genreIds);
+            long duration = ffmpegService.getVideoDuration(videoPath.toString());
+
+            CreatePodcastModel createPodcastModel = new CreatePodcastModel(title, content, videoPath.toString(), thumbnailUrl, genreIds, duration);
 
             // Call service and pass video file path
             PodcastModel podcastModel = podcastService.createPodcast(createPodcastModel);

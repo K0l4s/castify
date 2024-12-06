@@ -15,6 +15,7 @@ import CustomButton from "../../../components/UI/custom/CustomButton";
 import { deletePodcasts, togglePodcasts } from "../../../services/PodcastService";
 import ConfirmDeleteModal from "../../../components/modals/utils/ConfirmDelete";
 import { useToast } from "../../../context/ToastProvider";
+import { GrView } from "react-icons/gr";
 
 const MyPodcastPage: React.FC = () => {
   const isAuthenticated = useSelector((state: RootState) => state.auth.isAuthenticated);
@@ -329,6 +330,14 @@ const MyPodcastPage: React.FC = () => {
               >
                 <FiEdit size={20} />
               </button>
+              <button 
+                title="View on Blankcil"
+                onClick={() => navigate(`/watch?pid=${podcast.id}`)}
+                className="text-blue-500 hover:text-blue-700 ml-4"
+              >
+                <GrView size={20} />
+              </button>
+                
             </div>
           </div>
         ))}

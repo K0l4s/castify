@@ -84,6 +84,7 @@ public class PodcastServiceImpl implements IPodcastService {
         podcastEntity.setContent(createPodcastModel.getContent());
         podcastEntity.setVideoUrl(createPodcastModel.getVideoPath());
         podcastEntity.setThumbnailUrl(createPodcastModel.getThumbnailPath());
+        podcastEntity.setDuration(createPodcastModel.getDuration());
 
         podcastEntity.setGenres(validGenres);
         podcastEntity.setUser(userEntity);

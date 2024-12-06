@@ -47,6 +47,7 @@ const SearchPodcastResult = () => {
             }}
             thumbnailUrl={podcast.thumbnailUrl || "/TEST.png"}
             views={podcast.views}
+            duration={podcast.duration}
           />))}
 
       </div>

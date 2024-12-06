@@ -1,8 +1,8 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { FaPlay, FaClock } from 'react-icons/fa';
 import { Link } from 'react-router-dom';
-import { getVideoDuration } from './video';
 import { formatViewsToShortly } from '../../../utils/formatViews';
+import { formatTimeDuration } from './video';
 
 interface PodcastCardProps {
   id: string;
@@ -12,8 +12,8 @@ interface PodcastCardProps {
     username: string;
   };
   thumbnailUrl: string;
-  videoUrl?: string;
   views: number;
+  duration: number;
 }
 
 const PodcastCard: React.FC<PodcastCardProps> = ({
@@ -21,26 +21,9 @@ const PodcastCard: React.FC<PodcastCardProps> = ({
   title,
   user,
   thumbnailUrl,
-  videoUrl,
   views,
+  duration,
 }) => {
-  const [duration, setDuration] = useState<string | null>(null);
-
-  useEffect(() => {
-    const fetchDuration = async () => {
-      try {
-        const durationInSeconds = await getVideoDuration(videoUrl!);
-        const minutes = Math.floor(durationInSeconds / 60);
-        const seconds = Math.floor(durationInSeconds % 60);
-        setDuration(`${minutes}:${seconds < 10 ? '0' : ''}${seconds}`);
-      } catch (error) {
-        console.error(error);
-      }
-    };
-
-    fetchDuration();
-  }, [videoUrl]);
-
   return (
     <div className="bg-transparent rounded-xl shadow-lg overflow-hidden transform hover:scale-105 transition-all duration-300">
       {/* Thumbnail Container */}
@@ -60,7 +43,7 @@ const PodcastCard: React.FC<PodcastCardProps> = ({
           </div>
           <div className="absolute bottom-2 right-2 bg-black bg-opacity-75 px-2 py-1 rounded-md flex items-center">
             <FaClock className="text-white mr-1 text-sm" size={18} />
-            <span className="text-white text-sm">{duration}</span>
+            <span className="text-white text-sm">{formatTimeDuration(duration)}</span>
           </div>
         </div>
       </Link>

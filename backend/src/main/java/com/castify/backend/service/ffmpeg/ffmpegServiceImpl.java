@@ -70,4 +70,29 @@ public class ffmpegServiceImpl implements IFFmpegService {
 
         return outputImagePath;
     }
+
+    @Override
+    public long getVideoDuration(String videoPath) {
+        try {
+            ProcessBuilder processBuilder = new ProcessBuilder(
+                    "ffprobe",
+                    "-i", videoPath,
+                    "-show_entries", "format=duration",
+                    "-v", "quiet",
+                    "-of", "csv=p=0"
+            );
+            processBuilder.redirectErrorStream(true);
+
+            Process process = processBuilder.start();
+            try (BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()))) {
+                String line = reader.readLine();
+                if (line != null) {
+                    return Math.round(Double.parseDouble(line)); // Convert duration to seconds
+                }
+            }
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to get video duration: " + e.getMessage(), e);
+        }
+        return 0;
+    }
 }
