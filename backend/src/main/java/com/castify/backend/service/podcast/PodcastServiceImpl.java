@@ -325,6 +325,33 @@ public class PodcastServiceImpl implements IPodcastService {
     }
 
     @Override
+    public PageDTO<PodcastModel> getSuggestedPodcastsByGenres(List<String> genreIds, String currentPodcastId, int page, int size) {
+        if (genreIds == null || genreIds.isEmpty()) {
+            throw new IllegalArgumentException("Genre IDs must not be null or empty.");
+        }
+
+        // Query các podcast có ít nhất một genre trùng với id trong genreIds
+        Criteria criteria = Criteria.where("genres._id").in(genreIds).and("_id").ne(currentPodcastId);
+        Query baseQuery = new Query(criteria);
+
+        // Đếm tổng số podcast
+        long totalElements = mongoTemplate.count(baseQuery, PodcastEntity.class);
+
+        // Áp dụng phân trang cho truy vấn
+        Query pagedQuery = baseQuery.with(PageRequest.of(page, size));
+        List<PodcastEntity> podcastEntities = mongoTemplate.find(pagedQuery, PodcastEntity.class);
+
+        List<PodcastModel> podcastModels = podcastEntities.stream()
+                .map(podcast -> modelMapper.map(podcast, PodcastModel.class))
+                .toList();
+
+        int totalPages = (int) Math.ceil((double) totalElements / size);
+
+        // Trả về đối tượng PageDTO
+        return new PageDTO<>(podcastModels, page, totalPages, (int) totalElements);
+    }
+
+    @Override
     public void incrementPodcastViews(String podcastId) {
         Query query = new Query(Criteria.where("_id").is(podcastId));
         Update update = new Update().inc("views", 1);
@@ -431,7 +458,6 @@ public class PodcastServiceImpl implements IPodcastService {
 
             // Xóa các comment liên quan đến podcast
             List<CommentEntity> comments = commentRepository.findByPodcastId(podcast.getId());
-            System.out.println("List comments: " + comments);
 
             if (comments != null && !comments.isEmpty()) {
                 for (CommentEntity comment : comments) {

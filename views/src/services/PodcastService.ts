@@ -151,6 +151,32 @@ export const getPodcastsByGenre = async (genreId: string, page: number, size: nu
   }
 };
 
+export const getSuggestedPodcastsByGenres = async (
+  id: string,
+  genreIds: string[],
+  page = 0,
+  size = 5
+) => {
+  try {
+    const response = await axiosInstance.get<PodcastResponse>(
+      `/api/v1/podcast/suggested-by-genres/${id}`, {
+      params: {
+        genreIds: genreIds.join(','),
+        page,
+        size
+      }
+    });
+
+    response.data.content.forEach(podcast => {
+      podcast.videoUrl = `http://localhost:8081/api/v1/podcast/video?path=${encodeURIComponent(podcast.videoUrl)}`;
+    });
+
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};
+
 export const incrementPodcastViews = async (podcastId: string) => {
   try {
     const response = await axiosInstanceAuth.post(`/api/v1/podcast/${podcastId}/inc-views`);

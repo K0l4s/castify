@@ -17,7 +17,7 @@ const PodcastTag: React.FC<PodcastTagProps> = ({ podcast }) => {
     <div className="relative rounded-lg overflow-hidden transform transition-transform duration-300">
       <Link to={`/watch?pid=${podcast.id}`} className="block">
         <div className="relative group">
-          <img src={podcast.thumbnailUrl || "/TEST.png"} alt={podcast.title} className="w-full h-56 object-fit" />
+          <img src={podcast.thumbnailUrl || "/TEST.png"} alt={podcast.title} className="w-full h-56 object-fit rounded-md" />
           <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
             <FaPlay className="text-white text-4xl" />
           </div>

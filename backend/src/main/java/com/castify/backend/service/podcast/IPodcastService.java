@@ -19,6 +19,7 @@ public interface IPodcastService {
     String toggleLikeOnPodcast(String id) throws Exception;
     PageDTO<PodcastModel> getRecentPodcasts(int page, int size);
     PageDTO<PodcastModel> getPodcastsByGenre(String genreId, int page, int size);
+    PageDTO<PodcastModel> getSuggestedPodcastsByGenres(List<String> genreIds, String currentPodcastId, int page, int size);
     void incrementPodcastViews(String podcastId);
     PageDTO<PodcastModel> getUserPodcasts(String username, int page, int size, String sortBy) throws Exception;
 
