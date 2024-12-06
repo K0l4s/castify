@@ -1,17 +1,35 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Podcast } from '../../../models/PodcastModel';
 import { formatDistanceToNow } from 'date-fns';
 import default_avatar from '../../../assets/images/default_avatar.jpg';
 import { Link } from 'react-router-dom';
-import { FaPlay } from 'react-icons/fa';
+import { FaPlay, FaRegClock } from 'react-icons/fa';
+import { getVideoDuration } from './video';
 
 interface PodcastTagProps {
   podcast: Podcast;
 }
 
 const PodcastTag: React.FC<PodcastTagProps> = ({ podcast }) => {
+  const [duration, setDuration] = useState<string | null>(null);
+
   const author = podcast.user.fullname;
   const createdDay = formatDistanceToNow(new Date(podcast.createdDay), { addSuffix: true });
+
+  useEffect(() => {
+    const fetchDuration = async () => {
+      try {
+        const durationInSeconds = await getVideoDuration(podcast.videoUrl);
+        const minutes = Math.floor(durationInSeconds / 60);
+        const seconds = Math.floor(durationInSeconds % 60);
+        setDuration(`${minutes}:${seconds < 10 ? '0' : ''}${seconds}`);
+      } catch (error) {
+        console.error(error);
+      }
+    };
+
+    fetchDuration();
+  }, [podcast.videoUrl]);
 
   return (
     <div className="relative rounded-lg overflow-hidden transform transition-transform duration-300">
@@ -21,6 +39,12 @@ const PodcastTag: React.FC<PodcastTagProps> = ({ podcast }) => {
           <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
             <FaPlay className="text-white text-4xl" />
           </div>
+          {duration && (
+            <div className="absolute bottom-2 right-2 bg-black bg-opacity-75 text-white text-sm px-2 py-1 rounded">
+              <FaRegClock className='inline-block mr-1' size={16} />
+              {duration}
+            </div>
+          )}
         </div>
       </Link>
       <div className="p-2 flex">

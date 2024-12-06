@@ -7,7 +7,6 @@ import CustomButton from "../custom/CustomButton";
 import { HeartIcon } from "../custom/SVG_Icon";
 import { FaBookmark, FaEye, FaFlag, FaShareAlt } from "react-icons/fa";
 import { TfiMoreAlt } from "react-icons/tfi";
-// import { formatDateTime } from "../../../utils/DateUtils";
 import CommentSection from "./CommentSection";
 import Tooltip from "../custom/Tooltip";
 import { useSelector } from "react-redux";
@@ -18,6 +17,9 @@ import { setupVideoViewTracking } from "./video";
 import { userService } from "../../../services/UserService";
 import { FiLoader } from "react-icons/fi";
 import SuggestedPodcast from "./SuggestedPodcast";
+import ReportModal from "../../modals/report/ReportModal";
+import { ReportType } from "../../../models/Report";
+import ShareModal from "../../modals/podcast/ShareModal";
 
 const PodcastViewport: React.FC = () => {
   const location = useLocation();
@@ -29,10 +31,12 @@ const PodcastViewport: React.FC = () => {
   const [showDescToggle, setShowDescToggle] = useState(false);
   const [showOptions, setShowOptions] = useState(false);
   const [errorRes, setErrorRes] = useState<string | null>(null);
-
+  const [isReportModalOpen, setIsReportModalOpen] = useState(false);
+  const [isShareModalOpen, setIsShareModalOpen] = useState(false);
+  
   const descriptionRef = useRef<HTMLPreElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
-
+  const podcastLink = `${window.location.origin}/watch?pid=${id}`;
   
   const userRedux = useSelector((state: RootState) => state.auth.user);
   const isAuthenticated = useSelector((state: RootState) => state.auth.isAuthenticated);
@@ -146,6 +150,14 @@ const PodcastViewport: React.FC = () => {
     }
   };
 
+  const toggleShareModal = () => {
+    setIsShareModalOpen(!isShareModalOpen);
+  };
+
+  const toggleReportModal = () => {
+    setIsReportModalOpen(!isReportModalOpen);
+  };
+
   const toggleOptions = () => {
     setShowOptions(!showOptions);
   };
@@ -154,16 +166,10 @@ const PodcastViewport: React.FC = () => {
     navigate(`/creator/podcast/${id}`);
   };
 
-  const handleReport = () => {
-    console.log("Report podcast");
-    // Add report logic here
-  };
-
   const handleSave = () => {
-    console.log("Save podcast");
-    // Add save logic here
+    toast.info("Save feature is coming soon");
   };
-
+  
   // const userInfo = podcast?.user.lastName + " " + podcast?.user.middleName + " " +podcast?.user.firstName;
   const userInfo = podcast?.user.fullname;
   return (
@@ -236,6 +242,7 @@ const PodcastViewport: React.FC = () => {
               icon={<FaShareAlt size={20}/>}
               variant="primary"
               rounded="full"
+              onClick={toggleShareModal}
               className="bg-gray-600 hover:bg-gray-500 dark:bg-gray-600 hover:dark:bg-gray-500"
             />
             <div className="relative">
@@ -249,7 +256,7 @@ const PodcastViewport: React.FC = () => {
             {showOptions && (
               <div className="podcast-options absolute -top-10 right-0 -translate-y-2/3 w-48 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-lg shadow-lg z-50">
                 <ul className="py-1">
-                  <li className="px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer" onClick={handleReport}>
+                  <li className="px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer" onClick={toggleReportModal}>
                     <FaFlag className="inline-block mb-1 mr-2" />
                     Report
                   </li>
@@ -292,6 +299,21 @@ const PodcastViewport: React.FC = () => {
           currentPodcastId={podcast.id}
         />
       }
+
+      {/* Report Modal */}
+      <ReportModal
+        isOpen={isReportModalOpen}
+        onClose={toggleReportModal}
+        targetId={id!}
+        reportType={ReportType.P}
+      />
+
+      {/* Share Modal */}
+      <ShareModal
+        isOpen={isShareModalOpen}
+        onClose={toggleShareModal}
+        podcastLink={podcastLink}
+      />
     </div>
   );
 };
