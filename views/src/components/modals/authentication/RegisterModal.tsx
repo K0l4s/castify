@@ -149,6 +149,16 @@ const RegisterModal = (props: DefaultModalProps) => {
 
   const handleNext = () => {
     if (validateStep1()) {
+      // kiểm tra sự hợp lệ của email
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(formData.email)) {
+        toast.error("Invalid email format");
+        return;
+      }
+      if (formData.password.length < 8) {
+        toast.error("Password must be at least 8 characters");
+        return;
+      }
       if (formData.email && formData.repeatEmail && formData.password && formData.confirmPassword) {
         setStep(2);
       } else {

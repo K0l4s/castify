@@ -19,7 +19,7 @@ const ReportModal: React.FC<ReportModalProps> = ({ isOpen, onClose, targetId, re
   const toast = useToast();
   const handleSubmit = async () => {
     if (!title || !detail) {
-      setError('Vui lòng điền đầy đủ thông tin');
+      setError('Please fill in all fields');
       return;
     }
     setError(null);
@@ -36,10 +36,10 @@ const ReportModal: React.FC<ReportModalProps> = ({ isOpen, onClose, targetId, re
       await reportService.senReport(report);
       setIsLoading(false);
       onClose();
-      toast.success('Gửi báo cáo thành công');
+      toast.success('Send report successfully');
     } catch (error) {
       setIsLoading(false);
-      setError('Gửi báo cáo thất bại, vui lòng thử lại!');
+      setError('Send report failed');
 
     }
   };
@@ -48,7 +48,7 @@ const ReportModal: React.FC<ReportModalProps> = ({ isOpen, onClose, targetId, re
     <CustomModal
       isOpen={isOpen}
       onClose={onClose}
-      title="Báo cáo"
+      title="Report"
       size="md"
     >
       <div className="space-y-4">
@@ -58,7 +58,7 @@ const ReportModal: React.FC<ReportModalProps> = ({ isOpen, onClose, targetId, re
             id="report-title"
             type="text"
             className="w-full px-4 py-2 mt-1 border rounded-md dark:bg-gray-700 dark:text-gray-100"
-            placeholder="Nhập tiêu đề báo cáo"
+            placeholder="Please provide a title for the report"
             value={title}
             onChange={(e) => setTitle(e.target.value)}
           />
@@ -68,7 +68,7 @@ const ReportModal: React.FC<ReportModalProps> = ({ isOpen, onClose, targetId, re
           <textarea
             id="report-detail"
             className="w-full px-4 py-2 mt-1 border rounded-md dark:bg-gray-700 dark:text-gray-100"
-            placeholder="Nhập chi tiết báo cáo"
+            placeholder="Please provide more details about the report"
             value={detail}
             onChange={(e) => setDetail(e.target.value)}
           />
@@ -86,7 +86,7 @@ const ReportModal: React.FC<ReportModalProps> = ({ isOpen, onClose, targetId, re
             onClick={handleSubmit}
             disabled={isLoading}
           >
-            {isLoading ? 'Đang gửi...' : 'Gửi báo cáo'}
+            {isLoading ? 'Sending...' : 'Send your report'}
           </button>
         </div>
       </div>

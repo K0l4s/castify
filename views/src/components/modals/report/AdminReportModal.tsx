@@ -96,6 +96,7 @@ const AdminReportModal: React.FC<ReportModalProps> = ({ isOpen, onClose, report 
             })
             .catch((err) => {
                 console.log(err);
+                toast.error("Action fail!");
             });
     };
 
