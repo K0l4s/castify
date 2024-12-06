@@ -12,4 +12,5 @@ public interface CommentLikeRepository extends MongoRepository<CommentLikeEntity
     boolean existsByUserEntityIdAndCommentEntityId(String userId, String commentId);
     long countByCommentEntityId(String commentId);
     Optional<CommentLikeEntity> findByUserEntityIdAndCommentEntityId(String userId, String commentId);
+    void deleteAllByCommentEntityId(String commentId);
 }

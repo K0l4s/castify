@@ -1,10 +1,11 @@
 import { BiSolidVideos } from "react-icons/bi";
 import { HiMiniUserGroup } from "react-icons/hi2";
 import { MdOutlineAnalytics, MdOutlineDashboard } from "react-icons/md";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 
 const CreatorSidebar = () => {
   const location = useLocation();
+  const navigate = useNavigate();
   const currentPath = location.pathname;
 
   return (
@@ -76,6 +77,13 @@ const CreatorSidebar = () => {
             </li>
           </ul>
         </div>
+        <button 
+          className="absolute bottom-5 right-1/2 mx-auto translate-x-1/2 w-2/3 p-1 py-2 
+          text-black dark:text-white hover:bg-gray-400 rounded-md font-medium transition-colors
+          hover:dark:bg-gray-700"
+          onClick={() => {navigate("/")}}>
+          Back to Blankcil
+        </button>
       </aside>
     </>
   );

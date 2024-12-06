@@ -12,6 +12,8 @@ import Loading from '../../UI/custom/Loading';
 import CustomModal from '../../UI/custom/CustomModal';
 import { useDispatch } from 'react-redux';
 import { updateAvatar, updateCover } from '../../../redux/slice/authSlice';
+import defaultAvatar from '../../../assets/images/default_avatar.jpg';
+
 interface SettingModals {
   isOpen: boolean;
   onClose: () => void;
@@ -66,7 +68,8 @@ const SettingModals = (props: SettingModals) => {
           toast.error("Error loading user details");
         }
       } catch (error) {
-        toast.error("Error fetching user details");
+        console.error(error);
+        // toast.error("Error fetching user details");
       } finally {
         setIsLoading(false);
       }
@@ -283,7 +286,7 @@ const SettingModals = (props: SettingModals) => {
           <img
             className='rounded-full object-center object-cover w-full h-full transition-opacity duration-300 group-hover:opacity-80'
             src={user?.avatarUrl ||
-              "https://media.istockphoto.com/id/517998264/vector/male-user-icon.jpg?s=612x612&w=0&k=20&c=4RMhqIXcJMcFkRJPq6K8h7ozuUoZhPwKniEke6KYa_k="}
+              defaultAvatar}
             alt="avatar"
             id='avatarShown'
           />

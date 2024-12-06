@@ -217,6 +217,59 @@ public class PodcastServiceImpl implements IPodcastService {
     }
 
     @Override
+    public PodcastModel getPodcastBySelf(String podcastId) throws Exception {
+        UserEntity userEntity = userService.getUserByAuthentication();
+
+        PodcastEntity podcastEntity = podcastRepository.findById(podcastId)
+                .orElseThrow(() -> new RuntimeException("Podcast not found"));
+
+        // Kiểm tra quyền sở hữu
+        if (!podcastEntity.getUser().getId().equals(userEntity.getId())) {
+            throw new RuntimeException("Access denied");
+        }
+
+        // Tính tổng số bình luận và lượt thích
+        long totalComments = commentRepository.countByPodcastId(podcastId);
+        long totalLikes = podcastLikeRepository.countByPodcastEntityId(podcastId);
+
+        // Ánh xạ PodcastEntity sang PodcastModel
+        PodcastModel podcastModel = modelMapper.map(podcastEntity, PodcastModel.class);
+        podcastModel.setTotalComments(totalComments);
+        podcastModel.setTotalLikes(totalLikes);
+        podcastModel.setUsername(podcastEntity.getUser().getUsername());
+
+        // Kiểm tra xem người dùng hiện tại có thích podcast này không
+        boolean isLiked = podcastLikeRepository.existsByUserEntityIdAndPodcastEntityId(userEntity.getId(), podcastId);
+        podcastModel.setLiked(isLiked);
+
+        // Ánh xạ thông tin user của podcast
+        UserEntity podcastUser = podcastEntity.getUser();
+        UserSimple userSimple = modelMapper.map(podcastUser, UserSimple.class);
+
+        // Tính tổng follower
+        long followerSize = userRepository.findUsersFollowing(podcastUser.getId()).size();
+        userSimple.setTotalFollower(followerSize);
+
+        // Tính tổng số người đang theo dõi
+        long followingCount = podcastUser.getFollowing().size();
+        userSimple.setTotalFollowing(followingCount);
+
+        // Kiểm tra người dùng hiện tại có theo dõi user của podcast không
+        try {
+            if (userEntity.getFollowing() == null) {
+                userEntity.setFollowing(new ArrayList<>());
+            }
+            userSimple.setIsFollow(userEntity.isFollow(podcastUser.getId()));
+        } catch (Exception ex) {
+            userSimple.setIsFollow(false);
+        }
+
+        podcastModel.setUser(userSimple);
+
+        return podcastModel;
+    }
+
+    @Override
     public PodcastModel getPodcastByIdAnonymous(String id) {
         PodcastEntity podcastEntity = podcastRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Podcast not found"));
@@ -322,6 +375,33 @@ public class PodcastServiceImpl implements IPodcastService {
                 podcastPage.getTotalPages(),
                 podcastPage.getTotalElements()
         );
+    }
+
+    @Override
+    public PageDTO<PodcastModel> getSuggestedPodcastsByGenres(List<String> genreIds, String currentPodcastId, int page, int size) {
+        if (genreIds == null || genreIds.isEmpty()) {
+            throw new IllegalArgumentException("Genre IDs must not be null or empty.");
+        }
+
+        // Query các podcast có ít nhất một genre trùng với id trong genreIds
+        Criteria criteria = Criteria.where("genres._id").in(genreIds).and("_id").ne(currentPodcastId);
+        Query baseQuery = new Query(criteria);
+
+        // Đếm tổng số podcast
+        long totalElements = mongoTemplate.count(baseQuery, PodcastEntity.class);
+
+        // Áp dụng phân trang cho truy vấn
+        Query pagedQuery = baseQuery.with(PageRequest.of(page, size));
+        List<PodcastEntity> podcastEntities = mongoTemplate.find(pagedQuery, PodcastEntity.class);
+
+        List<PodcastModel> podcastModels = podcastEntities.stream()
+                .map(podcast -> modelMapper.map(podcast, PodcastModel.class))
+                .toList();
+
+        int totalPages = (int) Math.ceil((double) totalElements / size);
+
+        // Trả về đối tượng PageDTO
+        return new PageDTO<>(podcastModels, page, totalPages, (int) totalElements);
     }
 
     @Override
@@ -431,7 +511,6 @@ public class PodcastServiceImpl implements IPodcastService {
 
             // Xóa các comment liên quan đến podcast
             List<CommentEntity> comments = commentRepository.findByPodcastId(podcast.getId());
-            System.out.println("List comments: " + comments);
 
             if (comments != null && !comments.isEmpty()) {
                 for (CommentEntity comment : comments) {

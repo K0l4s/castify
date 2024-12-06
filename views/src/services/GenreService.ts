@@ -8,3 +8,12 @@ export const getGenres = async () => {
     throw error;
   }
 };
+
+export const getGenresByList = async (genreIds: string[]) => {
+  try {
+    const response = await axiosInstance.post('/api/v1/genre/namesByList', genreIds);
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};

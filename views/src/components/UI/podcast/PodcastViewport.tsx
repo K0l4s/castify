@@ -1,13 +1,12 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { getPodcastByAnonymous, getPodcastById, getSelfPodcastsInCreator, incrementPodcastViews, likePodcast } from "../../../services/PodcastService";
+import { getPodcastByAnonymous, getPodcastById, incrementPodcastViews, likePodcast } from "../../../services/PodcastService";
 import { Podcast } from "../../../models/PodcastModel";
 import defaultAvatar from "../../../assets/images/default_avatar.jpg";
 import CustomButton from "../custom/CustomButton";
 import { HeartIcon } from "../custom/SVG_Icon";
 import { FaBookmark, FaEye, FaFlag, FaShareAlt } from "react-icons/fa";
 import { TfiMoreAlt } from "react-icons/tfi";
-// import { formatDateTime } from "../../../utils/DateUtils";
 import CommentSection from "./CommentSection";
 import Tooltip from "../custom/Tooltip";
 import { useSelector } from "react-redux";
@@ -17,6 +16,11 @@ import { formatDistanceToNow } from 'date-fns';
 import { setupVideoViewTracking } from "./video";
 import { userService } from "../../../services/UserService";
 import { FiLoader } from "react-icons/fi";
+import SuggestedPodcast from "./SuggestedPodcast";
+import ReportModal from "../../modals/report/ReportModal";
+import { ReportType } from "../../../models/Report";
+import ShareModal from "../../modals/podcast/ShareModal";
+import { formatViewsWithSeparators } from "../../../utils/formatViews";
 
 const PodcastViewport: React.FC = () => {
   const location = useLocation();
@@ -24,15 +28,22 @@ const PodcastViewport: React.FC = () => {
   const id = queryParams.get("pid");
 
   const [podcast, setPodcast] = useState<Podcast | null>(null);
-  const [suggestedPodcasts, setSuggestedPodcasts] = useState<any[]>([]);
   const [isDescriptionExpanded, setIsDescriptionExpanded] = useState(false);
   const [showDescToggle, setShowDescToggle] = useState(false);
   const [showOptions, setShowOptions] = useState(false);
   const [errorRes, setErrorRes] = useState<string | null>(null);
+  const [isReportModalOpen, setIsReportModalOpen] = useState(false);
+  const [isShareModalOpen, setIsShareModalOpen] = useState(false);
+
+  const [views, setViews] = useState<number>(0);
+  const [totalLikes, setTotalLikes] = useState<number>(0);
+  const [liked, setLiked] = useState<boolean>(false);
+  const [follow, setFollow] = useState<boolean>(false);
+  const [totalFollower, setTotalFollower] = useState<number>(0);
 
   const descriptionRef = useRef<HTMLPreElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
-
+  const podcastLink = `${window.location.origin}/watch?pid=${id}`;
   
   const userRedux = useSelector((state: RootState) => state.auth.user);
   const isAuthenticated = useSelector((state: RootState) => state.auth.isAuthenticated);
@@ -51,6 +62,11 @@ const PodcastViewport: React.FC = () => {
             podcastData = await getPodcastByAnonymous(id);
           }
           setPodcast(podcastData);
+          setViews(podcastData.views);
+          setTotalLikes(podcastData.totalLikes);
+          setLiked(podcastData.liked);
+          setFollow(podcastData.user.follow);
+          setTotalFollower(podcastData.user.totalFollower);
         }
       } catch (error) {
         if ((error as any).response?.data === "Error: Podcast not found") {
@@ -62,17 +78,7 @@ const PodcastViewport: React.FC = () => {
       }
     };
 
-    const fetchSuggestedPodcasts = async () => {
-      try {
-        const suggestedData = await getSelfPodcastsInCreator(); // Temporary
-        setSuggestedPodcasts(suggestedData.content);
-      } catch (error) {
-        console.error("Error fetching suggested podcasts:", error);
-      }
-    };
-
     fetchPodcast();
-    fetchSuggestedPodcasts();
   }, [id, isAuthenticated]);
 
   // increment podcast views
@@ -82,6 +88,14 @@ const PodcastViewport: React.FC = () => {
       return cleanup;
     }
   }, [id, isAuthenticated, podcast]);
+
+  useEffect(() => {
+    if (videoRef.current) {
+      videoRef.current.src = podcast?.videoUrl || "";
+      videoRef.current.load();
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+  }, [podcast?.videoUrl]);
 
   useEffect(() => {
     if (descriptionRef.current) {
@@ -104,6 +118,8 @@ const PodcastViewport: React.FC = () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
   }, []);
+
+  const memoizedGenreIds = useMemo(() => podcast?.genres?.map((genre) => genre.id) || [], [podcast?.genres]);
 
   if (errorRes) {
     return (
@@ -134,7 +150,9 @@ const PodcastViewport: React.FC = () => {
     try {
       await likePodcast(podcastId);
       const updatedPodcast = await getPodcastById(podcastId);
-      setPodcast(updatedPodcast);
+      setTotalLikes(updatedPodcast.totalLikes);
+      setLiked(updatedPodcast.liked);
+      setViews(updatedPodcast.views);
     } catch (error) {
       console.error("Error liking podcast:", error);
     }
@@ -148,10 +166,24 @@ const PodcastViewport: React.FC = () => {
     try {
       await userService.followUser(targetUsername);
       const updatedPodcast = await getPodcastById(id!);
-      setPodcast(updatedPodcast);
+      setFollow(updatedPodcast.user.follow);
+      setTotalFollower(updatedPodcast.user.totalFollower);
+      setViews(updatedPodcast.views);
     } catch (error) {
       console.error("Error following user:", error);
     }
+  };
+
+  const toggleShareModal = () => {
+    setIsShareModalOpen(!isShareModalOpen);
+  };
+
+  const toggleReportModal = () => {
+    if (!isAuthenticated) {
+      toast.warning("Please login to report this podcast");
+      return;
+    }
+    setIsReportModalOpen(!isReportModalOpen);
   };
 
   const toggleOptions = () => {
@@ -159,20 +191,13 @@ const PodcastViewport: React.FC = () => {
   };
 
   const handleEdit = () => {
-    console.log("Edit podcast");
-    // Add edit logic here
-  };
-
-  const handleReport = () => {
-    console.log("Report podcast");
-    // Add report logic here
+    navigate(`/creator/podcast/${id}`);
   };
 
   const handleSave = () => {
-    console.log("Save podcast");
-    // Add save logic here
+    toast.info("Save feature is coming soon");
   };
-
+  
   // const userInfo = podcast?.user.lastName + " " + podcast?.user.middleName + " " +podcast?.user.firstName;
   const userInfo = podcast?.user.fullname;
   return (
@@ -200,17 +225,17 @@ const PodcastViewport: React.FC = () => {
                 onClick={() => navigate(`/profile/${podcast.username}`)}>
                 {userInfo}
               </span>
-              <span className="text-sm text-gray-700 dark:text-gray-300">{podcast.user.totalFollower} follower</span>
+              <span className="text-sm text-gray-700 dark:text-gray-300">{totalFollower} follower</span>
             </div>
             {podcast.user.id !== userRedux?.id ? (
               <CustomButton
-                text={`${podcast.user.follow ? "Unfollow" : "Follow" } `}
-                variant="primary"
+                text={`${follow ? "Unfollow" : "Follow" } `}
+                variant="ghost"
                 rounded="full"
                 onClick={() => handleFollow(podcast.user.username)}
                 className={`bg-gray-600 hover:bg-gray-500 
-                  ${!podcast.user.follow ? "bg-blue-700 hover:bg-blue-900 dark:bg-gray-100 dark:text-gray-800 hover:dark:bg-gray-400" 
-                    : "hover:bg-gray-100 dark:bg-gray-600 dark:hover:bg-gray-500 dark:text-white"}`}
+                  ${!follow ? "bg-gray-800 text-white hover:bg-gray-700 dark:bg-gray-100 dark:text-gray-800 hover:dark:bg-gray-400" 
+                    : "text-black bg-white border border-black hover:bg-gray-800 hover:text-white dark:bg-gray-600 dark:hover:bg-gray-500 dark:text-white"}`}
               />
             ): (
               <CustomButton
@@ -223,7 +248,7 @@ const PodcastViewport: React.FC = () => {
           </div>
           <div className="flex items-center gap-3">
             <CustomButton
-              text={podcast.views.toString() + " views"}
+              text={formatViewsWithSeparators(views) + " views"}
               icon={<FaEye size={22} />}
               variant="primary"
               rounded="full"
@@ -231,8 +256,8 @@ const PodcastViewport: React.FC = () => {
             />
             <Tooltip text="Reaction">
               <CustomButton
-                text={podcast.totalLikes.toString()}
-                icon={<HeartIcon filled={podcast.liked} color={podcast.liked ? "white" : "gray"} strokeColor="white" />}
+                text={totalLikes.toString()}
+                icon={<HeartIcon filled={liked} color={liked ? "white" : "gray"} strokeColor="white" />}
                 variant="primary"
                 rounded="full"
                 size="sm"
@@ -245,6 +270,7 @@ const PodcastViewport: React.FC = () => {
               icon={<FaShareAlt size={20}/>}
               variant="primary"
               rounded="full"
+              onClick={toggleShareModal}
               className="bg-gray-600 hover:bg-gray-500 dark:bg-gray-600 hover:dark:bg-gray-500"
             />
             <div className="relative">
@@ -258,7 +284,7 @@ const PodcastViewport: React.FC = () => {
             {showOptions && (
               <div className="podcast-options absolute -top-10 right-0 -translate-y-2/3 w-48 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-lg shadow-lg z-50">
                 <ul className="py-1">
-                  <li className="px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer" onClick={handleReport}>
+                  <li className="px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer" onClick={toggleReportModal}>
                     <FaFlag className="inline-block mb-1 mr-2" />
                     Report
                   </li>
@@ -294,15 +320,28 @@ const PodcastViewport: React.FC = () => {
         <CommentSection podcastId={id!} totalComments={podcast.totalComments} currentUserId={userRedux?.id!}/>
       </div>
 
-      <div className="w-full lg:w-1/4 mt-8 lg:mt-0">
-        <h2 className="text-xl font-semibold mb-4">Suggested for you</h2>
-        {suggestedPodcasts.map(suggested => (
-          <div key={suggested.id} className="mb-4 p-4 border rounded-lg border-gray-300 dark:border-gray-700">
-            <h3 className="text-lg font-bold">{suggested.title}</h3>
-            <p className="text-gray-700 dark:text-gray-300">{suggested.content}</p>
-          </div>
-        ))}
-      </div>
+      {podcast?.genres && 
+        <SuggestedPodcast 
+          // genreIds={podcast.genres.map((genre) => genre.id)} 
+          genreIds={memoizedGenreIds}
+          currentPodcastId={podcast.id}
+        />
+      }
+
+      {/* Report Modal */}
+      <ReportModal
+        isOpen={isReportModalOpen}
+        onClose={toggleReportModal}
+        targetId={id!}
+        reportType={ReportType.P}
+      />
+
+      {/* Share Modal */}
+      <ShareModal
+        isOpen={isShareModalOpen}
+        onClose={toggleShareModal}
+        podcastLink={podcastLink}
+      />
     </div>
   );
 };

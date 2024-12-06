@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { getPodcastsByGenre } from '../../../services/PodcastService';
 import { Podcast } from '../../../models/PodcastModel';
 import PodcastTag from '../../../components/UI/podcast/PodcastTag';
+import { FiLoader } from 'react-icons/fi';
 
 interface GenresPodcastProps {
   genreId: string;
@@ -29,11 +30,15 @@ const GenresPodcast: React.FC<GenresPodcastProps> = ({ genreId }) => {
   }, [genreId]);
 
   if (loading) {
-    return <div>Loading...</div>;
+    return <div className="flex justify-center items-center h-screen">
+      <FiLoader size={48} className="text-black dark:text-white animate-spin"/>
+    </div>;
   }
 
   if (error) {
-    return <div>{error}</div>;
+    return <div className="flex justify-center items-center h-screen">
+      <p className='text-xl text-red-700 dark:text-red-400'>{error}</p>
+    </div>;
   }
 
   return (

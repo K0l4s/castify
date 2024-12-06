@@ -217,6 +217,16 @@ public class PodcastController {
         }
     }
 
+    @GetMapping("/detail/{id}")
+    public ResponseEntity<?> getDetailPodcastBySelf(@PathVariable String id) {
+        try {
+            PodcastModel podcastModel = podcastService.getPodcastBySelf(id);
+            return ResponseEntity.ok(podcastModel);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error: " + e.getMessage());
+        }
+    }
+
     @GetMapping("/anonymous/{id}")
     public ResponseEntity<?> getPodcastByAnonymous(@PathVariable String id) {
         try {
@@ -267,6 +277,22 @@ public class PodcastController {
             return ResponseEntity.ok(podcastsByGenre);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error: " + e.getMessage());
+        }
+    }
+
+    @GetMapping("/suggested-by-genres/{id}")
+    public ResponseEntity<PageDTO<PodcastModel>> getSuggestedPodcastsByGenres(
+            @PathVariable String id,
+            @RequestParam List<String> genreIds,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+        try {
+            PageDTO<PodcastModel> result = podcastService.getSuggestedPodcastsByGenres(genreIds, id, page, size);
+            return ResponseEntity.ok(result);
+        } catch (IllegalArgumentException ex) {
+            return ResponseEntity.badRequest().body(null);
+        } catch (Exception ex) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
         }
     }
 

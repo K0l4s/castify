@@ -1,4 +1,5 @@
 import React, { useRef } from 'react';
+import { IoChevronBackOutline, IoChevronForwardOutline } from 'react-icons/io5';
 
 interface TabNavigationProps {
   selectedTab: string;
@@ -24,8 +25,8 @@ const TabNavigation: React.FC<TabNavigationProps> = ({ selectedTab, onSelectTab,
 
   return (
     <div className="flex items-center mb-4 w-full">
-      <button onClick={handlePrevClick} className="px-2 py-1 bg-gray-600 hover:bg-gray-700 dark:bg-gray-600 dark:hover:bg-gray-700 transition-colors h-10 rounded-l">
-        &lt;
+      <button onClick={handlePrevClick} className="px-2 py-1 bg-gray-600 hover:bg-gray-700 dark:bg-gray-600 dark:hover:bg-gray-700 transition-colors h-10 rounded-full">
+        <IoChevronBackOutline />
       </button>
       <div ref={containerRef} className="flex overflow-x-auto w-full scrollbar-hide">
         {tabs.map((tab) => (
@@ -40,8 +41,8 @@ const TabNavigation: React.FC<TabNavigationProps> = ({ selectedTab, onSelectTab,
           </button>
         ))}
       </div>
-      <button onClick={handleNextClick} className="px-2 py-1 bg-gray-600 hover:bg-gray-700 dark:bg-gray-600 dark:hover:bg-gray-700 transition-colors h-10 rounded-r">
-        &gt;
+      <button onClick={handleNextClick} className="px-2 py-1 bg-gray-600 hover:bg-gray-700 dark:bg-gray-600 dark:hover:bg-gray-700 transition-colors h-10 rounded-full">
+        <IoChevronForwardOutline />
       </button>
     </div>
   );

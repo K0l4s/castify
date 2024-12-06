@@ -27,6 +27,16 @@ public class GenreController {
         }
     }
 
+    @PostMapping("/namesByList")
+    public ResponseEntity<?> getGenreNamesByList(@RequestBody List<String> genreIds) {
+        try {
+            List<GenreSimple> genres = genreService.getGenresByIds(genreIds);
+            return new ResponseEntity<>(genres, HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
     @GetMapping("/all")
     public ResponseEntity<?> getAllGenres() {
         try {

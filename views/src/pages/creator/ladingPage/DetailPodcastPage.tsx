@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
-import { getPodcastById, updatePodcast, togglePodcasts } from "../../../services/PodcastService";
+import { useNavigate, useParams } from "react-router-dom";
+import { updatePodcast, togglePodcasts, deletePodcasts, getPodcastBySelf } from "../../../services/PodcastService";
 import { getGenres } from "../../../services/GenreService";
 import { Podcast } from "../../../models/PodcastModel";
 import CustomButton from "../../../components/UI/custom/CustomButton";
@@ -14,6 +14,8 @@ import Loading from "../../../components/UI/custom/Loading";
 import CommentSection from "../../../components/UI/podcast/CommentSection";
 import { useSelector } from "react-redux";
 import { RootState } from "../../../redux/store";
+import ConfirmDeleteModal from "../../../components/modals/utils/ConfirmDelete";
+import NotAccessPage from "../../informationPage/NotAccessPage";
 
 const DetailPodcastPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -31,13 +33,17 @@ const DetailPodcastPage: React.FC = () => {
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [titleError, setTitleError] = useState<string>("");
   const [contentError, setContentError] = useState<string>("");
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+
+  const [accessError, setAccessError] = useState<string>("");
 
   const userRedux = useSelector((state: RootState) => state.auth.user);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchPodcast = async () => {
       try {
-        const data = await getPodcastById(id!);
+        const data = await getPodcastBySelf(id!);
         setPodcast(data);
         setInitialPodcast(data);
         setTitle(data.title);
@@ -46,6 +52,11 @@ const DetailPodcastPage: React.FC = () => {
         setIsActive(data.active);
         setThumbnailPreview(data.thumbnailUrl);
       } catch (error) {
+        if (error instanceof Error) {
+          if ((error as any).response?.data === "Error: Access denied") {
+            setAccessError("Access denied");
+          }
+        }
         console.error("Failed to fetch podcast", error);
       }
     };
@@ -62,6 +73,10 @@ const DetailPodcastPage: React.FC = () => {
     fetchPodcast();
     fetchGenres();
   }, [id]);
+
+  if (accessError) {
+    return <NotAccessPage />;
+  }
 
   const handleUpdate = async () => {
     if (
@@ -87,7 +102,7 @@ const DetailPodcastPage: React.FC = () => {
     setIsLoading(true);
     try {
       await updatePodcast(id!, title, content, thumbnail!, genreIds);
-      const updatedPodcast = await getPodcastById(id!);
+      const updatedPodcast = await getPodcastBySelf(id!);
       setPodcast(updatedPodcast);
       setInitialPodcast(updatedPodcast);
       setThumbnailPreview(updatedPodcast.thumbnailUrl);
@@ -162,14 +177,59 @@ const DetailPodcastPage: React.FC = () => {
     }
   };
 
+  const handleDelete = async () => {
+    setIsLoading(true);
+
+    try {
+      await deletePodcasts([id!]);
+      toast.success("Podcast deleted successfully!");
+      setIsDeleteModalOpen(false);
+      navigate("/creator/contents?page=0&size=5&sortByCreatedDay=desc");
+    } catch (error) {
+      console.error("Failed to delete podcast", error);
+      toast.error("Failed to delete podcast. Please try again.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const openDeleteModal = () => {
+    setIsDeleteModalOpen(true);
+  };
+
   return (
     <div className="container mx-auto min-h-screen p-4">
       {isLoading && <Loading />}
       <div className="flex justify-between items-center mb-4">
-        <h1 className="text-2xl font-bold text-black dark:text-white">
-          Detail Podcast
-        </h1>
+        <div className="flex items-center gap-4">
+          <h1 className="text-2xl font-bold text-black dark:text-white">
+            Detail Podcast
+          </h1>
+          <CustomButton
+              onClick={() => navigate(-1)}
+              text="Back"
+              variant="outline"
+              rounded="full"
+              className="uppercase text-sm leading-normal font-medium text-gray-500 dark:text-gray-900 hover:dark:text-white 
+                bg-white hover:bg-gray-600 hover:dark:bg-gray-800 hover:text-white"
+            />
+        </div>
         <div className="flex gap-2">
+          <div className="flex gap-2 items-center mr-12">
+            <CustomButton
+              onClick={openDeleteModal}
+              text="Delete permanently"
+              variant="outline"
+              rounded="full"
+              className="uppercase text-sm leading-normal font-medium text-white dark:text-white hover:dark:text-white 
+                bg-red-600 hover:bg-red-700 hover:dark:bg-red-700 hover:text-white"
+            />
+            <ConfirmDeleteModal
+                isOpen={isDeleteModalOpen}
+                onClose={() => setIsDeleteModalOpen(false)}
+                onConfirm={handleDelete}
+              />
+          </div>
           <div className="flex gap-2 items-center mr-12">
             <span className="font-medium text-black dark:text-white">Display mode</span>
             <CustomButton 

@@ -15,6 +15,7 @@ import Tooltip from "../UI/custom/Tooltip";
 import PodcastUploadModal from "../modals/podcast/PodcastUploadModal";
 import CustomButton from "../UI/custom/CustomButton";
 import { Role } from "../../constants/Role";
+import defaultAvatar from "../../assets/images/default_avatar.jpg";
 
 const Authentication = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -22,6 +23,8 @@ const Authentication = () => {
   const [isLoading, setIsLoading] = useState(false);
   // const [mode, setMode] = useState(localStorage.getItem('theme') || 'light');
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isFirstRender, setIsFirstRender] = useState(true);
+
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -32,10 +35,11 @@ const Authentication = () => {
     authenticateApi
       .logout()
       .then(() => {
-        toast.success("Logout successfully");
+        // toast.success("Logout successfully");
         Cookies.remove("token");
         Cookies.remove("refreshToken");
         dispatch(logout());
+        window.location.reload();
       })
       .catch((error) => {
         toast.error("Logout failed " + error.message);
@@ -45,14 +49,17 @@ const Authentication = () => {
   };
   const isAuth = useSelector((state: RootState) => state.auth.isAuthenticated);
   const isEnable = useSelector((state: RootState) => state.auth.user?.enabled);
+  
   useEffect(() => {
-    console.log(isEnable);
-    if (!isEnable) {
+    if (!isFirstRender && !isEnable) {
       handleLogout();
+    } else {
+  setIsFirstRender(false);
     }
   }, [isEnable]);
 
   const handleOpen = () => setIsOpen(true);
+  console.log(isOpen);
   const handleClose = () => setIsOpen(false);
   const toggleUserMenu = () => {
     setIsUserMenuOpen(!isUserMenuOpen);
@@ -105,8 +112,7 @@ const Authentication = () => {
                 <img
                   className="w-10 h-10 rounded-full object-cover border-2 border-transparent hover:border-blue-500 transition-colors duration-200"
                   src={
-                    user?.avatarUrl ||
-                    "https://cdn-icons-png.flaticon.com/512/9203/9203764.png"
+                    user?.avatarUrl || defaultAvatar
                   }
                   alt="User avatar"
                 />

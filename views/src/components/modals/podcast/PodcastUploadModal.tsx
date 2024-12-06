@@ -11,6 +11,7 @@ import { captureFrameFromVideo } from "../../../utils/FileUtils";
 import GenreSelection from "./GenreSelection";
 import { getGenres } from "../../../services/GenreService";
 import { BiSolidCategoryAlt } from "react-icons/bi";
+import { MdUpload } from "react-icons/md";
 
 interface PodcastUploadModalProps {
   isOpen: boolean;
@@ -273,11 +274,11 @@ const PodcastUploadModal: React.FC<PodcastUploadModalProps> = ({
             </>
           )}
           <CustomButton
-            className="mt-2 uppercase leading-normal font-medium text-blue-500 hover:dark:text-white bg-white hover:bg-blue-600 hover:dark:bg-blue-600 hover:text-white"
             icon={<RiUploadCloudLine size={24} />}
             text="Choose Video"
-            variant="outline"
+            variant="primary"
             onClick={() => document.getElementById("video-input")?.click()}
+            className="mt-2 uppercase leading-normal font-medium"
           />
           <input
             id="video-input"
@@ -401,10 +402,12 @@ const PodcastUploadModal: React.FC<PodcastUploadModalProps> = ({
 
         <div className="col-span-3 flex justify-end">
           <CustomButton
+            icon={<MdUpload size={18}/>}
             onClick={handleUpload}
             text="Upload"
-            variant="outline"
-            className="uppercase text-sm leading-normal font-medium px-3 py-3 text-blue-500 hover:dark:text-white bg-white hover:bg-blue-600 hover:dark:bg-blue-600 hover:text-white"
+            variant="primary"
+            size="lg"
+            className="uppercase text-sm leading-normal font-medium"
           />
         </div>
       </div>
