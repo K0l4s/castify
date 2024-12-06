@@ -5,11 +5,14 @@ import RecentPodcast from "./RecentPodcast";
 import { getGenres } from "../../../services/GenreService";
 import TabNavigation from "./TabNavigation";
 import GenresPodcast from "./GenresPodcast";
+import { useLocation, useNavigate } from "react-router-dom";
 
 const LandingPage = () => {
-  const [selectedTab, setSelectedTab] = useState('Recent');
+  const [selectedTab, setSelectedTab] = useState('Popular');
   const [genres, setGenres] = useState<{ id: string; name: string }[]>([]);
-  
+  const navigate = useNavigate();
+  const location = useLocation();
+
   useEffect(() => {
     const fetchGenres = async () => {
       try {
@@ -23,6 +26,19 @@ const LandingPage = () => {
     fetchGenres();
   }, []);
 
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const tab = params.get('tab');
+    if (tab) {
+      setSelectedTab(decodeURIComponent(tab));
+    }
+  }, [location.search]);
+
+  const handleTabSelect = (tab: string) => {
+    setSelectedTab(tab);
+    navigate(`?tab=${encodeURIComponent(tab)}`);
+  };
+  
   const renderContent = () => {
     switch (selectedTab) {
       case 'Popular':
@@ -37,24 +53,11 @@ const LandingPage = () => {
   return (
     <div className="px-8 py-4">
       {/* Tab Navigation */}
-      <TabNavigation selectedTab={selectedTab} onSelectTab={setSelectedTab} genres={genres} />
+      <TabNavigation selectedTab={selectedTab} onSelectTab={handleTabSelect} genres={genres} />
       {/* Content */}
       <div className="m-auto">
         {renderContent()}
       </div>
-      {/* <PodcastPlayer
-        isPlaying={false}
-        currentTime={0}
-        duration={0}
-        title="Test"
-        author="Test"
-        thumbnailUrl="https://tenten.vn/tin-tuc/wp-content/uploads/2023/08/podcast-la-gi-2.jpg"
-        onPlay={() => { }}
-        onPause={() => { }}
-        onSeek={() => { }}
-        onForward={() => { }}
-        onBackward={() => { }}
-      /> */}
     </div>
   )
 }

@@ -270,6 +270,22 @@ public class PodcastController {
         }
     }
 
+    @GetMapping("/suggested-by-genres/{id}")
+    public ResponseEntity<PageDTO<PodcastModel>> getSuggestedPodcastsByGenres(
+            @PathVariable String id,
+            @RequestParam List<String> genreIds,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+        try {
+            PageDTO<PodcastModel> result = podcastService.getSuggestedPodcastsByGenres(genreIds, id, page, size);
+            return ResponseEntity.ok(result);
+        } catch (IllegalArgumentException ex) {
+            return ResponseEntity.badRequest().body(null);
+        } catch (Exception ex) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+        }
+    }
+
     @PostMapping("/{id}/inc-views")
     public ResponseEntity<Void> incrementViews(@PathVariable String id) {
         podcastService.incrementPodcastViews(id);

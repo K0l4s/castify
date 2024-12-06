@@ -1,6 +1,6 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { getPodcastByAnonymous, getPodcastById, getSelfPodcastsInCreator, incrementPodcastViews, likePodcast } from "../../../services/PodcastService";
+import { getPodcastByAnonymous, getPodcastById, incrementPodcastViews, likePodcast } from "../../../services/PodcastService";
 import { Podcast } from "../../../models/PodcastModel";
 import defaultAvatar from "../../../assets/images/default_avatar.jpg";
 import CustomButton from "../custom/CustomButton";
@@ -17,6 +17,7 @@ import { formatDistanceToNow } from 'date-fns';
 import { setupVideoViewTracking } from "./video";
 import { userService } from "../../../services/UserService";
 import { FiLoader } from "react-icons/fi";
+import SuggestedPodcast from "./SuggestedPodcast";
 
 const PodcastViewport: React.FC = () => {
   const location = useLocation();
@@ -24,7 +25,6 @@ const PodcastViewport: React.FC = () => {
   const id = queryParams.get("pid");
 
   const [podcast, setPodcast] = useState<Podcast | null>(null);
-  const [suggestedPodcasts, setSuggestedPodcasts] = useState<any[]>([]);
   const [isDescriptionExpanded, setIsDescriptionExpanded] = useState(false);
   const [showDescToggle, setShowDescToggle] = useState(false);
   const [showOptions, setShowOptions] = useState(false);
@@ -62,17 +62,7 @@ const PodcastViewport: React.FC = () => {
       }
     };
 
-    const fetchSuggestedPodcasts = async () => {
-      try {
-        const suggestedData = await getSelfPodcastsInCreator(); // Temporary
-        setSuggestedPodcasts(suggestedData.content);
-      } catch (error) {
-        console.error("Error fetching suggested podcasts:", error);
-      }
-    };
-
     fetchPodcast();
-    fetchSuggestedPodcasts();
   }, [id, isAuthenticated]);
 
   // increment podcast views
@@ -104,6 +94,8 @@ const PodcastViewport: React.FC = () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
   }, []);
+
+  const memoizedGenreIds = useMemo(() => podcast?.genres?.map((genre) => genre.id) || [], [podcast?.genres]);
 
   if (errorRes) {
     return (
@@ -159,8 +151,7 @@ const PodcastViewport: React.FC = () => {
   };
 
   const handleEdit = () => {
-    console.log("Edit podcast");
-    // Add edit logic here
+    navigate(`/creator/podcast/${id}`);
   };
 
   const handleReport = () => {
@@ -294,15 +285,13 @@ const PodcastViewport: React.FC = () => {
         <CommentSection podcastId={id!} totalComments={podcast.totalComments} currentUserId={userRedux?.id!}/>
       </div>
 
-      <div className="w-full lg:w-1/4 mt-8 lg:mt-0">
-        <h2 className="text-xl font-semibold mb-4">Suggested for you</h2>
-        {suggestedPodcasts.map(suggested => (
-          <div key={suggested.id} className="mb-4 p-4 border rounded-lg border-gray-300 dark:border-gray-700">
-            <h3 className="text-lg font-bold">{suggested.title}</h3>
-            <p className="text-gray-700 dark:text-gray-300">{suggested.content}</p>
-          </div>
-        ))}
-      </div>
+      {podcast?.genres && 
+        <SuggestedPodcast 
+          // genreIds={podcast.genres.map((genre) => genre.id)} 
+          genreIds={memoizedGenreIds}
+          currentPodcastId={podcast.id}
+        />
+      }
     </div>
   );
 };

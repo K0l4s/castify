@@ -177,7 +177,7 @@ const MyPodcastPage: React.FC = () => {
                 variant="ghost"
                 rounded="full"
                 onClick={openDeleteModal}
-                className="text-white dark:text-gray-900 hover:bg-gray-500 hover:dark:bg-gray-400"
+                className="text-white hover:text-red-400 hover:dark:text-red-700 dark:text-gray-900 hover:bg-gray-500 hover:dark:bg-gray-400"
               />
               <ConfirmDeleteModal
                 isOpen={isDeleteModalOpen}
