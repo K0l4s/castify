@@ -11,6 +11,7 @@ import Tooltip from '../../UI/custom/Tooltip';
 import SettingModals from '../../modals/user/SettingModal';
 import ReportModal from '../../modals/report/ReportModal';
 import { ReportType } from '../../../models/Report';
+import defaultAvatar from "../../../assets/images/default_avatar.jpg";
 
 interface ProfileMainContentProps {
 
@@ -148,13 +149,15 @@ const ProfileMainContent: React.FC<ProfileMainContentProps> = ({
                                         className="w-full h-full object-cover object-center transform transition-transform duration-500"
                                         src={
                                             isOwner 
-                                              ? currentUser?.avatarUrl || "https://flowbite.com/docs/images/people/profile-picture-5.jpg" 
-                                              : user.avatarUrl || "https://flowbite.com/docs/images/people/profile-picture-5.jpg"
-                                          }                                                                                  alt="Profile Picture"
+                                              ? currentUser?.avatarUrl || defaultAvatar 
+                                              : user.avatarUrl || 
+                                                defaultAvatar
+                                          }                                                                                  
+                                        alt="Profile Picture"
                                         onError={(e) => {
                                             const target = e.target as HTMLImageElement;
                                             target.onerror = null;
-                                            target.src = "https://flowbite.com/docs/images/people/profile-picture-5.jpg";
+                                            target.src = defaultAvatar;
                                         }}
                                     />
                                 )}
