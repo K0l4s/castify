@@ -1,5 +1,6 @@
 package com.castify.backend.service.podcast;
 
+import com.castify.backend.entity.UserEntity;
 import com.castify.backend.models.PageDTO;
 import com.castify.backend.models.comment.CommentModel;
 import com.castify.backend.models.podcast.CreatePodcastModel;
@@ -10,7 +11,7 @@ import java.util.List;
 import java.util.Map;
 
 public interface IPodcastService {
-    PodcastModel createPodcast(CreatePodcastModel createPodcastModel);
+    PodcastModel createPodcast(CreatePodcastModel createPodcastModel, String userId);
     PageDTO<PodcastModel> getAllSelfPodcasts(int page, int size, Integer minViews,
                                            Integer minComments, String sortByViews,
                                            String sortByComments, String sortByCreatedDay);

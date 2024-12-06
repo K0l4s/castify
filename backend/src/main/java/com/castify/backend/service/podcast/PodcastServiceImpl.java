@@ -68,14 +68,11 @@ public class PodcastServiceImpl implements IPodcastService {
     private UploadFileServiceImpl uploadFileService;
 
     @Override
-    public PodcastModel createPodcast(CreatePodcastModel createPodcastModel) {
+    public PodcastModel createPodcast(CreatePodcastModel createPodcastModel, String userId) {
         PodcastEntity podcastEntity = modelMapper.map(createPodcastModel, PodcastEntity.class);
 
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        String userEmail = authentication.getName();
-
-        UserEntity userEntity = userRepository.findByEmailOrUsername(userEmail)
-                .orElseThrow(() -> new RuntimeException("User not found with email: " + userEmail));
+        UserEntity userEntity = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found with email: " + userId));
 
         List<GenreEntity> validGenres = genreRepository.findAllById(createPodcastModel.getGenresId());
 
