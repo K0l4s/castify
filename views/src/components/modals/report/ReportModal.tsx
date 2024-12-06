@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { ReportRequest, ReportType } from '../../../models/Report';
 import { reportService } from '../../../services/ReportService';
 import CustomModal from '../../UI/custom/CustomModal';
+import { useToast } from '../../../context/ToastProvider';
 
 interface ReportModalProps {
   isOpen: boolean;
@@ -15,7 +16,7 @@ const ReportModal: React.FC<ReportModalProps> = ({ isOpen, onClose, targetId, re
   const [detail, setDetail] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-
+  const toast = useToast();
   const handleSubmit = async () => {
     if (!title || !detail) {
       setError('Vui lòng điền đầy đủ thông tin');
@@ -30,14 +31,16 @@ const ReportModal: React.FC<ReportModalProps> = ({ isOpen, onClose, targetId, re
       type: reportType,
       target: targetId,
     };
-
+    
     try {
       await reportService.senReport(report);
       setIsLoading(false);
       onClose();
+      toast.success('Gửi báo cáo thành công');
     } catch (error) {
       setIsLoading(false);
       setError('Gửi báo cáo thất bại, vui lòng thử lại!');
+
     }
   };
 

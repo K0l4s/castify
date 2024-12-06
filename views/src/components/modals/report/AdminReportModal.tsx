@@ -20,6 +20,8 @@ const AdminReportModal: React.FC<ReportModalProps> = ({ isOpen, onClose, report 
     const [comment, setComment] = useState<Comment | null>(null);
     const [selectedActions, setSelectedActions] = useState<ReportProgressType[]>([]);
     const [isAccept, setIsAccept] = useState(false);
+    const toast = useToast();
+
     useEffect(() => {
         setIsAccept(false)
         setComment(null)
@@ -52,7 +54,6 @@ const AdminReportModal: React.FC<ReportModalProps> = ({ isOpen, onClose, report 
                 console.log(err);
             });
     };
-    const toast = useToast();
     const handleAcceptReport = () => {
         const progressList: ProgressList[] = selectedActions.map((action) => {
             let targetId;
@@ -91,6 +92,7 @@ const AdminReportModal: React.FC<ReportModalProps> = ({ isOpen, onClose, report 
                 console.log(res);
                 report.status = ReportStatus.ACP;
                 onClose();
+                toast.success("Xử lý báo cáo thành công!");
             })
             .catch((err) => {
                 console.log(err);
