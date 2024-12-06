@@ -97,6 +97,16 @@ export const getPodcastById = async (id: string) => {
   }
 };
 
+export const getPodcastBySelf = async (id: string) => {
+  try {
+    const response = await axiosInstanceAuth.get<Podcast>(`/api/v1/podcast/detail/${id}`);
+    response.data.videoUrl = `http://localhost:8081/api/v1/podcast/video?path=${encodeURIComponent(response.data.videoUrl)}`;
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};
+
 export const getPodcastByAnonymous = async (id: string) => {
   try {
     const response = await axiosInstance.get<Podcast>(`/api/v1/podcast/anonymous/${id}`);
