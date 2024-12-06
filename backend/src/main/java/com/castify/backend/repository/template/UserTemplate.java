@@ -4,6 +4,8 @@ import com.castify.backend.entity.UserEntity;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.*;
 import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.aggregation.Aggregation;
+import org.springframework.data.mongodb.core.aggregation.AggregationResults;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Repository;
@@ -89,4 +91,33 @@ public class UserTemplate {
         // Trả về Page chứa kết quả phân trang
         return new PageImpl<>(resultUser, pageable, totalCount);
     }
+
+
+    public Page<UserEntity> findByKeywordWithAggregation(String keyword, Pageable pageable) {
+        Aggregation aggregation = Aggregation.newAggregation(
+                Aggregation.match(
+                        new Criteria().orOperator(
+                                // Tìm kiếm cho các trường đầu tên, giữa tên, và cuối tên riêng biệt
+                                Criteria.where("firstName").regex(keyword, "i"),
+                                Criteria.where("middleName").regex(keyword, "i"),
+                                Criteria.where("lastName").regex(keyword, "i"),
+                                Criteria.where("ward").regex(keyword, "i"),
+                                Criteria.where("provinces").regex(keyword, "i"),
+                                Criteria.where("district").regex(keyword, "i"),
+                                Criteria.where("username").regex(keyword,"i"),
+                                // Kết hợp lastName + middleName + firstName để tìm kiếm với chuỗi đầy đủ
+                                Criteria.where("lastName").regex(".*" + keyword + ".*", "i")
+                                        .and("middleName").regex(".*" + keyword + ".*", "i")
+                                        .and("firstName").regex(".*" + keyword + ".*", "i")
+                        )
+                ),
+                Aggregation.skip((long) pageable.getOffset()),
+                Aggregation.limit(pageable.getPageSize())
+        );
+
+        AggregationResults<UserEntity> results = mongoTemplate.aggregate(aggregation, "user", UserEntity.class);
+        return new PageImpl<>(results.getMappedResults(), pageable, results.getMappedResults().size());
+    }
+
+
 }

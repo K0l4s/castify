@@ -271,7 +271,7 @@ public class UserServiceImpl implements IUserService {
         return new PaginatedResponse<>(resultUsers, totalPages);
     }
     @Override
-    public PaginatedResponse<BasicUserModel> findUser(Integer pageNumber, Integer pageSize,String keyword) throws Exception {
+    public PaginatedResponse<BasicUserModel> findUser(Integer pageNumber, Integer pageSize, String keyword) throws Exception {
         Pageable pageable = PageRequest.of(pageNumber,pageSize);
         Page<UserEntity> similarUsers = userRepository.findByKeyword(keyword,pageable);
 
@@ -305,7 +305,34 @@ public class UserServiceImpl implements IUserService {
            throw new Exception("You don't have permission to send this request! Please login with admin role!");
 
     }
+    @Override
+    public PaginatedResponse<UserSimple> searchUser(Integer pageNumber, Integer pageSize, String keyword) throws Exception {
+        Pageable pageable = PageRequest.of(pageNumber,pageSize);
+//        UserEntity currentUser=getUserByAuthentication();
+        Page<UserEntity> similarUsers = userRepositoryTemplate.findByKeywordWithAggregation(keyword,pageable);
 
+        List<UserSimple> resultUsers = similarUsers.getContent().stream()
+                .map(this::mapToUserSimpleAnonymous)
+                .collect(Collectors.toList());
+        int totalPages = similarUsers.getTotalPages();
+        return new PaginatedResponse<>(resultUsers, totalPages);
+    }
+    private UserSimple mapToUserSimpleAnonymous(UserEntity userEntity) {
+        // Chuyển đổi UserEntity thành UserSimple
+        UserSimple userSimple = modelMapper.map(userEntity, UserSimple.class);
+
+        // Tính toán các thuộc tính bổ sung
+        userSimple.setTotalFollower(getFollowerCount(userEntity));
+        userSimple.setTotalPost(getPostCount(userEntity));
+        try {
+            UserEntity currentUser = getUserByAuthentication();
+            userSimple.setIsFollow(isUserFollowing(currentUser, userEntity));
+        }catch (Exception ex){
+            userSimple.setIsFollow(false);
+        }
+
+        return userSimple;
+    }
     private UserSimple mapToUserSimple(UserEntity userEntity, UserEntity currentUser) {
         // Chuyển đổi UserEntity thành UserSimple
         UserSimple userSimple = modelMapper.map(userEntity, UserSimple.class);

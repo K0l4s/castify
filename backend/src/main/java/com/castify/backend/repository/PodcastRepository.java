@@ -18,9 +18,21 @@ public interface PodcastRepository extends MongoRepository<PodcastEntity, String
 
     @Query("{ 'user.id': ?0, 'views': { $gte: ?1 } }")
     Page<PodcastEntity> findByFilters(String userId, int minViews, Pageable pageable);
+
     long countByUser(UserEntity user);
+
     Page<PodcastEntity> findByIsActiveTrue(Pageable pageable);
+
     Page<PodcastEntity> findByGenres_IdAndIsActiveTrue(String genreId, Pageable pageable);
+
     @Query("{ 'user.id': ?0, 'isActive': true }")
     Page<PodcastEntity> findAllByUserIdAndIsActiveTrue(String userId, Pageable pageable);
+
+    @Query("{'isActive': true, '$or': [" +
+            "{'title': { '$regex': ?0, $options: 'i' }}," +   // Search in title
+            "{'content': { '$regex': ?0, $options: 'i' }},"+
+            "]}")
+    Page<PodcastEntity> searchPodcastByFields(String keyword, Pageable pageable);
+
+
 }

@@ -3,7 +3,6 @@ package com.castify.backend.service.podcast;
 import com.castify.backend.entity.*;
 import com.castify.backend.enums.ActivityType;
 import com.castify.backend.models.PageDTO;
-import com.castify.backend.models.comment.CommentModel;
 import com.castify.backend.models.podcast.CreatePodcastModel;
 import com.castify.backend.models.podcast.EditPodcastDTO;
 import com.castify.backend.models.podcast.PodcastModel;
@@ -29,7 +28,6 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Service
 public class PodcastServiceImpl implements IPodcastService {
@@ -336,14 +334,15 @@ public class PodcastServiceImpl implements IPodcastService {
     @Override
     public PageDTO<PodcastModel> getUserPodcasts(String username, int page, int size, String sortBy) throws Exception {
         UserEntity user = userRepository.findByUsername(username)
-            .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new RuntimeException("User not found"));
 
         Sort sort;
         if ("oldest".equalsIgnoreCase(sortBy)) {
             sort = Sort.by(Sort.Direction.ASC, "createdDay");
         } else if ("views".equalsIgnoreCase(sortBy)) {
             sort = Sort.by(Sort.Direction.DESC, "views")
-                    .and(Sort.by(Sort.Direction.DESC, "createdDay"));;
+                    .and(Sort.by(Sort.Direction.DESC, "createdDay"));
+            ;
         } else {
             // Default là newest
             sort = Sort.by(Sort.Direction.DESC, "createdDay");
@@ -353,6 +352,18 @@ public class PodcastServiceImpl implements IPodcastService {
         Pageable pageable = PageRequest.of(page, size, sort);
 
         Page<PodcastEntity> podcastEntities = podcastRepository.findAllByUserIdAndIsActiveTrue(user.getId(), pageable);
+
+        return convertPodcastEntitiesToPageDTO(podcastEntities);
+    }
+    @Override
+    public PageDTO<PodcastModel> searchPodcast(int page, int size, String keyword) throws Exception {
+
+        Sort sort = sort = Sort.by(Sort.Direction.DESC, "createdDay");
+
+        // Tạo Pageable với sắp xếp
+        Pageable pageable = PageRequest.of(page, size, sort);
+
+        Page<PodcastEntity> podcastEntities = podcastRepository.searchPodcastByFields(keyword, pageable);
 
         return convertPodcastEntitiesToPageDTO(podcastEntities);
     }

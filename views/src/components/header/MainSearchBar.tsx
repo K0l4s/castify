@@ -1,27 +1,36 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 const MainSearchBar = () => {
 
     const [searchQuery, setSearchQuery] = useState('');
-    const [showSearchResults, setShowSearchResults] = useState(false);
+    // const [showSearchResults, setShowSearchResults] = useState(false);
 
 
     const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
         setSearchQuery(e.target.value);
-        setShowSearchResults(e.target.value.length > 0);
+        // setShowSearchResults(e.target.value.length > 0);
     }
 
-    const handleSearchFocus = () => {
-        if (searchQuery) {
-            setShowSearchResults(true);
+    // const handleSearchFocus = () => {
+    //     if (searchQuery) {
+    //         setShowSearchResults(true);
+    //     }
+    // }
+
+    // const handleSearchBlur = () => {
+    //     // Small delay to allow clicking search results
+    //     setTimeout(() => {
+    //         setShowSearchResults(false);
+    //     }, 200);
+    // }
+    const navigate = useNavigate();
+    const handleEnter = (e: React.KeyboardEvent<HTMLInputElement>) => {
+        if (e.key === 'Enter') {
+            const url = `/search?keyword=${encodeURIComponent(searchQuery)}`
+            navigate(url);
+            // window.location.href = `http://localhost:5000/search?keyword=${searchQuery}`;
         }
-    }
-
-    const handleSearchBlur = () => {
-        // Small delay to allow clicking search results
-        setTimeout(() => {
-            setShowSearchResults(false);
-        }, 200);
     }
     return (
         <div className="relative flex-1 max-w-xl mx-4">
@@ -33,8 +42,9 @@ const MainSearchBar = () => {
                     type="search"
                     value={searchQuery}
                     onChange={handleSearch}
-                    onFocus={handleSearchFocus}
-                    onBlur={handleSearchBlur}
+                    // onFocus={handleSearchFocus}
+                    // onBlur={handleSearchBlur}
+                    onKeyDown={handleEnter}
                     placeholder="Search podcasts, episodes, creators..."
                     className="w-full bg-transparent text-black dark:text-white outline-none text-sm placeholder-gray-500 focus:placeholder-gray-400 transition-colors duration-200"
                     aria-label="Search"
@@ -42,7 +52,7 @@ const MainSearchBar = () => {
                 />
                 
             </div>
-            {showSearchResults && (
+            {/* {showSearchResults && (
                 <div className="absolute inset-x-0 top-full mt-2 bg-white dark:bg-gray-800 rounded-xl shadow-xl border border-gray-200 dark:border-gray-700 backdrop-blur-lg backdrop-filter transform transition-all duration-200 ease-out" data-testid="search-results">
                     <div className="p-4">
                         <div className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-3">Recent searches</div>
@@ -68,7 +78,7 @@ const MainSearchBar = () => {
                         </div>
                     </div>
                 </div>
-            )}
+            )} */}
         </div>
     );
 };
