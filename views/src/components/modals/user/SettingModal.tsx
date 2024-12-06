@@ -12,11 +12,11 @@ import Loading from '../../UI/custom/Loading';
 import CustomModal from '../../UI/custom/CustomModal';
 import { useDispatch } from 'react-redux';
 import { updateAvatar, updateCover } from '../../../redux/slice/authSlice';
-interface SettingModals{
+interface SettingModals {
   isOpen: boolean;
-  onClose: ()=> void;
+  onClose: () => void;
 }
-const SettingModals = (props:SettingModals) => {
+const SettingModals = (props: SettingModals) => {
 
   const [isLoading, setIsLoading] = useState(true);
   const [user, setUser] = useState<User>();
@@ -130,7 +130,7 @@ const SettingModals = (props:SettingModals) => {
         const province = proList.find((province: provinces) => province.name === user?.provinces);
         setSelectedProvinceId(province?.id || '');
       } catch (error) {
-        toast.error("Failed to load provinces");
+        // toast.error("Failed to load provinces");
       }
     }
     fetchData();
@@ -150,7 +150,7 @@ const SettingModals = (props:SettingModals) => {
           const district = disList.find((district: district) => district.name === user?.district);
           setSelectedDistrictId(district?.id || '');
         } catch (error) {
-          toast.error("Failed to load districts");
+          // toast.error("Failed to load districts");
         }
       };
       fetchData();
@@ -168,7 +168,7 @@ const SettingModals = (props:SettingModals) => {
           const ward = warList.find((ward: ward) => ward.name === user?.ward);
           setSelectedWardId(ward?.id || '');
         } catch (error) {
-          toast.error("Failed to load wards");
+          // toast.error("Failed to load wards");
         }
       };
       fetchData();
@@ -249,8 +249,8 @@ const SettingModals = (props:SettingModals) => {
     }
   };
 
-  
-  
+
+
   return (
     // <div className="min-h-screen bg-gray-50 dark:bg-gray-900 p-8">
     <CustomModal title='Setting' isOpen={props.isOpen} onClose={props.onClose} size='xl'>
@@ -313,7 +313,7 @@ const SettingModals = (props:SettingModals) => {
         <form onSubmit={handleSubmit} className="space-y-6">
           <div className="grid grid-cols-1 gap-6">
             <div className="grid grid-cols-3 gap-4">
-            <div>
+              <div>
                 <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">Last Name</label>
                 <CustomInput
                   type="text"
@@ -325,7 +325,7 @@ const SettingModals = (props:SettingModals) => {
                   className="mt-1 block w-full"
                 />
               </div>
-              
+
               <div>
                 <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">Middle Name</label>
                 <CustomInput
@@ -380,7 +380,45 @@ const SettingModals = (props:SettingModals) => {
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div className="flex flex-col items-start">
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">Provinces</label>
+                <CustomInput
+                  type="text"
+                  name="provinces"
+                  value={editedUser.provinces}
+                  onChange={handleInputChange}
+                  disabled={!isEdit}
+                  variant="primary"
+                  className="mt-1 block w-full"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">District</label>
+                <CustomInput
+                  type="text"
+                  name="district"
+                  value={editedUser.district}
+                  onChange={handleInputChange}
+                  disabled={!isEdit}
+                  variant="primary"
+                  className="mt-1 block w-full"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">Ward</label>
+                <CustomInput
+                  type="text"
+                  name="ward"
+                  value={editedUser.ward}
+                  onChange={handleInputChange}
+                  disabled={!isEdit}
+                  variant="primary"
+                  className="mt-1 block w-full"
+                />
+              </div>
+            </div>
+            <div>
+              {/* <div className="flex flex-col items-start">
                 <label htmlFor="provinces" className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">District</label>
                 <select
                   id="provinces"
@@ -430,7 +468,7 @@ const SettingModals = (props:SettingModals) => {
                     <option key={ward.id} value={ward.id}>{ward.name}</option>
                   ))}
                 </select>
-              </div>
+              </div> */}
             </div>
           </div>
 
@@ -458,7 +496,7 @@ const SettingModals = (props:SettingModals) => {
         </form>
       </div>
       {isLoading && <Loading />}
-    {/* </div> */}
+      {/* </div> */}
     </CustomModal>
   );
 };
