@@ -58,10 +58,6 @@ const AdminLadingPage = () => {
 
   const [type, setType] = useState('month');
   useEffect(() => {
-    // fetchDashboard();
-    // if day, send 00 -> 23h59:59 to day
-    // if month, send 1 -> 30/31 to month
-    // if year, send 1 -> 12 to year
     const startDate = new Date();
     const endDate = new Date();
     const prevStartDate = new Date();

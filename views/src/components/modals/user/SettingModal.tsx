@@ -11,7 +11,7 @@ import { GiCancel } from 'react-icons/gi';
 import Loading from '../../UI/custom/Loading';
 import CustomModal from '../../UI/custom/CustomModal';
 import { useDispatch } from 'react-redux';
-import { updateAvatar, updateCover, updateInformation } from '../../../redux/slice/authSlice';
+import { updateAvatar, updateCover } from '../../../redux/slice/authSlice';
 import defaultAvatar from '../../../assets/images/default_avatar.jpg';
 
 interface SettingModals {
