@@ -28,4 +28,5 @@ public interface CommentRepository  extends MongoRepository<CommentEntity, Strin
     List<CommentEntity> findByPodcastId(String podcastId);
     long countByPodcastId(String podcastId);
     Page<CommentEntity> findByPodcastIdAndParentIdIsNull(String podcastId, Pageable pageable);
+    List<CommentEntity> findAllByParentId(String parentId);
 }

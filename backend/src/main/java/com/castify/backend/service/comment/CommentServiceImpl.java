@@ -1,16 +1,10 @@
 package com.castify.backend.service.comment;
 
-import com.castify.backend.entity.CommentEntity;
-import com.castify.backend.entity.CommentLikeEntity;
-import com.castify.backend.entity.PodcastEntity;
-import com.castify.backend.entity.UserEntity;
+import com.castify.backend.entity.*;
 import com.castify.backend.models.PageDTO;
 import com.castify.backend.models.comment.CommentModel;
 import com.castify.backend.models.comment.CommentRequestDTO;
-import com.castify.backend.repository.CommentLikeRepository;
-import com.castify.backend.repository.CommentRepository;
-import com.castify.backend.repository.PodcastRepository;
-import com.castify.backend.repository.UserRepository;
+import com.castify.backend.repository.*;
 import com.castify.backend.service.user.IUserService;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,6 +34,9 @@ public class CommentServiceImpl implements ICommentService {
 
     @Autowired
     private UserRepository userRepository;
+
+    @Autowired
+    private UserActivityRepository userActivityRepository;
 
     @Override
     public CommentModel addComment(CommentRequestDTO commentRequestDTO) {
@@ -222,6 +219,52 @@ public class CommentServiceImpl implements ICommentService {
             return modelMapper.map(comment.get(), CommentModel.class);
         } else {
             throw new RuntimeException("Comment not found with id: " + id); // Hoặc xử lý lỗi tùy ý
+        }
+    }
+
+    @Override
+    public void deleteCommentsByIds(List<String> commentIds, boolean isAdmin) throws Exception {
+        List<CommentEntity> comments = commentRepository.findAllById(commentIds);
+
+        if (comments.isEmpty() || comments.size() != commentIds.size()) {
+            throw new RuntimeException("One or more comments not found.");
+        }
+
+        UserEntity currentUser = userService.getUserByAuthentication();
+
+        for (CommentEntity comment : comments) {
+            // Kiểm tra quyền
+            if (!isAdmin && !comment.getUser().getId().equals(currentUser.getId())) {
+                throw new RuntimeException("You do not have permission.");
+            }
+
+            // Kiểm tra nếu comment này là cha
+            if (comment.getReplies() != null && !comment.getReplies().isEmpty()) {
+                // Xóa replies chỉ khi comment cha nằm trong danh sách cần xóa
+                if (commentIds.contains(comment.getId())) {
+                    for (CommentEntity reply : comment.getReplies()) {
+                        // Xóa likes của reply
+                        if (reply.getLikes() != null && !reply.getLikes().isEmpty()) {
+                            commentLikeRepository.deleteAll(reply.getLikes());
+                        }
+                    }
+                    commentRepository.deleteAll(comment.getReplies());
+                }
+            }
+
+            // Xóa likes của comment
+            if (comment.getLikes() != null && !comment.getLikes().isEmpty()) {
+                commentLikeRepository.deleteAll(comment.getLikes());
+            }
+
+            // Xóa các hoạt động liên quan đến comment
+            List<UserActivityEntity> activities = userActivityRepository.findByComment(comment);
+            if (activities != null && !activities.isEmpty()) {
+                userActivityRepository.deleteAll(activities);
+            }
+
+            // Xóa bản thân comment
+            commentRepository.delete(comment);
         }
     }
 

@@ -15,6 +15,7 @@ import Tooltip from "../UI/custom/Tooltip";
 import PodcastUploadModal from "../modals/podcast/PodcastUploadModal";
 import CustomButton from "../UI/custom/CustomButton";
 import { Role } from "../../constants/Role";
+import defaultAvatar from "../../assets/images/default_avatar.jpg";
 
 const Authentication = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -111,8 +112,7 @@ const Authentication = () => {
                 <img
                   className="w-10 h-10 rounded-full object-cover border-2 border-transparent hover:border-blue-500 transition-colors duration-200"
                   src={
-                    user?.avatarUrl ||
-                    "https://cdn-icons-png.flaticon.com/512/9203/9203764.png"
+                    user?.avatarUrl || defaultAvatar
                   }
                   alt="User avatar"
                 />

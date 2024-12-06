@@ -15,4 +15,5 @@ public interface ICommentService {
     List<CommentModel> getReplies(String id);
 
     CommentModel getById(String id);
+    void deleteCommentsByIds(List<String> commentIds, boolean isAdmin) throws Exception;
 }

@@ -1,5 +1,6 @@
 package com.castify.backend.repository;
 
+import com.castify.backend.entity.CommentEntity;
 import com.castify.backend.entity.PodcastEntity;
 import com.castify.backend.entity.UserActivityEntity;
 import com.castify.backend.entity.UserEntity;
@@ -22,4 +23,5 @@ public interface UserActivityRepository extends MongoRepository<UserActivityEnti
     @Query("{ 'user.$id': ?0, 'podcast.title': { $regex: ?1, $options: 'i' } }")
     List<UserActivityEntity> findAllByUserIdAndPodcastTitle(String userId, String podcastTitle);
     List<UserActivityEntity> findByPodcast(PodcastEntity podcast);
+    List<UserActivityEntity> findByComment(CommentEntity comment);
 }

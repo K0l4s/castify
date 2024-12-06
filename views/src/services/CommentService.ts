@@ -50,3 +50,14 @@ export const likeComment = async (commentId: string) => {
     throw error;
   }
 }
+
+export const deleteComment = async (commentIds: string[]) => {
+  try {
+    const response = await axiosInstanceAuth.delete("/api/v1/comment/delete", {
+      data: commentIds,
+    });
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};
