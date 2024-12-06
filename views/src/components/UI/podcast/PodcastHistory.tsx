@@ -1,10 +1,11 @@
-import React from "react";
+import React, { useState } from "react";
 import { Podcast } from "../../../models/PodcastModel";
 import { Link } from "react-router-dom";
 import { FaBookmark, FaEye, FaFlag, FaShareAlt } from "react-icons/fa";
 import { IoCloseOutline } from "react-icons/io5";
 import { HiDotsVertical } from "react-icons/hi";
 import CustomOptionMenu from "../custom/CustomOptionMenu";
+import ShareModal from "../../modals/podcast/ShareModal";
 
 interface PodcastHistoryProps {
   podcast: Podcast;
@@ -15,6 +16,8 @@ const PodcastHistory: React.FC<PodcastHistoryProps> = ({
   podcast,
   onDelete,
 }) => {
+  const [isShareModalOpen, setIsShareModalOpen] = useState(false);
+  const podcastLink = `${window.location.origin}/watch?pid=${podcast.id}`;
   const author = podcast.user.fullname;
 
   const handleReport = () => {
@@ -27,9 +30,9 @@ const PodcastHistory: React.FC<PodcastHistoryProps> = ({
     // Add save logic here
   };
 
-  const handleShare = () => {
-    console.log("Shared");
-  }
+  const toggleShareModal = () => {
+    setIsShareModalOpen(!isShareModalOpen);
+  };
 
   return (
     <div className="flex rounded-lg dark:bg-gray-900">
@@ -93,13 +96,19 @@ const PodcastHistory: React.FC<PodcastHistoryProps> = ({
               <FaBookmark className="inline-block mb-1 mr-2" />
               Save
             </li>
-            <li className="px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer" onClick={handleShare}>
+            <li className="px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer" onClick={toggleShareModal}>
               <FaShareAlt className="inline-block mb-1 mr-2" />
               Share
             </li>
           </ul>
         </CustomOptionMenu>
       </div>
+      {/* Share Modal */}
+      <ShareModal
+        isOpen={isShareModalOpen}
+        onClose={toggleShareModal}
+        podcastLink={podcastLink}
+      />
     </div>
   );
 };

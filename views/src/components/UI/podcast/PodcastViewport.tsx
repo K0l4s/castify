@@ -179,6 +179,10 @@ const PodcastViewport: React.FC = () => {
   };
 
   const toggleReportModal = () => {
+    if (!isAuthenticated) {
+      toast.warning("Please login to report this podcast");
+      return;
+    }
     setIsReportModalOpen(!isReportModalOpen);
   };
 
