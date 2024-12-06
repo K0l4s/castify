@@ -1,36 +1,19 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { Podcast } from '../../../models/PodcastModel';
 import { formatDistanceToNow } from 'date-fns';
 import default_avatar from '../../../assets/images/default_avatar.jpg';
 import { Link } from 'react-router-dom';
 import { FaPlay, FaRegClock } from 'react-icons/fa';
-import { getVideoDuration } from './video';
 import { formatViewsToShortly } from '../../../utils/formatViews';
+import { formatTimeDuration } from './video';
 
 interface PodcastTagProps {
   podcast: Podcast;
 }
 
 const PodcastTag: React.FC<PodcastTagProps> = ({ podcast }) => {
-  const [duration, setDuration] = useState<string | null>(null);
-
   const author = podcast.user.fullname;
   const createdDay = formatDistanceToNow(new Date(podcast.createdDay), { addSuffix: true });
-
-  useEffect(() => {
-    const fetchDuration = async () => {
-      try {
-        const durationInSeconds = await getVideoDuration(podcast.videoUrl);
-        const minutes = Math.floor(durationInSeconds / 60);
-        const seconds = Math.floor(durationInSeconds % 60);
-        setDuration(`${minutes}:${seconds < 10 ? '0' : ''}${seconds}`);
-      } catch (error) {
-        console.error(error);
-      }
-    };
-
-    fetchDuration();
-  }, [podcast.videoUrl]);
 
   return (
     <div className="relative rounded-lg overflow-hidden transform transition-transform duration-300">
@@ -42,10 +25,10 @@ const PodcastTag: React.FC<PodcastTagProps> = ({ podcast }) => {
               <FaPlay className="text-blue-500 dark:text-blue-400" />
             </button>
           </div>
-          {duration && (
+          {podcast.duration && (
             <div className="absolute bottom-2 right-2 bg-black bg-opacity-75 text-white text-sm px-2 py-1 rounded">
               <FaRegClock className='inline-block mr-1' size={16} />
-              {duration}
+              {formatTimeDuration(podcast.duration)}
             </div>
           )}
         </div>

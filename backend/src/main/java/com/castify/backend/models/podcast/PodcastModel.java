@@ -20,6 +20,7 @@ public class PodcastModel {
     private String videoUrl;
     private List<GenreSimple> genres;
     private long views;
+    private long duration;
     private long totalLikes;
     private long totalComments;
     private String username;

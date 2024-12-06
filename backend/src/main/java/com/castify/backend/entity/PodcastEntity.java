@@ -22,6 +22,7 @@ public class PodcastEntity {
     private String thumbnailUrl;
     private String videoUrl;
     private long views;
+    private long duration;
 
     private List<GenreEntity> genres;
 

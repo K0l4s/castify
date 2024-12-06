@@ -8,6 +8,7 @@ export interface Podcast {
   videoUrl: string;
   genres?: Genre[];
   views: number;
+  duration: number;
   totalLikes: number;
   totalComments: number;
   username: string;

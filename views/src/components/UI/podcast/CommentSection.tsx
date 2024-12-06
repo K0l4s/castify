@@ -16,6 +16,8 @@ import { useToast } from "../../../context/ToastProvider";
 import { useNavigate } from "react-router-dom";
 import { addNewComment, deleteCommentAction, fetchCommentReplies, fetchComments, likeCommentAction, resetComments } from "../../../redux/slice/commentSlice";
 import { AiOutlineLoading3Quarters } from "react-icons/ai";
+import ReportModal from "../../modals/report/ReportModal";
+import { ReportType } from "../../../models/Report";
 
 interface CommentSectionProps {
   podcastId: string;
@@ -35,6 +37,8 @@ const CommentSection: React.FC<CommentSectionProps> = ({ podcastId, totalComment
   const [filterLoading, setFilterLoading] = useState(false);
   const [loadMoreLoading, setLoadMoreLoading] = useState(false);
   const [commentError, setCommentError] = useState<string | null>(null);
+  const [isOpenCommentReportModal, setIsOpenCommentReportModal] = useState(false);
+  const [targetId, setTargetId] = useState<string | null>(null);
 
   const commentDivRef = useRef<HTMLDivElement>(null);
   const replyDivRef = useRef<{ [key: string]: HTMLDivElement | null }>({});
@@ -219,10 +223,13 @@ const CommentSection: React.FC<CommentSectionProps> = ({ podcastId, totalComment
     }, 500);
   };
 
-  const handleReport = (commentId: string) => {
-    console.log(`Report comment: ${commentId}`);
-    // Thêm logic xử lý báo cáo ở đây
-  };
+  const toggleCommentReportModal = (commentId: string) => {
+    if (!isAuthenticated) {
+      toast.warning("Please login to do this action");
+    }
+    setTargetId(commentId);
+    setIsOpenCommentReportModal(!isOpenCommentReportModal);
+  }
 
   const handleDelete = async (commentId: string) => {
     try {
@@ -454,12 +461,8 @@ const CommentSection: React.FC<CommentSectionProps> = ({ podcastId, totalComment
                     </>
                   ) : (
                     <li className="px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer" 
-                      onClick={() => { 
-                        if (!isAuthenticated) {
-                          toast.warning("Please login to do this action");
-                        }
-                        handleReport(comment.id)} 
-                      }>
+                      onClick={() => toggleCommentReportModal(comment.id)} 
+                      >
                         <FaFlag className="inline-block mb-1 mr-2" />
                         Report
                     </li>
@@ -539,7 +542,7 @@ const CommentSection: React.FC<CommentSectionProps> = ({ podcastId, totalComment
                       {reply.user.id === userRedux?.id ? (
                         <>
                           <li className="px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer" 
-                            onClick={() => handleEdit(comment.id)}>
+                            onClick={() => handleEdit(reply.id)}>
                               <MdEdit className="inline-block mb-1 mr-2" />
                               Edit
                           </li>
@@ -551,12 +554,7 @@ const CommentSection: React.FC<CommentSectionProps> = ({ podcastId, totalComment
                         </>
                       ) : (
                         <li className="px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer" 
-                          onClick={() => { 
-                            if (!isAuthenticated) {
-                              toast.warning("Please login to do this action");
-                            }
-                            handleReport(comment.id)} 
-                          }>
+                          onClick={() => toggleCommentReportModal(reply.id)}>
                             <FaFlag className="inline-block mb-1 mr-2" />
                             Report
                         </li>
@@ -713,6 +711,13 @@ const CommentSection: React.FC<CommentSectionProps> = ({ podcastId, totalComment
         )}
       </div>
       )}
+      {/* Report Modal */}
+      <ReportModal
+        isOpen={isOpenCommentReportModal}
+        onClose={() => toggleCommentReportModal(targetId!)}
+        targetId={targetId!}
+        reportType={ReportType.C}
+      />
     </div>
   );
 };

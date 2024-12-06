@@ -16,4 +16,5 @@ public class CreatePodcastModel {
     private String videoPath;
     private String thumbnailPath;
     private List<String> genresId;
+    private long duration;
 }
