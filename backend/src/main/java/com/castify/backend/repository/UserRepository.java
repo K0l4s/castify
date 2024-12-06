@@ -27,8 +27,9 @@ public interface UserRepository extends MongoRepository<UserEntity, String> {
     UserEntity findUserEntityByUsername(String username);
 
     @Query("{ 'following': ?0 }")
-    List<UserEntity> findUsersFollowing(String userId);
-
+    List<UserEntity> findUsersFollowers(String userId);
+    @Query("{ 'following': ?0 }")
+    Page<UserEntity> findFollowersList(String userId,Pageable pageable);
     @Query("{'$or': [" +
             "{'firstName': {'$regex': ?0, '$options': 'i'}}," + // Tìm kiếm trong firstName
             "{'middleName': {'$regex': ?0, '$options': 'i'}}," + // Tìm kiếm trong middleName
@@ -39,7 +40,6 @@ public interface UserRepository extends MongoRepository<UserEntity, String> {
 //            "{'$regex': {'$concat': ['$lastName', ' ', '$middleName', ' ', '$firstName']}, '$options': 'i'}" + // Tìm kiếm trong lastName + middleName + firstName
             "]}")
     Page<UserEntity> findByKeyword(String keyword, Pageable pageable);
-
 
 
 

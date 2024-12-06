@@ -120,7 +120,20 @@ public class UserController {
         }
     }
 //    @PreAuthorize("hasRole('ADMIN')")
-
+    @GetMapping("/followers")
+    private ResponseEntity<?> getFollowersList (
+            @RequestParam("pageNumber") Integer pageNumber,
+            @RequestParam("pageSize") Integer pageSize
+    ){
+        try{
+            return ResponseEntity.ok(
+                    userService.getFollowerUserListByUser(pageNumber,pageSize)
+            );
+        }catch(Exception ex){
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body("Error"+ex.getMessage());
+        }
+    }
     @ExceptionHandler(MalformedJwtException.class)
     public ResponseEntity<String> handleMalformedJwtException(MalformedJwtException ex) {
         return new ResponseEntity<>("Invalid JWT token format", HttpStatus.BAD_REQUEST);
