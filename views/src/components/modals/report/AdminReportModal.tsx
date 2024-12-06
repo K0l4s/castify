@@ -54,10 +54,33 @@ const AdminReportModal: React.FC<ReportModalProps> = ({ isOpen, onClose, report 
     };
     const toast = useToast();
     const handleAcceptReport = () => {
-        const progressList: ProgressList[] = selectedActions.map((action) => ({
-            type: action,
-            targetId: report.target,
-        }));
+        const progressList: ProgressList[] = selectedActions.map((action) => {
+            let targetId;
+        
+            if (action === 'BAN_USER') {
+                switch (report.type) {
+                    case ReportType.U:
+                        targetId = report.target;
+                        break;
+                    case ReportType.C:
+                        targetId = comment?.user?.id || report.target;
+                        break;
+                    case ReportType.P:
+                        targetId = podcast?.user?.id || report.target;
+                        break;
+                    default:
+                        targetId = report.target;
+                        break;
+                }
+            } else {
+                targetId = report.target;
+            }
+        
+            return {
+                type: action,
+                targetId,
+            };
+        });        
         console.log(selectedActions)
         if (progressList.length <= 0) {
             toast.error("Bạn đã xác nhận xử lý, không được bỏ trống!");
