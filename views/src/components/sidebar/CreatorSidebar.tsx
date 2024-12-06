@@ -1,6 +1,6 @@
 import { BiSolidVideos } from "react-icons/bi";
 import { HiMiniUserGroup } from "react-icons/hi2";
-import { MdOutlineAnalytics, MdOutlineDashboard } from "react-icons/md";
+import {  MdOutlineDashboard } from "react-icons/md";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 
 const CreatorSidebar = () => {
