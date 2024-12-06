@@ -53,11 +53,12 @@ const Authentication = () => {
     if (!isFirstRender && !isEnable) {
       handleLogout();
     } else {
-      setIsFirstRender(false);
+  setIsFirstRender(false);
     }
   }, [isEnable]);
 
   const handleOpen = () => setIsOpen(true);
+  console.log(isOpen);
   const handleClose = () => setIsOpen(false);
   const toggleUserMenu = () => {
     setIsUserMenuOpen(!isUserMenuOpen);

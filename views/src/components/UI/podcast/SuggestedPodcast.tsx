@@ -24,7 +24,6 @@ const SuggestedPodcast: React.FC<SuggestedPodcastProps> = ({ genreIds, currentPo
   const navigate = useNavigate();
 
   useEffect(() => {
-    console.log("Fetching genres for genreIds:", genreIds);
     const fetchGenres = async () => {
       try {
         const data = await getGenresByList(genreIds);
@@ -38,7 +37,6 @@ const SuggestedPodcast: React.FC<SuggestedPodcastProps> = ({ genreIds, currentPo
   }, [genreIds]);
 
   useEffect(() => {
-    console.log("Fetching suggested podcasts for currentPodcastId:", currentPodcastId, "and page:", page);
     const fetchSuggestedPodcasts = async () => {
       try {
         setLoading(true);
@@ -56,7 +54,6 @@ const SuggestedPodcast: React.FC<SuggestedPodcastProps> = ({ genreIds, currentPo
   }, [page, currentPodcastId]);
 
   useEffect(() => {
-    console.log("Resetting suggested podcasts for new genreIds or currentPodcastId");
     setSuggestedPodcasts([]);
     setPage(0);
     setHasMore(true);

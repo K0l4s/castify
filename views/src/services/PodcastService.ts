@@ -189,7 +189,7 @@ export const getSuggestedPodcastsByGenres = async (
 
 export const incrementPodcastViews = async (podcastId: string) => {
   try {
-    const response = await axiosInstanceAuth.post(`/api/v1/podcast/${podcastId}/inc-views`);
+    const response = await axiosInstance.post(`/api/v1/podcast/${podcastId}/inc-views`);
     return response.data;
   } catch (error) {
     throw error;
