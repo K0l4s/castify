@@ -87,16 +87,23 @@ const ProfileMainContent: React.FC<ProfileMainContentProps> = ({
     const currentUser = useSelector((state: RootState) => state.auth.user);
     const isOwner = !username || currentUser?.username === username;
     const toggleFollow = async () => {
-        userService.followUser(username || "");
-        // setIsFollow(!isFollow);
-        user.follow = !user.follow;
-        if (user.follow) {
-            user.totalFollower += 1;
-            toast.success("Unfollowed user");
-        } else {
-            user.totalFollower -= 1;
-            toast.success("Followed user");
+        userService.followUser(username || "").then(() => {
+            user.follow = !user.follow;
+            if (user.follow) {
+                user.totalFollower += 1;
+                toast.success("Follow user successfully");
+            } else {
+                user.totalFollower -= 1;
+                toast.success("Unfollow user successfully");
+            }
+        })
+        .catch(() => {
+            toast.error("Failed to do this action.");
+            return;
         }
+        );
+        // setIsFollow(!isFollow);
+        
     }
     return (
         <div className="w-full">

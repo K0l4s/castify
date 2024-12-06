@@ -45,9 +45,21 @@ const authSlice = createSlice({
         state.user.coverUrl = action.payload;
       }
     },
-    
-  },
+    updateInformation(state, action: PayloadAction<User>) {
+      // change firstName, lastName, middleName, birthDay, provinces, districts, wards, hamlet.
+      if (state.user) {
+        state.user.firstName = action.payload.firstName;
+        state.user.lastName = action.payload.lastName;
+        state.user.middleName = action.payload.middleName;
+        state.user.birthDay = action.payload.birthDay;
+        state.user.provinces = action.payload.provinces;
+        state.user.districts = action.payload.districts;
+        state.user.wards = action.payload.wards;
+        state.user.hamlet = action.payload.hamlet
+      }
+    }
+  }
 });
 
-export const { login, logout, checkAuthStatus, setAuthLoading, setUser,updateAvatar, updateCover } = authSlice.actions;
+export const { login, logout, checkAuthStatus, setAuthLoading, setUser, updateAvatar, updateCover, updateInformation } = authSlice.actions;
 export default authSlice.reducer;

@@ -34,7 +34,7 @@ const ProfilePage: React.FC = () => {
       setTotalPages(response.totalPages);
       setLoading(false);
     } catch (error) {
-      setError("Failed to fetch podcasts");
+      setError("Failed to fetch users");
       setLoading(false);
     }
   };

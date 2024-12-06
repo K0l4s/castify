@@ -61,9 +61,9 @@ export const userService = {
         return await axiosInstanceAuth.put(`/api/v1/admin/user/ban?userId=${userId}`);
     },
     searchUser: async (pageNumber:number,pageSize:number,keyword:string) => {
-        return await axiosInstanceAuth.get(`/api/v1/search/user?pageNumber=${pageNumber}&pageSize=${pageSize}&keyword=${keyword}`);
+        return await axiosInstance.get(`/api/v1/search/user?pageNumber=${pageNumber}&pageSize=${pageSize}&keyword=${keyword}`);
     },
     searchPodcast: async (pageNumber:number,pageSize:number,keyword:string) => {
-        return await axiosInstanceAuth.get(`/api/v1/search/post?pageNumber=${pageNumber}&pageSize=${pageSize}&keyword=${keyword}`);
+        return await axiosInstance.get(`/api/v1/search/post?pageNumber=${pageNumber}&pageSize=${pageSize}&keyword=${keyword}`);
     }
 };

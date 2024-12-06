@@ -5,9 +5,11 @@ import { Podcast } from "../../../models/PodcastModel";
 import { BasicUser } from "../../../models/User";
 import CustomButton from "../../../components/UI/custom/CustomButton";
 import { useNavigate } from "react-router-dom";
+import { useToast } from "../../../context/ToastProvider";
 
 const AdminLadingPage = () => {
   const navigate = useNavigate();
+  const toast = useToast();
   const [dashboard, setDashboard] = useState<DashboardModel>({
     newUsers: [],
     newPodcasts: [],
@@ -40,6 +42,7 @@ const AdminLadingPage = () => {
       setDashboard(response.data);
     } catch (error) {
       console.error("Failed to fetch dashboard information", error);
+      toast.error("Failed to fetch dashboard information");
     }
   };
   const fetchPrevDashboard = async (startDate: string, endDate: string) => {

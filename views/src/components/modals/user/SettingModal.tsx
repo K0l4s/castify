@@ -11,7 +11,7 @@ import { GiCancel } from 'react-icons/gi';
 import Loading from '../../UI/custom/Loading';
 import CustomModal from '../../UI/custom/CustomModal';
 import { useDispatch } from 'react-redux';
-import { updateAvatar, updateCover } from '../../../redux/slice/authSlice';
+import { updateAvatar, updateCover, updateInformation } from '../../../redux/slice/authSlice';
 import defaultAvatar from '../../../assets/images/default_avatar.jpg';
 
 interface SettingModals {
@@ -42,6 +42,7 @@ const SettingModals = (props: SettingModals) => {
   });
   const [isEdit, setIsEdit] = useState(false);
   const toast = useToast();
+  const dispatch = useDispatch();
 
   useEffect(() => {
     const fetchUserDetails = async () => {
@@ -177,7 +178,6 @@ const SettingModals = (props: SettingModals) => {
   //     fetchData();
   //   }
   // }, [selectedDistrictId]);
-  const dispatch = useDispatch();
   // const handleSelectChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
   //   const { name, value } = e.target;
   //   // console.log(value);
@@ -224,7 +224,7 @@ const SettingModals = (props: SettingModals) => {
       ).catch(err => {
         console.log(err);
         toast.clearAllToasts();
-        toast.error("Error updating avatar");
+        toast.error("Error update avatar");
       });
       // console.log(formData.get('avatar'));
     }
@@ -246,7 +246,7 @@ const SettingModals = (props: SettingModals) => {
       ).catch(err => {
         console.log(err);
         toast.clearAllToasts();
-        toast.error("Error updating cover");
+        toast.error("Error update cover");
       });
       // console.log(formData.get('avatar'));
     }
