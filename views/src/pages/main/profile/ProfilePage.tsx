@@ -102,6 +102,7 @@ const ProfilePage: React.FC = () => {
                   username: podcast.user.username,
                 }}
                 thumbnailUrl={podcast.thumbnailUrl || "/TEST.png"}
+                videoUrl={podcast.videoUrl}
                 views={podcast.views}
               />
             ))}

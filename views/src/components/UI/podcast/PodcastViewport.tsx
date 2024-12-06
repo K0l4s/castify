@@ -20,6 +20,7 @@ import SuggestedPodcast from "./SuggestedPodcast";
 import ReportModal from "../../modals/report/ReportModal";
 import { ReportType } from "../../../models/Report";
 import ShareModal from "../../modals/podcast/ShareModal";
+import { formatViewsWithSeparators } from "../../../utils/formatViews";
 
 const PodcastViewport: React.FC = () => {
   const location = useLocation();
@@ -243,7 +244,7 @@ const PodcastViewport: React.FC = () => {
           </div>
           <div className="flex items-center gap-3">
             <CustomButton
-              text={views.toString() + " views"}
+              text={formatViewsWithSeparators(views) + " views"}
               icon={<FaEye size={22} />}
               variant="primary"
               rounded="full"

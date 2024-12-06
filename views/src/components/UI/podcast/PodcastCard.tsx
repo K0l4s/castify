@@ -1,6 +1,8 @@
-import React from 'react';
-import { FaPlay, FaEye } from 'react-icons/fa';
+import React, { useEffect, useState } from 'react';
+import { FaPlay, FaClock } from 'react-icons/fa';
 import { Link } from 'react-router-dom';
+import { getVideoDuration } from './video';
+import { formatViewsToShortly } from '../../../utils/formatViews';
 
 interface PodcastCardProps {
   id: string;
@@ -10,6 +12,7 @@ interface PodcastCardProps {
     username: string;
   };
   thumbnailUrl: string;
+  videoUrl: string;
   views: number;
 }
 
@@ -18,8 +21,26 @@ const PodcastCard: React.FC<PodcastCardProps> = ({
   title,
   user,
   thumbnailUrl,
+  videoUrl,
   views,
 }) => {
+  const [duration, setDuration] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchDuration = async () => {
+      try {
+        const durationInSeconds = await getVideoDuration(videoUrl);
+        const minutes = Math.floor(durationInSeconds / 60);
+        const seconds = Math.floor(durationInSeconds % 60);
+        setDuration(`${minutes}:${seconds < 10 ? '0' : ''}${seconds}`);
+      } catch (error) {
+        console.error(error);
+      }
+    };
+
+    fetchDuration();
+  }, [videoUrl]);
+
   return (
     <div className="bg-transparent rounded-xl shadow-lg overflow-hidden transform hover:scale-105 transition-all duration-300">
       {/* Thumbnail Container */}
@@ -38,8 +59,8 @@ const PodcastCard: React.FC<PodcastCardProps> = ({
             </button>
           </div>
           <div className="absolute bottom-2 right-2 bg-black bg-opacity-75 px-2 py-1 rounded-md flex items-center">
-            <FaEye className="text-white mr-1 text-sm" />
-            <span className="text-white text-sm">{views}</span>
+            <FaClock className="text-white mr-1 text-sm" size={18} />
+            <span className="text-white text-sm">{duration}</span>
           </div>
         </div>
       </Link>
@@ -51,11 +72,13 @@ const PodcastCard: React.FC<PodcastCardProps> = ({
             {title}
           </h3>
         </Link>
-        <div className=' flex items-center'>
-          <img src={user.avatar} alt={user.username} className='w-5 h-5 rounded-full mr-1' />
-          <span className='line-clamp-1 text-md text-gray-500 dark:text-gray-400'>{user.username}</span>
+        <div className="flex justify-between">
+          <div className=' flex items-center'>
+            <img src={user.avatar} alt={user.username} className='w-5 h-5 rounded-full mr-1' />
+            <span className='line-clamp-1 text-md text-gray-500 dark:text-gray-400'>{user.username}</span>
+          </div>
+          <span>{formatViewsToShortly(views)} views</span>
         </div>
-
       </div>
     </div>
   );

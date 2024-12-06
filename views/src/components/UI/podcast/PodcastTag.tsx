@@ -5,6 +5,7 @@ import default_avatar from '../../../assets/images/default_avatar.jpg';
 import { Link } from 'react-router-dom';
 import { FaPlay, FaRegClock } from 'react-icons/fa';
 import { getVideoDuration } from './video';
+import { formatViewsToShortly } from '../../../utils/formatViews';
 
 interface PodcastTagProps {
   podcast: Podcast;
@@ -61,7 +62,7 @@ const PodcastTag: React.FC<PodcastTagProps> = ({ podcast }) => {
             </Link>
           </div>
           <div className="flex gap-4 text-base text-gray-800 dark:text-gray-300">
-            <p>{podcast.views} views</p>
+            <p>{formatViewsToShortly(podcast.views)} views</p>
             <p>{createdDay}</p>
           </div>
         </div>
