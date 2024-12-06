@@ -33,4 +33,5 @@ public class UserModel {
     private List<String> badgesId;
     @Enumerated(EnumType.STRING)
     private Role role;
+    private boolean isEnabled;
 }

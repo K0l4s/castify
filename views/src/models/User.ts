@@ -17,7 +17,8 @@ export interface User {
     isActive: boolean,
     isLock: boolean,
     username: string,
-    role: Role
+    role: Role,
+    enabled: boolean,
     [key: string]: any;
 }
 export interface userDetail{
