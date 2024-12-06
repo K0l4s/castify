@@ -5,6 +5,7 @@ import default_avatar from '../../../assets/images/default_avatar.jpg';
 import { Link } from 'react-router-dom';
 import { FaPlay, FaRegClock } from 'react-icons/fa';
 import { getVideoDuration } from './video';
+import { formatViewsToShortly } from '../../../utils/formatViews';
 
 interface PodcastTagProps {
   podcast: Podcast;
@@ -36,8 +37,10 @@ const PodcastTag: React.FC<PodcastTagProps> = ({ podcast }) => {
       <Link to={`/watch?pid=${podcast.id}`} className="block">
         <div className="relative group">
           <img src={podcast.thumbnailUrl || "/TEST.png"} alt={podcast.title} className="w-full h-56 object-fit rounded-md" />
-          <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-            <FaPlay className="text-white text-4xl" />
+          <div className="absolute inset-0 bg-black bg-opacity-40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
+            <button className="bg-white dark:bg-gray-800 p-3 rounded-full transform hover:scale-110 transition-transform duration-300">
+              <FaPlay className="text-blue-500 dark:text-blue-400" />
+            </button>
           </div>
           {duration && (
             <div className="absolute bottom-2 right-2 bg-black bg-opacity-75 text-white text-sm px-2 py-1 rounded">
@@ -61,7 +64,7 @@ const PodcastTag: React.FC<PodcastTagProps> = ({ podcast }) => {
             </Link>
           </div>
           <div className="flex gap-4 text-base text-gray-800 dark:text-gray-300">
-            <p>{podcast.views} views</p>
+            <p>{formatViewsToShortly(podcast.views)} views</p>
             <p>{createdDay}</p>
           </div>
         </div>

@@ -68,7 +68,8 @@ const SettingModals = (props: SettingModals) => {
           toast.error("Error loading user details");
         }
       } catch (error) {
-        toast.error("Error fetching user details");
+        console.error(error);
+        // toast.error("Error fetching user details");
       } finally {
         setIsLoading(false);
       }
