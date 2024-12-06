@@ -17,8 +17,10 @@ import com.castify.backend.service.podcast.IPodcastService;
 import com.castify.backend.service.podcast.PodcastServiceImpl;
 import com.castify.backend.utils.FileUtils;
 import io.jsonwebtoken.MalformedJwtException;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.InputStreamResource;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
 import org.springframework.http.HttpHeaders;
@@ -28,6 +30,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.InputStream;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
@@ -67,25 +71,7 @@ public class PodcastController {
             @RequestParam(value = "thumbnail", required = false) MultipartFile thumbnail,
             @RequestParam(value = "genreIds") List<String> genreIds) {
         try {
-            // Kiểm tra số lượng genre
-            if (genreIds.size() > 5) {
-                throw new RuntimeException("A podcast can have at most 5 genres");
-            }
-
-            // Check if null
-            if (videoFile == null || videoFile.isEmpty()) {
-                throw new RuntimeException("Empty video file");
-            }
-
-             // Validate file type
-            String fileType = videoFile.getContentType();
-            if (!fileType.equals("video/mp4") && !fileType.equals("video/x-msvideo") && !fileType.equals("video/x-matroska")) {
-                throw new RuntimeException("Unsupported video format");
-            }
-
-            if (videoFile.getSize() > 1024L * 1024L * 1024L) { // 1GB size limit
-                throw new RuntimeException("File size exceeds limit of 1GB");
-            }
+            validateCreatePodcastInfo(genreIds, videoFile);
 
             UserModel userModel = userService.getUserByToken();
 
@@ -124,7 +110,7 @@ public class PodcastController {
             CreatePodcastModel createPodcastModel = new CreatePodcastModel(title, content, videoPath.toString(), thumbnailUrl, genreIds, duration);
 
             // Call service and pass video file path
-            PodcastModel podcastModel = podcastService.createPodcast(createPodcastModel);
+            PodcastModel podcastModel = podcastService.createPodcast(createPodcastModel, userModel.getId());
 
             return ResponseEntity.ok(podcastModel);
         } catch (Exception e) {
@@ -185,26 +171,59 @@ public class PodcastController {
     }
 
     @GetMapping("/video")
-    public ResponseEntity<Resource> getVideo(@RequestParam String path, @RequestHeader(value = "Referer", required = false) String referer) {
+    public ResponseEntity<Resource> getVideo(@RequestParam String path, HttpServletRequest request, @RequestHeader(value = "Referer", required = false) String referer) {
         try {
             // Kiểm tra nguồn gốc yêu cầu
             if (referer == null || (!referer.startsWith("http://localhost:5000") && !referer.startsWith("https://castifyapp.vercel.app/"))) {
                 logger.warning("Invalid referer: " + referer);
-                return ResponseEntity.status(HttpStatus.FORBIDDEN).body(null);
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
             }
 
             Path filePath = Paths.get(videoBasePath).resolve(path).normalize();
             Resource resource = new UrlResource(filePath.toUri());
 
-            if (resource.exists() && resource.isReadable()) {
-                return ResponseEntity.ok()
-                        .contentType(MediaType.parseMediaType("video/mp4"))
-                        .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\"" + resource.getFilename() + "\"")
-                        .body(resource);
-            } else {
+            if (!resource.exists() || !resource.isReadable()) {
                 return ResponseEntity.notFound().build();
             }
+
+            long fileLength = resource.getFile().length();
+            String range = request.getHeader("Range");
+
+            if (range != null) {
+                // Parse Range Header
+                long start = 0, end = fileLength - 1;
+                String[] ranges = range.replace("bytes=", "").split("-");
+                if (!ranges[0].isEmpty()) start = Long.parseLong(ranges[0]);
+                if (ranges.length > 1 && !ranges[1].isEmpty()) end = Long.parseLong(ranges[1]);
+
+                if (start > end || end >= fileLength) {
+                    return ResponseEntity.status(HttpStatus.REQUESTED_RANGE_NOT_SATISFIABLE)
+                            .header("Content-Range", "bytes */" + fileLength)
+                            .build();
+                }
+
+                long contentLength = end - start + 1;
+
+                // Trả về luồng dữ liệu
+                InputStream inputStream = Files.newInputStream(filePath);
+                inputStream.skip(start);
+
+                return ResponseEntity.status(HttpStatus.PARTIAL_CONTENT)
+                        .header(HttpHeaders.CONTENT_TYPE, "video/mp4")
+                        .header(HttpHeaders.CONTENT_RANGE, "bytes " + start + "-" + end + "/" + fileLength)
+                        .header(HttpHeaders.ACCEPT_RANGES, "bytes")
+                        .contentLength(contentLength)
+                        .body(new InputStreamResource(inputStream));
+            } else {
+                // Trả về toàn bộ file nếu không có header "Range"
+                return ResponseEntity.ok()
+                        .header(HttpHeaders.CONTENT_TYPE, "video/mp4")
+                        .header(HttpHeaders.ACCEPT_RANGES, "bytes")
+                        .contentLength(fileLength)
+                        .body(resource);
+            }
         } catch (Exception e) {
+            logger.severe("Error serving video: " + e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
@@ -341,6 +360,29 @@ public class PodcastController {
             return ResponseEntity.ok().build();
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+        }
+    }
+
+    private void validateCreatePodcastInfo(List<String> genreIds, MultipartFile videoFile) {
+        // Kiểm tra số lượng genre
+        if (genreIds.size() > 5) {
+            throw new RuntimeException("A podcast can have at most 5 genres");
+        }
+
+        // Check if null
+        if (videoFile == null || videoFile.isEmpty()) {
+            throw new RuntimeException("Empty video file");
+        }
+
+        // Validate file type
+        String fileType = videoFile.getContentType();
+        if (!fileType.equals("video/mp4") && !fileType.equals("video/x-msvideo") && !fileType.equals("video/x-matroska")) {
+            throw new RuntimeException("Unsupported video format");
+        }
+
+        // Kiểm tra kích thước tệp
+        if (videoFile.getSize() > 1024L * 1024L * 1024L) { // 1GB size limit
+            throw new RuntimeException("File size exceeds limit of 1GB");
         }
     }
 }
