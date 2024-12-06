@@ -15,14 +15,33 @@ public interface UserRepository extends MongoRepository<UserEntity, String> {
 
     @Query("{ '$or' : [ { 'email' : ?0 }, { 'username' : ?0 } ] }")
     Optional<UserEntity> findByEmailOrUsername(String keyword);
-    boolean existsByEmailOrUsername(String email,String username);
+
+    boolean existsByEmailOrUsername(String email, String username);
+
     Optional<UserEntity> findById(String id);
+
     UserEntity findUserEntityById(String id);
+
     Optional<UserEntity> findByUsername(String username);
+
     UserEntity findUserEntityByUsername(String username);
+
     @Query("{ 'following': ?0 }")
     List<UserEntity> findUsersFollowing(String userId);
-    @Query("{'$or': [{'firstName': ?0},{'lastName':?0}, {'middleName': ?0}, {'username' : ?0}, {'ward': ?0} ,{'provinces': ?0},{'district': ?0}]}")
+
+    @Query("{'$or': [" +
+            "{'firstName': {'$regex': ?0, '$options': 'i'}}," + // Tìm kiếm trong firstName
+            "{'middleName': {'$regex': ?0, '$options': 'i'}}," + // Tìm kiếm trong middleName
+            "{'lastName': {'$regex': ?0, '$options': 'i'}}," + // Tìm kiếm trong lastName
+            "{'ward': {'$regex': ?0, '$options': 'i'}}," + // Tìm kiếm trong ward
+            "{'provinces': {'$regex': ?0, '$options': 'i'}}," + // Tìm kiếm trong provinces
+            "{'district': {'$regex': ?0, '$options': 'i'}}," + // Tìm kiếm trong district+
+//            "{'$regex': {'$concat': ['$lastName', ' ', '$middleName', ' ', '$firstName']}, '$options': 'i'}" + // Tìm kiếm trong lastName + middleName + firstName
+            "]}")
     Page<UserEntity> findByKeyword(String keyword, Pageable pageable);
+
+
+
+
 //    boolean existsByUsername(String username);
 }

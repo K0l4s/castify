@@ -10,5 +10,6 @@ import lombok.NoArgsConstructor;
 public class ShortUser {
     private String id;
     private String fullname;
+    private String username;
     private String avatarUrl;
 }

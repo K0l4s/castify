@@ -1,6 +1,5 @@
 import { AiOutlineDashboard } from "react-icons/ai";
 import { FaUsersCog } from "react-icons/fa";
-import { PiApplePodcastsLogoFill } from "react-icons/pi";
 import { TbReport } from "react-icons/tb";
 import { Link } from "react-router-dom";
 

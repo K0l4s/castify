@@ -65,7 +65,8 @@ public class SecurityConfiguration {
             "/api/v1/user",
             "/api/v1/user/search",
             "/ws/**",
-            "api/v1/search/**"
+            "api/v1/search/**",
+            "api/v1/search/post"
     };
     private final JwtAuthenticationFilter jwtAuthFilter;
     private final AuthenticationProvider authenticationProvider;

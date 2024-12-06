@@ -59,5 +59,7 @@ public interface IUserService {
 
     void checkAdmin() throws Exception;
 
+    PaginatedResponse<UserSimple> searchUser(Integer pageNumber, Integer pageSize, String keyword) throws Exception;
+
     BasicUserModel mapToBasicUser(UserEntity userEntity);
 }

@@ -164,4 +164,5 @@ export interface shortUser {
     id:string;
     fullname:string;
     avatarUrl:string;
+    username:string;
 }
