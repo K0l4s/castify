@@ -33,7 +33,13 @@ const PodcastViewport: React.FC = () => {
   const [errorRes, setErrorRes] = useState<string | null>(null);
   const [isReportModalOpen, setIsReportModalOpen] = useState(false);
   const [isShareModalOpen, setIsShareModalOpen] = useState(false);
-  
+
+  const [views, setViews] = useState<number>(0);
+  const [totalLikes, setTotalLikes] = useState<number>(0);
+  const [liked, setLiked] = useState<boolean>(false);
+  const [follow, setFollow] = useState<boolean>(false);
+  const [totalFollower, setTotalFollower] = useState<number>(0);
+
   const descriptionRef = useRef<HTMLPreElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
   const podcastLink = `${window.location.origin}/watch?pid=${id}`;
@@ -55,6 +61,11 @@ const PodcastViewport: React.FC = () => {
             podcastData = await getPodcastByAnonymous(id);
           }
           setPodcast(podcastData);
+          setViews(podcastData.views);
+          setTotalLikes(podcastData.totalLikes);
+          setLiked(podcastData.liked);
+          setFollow(podcastData.user.follow);
+          setTotalFollower(podcastData.user.totalFollower);
         }
       } catch (error) {
         if ((error as any).response?.data === "Error: Podcast not found") {
@@ -76,6 +87,14 @@ const PodcastViewport: React.FC = () => {
       return cleanup;
     }
   }, [id, isAuthenticated, podcast]);
+
+  useEffect(() => {
+    if (videoRef.current) {
+      videoRef.current.src = podcast?.videoUrl || "";
+      videoRef.current.load();
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+  }, [podcast?.videoUrl]);
 
   useEffect(() => {
     if (descriptionRef.current) {
@@ -130,7 +149,9 @@ const PodcastViewport: React.FC = () => {
     try {
       await likePodcast(podcastId);
       const updatedPodcast = await getPodcastById(podcastId);
-      setPodcast(updatedPodcast);
+      setTotalLikes(updatedPodcast.totalLikes);
+      setLiked(updatedPodcast.liked);
+      setViews(updatedPodcast.views);
     } catch (error) {
       console.error("Error liking podcast:", error);
     }
@@ -144,7 +165,9 @@ const PodcastViewport: React.FC = () => {
     try {
       await userService.followUser(targetUsername);
       const updatedPodcast = await getPodcastById(id!);
-      setPodcast(updatedPodcast);
+      setFollow(updatedPodcast.user.follow);
+      setTotalFollower(updatedPodcast.user.totalFollower);
+      setViews(updatedPodcast.views);
     } catch (error) {
       console.error("Error following user:", error);
     }
@@ -197,16 +220,16 @@ const PodcastViewport: React.FC = () => {
                 onClick={() => navigate(`/profile/${podcast.username}`)}>
                 {userInfo}
               </span>
-              <span className="text-sm text-gray-700 dark:text-gray-300">{podcast.user.totalFollower} follower</span>
+              <span className="text-sm text-gray-700 dark:text-gray-300">{totalFollower} follower</span>
             </div>
             {podcast.user.id !== userRedux?.id ? (
               <CustomButton
-                text={`${podcast.user.follow ? "Unfollow" : "Follow" } `}
+                text={`${follow ? "Unfollow" : "Follow" } `}
                 variant="ghost"
                 rounded="full"
                 onClick={() => handleFollow(podcast.user.username)}
                 className={`bg-gray-600 hover:bg-gray-500 
-                  ${!podcast.user.follow ? "bg-gray-800 text-white hover:bg-gray-700 dark:bg-gray-100 dark:text-gray-800 hover:dark:bg-gray-400" 
+                  ${!follow ? "bg-gray-800 text-white hover:bg-gray-700 dark:bg-gray-100 dark:text-gray-800 hover:dark:bg-gray-400" 
                     : "text-black bg-white border border-black hover:bg-gray-800 hover:text-white dark:bg-gray-600 dark:hover:bg-gray-500 dark:text-white"}`}
               />
             ): (
@@ -220,7 +243,7 @@ const PodcastViewport: React.FC = () => {
           </div>
           <div className="flex items-center gap-3">
             <CustomButton
-              text={podcast.views.toString() + " views"}
+              text={views.toString() + " views"}
               icon={<FaEye size={22} />}
               variant="primary"
               rounded="full"
@@ -228,8 +251,8 @@ const PodcastViewport: React.FC = () => {
             />
             <Tooltip text="Reaction">
               <CustomButton
-                text={podcast.totalLikes.toString()}
-                icon={<HeartIcon filled={podcast.liked} color={podcast.liked ? "white" : "gray"} strokeColor="white" />}
+                text={totalLikes.toString()}
+                icon={<HeartIcon filled={liked} color={liked ? "white" : "gray"} strokeColor="white" />}
                 variant="primary"
                 rounded="full"
                 size="sm"
