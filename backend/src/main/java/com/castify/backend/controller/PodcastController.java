@@ -217,6 +217,16 @@ public class PodcastController {
         }
     }
 
+    @GetMapping("/detail/{id}")
+    public ResponseEntity<?> getDetailPodcastBySelf(@PathVariable String id) {
+        try {
+            PodcastModel podcastModel = podcastService.getPodcastBySelf(id);
+            return ResponseEntity.ok(podcastModel);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error: " + e.getMessage());
+        }
+    }
+
     @GetMapping("/anonymous/{id}")
     public ResponseEntity<?> getPodcastByAnonymous(@PathVariable String id) {
         try {

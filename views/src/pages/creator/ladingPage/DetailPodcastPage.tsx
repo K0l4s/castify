@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { getPodcastById, updatePodcast, togglePodcasts, deletePodcasts } from "../../../services/PodcastService";
+import { updatePodcast, togglePodcasts, deletePodcasts, getPodcastBySelf } from "../../../services/PodcastService";
 import { getGenres } from "../../../services/GenreService";
 import { Podcast } from "../../../models/PodcastModel";
 import CustomButton from "../../../components/UI/custom/CustomButton";
@@ -15,6 +15,7 @@ import CommentSection from "../../../components/UI/podcast/CommentSection";
 import { useSelector } from "react-redux";
 import { RootState } from "../../../redux/store";
 import ConfirmDeleteModal from "../../../components/modals/utils/ConfirmDelete";
+import NotAccessPage from "../../informationPage/NotAccessPage";
 
 const DetailPodcastPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -33,14 +34,16 @@ const DetailPodcastPage: React.FC = () => {
   const [titleError, setTitleError] = useState<string>("");
   const [contentError, setContentError] = useState<string>("");
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
-  
+
+  const [accessError, setAccessError] = useState<string>("");
+
   const userRedux = useSelector((state: RootState) => state.auth.user);
   const navigate = useNavigate();
 
   useEffect(() => {
     const fetchPodcast = async () => {
       try {
-        const data = await getPodcastById(id!);
+        const data = await getPodcastBySelf(id!);
         setPodcast(data);
         setInitialPodcast(data);
         setTitle(data.title);
@@ -49,6 +52,11 @@ const DetailPodcastPage: React.FC = () => {
         setIsActive(data.active);
         setThumbnailPreview(data.thumbnailUrl);
       } catch (error) {
+        if (error instanceof Error) {
+          if ((error as any).response?.data === "Error: Access denied") {
+            setAccessError("Access denied");
+          }
+        }
         console.error("Failed to fetch podcast", error);
       }
     };
@@ -65,6 +73,10 @@ const DetailPodcastPage: React.FC = () => {
     fetchPodcast();
     fetchGenres();
   }, [id]);
+
+  if (accessError) {
+    return <NotAccessPage />;
+  }
 
   const handleUpdate = async () => {
     if (
@@ -90,7 +102,7 @@ const DetailPodcastPage: React.FC = () => {
     setIsLoading(true);
     try {
       await updatePodcast(id!, title, content, thumbnail!, genreIds);
-      const updatedPodcast = await getPodcastById(id!);
+      const updatedPodcast = await getPodcastBySelf(id!);
       setPodcast(updatedPodcast);
       setInitialPodcast(updatedPodcast);
       setThumbnailPreview(updatedPodcast.thumbnailUrl);

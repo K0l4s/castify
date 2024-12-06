@@ -217,6 +217,59 @@ public class PodcastServiceImpl implements IPodcastService {
     }
 
     @Override
+    public PodcastModel getPodcastBySelf(String podcastId) throws Exception {
+        UserEntity userEntity = userService.getUserByAuthentication();
+
+        PodcastEntity podcastEntity = podcastRepository.findById(podcastId)
+                .orElseThrow(() -> new RuntimeException("Podcast not found"));
+
+        // Kiểm tra quyền sở hữu
+        if (!podcastEntity.getUser().getId().equals(userEntity.getId())) {
+            throw new RuntimeException("Access denied");
+        }
+
+        // Tính tổng số bình luận và lượt thích
+        long totalComments = commentRepository.countByPodcastId(podcastId);
+        long totalLikes = podcastLikeRepository.countByPodcastEntityId(podcastId);
+
+        // Ánh xạ PodcastEntity sang PodcastModel
+        PodcastModel podcastModel = modelMapper.map(podcastEntity, PodcastModel.class);
+        podcastModel.setTotalComments(totalComments);
+        podcastModel.setTotalLikes(totalLikes);
+        podcastModel.setUsername(podcastEntity.getUser().getUsername());
+
+        // Kiểm tra xem người dùng hiện tại có thích podcast này không
+        boolean isLiked = podcastLikeRepository.existsByUserEntityIdAndPodcastEntityId(userEntity.getId(), podcastId);
+        podcastModel.setLiked(isLiked);
+
+        // Ánh xạ thông tin user của podcast
+        UserEntity podcastUser = podcastEntity.getUser();
+        UserSimple userSimple = modelMapper.map(podcastUser, UserSimple.class);
+
+        // Tính tổng follower
+        long followerSize = userRepository.findUsersFollowing(podcastUser.getId()).size();
+        userSimple.setTotalFollower(followerSize);
+
+        // Tính tổng số người đang theo dõi
+        long followingCount = podcastUser.getFollowing().size();
+        userSimple.setTotalFollowing(followingCount);
+
+        // Kiểm tra người dùng hiện tại có theo dõi user của podcast không
+        try {
+            if (userEntity.getFollowing() == null) {
+                userEntity.setFollowing(new ArrayList<>());
+            }
+            userSimple.setIsFollow(userEntity.isFollow(podcastUser.getId()));
+        } catch (Exception ex) {
+            userSimple.setIsFollow(false);
+        }
+
+        podcastModel.setUser(userSimple);
+
+        return podcastModel;
+    }
+
+    @Override
     public PodcastModel getPodcastByIdAnonymous(String id) {
         PodcastEntity podcastEntity = podcastRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Podcast not found"));

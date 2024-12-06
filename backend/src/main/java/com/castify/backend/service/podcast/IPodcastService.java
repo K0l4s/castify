@@ -15,6 +15,7 @@ public interface IPodcastService {
                                            Integer minComments, String sortByViews,
                                            String sortByComments, String sortByCreatedDay);
     PodcastModel getPodcastById(String id) throws Exception;
+    PodcastModel getPodcastBySelf(String podcastId) throws Exception;
     PodcastModel getPodcastByIdAnonymous(String id);
     String toggleLikeOnPodcast(String id) throws Exception;
     PageDTO<PodcastModel> getRecentPodcasts(int page, int size);
