@@ -7,7 +7,7 @@ import { RootState } from "../../redux/store";
 import Cookies from "js-cookie";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import AuthenticationModal from "../modals/authentication/AuthenticationModal";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import ThemeModeSwitch from "../UI/custom/ThemeModeSwitch";
 import { RiVideoAddFill } from "react-icons/ri";
 import { IoIosNotifications } from "react-icons/io";
@@ -44,6 +44,13 @@ const Authentication = () => {
       });
   };
   const isAuth = useSelector((state: RootState) => state.auth.isAuthenticated);
+  const isEnable = useSelector((state: RootState) => state.auth.user?.enabled);
+  useEffect(() => {
+    console.log(isEnable);
+    if (!isEnable) {
+      handleLogout();
+    }
+  }, [isEnable]);
 
   const handleOpen = () => setIsOpen(true);
   const handleClose = () => setIsOpen(false);
@@ -141,14 +148,14 @@ const Authentication = () => {
               </Link>
             </li>
             {user?.role === Role.A && (
-            <li>
-              <Link
-                to="/"
-                className="flex items-center px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 dark:text-gray-300 dark:hover:bg-gray-700/50 transition-colors duration-200"
-              >
-                Admin Management
-              </Link>
-            </li>)}
+              <li>
+                <Link
+                  to="/admin"
+                  className="flex items-center px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 dark:text-gray-300 dark:hover:bg-gray-700/50 transition-colors duration-200"
+                >
+                  Admin Management
+                </Link>
+              </li>)}
             <li>
               <div className=" px-4 py-2.5">
                 <span className="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300">Theme

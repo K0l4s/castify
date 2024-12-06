@@ -3,9 +3,10 @@ import { useToast } from "../../../context/ToastProvider";
 import { userRegister } from "../../../models/User";
 import { authenticateApi } from "../../../services/AuthenticateService";
 import CustomModal from "../../UI/custom/CustomModal";
-import { useEffect, useState } from "react";
-import { locationService } from "../../../services/LocationService";
-import { district, provinces, ward } from "../../../models/Location";
+import { useState } from "react";
+// import { locationService } from "../../../services/LocationService";
+// import { district, provinces, ward } from "../../../models/Location";
+import CustomInput from "../../UI/custom/CustomInput";
 
 interface DefaultModalProps {
   trigger: () => void;
@@ -16,11 +17,11 @@ interface DefaultModalProps {
 
 const RegisterModal = (props: DefaultModalProps) => {
   const [step, setStep] = useState(1);
-  const [provincesList, setProvincesList] = useState<provinces[]>([]);
-  const [districtsList, setDistrictsList] = useState<district[]>([]);
-  const [wardsList, setWardsList] = useState<ward[]>([]);
-  const [selectedProvinceId, setSelectedProvinceId] = useState<string>('');
-  const [selectedDistrictId, setSelectedDistrictId] = useState<string>('');
+  // const [provincesList, setProvincesList] = useState<provinces[]>([]);
+  // const [districtsList, setDistrictsList] = useState<district[]>([]);
+  // const [wardsList, setWardsList] = useState<ward[]>([]);
+  // const [selectedProvinceId, setSelectedProvinceId] = useState<string>('');
+  // const [selectedDistrictId, setSelectedDistrictId] = useState<string>('');
   const [isRequest, setIsRequest] = useState(false);
 
 
@@ -44,50 +45,48 @@ const RegisterModal = (props: DefaultModalProps) => {
   const toast = useToast();
 
   // Fetch provinces when modal is open
-  useEffect(() => {
-    if (props.isOpen) {
-      const fetchData = async () => {
-        try {
-          const response = await locationService.getProvinces();
-          setProvincesList(response.data.data);
-        } catch (error) {
-          // toast.error("Failed to load provinces");
-        }
-      }
-      fetchData();
-    }
-  }, [props.isOpen]);
+  // useEffect(() => {
+  //   if (props.isOpen) {
+  //     const fetchData = async () => {
+  //       try {
+  //         const response = await locationService.getProvinces();
+  //         // setProvincesList(response.data.data);
+  //       } catch (error) {
+  //         // toast.error("Failed to load provinces");
+  //       }
+  //     }
+  //     fetchData();
+  //   }
+  // }, [props.isOpen]);
 
   // Fetch districts based on selected province
-  useEffect(() => {
-    console.log(selectedProvinceId);
-    if (selectedProvinceId) {
-      const fetchData = async () => {
-        try {
-          const response = await locationService.getDistricts(selectedProvinceId);
-          setDistrictsList(response.data.data);
-        } catch (error) {
-          toast.error("Failed to load districts");
-        }
-      };
-      fetchData();
-    }
-  }, [selectedProvinceId]);
+  // useEffect(() => {
+  //   console.log(selectedProvinceId);
+  //   if (selectedProvinceId) {
+  //     const fetchData = async () => {
+  //       try {
+  //         const response = await locationService.getDistricts(selectedProvinceId);
+  //         setDistrictsList(response.data.data);
+  //       } catch (error) {
+  //       }
+  //     };
+  //     fetchData();
+  //   }
+  // }, [selectedProvinceId]);
 
-  // Fetch wards based on selected district
-  useEffect(() => {
-    if (selectedDistrictId) {
-      const fetchData = async () => {
-        try {
-          const response = await locationService.getWards(selectedDistrictId);
-          setWardsList(response.data.data);
-        } catch (error) {
-          toast.error("Failed to load wards");
-        }
-      };
-      fetchData();
-    }
-  }, [selectedDistrictId]);
+  // // Fetch wards based on selected district
+  // useEffect(() => {
+  //   if (selectedDistrictId) {
+  //     const fetchData = async () => {
+  //       try {
+  //         const response = await locationService.getWards(selectedDistrictId);
+  //         setWardsList(response.data.data);
+  //       } catch (error) {
+  //       }
+  //     };
+  //     fetchData();
+  //   }
+  // }, [selectedDistrictId]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -97,44 +96,44 @@ const RegisterModal = (props: DefaultModalProps) => {
     }));
   };
 
-  const handleSelectChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const { name, value } = e.target;
-    // console.log(value);
-    // console.log(name)
-    console.log(formData)
-    // Update selected province/district ID and formData
-    if (name === 'provinces') {
-      setSelectedProvinceId(value);
-      const province = provincesList.find(province => province.id === value);
-      console.log(province);
-      setFormData(prev => ({
-        ...prev,
-        provinces: province?.name || '',
-        district: '', // Reset district and ward when province changes
-        ward: ''
-      }));
-      setDistrictsList([]);
-      setWardsList([]);
-    } else if (name === 'district') {
-      setSelectedDistrictId(value);
+  // const handleSelectChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+  //   const { name, value } = e.target;
+  //   // console.log(value);
+  //   // console.log(name)
+  //   console.log(formData)
+  //   // Update selected province/district ID and formData
+  //   if (name === 'provinces') {
+  //     setSelectedProvinceId(value);
+  //     const province = provincesList.find(province => province.id === value);
+  //     console.log(province);
+  //     setFormData(prev => ({
+  //       ...prev,
+  //       provinces: province?.name || '',
+  //       district: '', // Reset district and ward when province changes
+  //       ward: ''
+  //     }));
+  //     setDistrictsList([]);
+  //     setWardsList([]);
+  //   } else if (name === 'district') {
+  //     setSelectedDistrictId(value);
 
-      const district = districtsList.find(district => district.id === value);
+  //     const district = districtsList.find(district => district.id === value);
 
-      setFormData(prev => ({
-        ...prev,
-        district: district?.name || '',
-        ward: '' // Reset ward when district changes
-      }));
-      setWardsList([]);
-      console.log(formData)
-    } else if (name === 'ward') {
-      // const
-      setFormData(prev => ({
-        ...prev,
-        ward: value
-      }));
-    }
-  };
+  //     setFormData(prev => ({
+  //       ...prev,
+  //       district: district?.name || '',
+  //       ward: '' // Reset ward when district changes
+  //     }));
+  //     setWardsList([]);
+  //     console.log(formData)
+  //   } else if (name === 'ward') {
+  //     // const
+  //     setFormData(prev => ({
+  //       ...prev,
+  //       ward: value
+  //     }));
+  //   }
+  // };
 
   const validateStep1 = () => {
     if (formData.email !== formData.repeatEmail) {
@@ -373,8 +372,42 @@ const RegisterModal = (props: DefaultModalProps) => {
                   required
                 />
               </div>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div>
+              {/* <div className="grid grid-cols-1 md:grid-cols-3 gap-4"> */}
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">Provinces</label>
+                    <CustomInput
+                      type="text"
+                      name="provinces"
+                      value={formData.provinces}
+                      onChange={handleInputChange}
+                      variant="primary"
+                      className="mt-1 block w-full"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">District</label>
+                    <CustomInput
+                      type="text"
+                      name="district"
+                      value={formData.district}
+                      onChange={handleInputChange}
+                      variant="primary"
+                      className="mt-1 block w-full"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">Ward</label>
+                    <CustomInput
+                      type="text"
+                      name="ward"
+                      value={formData.ward}
+                      onChange={handleInputChange}
+                      variant="primary"
+                      className="mt-1 block w-full"
+                    />
+                  </div>
+                {/* <div>
                   <label htmlFor="provinces" className={labelClasses}>Province/ City</label>
                   <select
                     id="provinces"
@@ -421,7 +454,7 @@ const RegisterModal = (props: DefaultModalProps) => {
                       <option key={ward.id} value={ward.name}>{ward.name}</option>
                     ))}
                   </select>
-                </div>
+                </div> */}
               </div>
               <p className="text-sm text-gray-500 dark:text-gray-400 text-center">
                 By creating an account, you agree to our <Link to="/terms" target="_blank" rel="noopener noreferrer" className="text-red-500 dark:text-red-500">Terms of Service</Link> and <Link to="/privacy" target="_blank" rel="noopener noreferrer" className="text-red-500 dark:text-red-500">Privacy Policy</Link>.

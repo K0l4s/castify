@@ -9,6 +9,8 @@ import { userService } from '../../../services/UserService';
 import { useToast } from '../../../context/ToastProvider';
 import Tooltip from '../../UI/custom/Tooltip';
 import SettingModals from '../../modals/user/SettingModal';
+import ReportModal from '../../modals/report/ReportModal';
+import { ReportType } from '../../../models/Report';
 
 interface ProfileMainContentProps {
 
@@ -46,6 +48,7 @@ const ProfileMainContent: React.FC<ProfileMainContentProps> = ({
     const [isLoading, setIsLoading] = useState(true);
     const isAuthenticated = useSelector((state: RootState) => state.auth.isAuthenticated);
     const [isOpenEditModel,setIsOpenEditModel] = useState(false);
+    const [isOpenReportModel,setIsOpenReportModel] = useState(false);
 
     const toast = useToast();
     const [user, setUser] = useState<userDetail>(defaultUser);
@@ -114,13 +117,16 @@ const ProfileMainContent: React.FC<ProfileMainContentProps> = ({
                                 alt="Profile Banner"
                             />
                         )}
+                        {!isOwner&&(
                         <div className="absolute top-2 right-2 ">
                         <Tooltip text="Report User">
-                            <FaFlag className='m-auto text-2xl
+                            <FaFlag 
+                            onClick={()=>setIsOpenReportModel(true)}
+                            className='m-auto text-2xl
                         text-white dark:text-gray-900
                         cursor:pointer hover:bg-white/20 dark:hover:bg-gray-900/20 transition duration-300 hover:text-yellow-500 dark:hover:text-yellow-500' />
                         </Tooltip>
-                    </div>
+                    </div>)}
 
                 </div>
 
@@ -198,7 +204,9 @@ const ProfileMainContent: React.FC<ProfileMainContentProps> = ({
                                                 </div>
                                             ) : (
                                                 <>
-                                                    <FaUserPlus className="mr-2" />
+                                                    <FaUserPlus className="mr-2" 
+                                                    
+                                                    />
                                                     Follow
                                                 </>
                                             )}
@@ -235,6 +243,7 @@ const ProfileMainContent: React.FC<ProfileMainContentProps> = ({
             </div>
         </div>
         <SettingModals isOpen={isOpenEditModel} onClose={()=>setIsOpenEditModel(false)}/>
+            <ReportModal isOpen={isOpenReportModel} onClose={()=>setIsOpenReportModel(false)} reportType={ReportType.U} targetId={user.id}/>
         </div >
 
     );

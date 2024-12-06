@@ -2,8 +2,8 @@ import React, { useEffect, useState } from 'react';
 import { updateUser, User } from '../../../models/User';
 import { userService } from '../../../services/UserService';
 import { useToast } from '../../../context/ToastProvider';
-import { district, provinces, ward } from '../../../models/Location';
-import { locationService } from '../../../services/LocationService';
+// import { district, provinces, ward } from '../../../models/Location';
+// import { locationService } from '../../../services/LocationService';
 import CustomButton from '../../UI/custom/CustomButton';
 import CustomInput from '../../UI/custom/CustomInput';
 import { BiEditAlt, BiLoader, BiSave } from 'react-icons/bi';
@@ -12,20 +12,20 @@ import Loading from '../../UI/custom/Loading';
 import CustomModal from '../../UI/custom/CustomModal';
 import { useDispatch } from 'react-redux';
 import { updateAvatar, updateCover } from '../../../redux/slice/authSlice';
-interface SettingModals{
+interface SettingModals {
   isOpen: boolean;
-  onClose: ()=> void;
+  onClose: () => void;
 }
-const SettingModals = (props:SettingModals) => {
+const SettingModals = (props: SettingModals) => {
 
   const [isLoading, setIsLoading] = useState(true);
   const [user, setUser] = useState<User>();
-  const [provincesList, setProvincesList] = useState<provinces[]>([]);
-  const [districtsList, setDistrictsList] = useState<district[]>([]);
-  const [wardsList, setWardsList] = useState<ward[]>([]);
-  const [selectedProvinceId, setSelectedProvinceId] = useState<string>('');
-  const [selectedDistrictId, setSelectedDistrictId] = useState<string>('');
-  const [selectedWardId, setSelectedWardId] = useState<string>('');
+  // const [provincesList, setProvincesList] = useState<provinces[]>([]);
+  // const [districtsList, setDistrictsList] = useState<district[]>([]);
+  // const [wardsList, setWardsList] = useState<ward[]>([]);
+  // const [selectedProvinceId, setSelectedProvinceId] = useState<string>('');
+  // const [selectedDistrictId, setSelectedDistrictId] = useState<string>('');
+  // const [selectedWardId, setSelectedWardId] = useState<string>('');
   const [editedUser, setEditedUser] = useState<updateUser>({
     firstName: '',
     middleName: '',
@@ -121,89 +121,89 @@ const SettingModals = (props:SettingModals) => {
     setIsEdit(false);
   };
   // Fetch provinces when modal is open
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const response = await locationService.getProvinces();
-        const proList = response.data.data;
-        setProvincesList(proList);
-        const province = proList.find((province: provinces) => province.name === user?.provinces);
-        setSelectedProvinceId(province?.id || '');
-      } catch (error) {
-        toast.error("Failed to load provinces");
-      }
-    }
-    fetchData();
+  // useEffect(() => {
+  //   const fetchData = async () => {
+  //     try {
+  //       const response = await locationService.getProvinces();
+  //       const proList = response.data.data;
+  //       // setProvincesList(proList);
+  //       const province = proList.find((province: provinces) => province.name === user?.provinces);
+  //       setSelectedProvinceId(province?.id || '');
+  //     } catch (error) {
+  //       // toast.error("Failed to load provinces");
+  //     }
+  //   }
+  //   fetchData();
 
-  }, [user]);
+  // }, [user]);
 
-  // Fetch districts based on selected province
-  useEffect(() => {
-    console.log(selectedProvinceId);
-    if (selectedProvinceId) {
-      const fetchData = async () => {
-        try {
+  // // Fetch districts based on selected province
+  // useEffect(() => {
+  //   console.log(selectedProvinceId);
+  //   if (selectedProvinceId) {
+  //     const fetchData = async () => {
+  //       try {
 
-          const response = await locationService.getDistricts(selectedProvinceId);
-          const disList = response.data.data;
-          setDistrictsList(disList);
-          const district = disList.find((district: district) => district.name === user?.district);
-          setSelectedDistrictId(district?.id || '');
-        } catch (error) {
-          toast.error("Failed to load districts");
-        }
-      };
-      fetchData();
-    }
-  }, [selectedProvinceId]);
+  //         const response = await locationService.getDistricts(selectedProvinceId);
+  //         const disList = response.data.data;
+  //         // setDistrictsList(disList);
+  //         const district = disList.find((district: district) => district.name === user?.district);
+  //         setSelectedDistrictId(district?.id || '');
+  //       } catch (error) {
+  //         // toast.error("Failed to load districts");
+  //       }
+  //     };
+  //     fetchData();
+  //   }
+  // }, [selectedProvinceId]);
 
-  // Fetch wards based on selected district
-  useEffect(() => {
-    if (selectedDistrictId) {
-      const fetchData = async () => {
-        try {
-          const response = await locationService.getWards(selectedDistrictId);
-          const warList = response.data.data;
-          setWardsList(warList);
-          const ward = warList.find((ward: ward) => ward.name === user?.ward);
-          setSelectedWardId(ward?.id || '');
-        } catch (error) {
-          toast.error("Failed to load wards");
-        }
-      };
-      fetchData();
-    }
-  }, [selectedDistrictId]);
+  // // Fetch wards based on selected district
+  // useEffect(() => {
+  //   if (selectedDistrictId) {
+  //     const fetchData = async () => {
+  //       try {
+  //         const response = await locationService.getWards(selectedDistrictId);
+  //         const warList = response.data.data;
+  //         setWardsList(warList);
+  //         const ward = warList.find((ward: ward) => ward.name === user?.ward);
+  //         setSelectedWardId(ward?.id || '');
+  //       } catch (error) {
+  //         // toast.error("Failed to load wards");
+  //       }
+  //     };
+  //     fetchData();
+  //   }
+  // }, [selectedDistrictId]);
   const dispatch = useDispatch();
-  const handleSelectChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const { name, value } = e.target;
-    // console.log(value);
-    // console.log(name)
-    // Update selected province/district ID and formData
-    if (name === 'provinces') {
-      setSelectedProvinceId(value);
-      const province = provincesList.find(province => province.id === value);
-      setSelectedProvinceId(province?.id || '');
-      setEditedUser(prev => ({ ...prev, provinces: province?.name || '' }));
-      setEditedUser(prev => ({ ...prev, district: '' }));
-      setEditedUser(prev => ({ ...prev, ward: '' }));
-      setDistrictsList([]);
-      setWardsList([]);
-    } else if (name === 'district') {
-      setSelectedDistrictId(value);
+  // const handleSelectChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+  //   const { name, value } = e.target;
+  //   // console.log(value);
+  //   // console.log(name)
+  //   // Update selected province/district ID and formData
+  //   if (name === 'provinces') {
+  //     setSelectedProvinceId(value);
+  //     const province = provincesList.find(province => province.id === value);
+  //     setSelectedProvinceId(province?.id || '');
+  //     setEditedUser(prev => ({ ...prev, provinces: province?.name || '' }));
+  //     setEditedUser(prev => ({ ...prev, district: '' }));
+  //     setEditedUser(prev => ({ ...prev, ward: '' }));
+  //     setDistrictsList([]);
+  //     setWardsList([]);
+  //   } else if (name === 'district') {
+  //     setSelectedDistrictId(value);
 
-      const district = districtsList.find(district => district.id === value);
-      setSelectedDistrictId(district?.id || '');
-      setEditedUser(prev => ({ ...prev, district: district?.name || '' }));
-      setEditedUser(prev => ({ ...prev, ward: '' }));
-      setWardsList([]);
-    } else if (name === 'ward') {
-      const ward = wardsList.find(ward => ward.id === value);
-      setSelectedWardId(ward?.id || '');
-      setEditedUser(prev => ({ ...prev, ward: ward?.name || '' }));
-      console.log(editedUser)
-    }
-  };
+  //     const district = districtsList.find(district => district.id === value);
+  //     setSelectedDistrictId(district?.id || '');
+  //     setEditedUser(prev => ({ ...prev, district: district?.name || '' }));
+  //     setEditedUser(prev => ({ ...prev, ward: '' }));
+  //     setWardsList([]);
+  //   } else if (name === 'ward') {
+  //     const ward = wardsList.find(ward => ward.id === value);
+  //     setSelectedWardId(ward?.id || '');
+  //     setEditedUser(prev => ({ ...prev, ward: ward?.name || '' }));
+  //     console.log(editedUser)
+  //   }
+  // };
 
   const handleChangeAvatar = async (e: React.ChangeEvent<HTMLInputElement>) => {
     toast.loading("Uploading avatar...");
@@ -249,8 +249,8 @@ const SettingModals = (props:SettingModals) => {
     }
   };
 
-  
-  
+
+
   return (
     // <div className="min-h-screen bg-gray-50 dark:bg-gray-900 p-8">
     <CustomModal title='Setting' isOpen={props.isOpen} onClose={props.onClose} size='xl'>
@@ -313,7 +313,7 @@ const SettingModals = (props:SettingModals) => {
         <form onSubmit={handleSubmit} className="space-y-6">
           <div className="grid grid-cols-1 gap-6">
             <div className="grid grid-cols-3 gap-4">
-            <div>
+              <div>
                 <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">Last Name</label>
                 <CustomInput
                   type="text"
@@ -325,7 +325,7 @@ const SettingModals = (props:SettingModals) => {
                   className="mt-1 block w-full"
                 />
               </div>
-              
+
               <div>
                 <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">Middle Name</label>
                 <CustomInput
@@ -380,7 +380,45 @@ const SettingModals = (props:SettingModals) => {
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div className="flex flex-col items-start">
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">Provinces</label>
+                <CustomInput
+                  type="text"
+                  name="provinces"
+                  value={editedUser.provinces}
+                  onChange={handleInputChange}
+                  disabled={!isEdit}
+                  variant="primary"
+                  className="mt-1 block w-full"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">District</label>
+                <CustomInput
+                  type="text"
+                  name="district"
+                  value={editedUser.district}
+                  onChange={handleInputChange}
+                  disabled={!isEdit}
+                  variant="primary"
+                  className="mt-1 block w-full"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">Ward</label>
+                <CustomInput
+                  type="text"
+                  name="ward"
+                  value={editedUser.ward}
+                  onChange={handleInputChange}
+                  disabled={!isEdit}
+                  variant="primary"
+                  className="mt-1 block w-full"
+                />
+              </div>
+            </div>
+            <div>
+              {/* <div className="flex flex-col items-start">
                 <label htmlFor="provinces" className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">District</label>
                 <select
                   id="provinces"
@@ -430,7 +468,7 @@ const SettingModals = (props:SettingModals) => {
                     <option key={ward.id} value={ward.id}>{ward.name}</option>
                   ))}
                 </select>
-              </div>
+              </div> */}
             </div>
           </div>
 
@@ -458,7 +496,7 @@ const SettingModals = (props:SettingModals) => {
         </form>
       </div>
       {isLoading && <Loading />}
-    {/* </div> */}
+      {/* </div> */}
     </CustomModal>
   );
 };

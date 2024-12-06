@@ -32,7 +32,7 @@ const AdminReportPage = () => {
     const [selectedType, setSelectedType] = useState<ReportType>(ReportType.A);
     const [selectedStatus, setSelectedStatus] = useState<ReportStatus>(ReportStatus.P);
     const [pageNumber, setPageNumber] = useState<number>(0);
-    const [pageSize] = useState<number>(2);
+    const [pageSize] = useState<number>(5);
     const [reports, setReports] = useState<Report[]>([]);
     const [totalPage, setTotalPage] = useState<number>(1);
     const [loading, setLoading] = useState<boolean>(false);

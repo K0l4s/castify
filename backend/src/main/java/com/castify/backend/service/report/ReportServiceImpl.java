@@ -69,10 +69,17 @@ public class ReportServiceImpl implements IReportService {
                 if (rep.getType() == ReportProgressType.BAN_USER) {
                     userService.banAccount(rep.getTargetId());
                     report.getHandleMethod().add("Ban user " + rep.getTargetId());
+                } else if (rep.getType() == ReportProgressType.DEL_PODCAST) {
+                    List<String> ids = new ArrayList<>();
+                    ids.add(rep.getTargetId());
+                    podcastService.deletePodcastsByIds(ids,true);
+                    report.getHandleMethod().add("Delete Podcast " + rep.getTargetId());
                 }
-                //            else if (rep.getType() == ReportProgressType.DEL_COMMENT){
-                //
-                //            }
+//                else if (rep.getType() == ReportProgressType.DEL_COMMENT){
+//                    List<String> ids = new ArrayList<>();
+//                    ids.add(rep.getTargetId());
+//                    commentService.(ids,true);
+//                }
             }
         report.setUserResponse(userService.getUserByAuthentication());
         reportRepository.save(report);
@@ -125,7 +132,6 @@ public class ReportServiceImpl implements IReportService {
 
         return new PaginatedResponse<>(responseReport, totalPages);
     }
-
 
 
 //    @Override
