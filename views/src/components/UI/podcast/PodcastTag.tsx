@@ -1,19 +1,47 @@
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 import { Podcast } from '../../../models/PodcastModel';
 import { formatDistanceToNow } from 'date-fns';
 import default_avatar from '../../../assets/images/default_avatar.jpg';
 import { Link } from 'react-router-dom';
-import { FaPlay, FaRegClock } from 'react-icons/fa';
+import { FaBookmark, FaClock, FaEdit, FaFlag, FaPlay, FaShareAlt } from 'react-icons/fa';
 import { formatViewsToShortly } from '../../../utils/formatViews';
 import { formatTimeDuration } from './video';
+import { HiDotsVertical } from 'react-icons/hi';
+import { useSelector } from 'react-redux';
+import { RootState } from '../../../redux/store';
 
 interface PodcastTagProps {
   podcast: Podcast;
+  onReport: () => void;
+  onSave: () => void;
+  onShare: () => void;
+  onToggleOptionMenu: (podcastId: string) => void;
+  isOptionMenuOpen: boolean;
 }
 
-const PodcastTag: React.FC<PodcastTagProps> = ({ podcast }) => {
+const PodcastTag: React.FC<PodcastTagProps> = ({ podcast, onReport, onSave, onShare, onToggleOptionMenu, isOptionMenuOpen }) => {
   const author = podcast.user.fullname;
   const createdDay = formatDistanceToNow(new Date(podcast.createdDay), { addSuffix: true });
+  const optionMenuRef = useRef<HTMLDivElement>(null);
+  const currentUsername = useSelector((state: RootState) => state.auth.user?.username);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (optionMenuRef.current && !optionMenuRef.current.contains(event.target as Node)) {
+        onToggleOptionMenu(podcast.id);
+      }
+    };
+
+    if (isOptionMenuOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+    } else {
+      document.removeEventListener('mousedown', handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [isOptionMenuOpen, onToggleOptionMenu, podcast.id]);
 
   return (
     <div className="relative rounded-lg overflow-hidden transform transition-transform duration-300">
@@ -27,7 +55,7 @@ const PodcastTag: React.FC<PodcastTagProps> = ({ podcast }) => {
           </div>
           {podcast.duration && (
             <div className="absolute bottom-2 right-2 bg-black bg-opacity-75 text-white text-sm px-2 py-1 rounded">
-              <FaRegClock className='inline-block mr-1' size={16} />
+              <FaClock className="text-white mr-1 text-sm inline-block" size={18} />
               {formatTimeDuration(podcast.duration)}
             </div>
           )}
@@ -52,6 +80,47 @@ const PodcastTag: React.FC<PodcastTagProps> = ({ podcast }) => {
           </div>
         </div>
       </div>
+      <button
+        className="absolute bottom-10 transition-colors right-0 rounded-full p-1 text-black dark:text-white hover:bg-gray-400 hover:dark:bg-gray-700"
+        onClick={() => onToggleOptionMenu(podcast.id)}
+      >
+        <HiDotsVertical size={24} />
+      </button>
+      {isOptionMenuOpen && (
+        <div ref={optionMenuRef} className="absolute bottom-0 right-10 w-48 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-lg shadow-lg z-50">
+          <ul className="py-1">
+          {currentUsername === podcast.user.username ? (
+              <>
+                <Link to={`/creator/podcast/${podcast.id}`}>
+                  <li className="px-4 py-2 text-black dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer">
+                    <FaEdit className="inline-block mb-1 mr-2" />
+                    Edit
+                  </li>
+                </Link>
+                <li className="px-4 py-2 text-black dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer" onClick={onReport}>
+                  <FaFlag className="inline-block mb-1 mr-2" />
+                  Report
+                </li>
+              </>
+            ) : (
+              <>
+                <li className="px-4 py-2 text-black dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer" onClick={onReport}>
+                  <FaFlag className="inline-block mb-1 mr-2" />
+                  Report
+                </li>
+                <li className="px-4 py-2 text-black dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer" onClick={onSave}>
+                  <FaBookmark className="inline-block mb-1 mr-2" />
+                  Save
+                </li>
+                <li className="px-4 py-2 text-black dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer" onClick={onShare}>
+                  <FaShareAlt className="inline-block mb-1 mr-2" />
+                  Share
+                </li>
+              </>
+            )}
+          </ul>
+        </div>
+      )}
     </div>
   );
 };

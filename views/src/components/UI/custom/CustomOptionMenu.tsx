@@ -17,6 +17,9 @@ interface CustomOptionMenuProps {
   disabled?: boolean;
   onOpen?: () => void;
   onClose?: () => void;
+  buttonIconColor?: string;
+  isOpen?: boolean;
+  onToggle?: () => void;
 }
 
 const CustomOptionMenu: React.FC<CustomOptionMenuProps> = ({
@@ -34,7 +37,10 @@ const CustomOptionMenu: React.FC<CustomOptionMenuProps> = ({
   size = 'md',
   disabled = false,
   onOpen,
-  onClose
+  onClose,
+  buttonIconColor = 'currentColor',
+  isOpen: controlledIsOpen,
+  onToggle
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
@@ -97,8 +103,21 @@ const CustomOptionMenu: React.FC<CustomOptionMenuProps> = ({
   } : {};
 
   const handleClick = trigger === 'click' ? {
-    onClick: () => isOpen ? handleClose() : handleOpen()
+    onClick: () => {
+      if (isOpen) {
+        handleClose();
+      } else {
+        handleOpen();
+      }
+      onToggle?.();
+    }
   } : {};
+
+  useEffect(() => {
+    if (controlledIsOpen !== undefined) {
+      setIsOpen(controlledIsOpen);
+    }
+  }, [controlledIsOpen]);
 
   return (
     <div className={`relative inline-block ${className}`} ref={menuRef}>
@@ -111,7 +130,7 @@ const CustomOptionMenu: React.FC<CustomOptionMenuProps> = ({
           ${disabled ? 'opacity-50 cursor-not-allowed' : 'hover:bg-opacity-90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500'}
           transition-all duration-200 ${buttonClassName}`}
       >
-        {buttonContent || buttonLabel || <FaEllipsisV className={variant === 'light' ? 'text-black' : 'text-white'} />}
+        {buttonContent || buttonLabel || <FaEllipsisV className={variant === 'light' ? 'text-black' : 'text-white'} style={{ color: buttonIconColor }} />}
       </button>
 
       {isOpen && (

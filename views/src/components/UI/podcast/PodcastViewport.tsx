@@ -21,6 +21,7 @@ import ReportModal from "../../modals/report/ReportModal";
 import { ReportType } from "../../../models/Report";
 import ShareModal from "../../modals/podcast/ShareModal";
 import { formatViewsWithSeparators } from "../../../utils/formatViews";
+import { MdLockPerson } from "react-icons/md";
 
 const PodcastViewport: React.FC = () => {
   const location = useLocation();
@@ -78,7 +79,9 @@ const PodcastViewport: React.FC = () => {
       }
     };
 
+    // Goi api sau khi check auth 1s
     fetchPodcast();
+
   }, [id, isAuthenticated]);
 
   // increment podcast views
@@ -207,7 +210,14 @@ const PodcastViewport: React.FC = () => {
           <source src={podcast.videoUrl} type="video/mp4" />
           Your browser does not support the video tag.
         </video>
-
+        {!podcast.active && (
+          <div>
+            <span className="font-medium py-2 px-4 rounded-full bg-gray-800 dark:bg-gray-700 text-white">
+              <MdLockPerson className="mb-1 mr-1 inline-block" />
+              Private
+            </span>
+          </div>
+        )}
         <h1 className="text-2xl font-bold my-2">{podcast.title}</h1>
 
         {/* Info */}

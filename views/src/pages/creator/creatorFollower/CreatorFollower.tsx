@@ -3,6 +3,7 @@ import { userCard } from "../../../models/User";
 import { creatorService } from "../../../services/CreatorService";
 import { useToast } from "../../../context/ToastProvider";
 import { useNavigate } from "react-router-dom";
+import defaultAvatar from "../../../assets/images/default_avatar.jpg";
 
 const CreatorFollower = () => {
     const [followers, setFollowers] = useState<userCard[]>([]);
@@ -55,7 +56,7 @@ const CreatorFollower = () => {
                             className="flex items-center gap-4 p-4 border border-gray-300 rounded-lg shadow-md bg-white dark:bg-gray-700"
                         >
                             <img
-                                src={user.avatarUrl}
+                                src={user.avatarUrl || defaultAvatar}
                                 alt={`${user.fullname}'s avatar`}
                                 className="w-16 h-16 rounded-full object-cover cursor-pointer"
                                 onClick={() => navigate("/profile/" + user.username)}

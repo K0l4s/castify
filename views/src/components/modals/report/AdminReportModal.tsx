@@ -7,6 +7,7 @@ import { ProgressList, Report, ReportProgressType, ReportStatus, ReportType } fr
 import { reportService } from "../../../services/ReportService";
 import CustomButton from "../../UI/custom/CustomButton";
 import { useToast } from "../../../context/ToastProvider";
+import defaultAvatar from "../../../assets/images/default_avatar.jpg";
 
 interface ReportModalProps {
     isOpen: boolean;
@@ -116,7 +117,7 @@ const AdminReportModal: React.FC<ReportModalProps> = ({ isOpen, onClose, report 
                     <h2 className="text-2xl font-bold text-gray-800 dark:text-gray-200">Thông tin báo cáo</h2>
                     <div className="flex items-center space-x-3">
                         <img
-                            src={report.userRequest.avatarUrl || "https://via.placeholder.com/40"}
+                            src={report.userRequest.avatarUrl || defaultAvatar}
                             alt="Avatar"
                             className="w-8 h-8 rounded-full border dark:border-gray-500"
                         />
@@ -146,7 +147,7 @@ const AdminReportModal: React.FC<ReportModalProps> = ({ isOpen, onClose, report 
                         <p className="text-lg font-semibold text-gray-800 dark:text-gray-200">Thông tin người dùng</p>
                         <div className="flex items-center space-x-4 mt-2">
                             <img
-                                src={user.avatarUrl || "https://via.placeholder.com/40"}
+                                src={user.avatarUrl || defaultAvatar}
                                 alt="User Avatar"
                                 className="w-10 h-10 rounded-full border dark:border-gray-400"
                             />

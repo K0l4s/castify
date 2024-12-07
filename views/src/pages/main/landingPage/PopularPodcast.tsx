@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { getPodcastRecent } from '../../../services/PodcastService';
+import { getPodcastPopular } from '../../../services/PodcastService';
 import { Podcast } from '../../../models/PodcastModel';
 import PodcastTag from '../../../components/UI/podcast/PodcastTag';
 import { FiLoader } from 'react-icons/fi';
@@ -9,7 +9,7 @@ import ReportModal from '../../../components/modals/report/ReportModal';
 import { ReportType } from '../../../models/Report';
 import CustomButton from '../../../components/UI/custom/CustomButton';
 
-const RecentPodcast: React.FC = () => {
+const PopularPodcast: React.FC = () => {
   const [podcasts, setPodcasts] = useState<Podcast[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
@@ -20,10 +20,10 @@ const RecentPodcast: React.FC = () => {
   const [currentPage, setCurrentPage] = useState<number>(0);
   const [totalPages, setTotalPages] = useState<number>(0);
   const toast = useToast();
-  
-  const fetchRecentPodcasts = async (page: number) => {
+
+  const fetchPopularPodcasts = async (page: number) => {
     try {
-      const response = await getPodcastRecent(page, 20);
+      const response = await getPodcastPopular(page, 20);
       setPodcasts((prevPodcasts) => [...prevPodcasts, ...response.content]);
       setTotalPages(response.totalPages);
       setLoading(false);
@@ -34,7 +34,7 @@ const RecentPodcast: React.FC = () => {
   };
 
   useEffect(() => {
-    fetchRecentPodcasts(0);
+    fetchPopularPodcasts(0);
   }, []);
 
   const handleSave = () => {
@@ -59,7 +59,7 @@ const RecentPodcast: React.FC = () => {
     if (currentPage < totalPages - 1) {
       setCurrentPage((prevPage) => {
         const nextPage = prevPage + 1;
-        fetchRecentPodcasts(nextPage);
+        fetchPopularPodcasts(nextPage);
         return nextPage;
       });
     }
@@ -88,7 +88,7 @@ const RecentPodcast: React.FC = () => {
           />
         ))}
       </div>
-
+      
       {currentPage < totalPages - 1 && (
         <div className="flex justify-center mt-8">
           <CustomButton onClick={loadMorePodcasts} variant="primary">
@@ -119,4 +119,4 @@ const RecentPodcast: React.FC = () => {
   );
 };
 
-export default RecentPodcast;
+export default PopularPodcast;

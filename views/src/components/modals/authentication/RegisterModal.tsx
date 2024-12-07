@@ -150,7 +150,7 @@ const RegisterModal = (props: DefaultModalProps) => {
   const handleNext = () => {
     if (validateStep1()) {
       // kiểm tra sự hợp lệ của email
-      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      const emailRegex = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/
       if (!emailRegex.test(formData.email)) {
         toast.error("Invalid email format");
         return;
@@ -173,7 +173,7 @@ const RegisterModal = (props: DefaultModalProps) => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    toast.loading("Creating account...");
+    const loadingToastId = toast.loading("Creating account...");
     setIsRequest(true);
     try {
       // Chuyển đổi ngày sinh thành chuỗi định dạng ISO với thời gian mặc định là "00:00:00"
@@ -198,8 +198,9 @@ const RegisterModal = (props: DefaultModalProps) => {
         })
         .catch((err) => {
           toast.error(err.response.data);
+          toast.closeLoadingToast(loadingToastId);
           setIsRequest(false);
-          toast.clearAllToasts();
+          // toast.clearAllToasts();
         });
     } catch (error) {
       toast.clearAllToasts();

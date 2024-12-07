@@ -143,6 +143,40 @@ export const getPodcastRecent = async (page: number, size: number) => {
   }
 };
 
+export const getPodcastPopular = async (page: number, size: number) => {
+  try {
+    const response = await axiosInstance.get<PodcastResponse>("/api/v1/podcast/popular", {
+      params: {
+        page,
+        size
+      }
+    });
+    response.data.content.forEach(podcast => {
+      podcast.videoUrl = `http://localhost:8081/api/v1/podcast/video?path=${encodeURIComponent(podcast.videoUrl)}`;
+    });
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};
+
+export const getFollowingPodcast = async (page: number, size: number) => {
+  try {
+    const response = await axiosInstanceAuth.get<PodcastResponse>("/api/v1/podcast/following", {
+      params: {
+        page,
+        size
+      }
+    });
+    response.data.content.forEach(podcast => {
+      podcast.videoUrl = `http://localhost:8081/api/v1/podcast/video?path=${encodeURIComponent(podcast.videoUrl)}`;
+    });
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};
+
 export const getPodcastsByGenre = async (genreId: string, page: number, size: number) => {
   try {
     const response = await axiosInstance.get<PodcastResponse>("/api/v1/podcast/by-genre", {
