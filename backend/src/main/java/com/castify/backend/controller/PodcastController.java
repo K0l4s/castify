@@ -287,6 +287,31 @@ public class PodcastController {
         }
     }
 
+    @GetMapping("/popular")
+    public ResponseEntity<?> getPopularPodcasts(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+        try {
+            PageDTO<PodcastModel> recentPodcasts = podcastService.getPopularPodcasts(page, size);
+            return ResponseEntity.ok(recentPodcasts);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error: " + e.getMessage());
+        }
+    }
+
+    @GetMapping("/following")
+    public ResponseEntity<?> getPodcastsFromFollowing(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size
+    ) {
+        try {
+            PageDTO<PodcastModel> podcasts = podcastService.getPodcastsFromFollowing(page, size);
+            return ResponseEntity.ok(podcasts);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error: " + e.getMessage());
+        }
+    }
+
     @GetMapping("/by-genre")
     public ResponseEntity<?> getPodcastsByGenre(
             @RequestParam(required = true) String genreId,

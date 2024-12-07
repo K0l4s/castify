@@ -100,7 +100,13 @@ public class UserActivityServiceImpl implements IUserActivityService{
                 ActivityType.VIEW_PODCAST,
                 Sort.by(Sort.Direction.DESC, "timestamp")
         );
-        return getActivitiesGroupedByDate(activities, page);
+
+        // Lọc danh sách để chỉ giữ lại các hoạt động liên quan đến podcast active
+        List<UserActivityEntity> activeActivities = activities.stream()
+                .filter(activity -> activity.getPodcast() != null && activity.getPodcast().isActive())
+                .toList();
+
+        return getActivitiesGroupedByDate(activeActivities, page);
     }
 
     @Override

@@ -45,6 +45,7 @@ public class SecurityConfiguration {
             "/api/v1/podcast/user/{username}/**",
             "/api/v1/podcast/all",
             "/api/v1/podcast/recent",
+            "/api/v1/podcast/popular",
             "/api/v1/podcast/by-genre",
             "/api/v1/podcast/suggested-by-genres/{id}",
             "/api/v1/podcast/view/**",

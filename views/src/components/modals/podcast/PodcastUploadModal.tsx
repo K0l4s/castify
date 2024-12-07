@@ -12,6 +12,7 @@ import GenreSelection from "./GenreSelection";
 import { getGenres } from "../../../services/GenreService";
 import { BiSolidCategoryAlt } from "react-icons/bi";
 import { MdUpload } from "react-icons/md";
+import { IoCloseOutline } from "react-icons/io5";
 
 interface PodcastUploadModalProps {
   isOpen: boolean;
@@ -353,6 +354,16 @@ const PodcastUploadModal: React.FC<PodcastUploadModalProps> = ({
                     className="hidden"
                   />
                 </label>
+                <button
+                  className="absolute top-0 right-0"
+                  title="Remove"
+                  onClick={() => { setThumbnailPreview(null); setThumbnailFile(null); } }
+                >
+                  <IoCloseOutline
+                    size={32}
+                    className="p-1 hover:bg-gray-800 rounded-full transition-colors"
+                  />
+                </button>
               </div>
             )}
           </div>

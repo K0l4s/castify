@@ -1,15 +1,20 @@
 import React, { useEffect, useState } from "react";
 import ProfileMainContent from "../../../components/main/profile/ProfileMainContent";
-import PodcastCard from "../../../components/UI/podcast/PodcastCard";
 import CustomButton from "../../../components/UI/custom/CustomButton";
 import { Podcast } from "../../../models/PodcastModel";
 import { getUserPodcasts } from "../../../services/PodcastService";
 import { FiLoader } from "react-icons/fi";
 import { useLocation, useNavigate } from "react-router-dom";
+import PodcastTag from "../../../components/UI/podcast/PodcastTag";
+import { useToast } from "../../../context/ToastProvider";
+import ShareModal from "../../../components/modals/podcast/ShareModal";
+import ReportModal from "../../../components/modals/report/ReportModal";
+import { ReportType } from "../../../models/Report";
 
 const ProfilePage: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
+  const toast = useToast();
   const queryParams = new URLSearchParams(location.search);
   const initialSortBy = queryParams.get("sortBy") as 'newest' | 'views' | 'oldest' || 'newest';
 
@@ -19,6 +24,11 @@ const ProfilePage: React.FC = () => {
   const [currentPage, setCurrentPage] = useState<number>(0);
   const [totalPages, setTotalPages] = useState<number>(0);
   const [sortBy, setSortBy] = useState<'newest' | 'views' | 'oldest'>(initialSortBy);
+
+  const [isShareModalOpen, setIsShareModalOpen] = useState(false);
+  const [isReportModalOpen, setIsReportModalOpen] = useState(false);
+  const [selectedPodcastId, setSelectedPodcastId] = useState<string | null>(null);
+  const [openOptionMenuId, setOpenOptionMenuId] = useState<string | null>(null);
 
   const username = location.pathname.split("/")[2];
 
@@ -38,11 +48,21 @@ const ProfilePage: React.FC = () => {
       setLoading(false);
     }
   };
-
+  
   useEffect(() => {
     fetchPodcasts(username, currentPage, sortBy);
   }, [currentPage, sortBy]);
 
+  // Reset state when username changes
+  useEffect(() => {
+    setPodcasts([]);
+    setCurrentPage(0);
+    setTotalPages(0);
+    setLoading(true);
+    setError(null);
+    fetchPodcasts(username, 0, sortBy);
+  }, [username]);
+  
   const loadMorePodcasts = () => {
     if (currentPage < totalPages - 1) {
       setCurrentPage((prevPage) => prevPage + 1);
@@ -59,6 +79,24 @@ const ProfilePage: React.FC = () => {
       navigate(`?sortBy=${newSortBy}`);
     }
   };
+
+  const handleSave = () => {
+    toast.info("Save feature is coming soon");
+  }
+
+  const toggleReportModal = (podcastId: string) => {
+    setSelectedPodcastId(podcastId);
+    setIsReportModalOpen(!isReportModalOpen);
+  }
+
+  const toggleShareModal = (podcastId: string) => {
+    setSelectedPodcastId(podcastId);
+    setIsShareModalOpen(!isShareModalOpen);
+  }
+
+  const toggleOptionMenu = (podcastId: string) => {
+    setOpenOptionMenuId(openOptionMenuId === podcastId ? null : podcastId);
+  }
 
   if (loading && currentPage === 0) {
     return (
@@ -91,21 +129,20 @@ const ProfilePage: React.FC = () => {
             <CustomButton variant={sortBy === 'views' ? 'primary' : 'secondary'} onClick={() => handleSortChange('views')}>Views</CustomButton>
             <CustomButton variant={sortBy === 'oldest' ? 'primary' : 'secondary'} onClick={() => handleSortChange('oldest')}>Oldest</CustomButton>
           </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 min-h-[80vh]">
+          <div className="min-h-[80vh]">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
             {podcasts.map((podcast) => (
-              <PodcastCard
+              <PodcastTag
                 key={podcast.id}
-                id={podcast.id}
-                title={podcast.title}
-                user={{
-                  avatar: podcast.user.avatarUrl,
-                  username: podcast.user.username,
-                }}
-                thumbnailUrl={podcast.thumbnailUrl || "/TEST.png"}
-                views={podcast.views}
-                duration={podcast.duration}
+                podcast={podcast}
+                onReport={() => toggleReportModal(podcast.id)}
+                onSave={handleSave}
+                onShare={() => toggleShareModal(podcast.id)}
+                onToggleOptionMenu={toggleOptionMenu}
+                isOptionMenuOpen={openOptionMenuId === podcast.id}
               />
             ))}
+          </div>
           </div>
           {currentPage < totalPages - 1 && (
             <div className="flex justify-center mt-8">
@@ -113,6 +150,24 @@ const ProfilePage: React.FC = () => {
                 Load More
               </CustomButton>
             </div>
+          )}
+          {/* Share Modal */}
+          {selectedPodcastId && (
+            <ShareModal
+              isOpen={isShareModalOpen}
+              onClose={() => setIsShareModalOpen(false)}
+              podcastLink={`${window.location.origin}/watch?pid=${selectedPodcastId}`}
+            />
+          )}
+
+          {/* Report Modal */}
+          {selectedPodcastId && (
+            <ReportModal
+              isOpen={isReportModalOpen}
+              onClose={() => setIsReportModalOpen(false)}
+              targetId={selectedPodcastId}
+              reportType={ReportType.P}
+            />
           )}
         </div>
       </div>
