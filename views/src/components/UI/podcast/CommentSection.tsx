@@ -242,8 +242,8 @@ const CommentSection: React.FC<CommentSectionProps> = ({ podcastId, totalComment
   };
 
   const handleEdit = (commentId: string) => {
-    console.log(`Edit comment: ${commentId}`);
-    // Thêm logic xử lý chỉnh sửa ở đây
+    console.log("Edit comment:", commentId);
+    toast.info("Edit comment feature is coming soon");
   };
 
   const handleLike = (commentId: string) => {

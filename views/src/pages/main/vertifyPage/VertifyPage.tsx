@@ -2,15 +2,17 @@
 import { authenticateApi } from '../../../services/AuthenticateService';
 import { useToast } from '../../../context/ToastProvider';
 import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 const VertifyPage = () => {
     const token = window.location.href.split('?token=')[1];
     const toast = useToast();
+    const navigate = useNavigate();
     const [verificationStatus, setVerificationStatus] = useState<'pending' | 'success' | 'error'>('pending');
 
     const sendVertify = async () => {
         try {
-            toast.loading('Verifying email...');
+            // const verifyingToast = toast.loading('Verifying email...');
             const res = await authenticateApi.vertify(token);
 
             if (!res.data) {
@@ -19,8 +21,9 @@ const VertifyPage = () => {
 
             setVerificationStatus('success');
             toast.success('Email verified successfully!');
+            // toast.closeLoadingToast(verifyingToast);
             setTimeout(() => {
-                // navigate('/login');
+                navigate('/');
             }, 2000);
 
         } catch (err: any) {

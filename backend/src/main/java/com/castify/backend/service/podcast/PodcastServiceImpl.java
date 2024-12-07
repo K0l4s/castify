@@ -169,9 +169,26 @@ public class PodcastServiceImpl implements IPodcastService {
         UserEntity userEntity = userRepository.findByEmailOrUsername(userEmail)
                 .orElseThrow(() -> new RuntimeException("User not found with email: " + userEmail));
 
-        PodcastEntity podcastEntity = podcastRepository.findById(podcastId)
-                .orElseThrow(() -> new RuntimeException("Podcast not found"));
+        PodcastEntity podcastEntity;
 
+        // Kiểm tra quyền sở hữu podcast
+        Optional<PodcastEntity> optionalPodcast = podcastRepository.findById(podcastId);
+        if (optionalPodcast.isPresent()) {
+            PodcastEntity tempPodcast = optionalPodcast.get();
+            boolean isOwner = tempPodcast.getUser().getId().equals(userEntity.getId());
+
+            // Nếu là chủ sở hữu, cho phép xem kể cả khi không active
+            if (isOwner) {
+                podcastEntity = tempPodcast;
+            } else if (tempPodcast.isActive()) {
+                // Nếu không phải chủ sở hữu, chỉ cho phép xem podcast đang active
+                podcastEntity = tempPodcast;
+            } else {
+                throw new RuntimeException("Podcast not found or inactive");
+            }
+        } else {
+            throw new RuntimeException("Podcast not found");
+        }
         // Tạo activity khi user xem podcast
         AddActivityRequestDTO activityDTO = new AddActivityRequestDTO();
         activityDTO.setType(ActivityType.VIEW_PODCAST);
@@ -271,7 +288,7 @@ public class PodcastServiceImpl implements IPodcastService {
 
     @Override
     public PodcastModel getPodcastByIdAnonymous(String id) {
-        PodcastEntity podcastEntity = podcastRepository.findById(id)
+        PodcastEntity podcastEntity = podcastRepository.findByIdAndIsActiveTrue(id)
                 .orElseThrow(() -> new RuntimeException("Podcast not found"));
 
         long totalComments = commentRepository.countByPodcastId(id);
@@ -465,7 +482,6 @@ public class PodcastServiceImpl implements IPodcastService {
 
         // Lấy danh sách ID của following
         List<String> followingIds = currentUser.getFollowing();
-        System.out.println(followingIds);
         if (followingIds.isEmpty()) {
             return new PageDTO<>(List.of(), page, 0, 0);
         }
@@ -478,7 +494,6 @@ public class PodcastServiceImpl implements IPodcastService {
 
         // Lấy danh sách podcast theo danh sách ID
         Page<PodcastEntity> podcastPage = podcastRepository.findByUserIdInAndIsActiveTrue(followingObjectIds, pageable);
-        System.out.println("Podcast pages" + podcastPage.getContent());
         // Chuyển đổi dữ liệu từ PodcastEntity sang PodcastModel
         List<PodcastModel> podcastModels = podcastPage.getContent()
                 .stream()

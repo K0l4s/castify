@@ -215,7 +215,15 @@ const DetailPodcastPage: React.FC = () => {
             />
         </div>
         <div className="flex gap-2">
-          <div className="flex gap-2 items-center mr-12">
+          <div className="flex gap-4 items-center mr-12">
+            <CustomButton
+              onClick={() => navigate(`/watch?pid=${podcast?.id}`)}
+              text="View on Blankcil"
+              variant="outline"
+              rounded="full"
+              className="uppercase text-sm leading-normal font-medium text-white dark:text-white hover:dark:text-white 
+                bg-blue-600 hover:bg-red-700 hover:dark:bg-blue-700 hover:text-white"
+            />
             <CustomButton
               onClick={openDeleteModal}
               text="Delete permanently"
