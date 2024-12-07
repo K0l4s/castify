@@ -7,6 +7,7 @@ import { useToast } from '../../../context/ToastProvider';
 import ShareModal from '../../../components/modals/podcast/ShareModal';
 import ReportModal from '../../../components/modals/report/ReportModal';
 import { ReportType } from '../../../models/Report';
+import CustomButton from '../../../components/UI/custom/CustomButton';
 
 const FollowingPodcast: React.FC = () => {
   const [podcasts, setPodcasts] = useState<Podcast[]>([]);
@@ -16,21 +17,24 @@ const FollowingPodcast: React.FC = () => {
   const [isReportModalOpen, setIsReportModalOpen] = useState(false);
   const [selectedPodcastId, setSelectedPodcastId] = useState<string | null>(null);
   const [openOptionMenuId, setOpenOptionMenuId] = useState<string | null>(null);
+  const [currentPage, setCurrentPage] = useState<number>(0);
+  const [totalPages, setTotalPages] = useState<number>(0);
   const toast = useToast();
 
-  useEffect(() => {
-    const fetchFollowingPodcasts = async () => {
-      try {
-        const response = await getFollowingPodcast(0, 20);
-        setPodcasts(response.content);
-        setLoading(false);
-      } catch (error) {
-        setError('Failed to fetch recent podcasts');
-        setLoading(false);
-      }
-    };
+  const fetchFollowingPodcasts = async (page: number) => {
+    try {
+      const response = await getFollowingPodcast(page, 20);
+      setPodcasts((prevPodcasts) => [...prevPodcasts, ...response.content]);
+      setTotalPages(response.totalPages);
+      setLoading(false);
+    } catch (error) {
+      setError('Failed to fetch recent podcasts');
+      setLoading(false);
+    }
+  };
 
-    fetchFollowingPodcasts();
+  useEffect(() => {
+    fetchFollowingPodcasts(0);
   }, []);
 
   const handleSave = () => {
@@ -51,6 +55,15 @@ const FollowingPodcast: React.FC = () => {
     setOpenOptionMenuId(openOptionMenuId === podcastId ? null : podcastId);
   }
 
+  const loadMorePodcasts = () => {
+    if (currentPage < totalPages - 1) {
+      setCurrentPage((prevPage) => {
+        const nextPage = prevPage + 1;
+        fetchFollowingPodcasts(nextPage);
+        return nextPage;
+      });
+    }
+  };
 
   if (loading) {
     return <div className="flex justify-center h-screen"><FiLoader size={48} className="text-black dark:text-white animate-spin"/></div>;
@@ -75,6 +88,14 @@ const FollowingPodcast: React.FC = () => {
           />
         ))}
       </div>
+
+      {currentPage < totalPages - 1 && (
+        <div className="flex justify-center mt-8">
+          <CustomButton onClick={loadMorePodcasts} variant="primary">
+            Load More
+          </CustomButton>
+        </div>
+      )}
 
       {/* Share Modal */}
       {selectedPodcastId && (

@@ -3,7 +3,7 @@ import { FaPlay, FaClock } from 'react-icons/fa';
 import { Link } from 'react-router-dom';
 import { formatViewsToShortly } from '../../../utils/formatViews';
 import { formatTimeDuration } from './video';
-
+import defaultAvatar from '../../../assets/images/default_avatar.jpg';
 interface PodcastCardProps {
   id: string;
   title: string;
@@ -57,7 +57,7 @@ const PodcastCard: React.FC<PodcastCardProps> = ({
         </Link>
         <div className="flex justify-between">
           <div className=' flex items-center'>
-            <img src={user.avatar} alt={user.username} className='w-5 h-5 rounded-full mr-1' />
+            <img src={user.avatar || defaultAvatar} alt={user.username} className='w-5 h-5 rounded-full mr-1' />
             <span className='line-clamp-1 text-md text-gray-500 dark:text-gray-400'>{user.username}</span>
           </div>
           <span>{formatViewsToShortly(views)} views</span>
