@@ -20,11 +20,12 @@ public interface IPodcastService {
     PodcastModel getPodcastByIdAnonymous(String id);
     String toggleLikeOnPodcast(String id) throws Exception;
     PageDTO<PodcastModel> getRecentPodcasts(int page, int size);
+    PageDTO<PodcastModel> getPopularPodcasts(int page, int size);
     PageDTO<PodcastModel> getPodcastsByGenre(String genreId, int page, int size);
     PageDTO<PodcastModel> getSuggestedPodcastsByGenres(List<String> genreIds, String currentPodcastId, int page, int size);
     void incrementPodcastViews(String podcastId);
     PageDTO<PodcastModel> getUserPodcasts(String username, int page, int size, String sortBy) throws Exception;
-
+    PageDTO<PodcastModel> getPodcastsFromFollowing(int page, int size) throws Exception;
     PageDTO<PodcastModel> searchPodcast(int page, int size, String keyword) throws Exception;
 
     void togglePodcastDisplayMode(List<String> podcastIds) throws Exception;

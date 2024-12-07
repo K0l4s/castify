@@ -6,7 +6,10 @@ import { IoCloseOutline } from "react-icons/io5";
 import { HiDotsVertical } from "react-icons/hi";
 import CustomOptionMenu from "../custom/CustomOptionMenu";
 import ShareModal from "../../modals/podcast/ShareModal";
-
+import defaultAvatar from "../../../assets/images/default_avatar.jpg";
+import ReportModal from "../../modals/report/ReportModal";
+import { ReportType } from "../../../models/Report";
+import { useToast } from "../../../context/ToastProvider";
 interface PodcastHistoryProps {
   podcast: Podcast;
   onDelete: () => void;
@@ -17,22 +20,23 @@ const PodcastHistory: React.FC<PodcastHistoryProps> = ({
   onDelete,
 }) => {
   const [isShareModalOpen, setIsShareModalOpen] = useState(false);
+  const [isReportModalOpen, setIsReportModalOpen] = useState(false);
+
+  const toast = useToast();
   const podcastLink = `${window.location.origin}/watch?pid=${podcast.id}`;
   const author = podcast.user.fullname;
 
-  const handleReport = () => {
-    console.log("Report podcast");
-    // Add report logic here
-  };
-
   const handleSave = () => {
-    console.log("Save podcast");
-    // Add save logic here
+    toast.info("Save feature is coming soon");
   };
 
   const toggleShareModal = () => {
     setIsShareModalOpen(!isShareModalOpen);
   };
+
+  const toggleReportModal = () => {
+    setIsReportModalOpen(!isReportModalOpen);
+  }
 
   return (
     <div className="flex rounded-lg dark:bg-gray-900">
@@ -55,7 +59,7 @@ const PodcastHistory: React.FC<PodcastHistoryProps> = ({
             className="flex-shrink-0"
           >
             <img
-              src={podcast.user.avatarUrl || "/default_avatar.jpg"}
+              src={podcast.user.avatarUrl || defaultAvatar}
               alt={author}
               className="w-8 h-8 object-cover rounded-full mr-2"
             />
@@ -88,7 +92,7 @@ const PodcastHistory: React.FC<PodcastHistoryProps> = ({
           size="sm"
         >
           <ul className="py-1">
-            <li className="px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer" onClick={handleReport}>
+            <li className="px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer" onClick={toggleReportModal}>
               <FaFlag className="inline-block mb-1 mr-2" />
               Report
             </li>
@@ -108,6 +112,14 @@ const PodcastHistory: React.FC<PodcastHistoryProps> = ({
         isOpen={isShareModalOpen}
         onClose={toggleShareModal}
         podcastLink={podcastLink}
+      />
+
+      {/* Report Modal */}
+      <ReportModal
+        isOpen={isReportModalOpen}
+        onClose={toggleReportModal}
+        targetId={podcast.id}
+        reportType={ReportType.P}
       />
     </div>
   );

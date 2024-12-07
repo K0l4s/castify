@@ -12,6 +12,7 @@ import com.castify.backend.repository.*;
 import com.castify.backend.service.uploadFile.UploadFileServiceImpl;
 import com.castify.backend.service.user.IUserService;
 import com.castify.backend.service.userActivity.UserActivityServiceImpl;
+import org.bson.types.ObjectId;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -28,6 +29,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class PodcastServiceImpl implements IPodcastService {
@@ -167,9 +169,26 @@ public class PodcastServiceImpl implements IPodcastService {
         UserEntity userEntity = userRepository.findByEmailOrUsername(userEmail)
                 .orElseThrow(() -> new RuntimeException("User not found with email: " + userEmail));
 
-        PodcastEntity podcastEntity = podcastRepository.findById(podcastId)
-                .orElseThrow(() -> new RuntimeException("Podcast not found"));
+        PodcastEntity podcastEntity;
 
+        // Kiểm tra quyền sở hữu podcast
+        Optional<PodcastEntity> optionalPodcast = podcastRepository.findById(podcastId);
+        if (optionalPodcast.isPresent()) {
+            PodcastEntity tempPodcast = optionalPodcast.get();
+            boolean isOwner = tempPodcast.getUser().getId().equals(userEntity.getId());
+
+            // Nếu là chủ sở hữu, cho phép xem kể cả khi không active
+            if (isOwner) {
+                podcastEntity = tempPodcast;
+            } else if (tempPodcast.isActive()) {
+                // Nếu không phải chủ sở hữu, chỉ cho phép xem podcast đang active
+                podcastEntity = tempPodcast;
+            } else {
+                throw new RuntimeException("Podcast not found or inactive");
+            }
+        } else {
+            throw new RuntimeException("Podcast not found");
+        }
         // Tạo activity khi user xem podcast
         AddActivityRequestDTO activityDTO = new AddActivityRequestDTO();
         activityDTO.setType(ActivityType.VIEW_PODCAST);
@@ -269,7 +288,7 @@ public class PodcastServiceImpl implements IPodcastService {
 
     @Override
     public PodcastModel getPodcastByIdAnonymous(String id) {
-        PodcastEntity podcastEntity = podcastRepository.findById(id)
+        PodcastEntity podcastEntity = podcastRepository.findByIdAndIsActiveTrue(id)
                 .orElseThrow(() -> new RuntimeException("Podcast not found"));
 
         long totalComments = commentRepository.countByPodcastId(id);
@@ -343,6 +362,29 @@ public class PodcastServiceImpl implements IPodcastService {
                 .map(podcastEntity -> modelMapper.map(podcastEntity, PodcastModel.class))
                 .toList();
 
+        return new PageDTO<>(
+                podcastModels,
+                podcastPage.getSize(),
+                podcastPage.getNumber(),
+                podcastPage.getTotalPages(),
+                podcastPage.getTotalElements()
+        );
+    }
+
+    @Override
+    public PageDTO<PodcastModel> getPopularPodcasts(int page, int size) {
+        // Tạo Pageable với sort theo views giảm dần
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "views"));
+        // Truy vấn podcast hoạt động và sắp xếp
+        Page<PodcastEntity> podcastPage = podcastRepository.findByIsActiveTrue(pageable);
+
+        // Chuyển đổi dữ liệu từ PodcastEntity sang PodcastModel
+        List<PodcastModel> podcastModels = podcastPage.getContent()
+                .stream()
+                .map(podcastEntity -> modelMapper.map(podcastEntity, PodcastModel.class))
+                .toList();
+
+        // Trả về PageDTO chứa thông tin paginated
         return new PageDTO<>(
                 podcastModels,
                 podcastPage.getSize(),
@@ -433,6 +475,40 @@ public class PodcastServiceImpl implements IPodcastService {
 
         return convertPodcastEntitiesToPageDTO(podcastEntities);
     }
+
+    @Override
+    public PageDTO<PodcastModel> getPodcastsFromFollowing(int page, int size) throws Exception {
+        UserEntity currentUser = userService.getUserByAuthentication();
+
+        // Lấy danh sách ID của following
+        List<String> followingIds = currentUser.getFollowing();
+        if (followingIds.isEmpty()) {
+            return new PageDTO<>(List.of(), page, 0, 0);
+        }
+
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdDay"));
+
+        List<ObjectId> followingObjectIds = followingIds.stream()
+                .map(ObjectId::new)
+                .collect(Collectors.toList());
+
+        // Lấy danh sách podcast theo danh sách ID
+        Page<PodcastEntity> podcastPage = podcastRepository.findByUserIdInAndIsActiveTrue(followingObjectIds, pageable);
+        // Chuyển đổi dữ liệu từ PodcastEntity sang PodcastModel
+        List<PodcastModel> podcastModels = podcastPage.getContent()
+                .stream()
+                .map(podcastEntity -> modelMapper.map(podcastEntity, PodcastModel.class))
+                .toList();
+
+        return new PageDTO<>(
+                podcastModels,
+                podcastPage.getSize(),
+                podcastPage.getNumber(),
+                podcastPage.getTotalPages(),
+                podcastPage.getTotalElements()
+        );
+    }
+
     @Override
     public PageDTO<PodcastModel> searchPodcast(int page, int size, String keyword) throws Exception {
 

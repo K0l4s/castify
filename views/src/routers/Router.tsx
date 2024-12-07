@@ -25,6 +25,8 @@ import DetailPodcastPage from '../pages/creator/ladingPage/DetailPodcastPage'
 import AdminReportPage from '../pages/admin/reportPage/AdminReportPage'
 import SearchPage from '../pages/main/searchPage/SearchPage'
 import CreatorFollower from '../pages/creator/creatorFollower/CreatorFollower'
+import FollowingPage from '../pages/main/followingPodcast/FollowingPage'
+import { RequireAuth } from './RequireAuth'
 
 const Router = () => {
     const isAdmin = useSelector((state: RootState) => state.auth.user?.role === Role.A);
@@ -48,7 +50,7 @@ const Router = () => {
                     <Route path="report" element={<AdminReportPage />} />
                 </Route>
 
-                <Route path='/creator/*' element={<CreatorLayout />} >
+                <Route path='/creator/*' element={<RequireAuth><CreatorLayout /></RequireAuth>} >
                     <Route path='' element={<CreatorLandingPage />} />
                     <Route path='dashboard' element={<CreatorLandingPage />} />
                     <Route path='contents' element={<MyPodcastPage />} />
@@ -60,9 +62,9 @@ const Router = () => {
                 <Route element={<MainLayout />} >
                     <Route path='/' element={<LandingPage />} />
                     <Route path='/feed' element={<LandingPage />} />
-                    <Route path='/feed/follow' element={<LandingPage />} />
+                    <Route path='/feed/follow' element={<RequireAuth><FollowingPage /></RequireAuth>} />
                     <Route path='/feed/trend' element={<LandingPage />} />
-                    <Route path='/feed/history' element={<HistoryPage />} />
+                    <Route path='/feed/history' element={<RequireAuth><HistoryPage /></RequireAuth>} />
                     <Route path='/watch' element={<PodcastViewport />} />
                     <Route path='/search' element={<SearchPage />} />
                 </Route>
