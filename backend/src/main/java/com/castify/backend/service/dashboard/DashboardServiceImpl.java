@@ -50,11 +50,9 @@ public class DashboardServiceImpl implements IDashboardService{
     public Map<String, Object> getCreatorDashboard() throws Exception {
         // Lấy thông tin user
         UserEntity currentUser = userService.getUserByAuthentication();
-        UserEntity creator = userRepository.findById(currentUser.getId())
-                .orElseThrow(() -> new RuntimeException("Creator not found"));
 
         // Tổng số follower
-        long totalFollowers = creator.getFollowing().size();
+        long totalFollowers = userRepository.findUsersFollowers(currentUser.getId()).size();
 
         // Lấy tất cả video của creator
         List<PodcastEntity> videos = podcastRepository.findByUserId(currentUser.getId());
