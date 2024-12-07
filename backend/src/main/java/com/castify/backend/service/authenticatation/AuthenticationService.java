@@ -84,16 +84,18 @@ public class AuthenticationService implements IAuthenticationService {
 
         tokenRepository.save(token);
     }
-
-    @Override
-    public RegisterResponse register(RegisterRequest request) throws Exception {
+    private void checkRegisterValid(RegisterRequest request) throws Exception{
         if(!request.getEmail().equals(request.getRepeatEmail()))
             throw new RuntimeException("Email and repeat email not match!");
         if(!request.getPassword().equals(request.getConfirmPassword()))
             throw new RuntimeException("Password and confirm password not match!");
         if (userRepository.existsByEmailOrUsername(request.getEmail(), request.getUsername()))
             throw new RuntimeException("User with email " + request.getEmail() + " or nick name " + request.getEmail() + " already exists.");
+    }
+    @Override
+    public RegisterResponse register(RegisterRequest request) throws Exception {
 
+        checkRegisterValid(request);
 //        String code = this.getRandom();
 
         var user = UserEntity.builder()
