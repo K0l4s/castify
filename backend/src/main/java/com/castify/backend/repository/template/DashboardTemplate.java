@@ -67,8 +67,9 @@ public class DashboardTemplate {
                         PodcastEntity.class,
                         Map.class
                 ).getMappedResults().stream()
-                .mapToLong(result -> (long) result.get("totalLikes"))
+                .mapToLong(result -> ((Number) result.get("totalLikes")).longValue()) // Chuyển đổi sang Long an toàn
                 .sum();
+
 
         statistics.put("totalLikes", totalLikes);
 
