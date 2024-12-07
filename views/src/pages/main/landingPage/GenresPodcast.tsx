@@ -7,6 +7,7 @@ import ShareModal from '../../../components/modals/podcast/ShareModal';
 import ReportModal from '../../../components/modals/report/ReportModal';
 import { ReportType } from '../../../models/Report';
 import { useToast } from '../../../context/ToastProvider';
+import CustomButton from '../../../components/UI/custom/CustomButton';
 
 interface GenresPodcastProps {
   genreId: string;
@@ -20,22 +21,40 @@ const GenresPodcast: React.FC<GenresPodcastProps> = ({ genreId }) => {
   const [isReportModalOpen, setIsReportModalOpen] = useState(false);
   const [selectedPodcastId, setSelectedPodcastId] = useState<string | null>(null);
   const [openOptionMenuId, setOpenOptionMenuId] = useState<string | null>(null);
+  const [currentPage, setCurrentPage] = useState<number>(0);
+  const [totalPages, setTotalPages] = useState<number>(0);
   const toast = useToast();
 
-  useEffect(() => {
-    const fetchPodcastsByGenre = async () => {
-      setLoading(true);
-      try {
-        const response = await getPodcastsByGenre(genreId, 0, 10);
-        setPodcasts(response.content);
-        setLoading(false);
-      } catch (error) {
-        setError('Failed to fetch podcasts');
-        setLoading(false);
-      }
-    };
+  const fetchPodcastsByGenre = async (genreId: string, page: number) => {
+    setLoading(true);
+    try {
+      const response = await getPodcastsByGenre(genreId, page, 20);
+      setPodcasts((prevPodcasts) => {
+        const newPodcasts = response.content.filter(
+          (newPodcast) => !prevPodcasts.some((podcast) => podcast.id === newPodcast.id)
+        );
+        return [...prevPodcasts, ...newPodcasts];
+      });
+      setTotalPages(response.totalPages);
+      setLoading(false);
+    } catch (error) {
+      setError('Failed to fetch podcasts');
+      setLoading(false);
+    }
+  };
 
-    fetchPodcastsByGenre();
+  useEffect(() => {
+    fetchPodcastsByGenre(genreId, 0);
+  }, [genreId]);
+
+  // Reset state when genreId changes
+  useEffect(() => {
+    setPodcasts([]);
+    setCurrentPage(0);
+    setTotalPages(0);
+    setLoading(true);
+    setError(null);
+    fetchPodcastsByGenre(genreId, 0);
   }, [genreId]);
 
   const handleSave = () => {
@@ -56,7 +75,17 @@ const GenresPodcast: React.FC<GenresPodcastProps> = ({ genreId }) => {
     setOpenOptionMenuId(openOptionMenuId === podcastId ? null : podcastId);
   }
 
-  if (loading) {
+  const loadMorePodcasts = () => {
+    if (currentPage < totalPages - 1) {
+      setCurrentPage((prevPage) => {
+        const nextPage = prevPage + 1;
+        fetchPodcastsByGenre(genreId, nextPage);
+        return nextPage;
+      });
+    }
+  };
+
+  if (loading && currentPage === 0) {
     return <div className="flex justify-center items-center h-screen">
       <FiLoader size={48} className="text-black dark:text-white animate-spin"/>
     </div>;
@@ -83,6 +112,14 @@ const GenresPodcast: React.FC<GenresPodcastProps> = ({ genreId }) => {
           />
         ))}
       </div>
+
+      {currentPage < totalPages - 1 && (
+        <div className="flex justify-center mt-8">
+          <CustomButton onClick={loadMorePodcasts} variant="primary">
+            Load More
+          </CustomButton>
+        </div>
+      )}
 
       {/* Share Modal */}
       {selectedPodcastId && (

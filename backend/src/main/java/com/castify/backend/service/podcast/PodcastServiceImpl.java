@@ -354,7 +354,8 @@ public class PodcastServiceImpl implements IPodcastService {
 
     @Override
     public PageDTO<PodcastModel> getRecentPodcasts(int page, int size) {
-        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdDay"));
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdDay")
+                .and(Sort.by(Sort.Direction.DESC, "views")));
         Page<PodcastEntity> podcastPage = podcastRepository.findByIsActiveTrue(pageable);
 
         List<PodcastModel> podcastModels = podcastPage.getContent()
@@ -374,7 +375,8 @@ public class PodcastServiceImpl implements IPodcastService {
     @Override
     public PageDTO<PodcastModel> getPopularPodcasts(int page, int size) {
         // Tạo Pageable với sort theo views giảm dần
-        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "views"));
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "views")
+                .and(Sort.by(Sort.Direction.ASC, "createdDay")));
         // Truy vấn podcast hoạt động và sắp xếp
         Page<PodcastEntity> podcastPage = podcastRepository.findByIsActiveTrue(pageable);
 
@@ -396,7 +398,8 @@ public class PodcastServiceImpl implements IPodcastService {
 
     @Override
     public PageDTO<PodcastModel> getPodcastsByGenre(String genreId, int page, int size) {
-        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdDay"));
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "views")
+                .and(Sort.by(Sort.Direction.ASC, "createdDay")));
 
         // Tìm các podcast theo genreId
         Page<PodcastEntity> podcastPage = podcastRepository.findByGenres_IdAndIsActiveTrue(genreId, pageable);
@@ -486,7 +489,8 @@ public class PodcastServiceImpl implements IPodcastService {
             return new PageDTO<>(List.of(), page, 0, 0);
         }
 
-        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdDay"));
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdDay")
+                .and(Sort.by(Sort.Direction.DESC, "views")));
 
         List<ObjectId> followingObjectIds = followingIds.stream()
                 .map(ObjectId::new)
