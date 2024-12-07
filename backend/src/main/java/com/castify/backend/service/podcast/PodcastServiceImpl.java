@@ -12,6 +12,7 @@ import com.castify.backend.repository.*;
 import com.castify.backend.service.uploadFile.UploadFileServiceImpl;
 import com.castify.backend.service.user.IUserService;
 import com.castify.backend.service.userActivity.UserActivityServiceImpl;
+import org.bson.types.ObjectId;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -28,6 +29,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class PodcastServiceImpl implements IPodcastService {
@@ -353,6 +355,29 @@ public class PodcastServiceImpl implements IPodcastService {
     }
 
     @Override
+    public PageDTO<PodcastModel> getPopularPodcasts(int page, int size) {
+        // Tạo Pageable với sort theo views giảm dần
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "views"));
+        // Truy vấn podcast hoạt động và sắp xếp
+        Page<PodcastEntity> podcastPage = podcastRepository.findByIsActiveTrue(pageable);
+
+        // Chuyển đổi dữ liệu từ PodcastEntity sang PodcastModel
+        List<PodcastModel> podcastModels = podcastPage.getContent()
+                .stream()
+                .map(podcastEntity -> modelMapper.map(podcastEntity, PodcastModel.class))
+                .toList();
+
+        // Trả về PageDTO chứa thông tin paginated
+        return new PageDTO<>(
+                podcastModels,
+                podcastPage.getSize(),
+                podcastPage.getNumber(),
+                podcastPage.getTotalPages(),
+                podcastPage.getTotalElements()
+        );
+    }
+
+    @Override
     public PageDTO<PodcastModel> getPodcastsByGenre(String genreId, int page, int size) {
         Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdDay"));
 
@@ -433,6 +458,42 @@ public class PodcastServiceImpl implements IPodcastService {
 
         return convertPodcastEntitiesToPageDTO(podcastEntities);
     }
+
+    @Override
+    public PageDTO<PodcastModel> getPodcastsFromFollowing(int page, int size) throws Exception {
+        UserEntity currentUser = userService.getUserByAuthentication();
+
+        // Lấy danh sách ID của following
+        List<String> followingIds = currentUser.getFollowing();
+        System.out.println(followingIds);
+        if (followingIds.isEmpty()) {
+            return new PageDTO<>(List.of(), page, 0, 0);
+        }
+
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdDay"));
+
+        List<ObjectId> followingObjectIds = followingIds.stream()
+                .map(ObjectId::new)
+                .collect(Collectors.toList());
+
+        // Lấy danh sách podcast theo danh sách ID
+        Page<PodcastEntity> podcastPage = podcastRepository.findByUserIdInAndIsActiveTrue(followingObjectIds, pageable);
+        System.out.println("Podcast pages" + podcastPage.getContent());
+        // Chuyển đổi dữ liệu từ PodcastEntity sang PodcastModel
+        List<PodcastModel> podcastModels = podcastPage.getContent()
+                .stream()
+                .map(podcastEntity -> modelMapper.map(podcastEntity, PodcastModel.class))
+                .toList();
+
+        return new PageDTO<>(
+                podcastModels,
+                podcastPage.getSize(),
+                podcastPage.getNumber(),
+                podcastPage.getTotalPages(),
+                podcastPage.getTotalElements()
+        );
+    }
+
     @Override
     public PageDTO<PodcastModel> searchPodcast(int page, int size, String keyword) throws Exception {
 

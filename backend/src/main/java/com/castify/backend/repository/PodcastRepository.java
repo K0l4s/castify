@@ -2,6 +2,7 @@ package com.castify.backend.repository;
 
 import com.castify.backend.entity.PodcastEntity;
 import com.castify.backend.entity.UserEntity;
+import org.bson.types.ObjectId;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -35,5 +36,6 @@ public interface PodcastRepository extends MongoRepository<PodcastEntity, String
     Page<PodcastEntity> searchPodcastByFields(String keyword, Pageable pageable);
 
     List<PodcastEntity> findByUserId(String userId);
-
+    @Query("{ 'user.$id': { $in: ?0 }, 'isActive': true }")
+    Page<PodcastEntity> findByUserIdInAndIsActiveTrue(List<ObjectId> userIds, Pageable pageable);
 }

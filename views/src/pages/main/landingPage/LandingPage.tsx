@@ -6,6 +6,7 @@ import { getGenres } from "../../../services/GenreService";
 import TabNavigation from "./TabNavigation";
 import GenresPodcast from "./GenresPodcast";
 import { useLocation, useNavigate } from "react-router-dom";
+import PopularPodcast from "./PopularPodcast";
 
 const LandingPage = () => {
   const [selectedTab, setSelectedTab] = useState('Popular');
@@ -42,7 +43,7 @@ const LandingPage = () => {
   const renderContent = () => {
     switch (selectedTab) {
       case 'Popular':
-        return <RecentPodcast />;
+        return <PopularPodcast />;
       case 'Recent':
         return <RecentPodcast />;
       default:
