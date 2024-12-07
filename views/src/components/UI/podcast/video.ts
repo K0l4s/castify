@@ -9,9 +9,14 @@ export const setupVideoViewTracking = (
   let viewIncremented = false;
 
   const handleLoadedMetadata = () => {
-    continuousThreshold = videoElement.duration / 2;
-    // continuousThreshold = 10; // Dành cho test, 10s auto tăng view
-    console.log("continuousThreshold", continuousThreshold);
+    if (videoElement.duration < 20) {
+      continuousThreshold = videoElement.duration / 2;
+      console.log("continuousThreshold", continuousThreshold);
+    } else {
+      // continuousThreshold = videoElement.duration / 2;
+      continuousThreshold = 10; // Dành cho test, 10s auto tăng view
+      console.log("continuousThreshold", continuousThreshold);
+    }
   };
 
   const handleTimeUpdate = () => {

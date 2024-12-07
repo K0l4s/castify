@@ -7,6 +7,10 @@ import PodcastTag from "./PodcastTag";
 import { getGenresByList } from "../../../services/GenreService";
 import { IoChevronBackOutline, IoChevronForwardOutline } from "react-icons/io5";
 import { useNavigate } from "react-router-dom";
+import { useToast } from "../../../context/ToastProvider";
+import ShareModal from "../../modals/podcast/ShareModal";
+import ReportModal from "../../modals/report/ReportModal";
+import { ReportType } from "../../../models/Report";
 
 interface SuggestedPodcastProps {
   genreIds: string[];
@@ -20,6 +24,11 @@ const SuggestedPodcast: React.FC<SuggestedPodcastProps> = ({ genreIds, currentPo
   const [hasMore, setHasMore] = useState(true);
   const [loading, setLoading] = useState(false);
   const genreContainerRef = useRef<HTMLDivElement>(null);
+  const [isShareModalOpen, setIsShareModalOpen] = useState(false);
+  const [isReportModalOpen, setIsReportModalOpen] = useState(false);
+  const [selectedPodcastId, setSelectedPodcastId] = useState<string | null>(null);
+  const [openOptionMenuId, setOpenOptionMenuId] = useState<string | null>(null);
+  const toast = useToast();
 
   const navigate = useNavigate();
 
@@ -81,6 +90,23 @@ const SuggestedPodcast: React.FC<SuggestedPodcastProps> = ({ genreIds, currentPo
     navigate(`/?tab=${encodeURIComponent(genreName)}`);
   };
 
+  const handleSave = () => {
+    toast.info("Save feature is coming soon");
+  }
+
+  const toggleReportModal = (podcastId: string) => {
+    setSelectedPodcastId(podcastId);
+    setIsReportModalOpen(!isReportModalOpen);
+  }
+
+  const toggleShareModal = (podcastId: string) => {
+    setSelectedPodcastId(podcastId);
+    setIsShareModalOpen(!isShareModalOpen);
+  }
+
+  const toggleOptionMenu = (podcastId: string) => {
+    setOpenOptionMenuId(openOptionMenuId === podcastId ? null : podcastId);
+  }
 
   return (
     <div className="w-full lg:w-1/4 mt-8 lg:mt-0">
@@ -117,7 +143,15 @@ const SuggestedPodcast: React.FC<SuggestedPodcastProps> = ({ genreIds, currentPo
         </button>
       </div>
       {suggestedPodcasts.map((suggested) => (
-        <PodcastTag key={suggested.id} podcast={suggested} />
+        <PodcastTag 
+          key={suggested.id}
+          podcast={suggested}
+          onReport={() => toggleReportModal(suggested.id)}
+          onSave={handleSave}
+          onShare={() => toggleShareModal(suggested.id)}
+          onToggleOptionMenu={toggleOptionMenu}
+          isOptionMenuOpen={openOptionMenuId === suggested.id}
+        />
       ))}
       {loading && (
         <div className="text-center my-4">
@@ -128,6 +162,25 @@ const SuggestedPodcast: React.FC<SuggestedPodcastProps> = ({ genreIds, currentPo
         <div className="text-center my-4">
           <CustomButton text="Load More" onClick={handleLoadMore} />
         </div>
+      )}
+
+      {/* Share Modal */}
+      {selectedPodcastId && (
+        <ShareModal
+          isOpen={isShareModalOpen}
+          onClose={() => setIsShareModalOpen(false)}
+          podcastLink={`${window.location.origin}/watch?pid=${selectedPodcastId}`}
+        />
+      )}
+
+      {/* Report Modal */}
+      {selectedPodcastId && (
+        <ReportModal
+          isOpen={isReportModalOpen}
+          onClose={() => setIsReportModalOpen(false)}
+          targetId={selectedPodcastId}
+          reportType={ReportType.P}
+        />
       )}
     </div>
   );

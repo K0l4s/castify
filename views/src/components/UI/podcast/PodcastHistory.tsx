@@ -88,8 +88,8 @@ const PodcastHistory: React.FC<PodcastHistoryProps> = ({
           buttonContent={<HiDotsVertical size={24} />}
           position="bottom"
           trigger="click"
-          variant="light"
           size="sm"
+          className="transition-colors rounded-full text-black dark:text-white hover:bg-gray-400 hover:dark:bg-gray-700"
         >
           <ul className="py-1">
             <li className="px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer" onClick={toggleReportModal}>

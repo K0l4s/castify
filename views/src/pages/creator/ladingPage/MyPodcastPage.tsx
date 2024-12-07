@@ -257,6 +257,13 @@ const MyPodcastPage: React.FC = () => {
           <div className="col-span-1 text-right">Comments</div>
           <div className="col-span-1 text-center">Edit</div>
         </div>
+        {podcasts.length === 0 && (
+          <div className="text-center p-4 col-span-12">
+            <p className="text-lg text-slate-800 dark:text-white">
+              You have not created any podcast yet
+            </p>
+          </div>
+        )}
         {podcasts.map((podcast) => (
           <div
             key={podcast.id}
