@@ -3,6 +3,7 @@ import { BasicUser } from "../../../models/User";
 import ConfirmBox from "../../UI/dialogBox/ConfirmBox";
 import { userService } from "../../../services/UserService";
 import { Role } from "../../../constants/Role";
+import defaultAvatar from "../../../assets/images/default_avatar.jpg";
 
 interface UserCardProps {
     user: BasicUser;
@@ -33,7 +34,7 @@ const UserCard: React.FC<UserCardProps> = ({ user }) => {
     return (
         <div className="relative bg-white dark:bg-gray-900 text-black dark:text-white rounded-lg shadow-md overflow-hidden h-full">
             <img
-                src={user.coverUrl}
+                src={user.coverUrl || "https://png.pngtree.com/thumb_back/fw800/background/20231005/pngtree-3d-illustration-captivating-podcast-experience-image_13529585.png"}
                 alt="cover"
                 className="h-32 w-full object-cover"
             />
@@ -46,7 +47,7 @@ const UserCard: React.FC<UserCardProps> = ({ user }) => {
             <div className="p-4">
                 <div className="flex items-center gap-4">
                     <img
-                        src={user.avatarUrl}
+                        src={user.avatarUrl || defaultAvatar}
                         alt="avatar"
                         className="w-16 h-16 rounded-full object-cover border-2 border-gray-200"
                     />
