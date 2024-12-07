@@ -1,11 +1,13 @@
 import axios from "axios";
 import Cookie from "js-cookie";
 // import { BaseApi } from "./BaseApi";
-const BaseApi = "http://localhost:8081";
+// export const BaseApi = "http://localhost:8081";
+export const BaseApi = "https://destined-fly-rested.ngrok-free.app";
 export const axiosInstance = axios.create({
     baseURL: BaseApi,
     headers: {
         "Content-Type": "application/json",
+        "ngrok-skip-browser-warning": "69420"
     },
 });
 export const axiosInstanceAuth = axios.create({
@@ -14,6 +16,7 @@ export const axiosInstanceAuth = axios.create({
     headers: {
         "Content-Type": "application/json",
         Authorization: "Bearer " + Cookie.get("token"),
+        "ngrok-skip-browser-warning": "69420"
     },
 });
 
@@ -23,6 +26,7 @@ export const axiosInstanceFile = axios.create({
     headers: {
         "Content-Type": "multipart/form-data",
         Authorization: "Bearer " + Cookie.get("token"),
+        "ngrok-skip-browser-warning": "69420"
     },
 });
 
@@ -31,5 +35,6 @@ export const axiosInstanceLocation = axios.create({
     baseURL: "https://open.oapi.vn/location/",
     headers: {
         "Content-Type": "application/json",
+        "ngrok-skip-browser-warning": "69420"
     },
 });
