@@ -89,7 +89,7 @@ public class CommentController {
     }
 
     @DeleteMapping("/delete")
-    public ResponseEntity<?> deletePodcasts(@RequestBody List<String> commentIds) {
+    public ResponseEntity<?> deleteComments(@RequestBody List<String> commentIds) {
         try {
             UserEntity currentUser = userService.getUserByAuthentication();
 
