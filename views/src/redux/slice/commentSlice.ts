@@ -99,7 +99,7 @@ const commentsSlice = createSlice({
               parentComment.replies = [];
             }
             parentComment.replies = [...parentComment.replies, action.payload];
-            console.log("Updated parent comment:", parentComment); // Log to check updates
+            // console.log("Updated parent comment:", parentComment); // Log to check updates
           }
         } else {
           state.comments = [action.payload, ...state.comments];

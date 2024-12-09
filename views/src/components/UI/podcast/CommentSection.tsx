@@ -18,6 +18,7 @@ import { addNewComment, deleteCommentAction, fetchCommentReplies, fetchComments,
 import { AiOutlineLoading3Quarters } from "react-icons/ai";
 import ReportModal from "../../modals/report/ReportModal";
 import { ReportType } from "../../../models/Report";
+import ConfirmDeleteModal from "../../modals/utils/ConfirmDelete";
 
 interface CommentSectionProps {
   podcastId: string;
@@ -52,6 +53,9 @@ const CommentSection: React.FC<CommentSectionProps> = ({ podcastId, totalComment
   const { comments, loading, hasMore, page } = useSelector((state: RootState) => state.comments);
   const isAuthenticated = useSelector((state: RootState) => state.auth.isAuthenticated);
   const userRedux = useSelector((state: RootState) => state.auth.user);
+
+  const [isConfirmDeleteOpen, setIsConfirmDeleteOpen] = useState(false);
+  const [commentToDelete, setCommentToDelete] = useState<string | null>(null);
 
   const toast = useToast();
   const navigate = useNavigate();
@@ -114,6 +118,7 @@ const CommentSection: React.FC<CommentSectionProps> = ({ podcastId, totalComment
       );
 
       if (parentComment) {
+        console.log("Parent comment:", parentComment);
         parentCommentId = parentComment.id;
       }
 
@@ -232,12 +237,22 @@ const CommentSection: React.FC<CommentSectionProps> = ({ podcastId, totalComment
   }
 
   const handleDelete = async (commentId: string) => {
-    try {
-      dispatch(deleteCommentAction({ commentIds: [commentId] }));
-      toast.success("Comment deleted successfully");
-    } catch (error) {
-      console.error(`Failed to delete comment: ${commentId}`, error);
-      toast.error("Failed to delete comment");
+    setCommentToDelete(commentId);
+    setIsConfirmDeleteOpen(true);
+  };
+  
+  const confirmDelete = async () => {
+    if (commentToDelete) {
+      try {
+        dispatch(deleteCommentAction({ commentIds: [commentToDelete] }));
+        toast.success("Comment deleted successfully");
+      } catch (error) {
+        console.error(`Failed to delete comment: ${commentToDelete}`, error);
+        toast.error("Failed to delete comment");
+      } finally {
+        setIsConfirmDeleteOpen(false);
+        setCommentToDelete(null);
+      }
     }
   };
 
@@ -618,6 +633,8 @@ const CommentSection: React.FC<CommentSectionProps> = ({ podcastId, totalComment
                         if (e.key === "Enter" && e.ctrlKey) {
                           e.preventDefault();
                           handleReplySubmit(reply.id);
+                        } else if (e.key === "Enter") {
+                          e.preventDefault();
                         }
                       }}
                     />
@@ -717,6 +734,12 @@ const CommentSection: React.FC<CommentSectionProps> = ({ podcastId, totalComment
         onClose={() => toggleCommentReportModal(targetId!)}
         targetId={targetId!}
         reportType={ReportType.C}
+      />
+      {/* Confirm Delete Modal */}
+      <ConfirmDeleteModal
+        isOpen={isConfirmDeleteOpen}
+        onClose={() => setIsConfirmDeleteOpen(false)}
+        onConfirm={confirmDelete}
       />
     </div>
   );
