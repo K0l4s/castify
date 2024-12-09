@@ -118,6 +118,7 @@ const CommentSection: React.FC<CommentSectionProps> = ({ podcastId, totalComment
       );
 
       if (parentComment) {
+        console.log("Parent comment:", parentComment);
         parentCommentId = parentComment.id;
       }
 
@@ -632,6 +633,8 @@ const CommentSection: React.FC<CommentSectionProps> = ({ podcastId, totalComment
                         if (e.key === "Enter" && e.ctrlKey) {
                           e.preventDefault();
                           handleReplySubmit(reply.id);
+                        } else if (e.key === "Enter") {
+                          e.preventDefault();
                         }
                       }}
                     />
