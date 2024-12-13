@@ -22,4 +22,5 @@ public class OverviewModel {
     private long totalComments;
 //    private long totalViews;
     private long totalReportsAwait;
+    private long totalAccess;
 }

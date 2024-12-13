@@ -1,10 +1,7 @@
 package com.castify.backend.repository.template;
 
 import com.castify.backend.controller.UserActivityController;
-import com.castify.backend.entity.CommentEntity;
-import com.castify.backend.entity.PodcastEntity;
-import com.castify.backend.entity.ReportEntity;
-import com.castify.backend.entity.UserEntity;
+import com.castify.backend.entity.*;
 import com.castify.backend.enums.ReportStatus;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.MongoTemplate;
@@ -39,6 +36,7 @@ public class DashboardTemplate {
         long totalUsers = mongoTemplate.count(userQuery, UserEntity.class);
         statistics.put("totalUsers", totalUsers);
 
+
         // Lấy người dùng mới trong khoảng thời gian
         List<UserEntity> newUsers = mongoTemplate.find(userQuery, UserEntity.class);
         statistics.put("newUsers", newUsers);
@@ -60,6 +58,15 @@ public class DashboardTemplate {
         Query commentQuery = new Query(commentDateCriteria);
         long totalComments = mongoTemplate.count(commentQuery, CommentEntity.class);
         statistics.put("totalComments", totalComments);
+
+        Criteria trackingDateCriteria = new Criteria();
+        commentDateCriteria.andOperator(
+                Criteria.where("accessTime").gte(startDate),
+                Criteria.where("accessTime").lte(endDate)
+        );
+        Query trackingQuery = new Query(trackingDateCriteria);
+        long totalAccess = mongoTemplate.count(trackingQuery, VisitorEntity.class);
+        statistics.put("totalAccess", totalAccess);
 
         // Tổng số lượt thích trong khoảng thời gian
         long totalLikes = mongoTemplate.aggregate(

@@ -18,6 +18,7 @@ const AdminLadingPage = () => {
     totalLikes: 0,
     totalComments: 0,
     totalReportsAwait: 0,
+    totalAccess:0
   });
   const [prevDashboard, setPrevDashboard] = useState<DashboardModel>({
     newUsers: [],
@@ -27,6 +28,7 @@ const AdminLadingPage = () => {
     totalLikes: 0,
     totalComments: 0,
     totalReportsAwait: 0,
+    totalAccess:0
   });
   const formatLocalDateTime = (date: string): string => {
     const localDate = new Date(date);
@@ -110,7 +112,7 @@ const AdminLadingPage = () => {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6 mb-12">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-6 mb-12">
           {[
             {
               title: 'New Users',
@@ -154,6 +156,15 @@ const AdminLadingPage = () => {
               bgColor: 'bg-yellow-50 dark:bg-yellow-900/20',
               icon: 'fas fa-exclamation-circle',
               link: '/admin/report',
+            },
+            {
+              title: 'Access',
+              value: dashboard.totalAccess,
+              prevValue: prevDashboard.totalAccess,
+              color: 'text-pink-500 dark:text-pink-400',
+              bgColor: 'bg-pink-50 dark:bg-pink-900/20',
+              icon: 'fas fa-exclamation-circle',
+              link: null,
             },
           ].map((item, index) => {
             const diff = item.value - item.prevValue;
