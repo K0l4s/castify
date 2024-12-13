@@ -1,125 +1,215 @@
+<!--<!DOCTYPE html>-->
+<!--<html lang="en">-->
+<!--<head>-->
+<!--    <meta charset="UTF-8">-->
+<!--    <title>Blankcil Verification</title>-->
+<!--    <style type="text/css">-->
+<!--        body {-->
+<!--            font-family: 'Poppins', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;-->
+<!--            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);-->
+<!--            margin: 0;-->
+<!--            padding: 0;-->
+<!--            width: 100%;-->
+<!--            min-height: 100vh;-->
+<!--            -webkit-text-size-adjust: 100%;-->
+<!--            -ms-text-size-adjust: 100%;-->
+<!--        }-->
+<!--        .body-container {-->
+<!--            width: 100%;-->
+<!--            height: 100%;-->
+<!--            padding: 40px 0;-->
+<!--            text-align: center;-->
+<!--        }-->
+<!--        .content {-->
+<!--            width: 90%;-->
+<!--            max-width: 600px;-->
+<!--            background-color: rgba(255, 255, 255, 0.95);-->
+<!--            padding: 40px;-->
+<!--            border-radius: 15px;-->
+<!--            margin: 0 auto;-->
+<!--            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);-->
+<!--            backdrop-filter: blur(10px);-->
+<!--        }-->
+<!--        .header {-->
+<!--            font-size: 32px;-->
+<!--            margin-bottom: 30px;-->
+<!--            color: #2c3e50;-->
+<!--            font-weight: 600;-->
+<!--        }-->
+<!--        .verify-button {-->
+<!--            background: linear-gradient(45deg, #4CAF50, #45a049);-->
+<!--            color: white;-->
+<!--            padding: 16px 40px;-->
+<!--            text-align: center;-->
+<!--            text-decoration: none;-->
+<!--            display: inline-block;-->
+<!--            font-size: 18px;-->
+<!--            margin: 25px 0;-->
+<!--            cursor: pointer;-->
+<!--            border-radius: 50px;-->
+<!--            transition: all 0.3s ease;-->
+<!--            box-shadow: 0 4px 15px rgba(76, 175, 80, 0.3);-->
+<!--        }-->
+<!--        .verify-button:hover {-->
+<!--            transform: translateY(-2px);-->
+<!--            box-shadow: 0 6px 20px rgba(76, 175, 80, 0.4);-->
+<!--        }-->
+<!--        .verification-code {-->
+<!--            font-size: 24px;-->
+<!--            font-weight: 600;-->
+<!--            letter-spacing: 3px;-->
+<!--            margin: 25px 0;-->
+<!--            padding: 15px 30px;-->
+<!--            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);-->
+<!--            border-radius: 10px;-->
+<!--            display: inline-block;-->
+<!--            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.05);-->
+<!--            color: #2c3e50;-->
+<!--        }-->
+<!--        .logo {-->
+<!--            width: 180px;-->
+<!--            height: auto;-->
+<!--            margin-bottom: 20px;-->
+<!--            transition: transform 0.3s ease;-->
+<!--        }-->
+<!--        .logo:hover {-->
+<!--            transform: scale(1.05);-->
+<!--        }-->
+<!--        p {-->
+<!--            color: #5a6c7d;-->
+<!--            line-height: 1.6;-->
+<!--            font-size: 16px;-->
+<!--        }-->
+<!--    </style>-->
+<!--</head>-->
+<!--<body>-->
+<!--<table class="body-container" cellpadding="0" cellspacing="0">-->
+<!--    <tr>-->
+<!--        <td align="center">-->
+<!--            <table class="content" cellpadding="0" cellspacing="0">-->
+<!--                <tr>-->
+<!--                    <td align="center">-->
+<!--                        <img class="logo" src="https://res.cloudinary.com/dagreyo29/image/upload/v1733555509/logo_omr5eh.png" alt="Blankcil Logo">-->
+<!--                    </td>-->
+<!--                </tr>-->
+<!--                <tr>-->
+<!--                    <td align="center">-->
+<!--                        <h1 class="header">Welcome to Blankcil! 🎉</h1>-->
+<!--                    </td>-->
+<!--                </tr>-->
+<!--                <tr>-->
+<!--                    <td align="center">-->
+<!--                        <p>We're excited to have you on board! To get started, please verify your account using the verification code below or click the button:</p>-->
+<!--                    </td>-->
+<!--                </tr>-->
+<!--&lt;!&ndash;                <tr>&ndash;&gt;-->
+<!--&lt;!&ndash;                    <td align="center">&ndash;&gt;-->
+<!--&lt;!&ndash;                        <div class="verification-code" th:text="${verificationCode}">N/A</div>&ndash;&gt;-->
+<!--&lt;!&ndash;                    </td>&ndash;&gt;-->
+<!--&lt;!&ndash;                </tr>&ndash;&gt;-->
+<!--                <tr>-->
+<!--                    <td align="center">-->
+<!--                        <a class="verify-button" th:href="${verificationUrl}">Verify your account</a>-->
+<!--                    </td>-->
+<!--                </tr>-->
+<!--                <tr>-->
+<!--                    <td align="center">-->
+<!--                        <p style="margin-top: 30px; font-size: 14px; color: #8795a1;">Best regards,<br>The Blankcil Team</p>-->
+<!--                    </td>-->
+<!--                </tr>-->
+<!--            </table>-->
+<!--        </td>-->
+<!--    </tr>-->
+<!--</table>-->
+<!--</body>-->
+<!--</html>-->
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Blankcil Verification</title>
-    <style type="text/css">
-        body {
-            font-family: 'Poppins', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Welcome to Blankcil Podcast</title>
+    <style>
+        * {
             margin: 0;
             padding: 0;
-            width: 100%;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            color: #333;
+            display: flex;
+            justify-content: center;
+            align-items: center;
             min-height: 100vh;
-            -webkit-text-size-adjust: 100%;
-            -ms-text-size-adjust: 100%;
+            padding: 20px;
         }
-        .body-container {
-            width: 100%;
-            height: 100%;
-            padding: 40px 0;
+
+        .email-container {
             text-align: center;
-        }
-        .content {
-            width: 90%;
             max-width: 600px;
-            background-color: rgba(255, 255, 255, 0.95);
-            padding: 40px;
-            border-radius: 15px;
-            margin: 0 auto;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-            backdrop-filter: blur(10px);
-        }
-        .header {
-            font-size: 32px;
-            margin-bottom: 30px;
-            color: #2c3e50;
-            font-weight: 600;
-        }
-        .verify-button {
-            background: linear-gradient(45deg, #4CAF50, #45a049);
-            color: white;
-            padding: 16px 40px;
-            text-align: center;
-            text-decoration: none;
-            display: inline-block;
-            font-size: 18px;
-            margin: 25px 0;
-            cursor: pointer;
-            border-radius: 50px;
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 15px rgba(76, 175, 80, 0.3);
-        }
-        .verify-button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(76, 175, 80, 0.4);
-        }
-        .verification-code {
-            font-size: 24px;
-            font-weight: 600;
-            letter-spacing: 3px;
-            margin: 25px 0;
-            padding: 15px 30px;
-            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            width: 100%;
+            padding: 20px;
+            background-color: #ffffff;
             border-radius: 10px;
-            display: inline-block;
-            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.05);
-            color: #2c3e50;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
         }
-        .logo {
-            width: 180px;
-            height: auto;
+
+        .email-container img {
+            max-width: 150px;
             margin-bottom: 20px;
-            transition: transform 0.3s ease;
         }
-        .logo:hover {
-            transform: scale(1.05);
+
+        .email-container h1 {
+            font-size: 2.5rem;
+            margin-bottom: 15px;
+            color: #1e293b;
         }
-        p {
-            color: #5a6c7d;
+
+        .email-container p {
+            font-size: 1rem;
+            margin-bottom: 20px;
             line-height: 1.6;
-            font-size: 16px;
+        }
+
+        .email-container .cta-button {
+            display: inline-block;
+            padding: 10px 20px;
+            font-size: 1rem;
+            font-weight: bold;
+            color: #fff;
+            background-color: #1e293b;
+            border: none;
+            border-radius: 8px;
+            text-decoration: none;
+            cursor: pointer;
+            transition: background-color 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .email-container .cta-button:hover {
+            background-color: #64748b;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .email-container a {
+            color: #1e293b;
+            text-decoration: underline;
         }
     </style>
 </head>
 <body>
-<table class="body-container" cellpadding="0" cellspacing="0">
-    <tr>
-        <td align="center">
-            <table class="content" cellpadding="0" cellspacing="0">
-                <tr>
-                    <td align="center">
-                        <img class="logo" src="https://res.cloudinary.com/dagreyo29/image/upload/v1733555509/logo_omr5eh.png" alt="Blankcil Logo">
-                    </td>
-                </tr>
-                <tr>
-                    <td align="center">
-                        <h1 class="header">Welcome to Blankcil! 🎉</h1>
-                    </td>
-                </tr>
-                <tr>
-                    <td align="center">
-                        <p>We're excited to have you on board! To get started, please verify your account using the verification code below or click the button:</p>
-                    </td>
-                </tr>
-<!--                <tr>-->
-<!--                    <td align="center">-->
-<!--                        <div class="verification-code" th:text="${verificationCode}">N/A</div>-->
-<!--                    </td>-->
-<!--                </tr>-->
-                <tr>
-                    <td align="center">
-                        <a class="verify-button" th:href="${verificationUrl}">Verify your account</a>
-                    </td>
-                </tr>
-                <tr>
-                    <td align="center">
-                        <p style="margin-top: 30px; font-size: 14px; color: #8795a1;">Best regards,<br>The Blankcil Team</p>
-                    </td>
-                </tr>
-            </table>
-        </td>
-    </tr>
-</table>
+<div class="email-container">
+    <img src="https://res.cloudinary.com/dagreyo29/image/upload/v1733555509/logo_omr5eh.png" alt="Blankcil Logo" />
+    <h1>Welcome to Blankcil</h1>
+    <p>Thank you for joining Blankcil! We are thrilled to have you with us. Explore captivating podcasts and engaging content tailored just for you.</p>
+<!--    <a href=${verificationUrl} class="cta-button">Verify Your Email</a>-->
+<!--    <div class="verification-code" th:text="${verificationCode}">N/A</div>&ndash;&gt;&ndash;&gt;-->
+    <a class="cta-button" th:href="${verificationUrl}">Verify your account</a>
+    <p>If you have any questions, feel free to <a href="https://blankcil.com/support">contact our support team</a>.</p>
+    <p>Visit us at <a href="https://blankcil.com">https://blankcil.com</a> to learn more!</p>
+</div>
 </body>
 </html>
