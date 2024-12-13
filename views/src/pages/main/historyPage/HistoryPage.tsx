@@ -118,19 +118,55 @@ const History: React.FC = () => {
   }
 
   return (
-    <div className="container mx-auto p-4 flex rounded-lg">
-      <div className="w-3/4 pr-4">
-        <h1 className="text-3xl font-bold mb-4 text-black dark:text-white">Viewed History</h1>
+    <div className="container mx-auto p-4 flex flex-col lg:flex-row rounded-lg">
+      <div className="w-full lg:w-1/4 lg:pl-4 mb-6 lg:mb-0 order-first lg:order-last">
+        <div className="rounded-lg p-3 md:p-4 mb-4 bg-white/5 backdrop-blur-sm">
+          <h2 className="text-lg md:text-xl text-black dark:text-white font-semibold mb-2">Search History</h2>
+          <div className="relative">
+            <input
+              type="text"
+              value={searchTerm}
+              onChange={handleInputChange}
+              onKeyDown={handleSearch}
+              className="w-full p-2 text-sm md:text-base border border-gray-300 rounded-lg bg-white dark:bg-gray-800"
+              placeholder="Search by podcast title"
+            />
+            {searchTerm && (
+              <button
+                onClick={clearSearch}
+                className="absolute right-2 top-2 text-gray-500 dark:text-gray-300"
+              >
+                <IoCloseOutline size={20} className="md:w-6 md:h-6" />
+              </button>
+            )}
+          </div>
+          <CustomButton
+            text="Clear all viewed history"
+            icon={<FaRegTrashCan className="w-4 h-4 md:w-5 md:h-5" />}
+            variant="ghost"
+            onClick={clearHistory}
+            className="mt-2 w-full text-sm md:text-base text-gray-900 dark:text-white"
+          />
+          <CustomButton
+            text="Manage your comment"
+            icon={<FiSettings className="w-4 h-4 md:w-5 md:h-5" />}
+            variant="ghost"
+            className="mt-2 w-full text-sm md:text-base text-gray-900 dark:text-white"
+          />
+        </div>
+      </div>
+      <div className="w-full lg:w-3/4 lg:pr-4">
+        <h1 className="text-2xl md:text-3xl font-bold mb-4 text-black dark:text-white">Viewed History</h1>
         {activities.length === 0 ? (
-          <div className="text-center mt-4 text-gray-500 font-medium text-lg">No history available</div>
+          <div className="text-center mt-4 text-gray-500 font-medium text-base md:text-lg">No history available</div>
         ) : (
           <div>
             {filteredActivities.map((activity, index) => (
               <React.Fragment key={activity.id}>
                 {(index === 0 || activity.date !== filteredActivities[index - 1].date) && (
-                  <h2 className="text-2xl font-semibold mb-2 mt-8 text-black dark:text-white">{activity.date}</h2>
+                  <h2 className="text-xl md:text-2xl font-semibold mb-2 mt-6 md:mt-8 text-black dark:text-white">{activity.date}</h2>
                 )}
-                <ul className="space-y-4 my-4">
+                <ul className="space-y-3 md:space-y-4 my-3 md:my-4">
                   <li>
                     <PodcastHistory
                       podcast={activity.podcast}
@@ -146,49 +182,13 @@ const History: React.FC = () => {
           <div className="flex justify-center mt-4">
             <CustomButton
               onClick={loadMore}
-              className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600"
+              className="bg-blue-500 text-white px-3 md:px-4 py-2 text-sm md:text-base rounded-lg hover:bg-blue-600"
               disabled={loading}
             >
               {loading ? 'Loading...' : 'Load More'}
             </CustomButton>
           </div>
         )}
-      </div>
-      <div className="w-1/4 pl-4 mt-4">
-        <div className="rounded-lg p-4 mb-4">
-          <h2 className="text-xl text-black dark:text-white font-semibold mb-2">Search History</h2>
-          <div className="relative">
-            <input
-              type="text"
-              value={searchTerm}
-              onChange={handleInputChange}
-              onKeyDown={handleSearch}
-              className="w-full p-2 border border-gray-300 rounded-lg bg-white dark:bg-gray-800"
-              placeholder="Search by podcast title"
-            />
-            {searchTerm && (
-              <button
-                onClick={clearSearch}
-                className="absolute right-2 top-2 text-gray-500 dark:text-gray-300"
-              >
-                <IoCloseOutline size={24} />
-              </button>
-            )}
-          </div>
-          <CustomButton
-            text="Clear all viewed history"
-            icon={<FaRegTrashCan />}
-            variant="ghost"
-            onClick={clearHistory}
-            className="mt-2 w-full text-gray-900 dark:text-white"
-          />
-          <CustomButton
-            text="Manage your comment"
-            icon={<FiSettings />}
-            variant="ghost"
-            className="mt-2 w-full text-gray-900 dark:text-white"
-          />
-        </div>
       </div>
     </div>
   );

@@ -1,5 +1,6 @@
 import React, { useRef } from 'react';
 import { IoChevronBackOutline, IoChevronForwardOutline } from 'react-icons/io5';
+import Tooltip from '../../../components/UI/custom/Tooltip';
 
 interface TabNavigationProps {
   selectedTab: string;
@@ -24,26 +25,42 @@ const TabNavigation: React.FC<TabNavigationProps> = ({ selectedTab, onSelectTab,
   };
 
   return (
-    <div className="flex items-center mb-4 w-full">
-      <button onClick={handlePrevClick} className="px-2 py-1 bg-gray-600 hover:bg-gray-700 dark:bg-gray-600 dark:hover:bg-gray-700 transition-colors h-10 rounded-full">
-        <IoChevronBackOutline />
-      </button>
-      <div ref={containerRef} className="flex overflow-x-auto w-full scrollbar-hide">
+    <div className="flex items-center mb-6 w-full bg-white/40 dark:bg-gray-800/40 backdrop-blur-md p-4 rounded-3xl  border border-gray-200/30 dark:border-gray-700/30">
+      <Tooltip text="Scroll left" position="left">
+        <button
+          onClick={handlePrevClick}
+          className="p-3 bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700 text-gray-800 dark:text-white rounded-2xl shadow-lg hover:shadow-xl transform transition-all duration-300 mr-4 group"
+        >
+          <IoChevronBackOutline className="w-5 h-5 group-hover:animate-pulse" />
+        </button>
+      </Tooltip>
+
+      <div
+        ref={containerRef}
+        className="flex overflow-x-auto w-full scrollbar-hide space-x-3 px-3"
+      >
         {tabs.map((tab) => (
           <button
             key={tab}
-            className={`px-4 py-2 mx-1 h-10 text-sm rounded-full whitespace-nowrap ${
-              selectedTab === tab ? 'bg-blue-600 text-white' : 'bg-gray-500 hover:bg-gray-600 transition-colors text-white'
-            }`}
+            className={`px-5 py-3 text-sm font-medium rounded-2xl whitespace-nowrap transform transition-all duration-300 ${selectedTab === tab
+                ? 'bg-blue-600 text-white shadow-xl hover:bg-blue-700 border border-white/10'
+                : 'bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700 text-gray-800 dark:text-gray-200 hover:text-gray-900 dark:hover:text-white shadow-lg border border-gray-200/30 dark:border-gray-700/30'
+              }`}
             onClick={() => onSelectTab(tab)}
           >
             {tab}
           </button>
         ))}
       </div>
-      <button onClick={handleNextClick} className="px-2 py-1 bg-gray-600 hover:bg-gray-700 dark:bg-gray-600 dark:hover:bg-gray-700 transition-colors h-10 rounded-full">
-        <IoChevronForwardOutline />
-      </button>
+
+      <Tooltip text="Scroll right" position="right">
+        <button
+          onClick={handleNextClick}
+          className="p-3 bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700 text-gray-800 dark:text-white rounded-2xl shadow-lg hover:shadow-xl transform transition-all duration-300 ml-4 group"
+        >
+          <IoChevronForwardOutline className="w-5 h-5 group-hover:animate-pulse" />
+        </button>
+      </Tooltip>
     </div>
   );
 };

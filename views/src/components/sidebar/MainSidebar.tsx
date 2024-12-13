@@ -31,12 +31,12 @@ const MainSidebar = () => {
       {/* Sidebar */}
       <aside
         id="logo-sidebar"
-        className={`fixed top-0 left-0 h-screen text-black transition-all duration-300 ease-in-out pt-20
+        className={`fixed top-0 left-0 h-screen text-black transition-all duration-300 ease-in-out
     ${isOpenSideBar ? 'w-60 duration-300 ease-in-out' : 'w-[100px] duration-300 ease-in-out'}
     bg-white border-r border-gray-200 dark:bg-gray-800 dark:border-gray-700 dark:text-white`}
         aria-label="Sidebar"
       >
-        <div className="h-full px-3 pb-4 overflow-y-auto bg-white dark:bg-gray-800">
+        <div className="h-full px-3 pb-4 overflow-y-auto bg-white dark:bg-gray-800 pt-20">
           <ul className="space-y-1 px-2 flex-1">
             <li>
               <Link to="/" className={getLinkClass("/")}>
