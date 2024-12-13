@@ -1,21 +1,23 @@
 package com.castify.backend.entity;
 
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.time.LocalDateTime;
 
+@Entity
 @Data
-@AllArgsConstructor
+@Document(collection = "visitor")
 @NoArgsConstructor
-@Document(collection = "searchHistory")
-public class SearchHistoryEntity {
+@AllArgsConstructor
+public class VisitorEntity {
     @Id
     private String id;
-    private String userId;
-    private String keyword;
-    private LocalDateTime timeStamp = LocalDateTime.now();
+    private String userAgent;
+    private String url;
+    private LocalDateTime accessTime = LocalDateTime.now();
 }

@@ -18,6 +18,7 @@ const AdminLadingPage = () => {
     totalLikes: 0,
     totalComments: 0,
     totalReportsAwait: 0,
+    totalAccess:0
   });
   const [prevDashboard, setPrevDashboard] = useState<DashboardModel>({
     newUsers: [],
@@ -27,6 +28,7 @@ const AdminLadingPage = () => {
     totalLikes: 0,
     totalComments: 0,
     totalReportsAwait: 0,
+    totalAccess:0
   });
   const formatLocalDateTime = (date: string): string => {
     const localDate = new Date(date);
@@ -62,31 +64,48 @@ const AdminLadingPage = () => {
     const endDate = new Date();
     const prevStartDate = new Date();
     const prevEndDate = new Date();
+
     if (type === 'day') {
       startDate.setHours(0, 0, 0, 0);
       endDate.setHours(23, 59, 59, 999);
-      // fetch Dashboard prev day
+      
       prevStartDate.setDate(prevStartDate.getDate() - 1);
-      prevEndDate.setDate(prevEndDate.getDate() - 1);
+      prevStartDate.setHours(0, 0, 0, 0);
+      prevEndDate.setDate(prevEndDate.getDate() - 1); 
+      prevEndDate.setHours(23, 59, 59, 999);
+
     } else if (type === 'month') {
       startDate.setDate(1);
-      endDate.setMonth(startDate.getMonth() + 1);
+      startDate.setHours(0, 0, 0, 0);
+      endDate.setMonth(endDate.getMonth() + 1);
       endDate.setDate(0);
-      // fetchPrevMonth
+      endDate.setHours(23, 59, 59, 999);
+
       prevStartDate.setMonth(prevStartDate.getMonth() - 1);
       prevStartDate.setDate(1);
-      prevEndDate.setMonth(prevEndDate.getMonth() + 1);
+      prevStartDate.setHours(0, 0, 0, 0);
+      prevEndDate.setMonth(prevEndDate.getMonth());
       prevEndDate.setDate(0);
+      prevEndDate.setHours(23, 59, 59, 999);
+
     } else {
       startDate.setMonth(0);
       startDate.setDate(1);
+      startDate.setHours(0, 0, 0, 0);
       endDate.setMonth(11);
       endDate.setDate(31);
-      // fetchPrevYear
+      endDate.setHours(23, 59, 59, 999);
+
       prevStartDate.setFullYear(prevStartDate.getFullYear() - 1);
       prevStartDate.setMonth(0);
-
+      prevStartDate.setDate(1);
+      prevStartDate.setHours(0, 0, 0, 0);
+      prevEndDate.setFullYear(prevEndDate.getFullYear() - 1);
+      prevEndDate.setMonth(11);
+      prevEndDate.setDate(31);
+      prevEndDate.setHours(23, 59, 59, 999);
     }
+
     fetchDashboard(startDate.toISOString(), endDate.toISOString());
     fetchPrevDashboard(prevStartDate.toISOString(), prevEndDate.toISOString());
   }, [type]);
@@ -110,7 +129,7 @@ const AdminLadingPage = () => {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6 mb-12">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-6 mb-12">
           {[
             {
               title: 'New Users',
@@ -154,6 +173,15 @@ const AdminLadingPage = () => {
               bgColor: 'bg-yellow-50 dark:bg-yellow-900/20',
               icon: 'fas fa-exclamation-circle',
               link: '/admin/report',
+            },
+            {
+              title: 'Access',
+              value: dashboard.totalAccess,
+              prevValue: prevDashboard.totalAccess,
+              color: 'text-pink-500 dark:text-pink-400',
+              bgColor: 'bg-pink-50 dark:bg-pink-900/20',
+              icon: 'fas fa-exclamation-circle',
+              link: null,
             },
           ].map((item, index) => {
             const diff = item.value - item.prevValue;

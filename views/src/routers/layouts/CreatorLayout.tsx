@@ -3,6 +3,7 @@ import CreatorHeader from "../../components/header/CreatorHeader"
 import CreatorSidebar from "../../components/sidebar/CreatorSidebar"
 
 const CreatorLayout = () => {
+
   return (
     <>
       <CreatorHeader />

@@ -1,12 +1,18 @@
-import { Outlet } from "react-router-dom"
+import { Outlet, useLocation } from "react-router-dom"
 import MainHeader from "../../components/header/MainHeader"
 import MainSidebar from "../../components/sidebar/MainSidebar"
 import { useSelector } from "react-redux"
 import { RootState } from "../../redux/store"
+import { useEffect } from "react"
+import { trackService } from "../../services/TrackingService"
 
 const MainLayout = () => {
   const isOpenSideBar = useSelector((state: RootState) => state.sidebar.isOpen)
+  const location = useLocation();
 
+  useEffect(() => {
+    trackService.trackVisitor(location.pathname);
+  }, [location.pathname]); // Gửi request mỗi khi URL thay đổi
   return (
     <>
       <MainHeader />
