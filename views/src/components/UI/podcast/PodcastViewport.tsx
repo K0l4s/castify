@@ -22,6 +22,7 @@ import { ReportType } from "../../../models/Report";
 import ShareModal from "../../modals/podcast/ShareModal";
 import { formatViewsWithSeparators } from "../../../utils/formatViews";
 import { MdLockPerson } from "react-icons/md";
+import CustomPodcastVideo from "./CustomPodcastVideo";
 
 const PodcastViewport: React.FC = () => {
   const location = useLocation();
@@ -206,10 +207,11 @@ const PodcastViewport: React.FC = () => {
   return (
     <div className="flex flex-col lg:flex-row p-4 lg:p-8 bg-white text-black dark:bg-gray-900 dark:text-white">
       <div className="flex-1 lg:mr-8">
-        <video ref={videoRef} autoPlay className="w-full mb-4 rounded-lg" controls poster={podcast.thumbnailUrl || "/TEST.png"}>
+        {/* <video ref={videoRef} autoPlay className="w-full mb-4 rounded-lg" controls poster={podcast.thumbnailUrl || "/TEST.png"}>
           <source src={podcast.videoUrl} type="video/mp4" />
           Your browser does not support the video tag.
-        </video>
+        </video> */}
+        <CustomPodcastVideo videoRef={videoRef} videoSrc={podcast.videoUrl} posterSrc={podcast.thumbnailUrl || "/TEST.png"}/>
         {!podcast.active && (
           <div>
             <span className="font-medium py-2 px-4 rounded-full bg-gray-800 dark:bg-gray-700 text-white">
