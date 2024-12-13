@@ -252,6 +252,14 @@ public class CommentServiceImpl implements ICommentService {
                 }
             }
 
+            // Nếu comment là con, xóa tham chiếu trong cha
+            if (comment.getParentId() != null) {
+                CommentEntity parentComment = commentRepository.findById(comment.getParentId())
+                        .orElseThrow(() -> new RuntimeException("Parent comment not found."));
+                parentComment.getReplies().removeIf(reply -> reply.getId().equals(comment.getId()));
+                commentRepository.save(parentComment);
+            }
+
             // Xóa likes của comment
             if (comment.getLikes() != null && !comment.getLikes().isEmpty()) {
                 commentLikeRepository.deleteAll(comment.getLikes());
