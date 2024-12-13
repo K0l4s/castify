@@ -60,7 +60,7 @@ public class DashboardTemplate {
         statistics.put("totalComments", totalComments);
 
         Criteria trackingDateCriteria = new Criteria();
-        commentDateCriteria.andOperator(
+        trackingDateCriteria.andOperator(
                 Criteria.where("accessTime").gte(startDate),
                 Criteria.where("accessTime").lte(endDate)
         );
