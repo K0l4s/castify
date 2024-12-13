@@ -52,7 +52,12 @@ public class DashboardTemplate {
         statistics.put("totalPodcasts", totalPodcasts);
 
         // Đếm tổng số comment trong khoảng thời gian
-        Query commentQuery = new Query(dateCriteria);
+        Criteria commentDateCriteria = new Criteria();
+        commentDateCriteria.andOperator(
+                Criteria.where("timestamp").gte(startDate),
+                Criteria.where("timestamp").lte(endDate)
+        );
+        Query commentQuery = new Query(commentDateCriteria);
         long totalComments = mongoTemplate.count(commentQuery, CommentEntity.class);
         statistics.put("totalComments", totalComments);
 
