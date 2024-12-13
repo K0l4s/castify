@@ -67,10 +67,11 @@ const Router = () => {
                     <Route path='/feed/history' element={<RequireAuth><HistoryPage /></RequireAuth>} />
                     <Route path='/watch' element={<PodcastViewport />} />
                     <Route path='/search' element={<SearchPage />} />
-                </Route>
-                <Route element={<ProfileLayout />}>
                     <Route path='/profile' element={<ProfilePage />} />
                     <Route path='/profile/:username' element={<ProfilePage />} />
+                </Route>
+                <Route element={<ProfileLayout />}>
+                    
                     {/* <Route path='/setting' element={<SettingPage />} /> */}
                 </Route>
                 <Route path='*' element={<NotFoundPage />} />
