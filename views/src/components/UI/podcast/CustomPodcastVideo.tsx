@@ -126,11 +126,13 @@ const CustomPodcastVideo = ({ videoSrc, posterSrc, videoRef }: CustomPodcastVide
                     controls={false}
                     onTimeUpdate={handleTimeUpdate}
                     onLoadedMetadata={handleLoadedMetadata}
-                    onClick={handlePlayPause}
+                    // onClick={handlePlayPause}
                 />
 
                 {/* Overlay gradient */}
-                <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                <div
+                onClick={handlePlayPause}
+                 className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
 
                 {/* Time display */}
                 <div className={`absolute right-4 bg-black/70 backdrop-blur-sm text-white px-3 py-1.5 text-sm rounded-full shadow-lg transition-all duration-300 bottom-4`}>
