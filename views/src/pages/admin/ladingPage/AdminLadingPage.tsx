@@ -6,6 +6,12 @@ import { BasicUser } from "../../../models/User";
 import CustomButton from "../../../components/UI/custom/CustomButton";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "../../../context/ToastProvider";
+import { BsPeopleFill } from "react-icons/bs";
+import { PiGooglePodcastsLogoBold } from "react-icons/pi";
+import { FcLike } from "react-icons/fc";
+import { FaRegCommentDots } from "react-icons/fa";
+import { GoReport } from "react-icons/go";
+import { MdCallMissedOutgoing } from "react-icons/md";
 
 const AdminLadingPage = () => {
   const navigate = useNavigate();
@@ -58,7 +64,7 @@ const AdminLadingPage = () => {
   };
 
 
-  const [type, setType] = useState('month');
+  const [type, setType] = useState('day');
   useEffect(() => {
     const startDate = new Date();
     const endDate = new Date();
@@ -137,7 +143,7 @@ const AdminLadingPage = () => {
               prevValue: prevDashboard.totalUsers,
               color: 'text-blue-500 dark:text-blue-400',
               bgColor: 'bg-blue-50 dark:bg-blue-900/20',
-              icon: 'fas fa-users',
+              icon: <BsPeopleFill/> ,
               link: '/admin/user',
             },
             {
@@ -146,7 +152,7 @@ const AdminLadingPage = () => {
               prevValue: prevDashboard.totalPodcasts,
               color: 'text-green-500 dark:text-green-400',
               bgColor: 'bg-green-50 dark:bg-green-900/20',
-              icon: 'fas fa-podcast',
+              icon: <PiGooglePodcastsLogoBold/>,
               link: null,
             },
             {
@@ -155,7 +161,7 @@ const AdminLadingPage = () => {
               prevValue: prevDashboard.totalLikes,
               color: 'text-red-500 dark:text-red-400',
               bgColor: 'bg-red-50 dark:bg-red-900/20',
-              icon: 'fas fa-thumbs-up',
+              icon: <FcLike /> ,
             },
             {
               title: 'Total Comments',
@@ -163,7 +169,7 @@ const AdminLadingPage = () => {
               prevValue: prevDashboard.totalComments,
               color: 'text-purple-500 dark:text-purple-400',
               bgColor: 'bg-purple-50 dark:bg-purple-900/20',
-              icon: 'fas fa-comments',
+              icon: <FaRegCommentDots/> ,
             },
             {
               title: 'Reports Await',
@@ -171,7 +177,7 @@ const AdminLadingPage = () => {
               prevValue: prevDashboard.totalReportsAwait,
               color: 'text-yellow-500 dark:text-yellow-400',
               bgColor: 'bg-yellow-50 dark:bg-yellow-900/20',
-              icon: 'fas fa-exclamation-circle',
+              icon: <GoReport/> ,
               link: '/admin/report',
             },
             {
@@ -180,7 +186,7 @@ const AdminLadingPage = () => {
               prevValue: prevDashboard.totalAccess,
               color: 'text-pink-500 dark:text-pink-400',
               bgColor: 'bg-pink-50 dark:bg-pink-900/20',
-              icon: 'fas fa-exclamation-circle',
+              icon: <MdCallMissedOutgoing /> ,
               link: null,
             },
           ].map((item, index) => {
@@ -195,7 +201,8 @@ const AdminLadingPage = () => {
               >
                 <div className="flex justify-between items-start">
                   <div className={`${item.color} p-3 rounded-xl bg-white/80 dark:bg-gray-800/80 shadow-md`}>
-                    <i className={`${item.icon} text-2xl`}></i>
+                    {/* <i className={`${item.icon} text-2xl`}></i> */}
+                    {item.icon}
                   </div>
                   <span className={`flex items-center gap-1 text-sm font-medium px-2 py-1 rounded-lg
                     ${isPositive ? 'text-green-700 bg-green-100 dark:text-green-400 dark:bg-green-900/40' : 
@@ -222,18 +229,26 @@ const AdminLadingPage = () => {
                 <p className="text-gray-500 dark:text-gray-400 text-center py-4">No new users</p>
               ) : (
                 dashboard.newUsers.map((user: BasicUser) => (
-                  <div key={user.id} 
-                    className="flex items-center p-4 hover:bg-gray-50 dark:hover:bg-gray-700 rounded-xl transition-colors duration-200 cursor-pointer"
+                  <div key={user.id}
+                    className="flex items-center p-4 hover:bg-gray-50 dark:hover:bg-gray-700 rounded-xl transition-all duration-300 cursor-pointer transform hover:scale-102 hover:shadow-lg"
                     onClick={() => window.open(`/profile/${user.username}`, "_blank")}
                   >
-                    <img
-                      src={user.avatarUrl}
-                      alt={user.fullname}
-                      className="w-12 h-12 rounded-full object-cover shadow-md"
-                    />
-                    <div className="ml-4">
-                      <p className="font-semibold text-gray-800 dark:text-white">{user.fullname}</p>
-                      <p className="text-sm text-gray-500 dark:text-gray-400">@{user.username}</p>
+                    <div className="relative">
+                      <img
+                        src={user.avatarUrl}
+                        alt={user.fullname}
+                        className="w-12 h-12 rounded-full object-cover shadow-md ring-2 ring-offset-2 ring-blue-500/50 hover:ring-blue-500"
+                      />
+                      <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-green-500 rounded-full border-2 border-white dark:border-gray-800"></div>
+                    </div>
+                    <div className="ml-4 flex-1">
+                      <p className="font-semibold text-gray-800 dark:text-white hover:text-blue-500 dark:hover:text-blue-400 transition-colors">{user.fullname}</p>
+                      <p className="text-sm text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300">@{user.username}</p>
+                    </div>
+                    <div className="text-gray-400 hover:text-blue-500 dark:text-gray-500 dark:hover:text-blue-400">
+                      <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                        <path fillRule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clipRule="evenodd" />
+                      </svg>
                     </div>
                   </div>
                 ))
@@ -252,29 +267,28 @@ const AdminLadingPage = () => {
                     className="group hover:bg-gray-50 dark:hover:bg-gray-700 p-4 rounded-xl transition-colors duration-200 cursor-pointer"
                     onClick={() => window.open(`/watch?pid=${podcast.id}`, "_blank")}
                   >
-                    <div className="flex items-center space-x-4">
+                    <div className="flex items-center space-x-6 p-2">
                       {podcast.thumbnailUrl ? (
                         <img
                           src={podcast.thumbnailUrl}
                           alt={podcast.title}
-                          className="w-20 h-20 rounded-xl object-cover shadow-md group-hover:shadow-lg transition-shadow duration-200"
+                          className="w-24 h-24 rounded-2xl object-cover shadow-lg group-hover:shadow-xl transform group-hover:scale-105 transition-all duration-300"
                         />
                       ) : (
-                        <div className="w-20 h-20 bg-gray-200 dark:bg-gray-700 rounded-xl animate-pulse"></div>
+                        <div className="w-24 h-24 bg-gradient-to-br from-gray-200 to-gray-300 dark:from-gray-700 dark:to-gray-800 rounded-2xl animate-pulse"></div>
                       )}
-                      <div>
-                        <h3 className="font-semibold text-gray-800 dark:text-white group-hover:text-blue-500 dark:group-hover:text-blue-400 transition-colors duration-200">
+                      <div className="flex-1">
+                        <h3 className="font-bold text-lg text-gray-800 dark:text-white group-hover:text-blue-500 dark:group-hover:text-blue-400 transition-colors duration-200 line-clamp-2">
                           {podcast.title}
                         </h3>
-                        <div className="flex items-center mt-2 text-sm text-gray-500 dark:text-gray-400">
-                          <span className="flex items-center">
-                            <i className="fas fa-user mr-2"></i>
-                            {podcast.username}
+                        <div className="flex items-center mt-3 text-sm text-gray-600 dark:text-gray-300 space-x-4">
+                          <span className="flex items-center bg-gray-100 dark:bg-gray-700 px-3 py-1 rounded-full">
+                            <img src={podcast.user.avatarUrl} alt={podcast.user.username} className="w-4 h-4 rounded-full mr-2" />
+                            {podcast.user.username}
                           </span>
-                          <span className="mx-2">•</span>
-                          <span className="flex items-center">
-                            <i className="fas fa-eye mr-2"></i>
-                            {podcast.views} views
+                          <span className="flex items-center bg-gray-100 dark:bg-gray-700 px-3 py-1 rounded-full">
+                            <i className="fas fa-eye mr-2 text-green-500"></i>
+                            {podcast.views.toLocaleString()} views
                           </span>
                         </div>
                       </div>
