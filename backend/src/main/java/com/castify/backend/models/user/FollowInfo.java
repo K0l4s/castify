@@ -1,6 +1,15 @@
-package com.castify.backend.entity;
+package com.castify.backend.models.user;
 
-public class FollowEntity {
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+import java.time.LocalDateTime;
+
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+public class FollowInfo {
     private String userId;
-    private String timeStamp;
+    private LocalDateTime timeStamp = LocalDateTime.now();
 }

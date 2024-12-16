@@ -32,11 +32,11 @@ public class DashboardTemplate {
         );
 
         // Đếm tổng số người dùng trong khoảng thời gian
-        Query userQuery = new Query(dateCriteria);
-        long totalUsers = mongoTemplate.count(userQuery, UserEntity.class);
+
+        long totalUsers = mongoTemplate.count(new Query(dateCriteria), UserEntity.class);
         statistics.put("totalUsers", totalUsers);
 
-
+        Query userQuery = new Query(dateCriteria).limit(10);
         // Lấy người dùng mới trong khoảng thời gian
         List<UserEntity> newUsers = mongoTemplate.find(userQuery, UserEntity.class);
         statistics.put("newUsers", newUsers);
@@ -44,9 +44,8 @@ public class DashboardTemplate {
         // Lấy podcast mới trong khoảng thời gian
         List<PodcastEntity> newPodcasts = mongoTemplate.find(userQuery, PodcastEntity.class);
         statistics.put("newPodcasts", newPodcasts);
-
         // Đếm tổng số podcast trong khoảng thời gian
-        long totalPodcasts = mongoTemplate.count(userQuery, PodcastEntity.class);
+        long totalPodcasts = mongoTemplate.count(new Query(dateCriteria), PodcastEntity.class);
         statistics.put("totalPodcasts", totalPodcasts);
 
         // Đếm tổng số comment trong khoảng thời gian

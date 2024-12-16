@@ -1,5 +1,6 @@
 package com.castify.backend.repository;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -26,9 +27,14 @@ public interface UserRepository extends MongoRepository<UserEntity, String> {
 
     UserEntity findUserEntityByUsername(String username);
 
-    @Query("{ 'following': ?0 }")
+    @Query("{ 'following.userId': ?0 }")
     List<UserEntity> findUsersFollowers(String userId);
-    @Query("{ 'following': ?0 }")
+
+    @Query("{ 'following.userId': ?0, 'following.timeStamp': { $gte: ?1, $lte: ?2 } }")
+    List<UserEntity> findUsersFollowersBetween(String userId, LocalDateTime start, LocalDateTime end);
+
+
+    @Query("{ 'following.userId': ?0 }")
     Page<UserEntity> findFollowersList(String userId,Pageable pageable);
     @Query("{'$or': [" +
             "{'firstName': {'$regex': ?0, '$options': 'i'}}," + // Tìm kiếm trong firstName

@@ -1,6 +1,7 @@
 package com.castify.backend.entity;
 
 import com.castify.backend.enums.Role;
+import com.castify.backend.models.user.FollowInfo;
 import jakarta.validation.constraints.NotNull;
 import org.springframework.data.annotation.Id; // Sửa dòng này
 import lombok.AllArgsConstructor;
@@ -53,7 +54,7 @@ public class UserEntity implements UserDetails {
     private List<String> badgesId;
 //    @Enumerated(EnumType.STRING)
     private Role role;
-    private List<String> following = new ArrayList<>();
+    private List<FollowInfo> following = new ArrayList<>();
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
@@ -104,14 +105,23 @@ public class UserEntity implements UserDetails {
 //        }
         return ages;
     }
+    public void addFollowing(String targetId) {
+        if (!isFollow(targetId)) {
+            following.add(new FollowInfo(targetId, LocalDateTime.now()));
+        }
+    }
+    public void removeFollowing(String targetId) {
+        following.removeIf(f -> f.getUserId().equals(targetId));
+    }
 
     public int getTotalFollowing(){
         return following.size();
     }
 
-    public boolean isFollow(String targetId){
-        return following.contains(targetId);
+    public boolean isFollow(String targetId) {
+        return following.stream().anyMatch(f -> f.getUserId().equals(targetId));
     }
+
 
     public String getAddress() {
         String address = "";

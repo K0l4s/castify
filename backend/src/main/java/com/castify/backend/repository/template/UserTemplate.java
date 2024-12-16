@@ -1,6 +1,7 @@
 package com.castify.backend.repository.template;
 
 import com.castify.backend.entity.UserEntity;
+import com.castify.backend.models.user.FollowInfo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.*;
 import org.springframework.data.mongodb.core.MongoTemplate;
@@ -64,9 +65,18 @@ public class UserTemplate {
         // Áp dụng phân trang và sắp xếp (nếu cần)
         query.with(pageable);
 
-        // Thực thi truy vấn và lấy kết quả
+//        // Thực thi truy vấn và lấy kết quả
+//        List<UserEntity> users = mongoTemplate.find(query, UserEntity.class);
+//        Set<String> followingSet = new HashSet<>(currentUser.getFollowing());
+        // Lấy danh sách ID của following từ FollowingInfo
+        Set<String> followingSet = currentUser.getFollowing()
+                .stream()
+                .map(FollowInfo::getUserId) // Lấy trường `id` từ từng FollowingInfo
+                .collect(Collectors.toSet());
+
+// Thực thi truy vấn và lấy kết quả
         List<UserEntity> users = mongoTemplate.find(query, UserEntity.class);
-        Set<String> followingSet = new HashSet<>(currentUser.getFollowing());
+
 
         List<UserEntity> resultUser = users.stream()
                 .filter(userEntity -> !followingSet.contains(userEntity.getId()))

@@ -24,7 +24,7 @@ const AdminLadingPage = () => {
     totalLikes: 0,
     totalComments: 0,
     totalReportsAwait: 0,
-    totalAccess:0
+    totalAccess: 0
   });
   const [prevDashboard, setPrevDashboard] = useState<DashboardModel>({
     newUsers: [],
@@ -34,7 +34,7 @@ const AdminLadingPage = () => {
     totalLikes: 0,
     totalComments: 0,
     totalReportsAwait: 0,
-    totalAccess:0
+    totalAccess: 0
   });
   const formatLocalDateTime = (date: string): string => {
     const localDate = new Date(date);
@@ -47,6 +47,7 @@ const AdminLadingPage = () => {
   const fetchDashboard = async (startDate: string, endDate: string) => {
     try {
       const response = await DashboardService.getDashboardInformation(formatLocalDateTime(startDate), formatLocalDateTime(endDate));
+
       setDashboard(response.data);
     } catch (error) {
       console.error("Failed to fetch dashboard information", error);
@@ -74,10 +75,10 @@ const AdminLadingPage = () => {
     if (type === 'day') {
       startDate.setHours(0, 0, 0, 0);
       endDate.setHours(23, 59, 59, 999);
-      
+
       prevStartDate.setDate(prevStartDate.getDate() - 1);
       prevStartDate.setHours(0, 0, 0, 0);
-      prevEndDate.setDate(prevEndDate.getDate() - 1); 
+      prevEndDate.setDate(prevEndDate.getDate() - 1);
       prevEndDate.setHours(23, 59, 59, 999);
 
     } else if (type === 'month') {
@@ -123,7 +124,7 @@ const AdminLadingPage = () => {
             Blankcil Overview
           </h1>
           <div className="flex items-center gap-2 bg-white dark:bg-gray-800 p-1 rounded-xl shadow-md">
-          <CustomButton onClick={() => setType('year')} variant={`${type == 'year' ? "danger" : "ghost"}`} className="rounded-lg px-6">
+            <CustomButton onClick={() => setType('year')} variant={`${type == 'year' ? "danger" : "ghost"}`} className="rounded-lg px-6">
               Year
             </CustomButton>
             <CustomButton onClick={() => setType('month')} variant={`${type == 'month' ? "danger" : "ghost"}`} className="rounded-lg px-6">
@@ -143,7 +144,7 @@ const AdminLadingPage = () => {
               prevValue: prevDashboard.totalUsers,
               color: 'text-blue-500 dark:text-blue-400',
               bgColor: 'bg-blue-50 dark:bg-blue-900/20',
-              icon: <BsPeopleFill/> ,
+              icon: <BsPeopleFill />,
               link: '/admin/user',
             },
             {
@@ -152,7 +153,7 @@ const AdminLadingPage = () => {
               prevValue: prevDashboard.totalPodcasts,
               color: 'text-green-500 dark:text-green-400',
               bgColor: 'bg-green-50 dark:bg-green-900/20',
-              icon: <PiGooglePodcastsLogoBold/>,
+              icon: <PiGooglePodcastsLogoBold />,
               link: null,
             },
             {
@@ -161,7 +162,7 @@ const AdminLadingPage = () => {
               prevValue: prevDashboard.totalLikes,
               color: 'text-red-500 dark:text-red-400',
               bgColor: 'bg-red-50 dark:bg-red-900/20',
-              icon: <FcLike /> ,
+              icon: <FcLike />,
             },
             {
               title: 'Total Comments',
@@ -169,7 +170,7 @@ const AdminLadingPage = () => {
               prevValue: prevDashboard.totalComments,
               color: 'text-purple-500 dark:text-purple-400',
               bgColor: 'bg-purple-50 dark:bg-purple-900/20',
-              icon: <FaRegCommentDots/> ,
+              icon: <FaRegCommentDots />,
             },
             {
               title: 'Reports Await',
@@ -177,7 +178,7 @@ const AdminLadingPage = () => {
               prevValue: prevDashboard.totalReportsAwait,
               color: 'text-yellow-500 dark:text-yellow-400',
               bgColor: 'bg-yellow-50 dark:bg-yellow-900/20',
-              icon: <GoReport/> ,
+              icon: <GoReport />,
               link: '/admin/report',
             },
             {
@@ -186,7 +187,7 @@ const AdminLadingPage = () => {
               prevValue: prevDashboard.totalAccess,
               color: 'text-pink-500 dark:text-pink-400',
               bgColor: 'bg-pink-50 dark:bg-pink-900/20',
-              icon: <MdCallMissedOutgoing /> ,
+              icon: <MdCallMissedOutgoing />,
               link: null,
             },
           ].map((item, index) => {
@@ -205,8 +206,8 @@ const AdminLadingPage = () => {
                     {item.icon}
                   </div>
                   <span className={`flex items-center gap-1 text-sm font-medium px-2 py-1 rounded-lg
-                    ${isPositive ? 'text-green-700 bg-green-100 dark:text-green-400 dark:bg-green-900/40' : 
-                    'text-red-700 bg-red-100 dark:text-red-400 dark:bg-red-900/40'}`}>
+                    ${isPositive ? 'text-green-700 bg-green-100 dark:text-green-400 dark:bg-green-900/40' :
+                      'text-red-700 bg-red-100 dark:text-red-400 dark:bg-red-900/40'}`}>
                     {isPositive ? '↑' : '↓'} {Math.abs(diff)}
                   </span>
                 </div>
@@ -263,7 +264,7 @@ const AdminLadingPage = () => {
                 <p className="text-gray-500 dark:text-gray-400 text-center py-4">No new podcasts</p>
               ) : (
                 dashboard.newPodcasts.map((podcast: Podcast) => (
-                  <div key={podcast.id} 
+                  <div key={podcast.id}
                     className="group hover:bg-gray-50 dark:hover:bg-gray-700 p-4 rounded-xl transition-colors duration-200 cursor-pointer"
                     onClick={() => window.open(`/watch?pid=${podcast.id}`, "_blank")}
                   >

@@ -9,4 +9,6 @@ public interface IDashboardService {
     OverviewModel getOverviewInformation(LocalDateTime start, LocalDateTime end);
 
     Map<String, Object> getCreatorDashboard() throws Exception;
+
+    Map<String, Object> getCreatorDashboard(LocalDateTime start, LocalDateTime end) throws Exception;
 }

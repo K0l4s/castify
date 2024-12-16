@@ -91,4 +91,53 @@ public class DashboardServiceImpl implements IDashboardService{
 
         return result;
     }
+    @Override
+    public Map<String, Object> getCreatorDashboard(LocalDateTime start, LocalDateTime end) throws Exception {
+        // Lấy thông tin user
+        UserEntity currentUser = userService.getUserByAuthentication();
+
+        // Tổng số follower
+        long totalFollowers = userRepository.findUsersFollowersBetween(currentUser.getId(),start,end).size();
+
+        // Lấy tất cả video của creator
+        List<PodcastEntity> videos = podcastRepository.findByUserIdAndCreatedDayBetween(currentUser.getId(),start,end);
+
+        // Tổng số like
+        long totalLikes = videos.stream().mapToLong(PodcastEntity::getTotalLikes).sum();
+
+        // Tổng số comment
+        long totalComments = videos.stream().mapToLong(PodcastEntity::getTotalComments).sum();
+
+        long totalViews =  videos.stream().mapToLong(PodcastEntity::getViews).sum();
+
+
+        // Top 10 video nổi bật
+        List<Map<String, Object>> topVideos = videos.stream()
+                .sorted((a, b) -> Long.compare(
+                        b.getTotalLikes() + b.getTotalComments() + b.getViews(),
+                        a.getTotalLikes() + a.getTotalComments() + a.getViews()))
+                .limit(10)
+                .map(video -> {
+                    Map<String, Object> videoMap = new HashMap<>();
+                    videoMap.put("id", video.getId());
+                    videoMap.put("title", video.getTitle());
+                    videoMap.put("likes", video.getTotalLikes());
+                    videoMap.put("comments", video.getTotalComments());
+                    videoMap.put("views", video.getViews());
+                    videoMap.put("thumbnailUrl", video.getThumbnailUrl());
+                    return videoMap;
+                })
+                .collect(Collectors.toList());
+
+
+        // Kết quả trả về
+        Map<String, Object> result = new HashMap<>();
+        result.put("totalFollowers", totalFollowers);
+        result.put("totalLikes", totalLikes);
+        result.put("totalComments", totalComments);
+        result.put("topVideos", topVideos);
+        result.put("totalViews",totalViews);
+
+        return result;
+    }
 }
