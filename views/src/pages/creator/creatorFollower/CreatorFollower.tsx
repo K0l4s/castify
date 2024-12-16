@@ -4,6 +4,7 @@ import { creatorService } from "../../../services/CreatorService";
 import { useToast } from "../../../context/ToastProvider";
 import { useNavigate } from "react-router-dom";
 import defaultAvatar from "../../../assets/images/default_avatar.jpg";
+import { BsArrowLeft, BsArrowRight } from "react-icons/bs";
 
 const CreatorFollower = () => {
     const [followers, setFollowers] = useState<userCard[]>([]);
@@ -49,11 +50,11 @@ const CreatorFollower = () => {
         <div className="p-5 max-w-full min-h-screen rounded-xl">
             <h1 className="text-2xl font-semibold mb-4 dark:text-gray-300">Followers</h1>
             {followers.length > 0 ? (
-                <div className="grid grid-cols-1 sm:grid-cols-1 lg:grid-cols-1 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-1 xl:grid-cols-2 lg:grid-cols-1 gap-4">
                     {followers.map((user) => (
                         <div
                             key={user.id}
-                            className="flex items-center gap-4 p-4 border border-gray-300 rounded-lg shadow-md bg-white dark:bg-gray-700"
+                            className="flex items-center gap-4 p-4 rounded-lg shadow-xl bg-white dark:bg-gray-700"
                         >
                             <img
                                 src={user.avatarUrl || defaultAvatar}
@@ -95,20 +96,24 @@ const CreatorFollower = () => {
             <div className="mt-6 flex justify-center items-center gap-2">
                 <button
                     onClick={() => handlePageChange(pageNumber - 1)}
-                    className="px-4 py-2 bg-gray-200 rounded-lg text-gray-700 hover:bg-gray-300 disabled:opacity-50 dark:bg-gray-600 dark:text-gray-200 dark:hover:bg-gray-500"
+                    className={`p-2 bg-gray-200 rounded-full text-gray-700 hover:bg-gray-300 ${pageNumber === 0 && "cursor-not-allowed"}
+                    disabled:opacity-50 dark:bg-gray-600 dark:text-gray-200 dark:hover:bg-gray-500`}
                     disabled={pageNumber === 0}
                 >
-                    Previous
+                    <BsArrowLeft />
                 </button>
                 <span className="text-sm text-gray-600 dark:text-gray-400">
                     Page {pageNumber + 1} of {totalPage}
                 </span>
                 <button
                     onClick={() => handlePageChange(pageNumber + 1)}
-                    className="px-4 py-2 bg-gray-200 rounded-lg text-gray-700 hover:bg-gray-300 disabled:opacity-50 dark:bg-gray-600 dark:text-gray-200 dark:hover:bg-gray-500"
+                    className={`p-2 bg-gray-200 rounded-full text-gray-700 hover:bg-gray-300 
+                    ${pageNumber === totalPage - 1 && "cursor-not-allowed"}
+                    disabled:opacity-50 dark:bg-gray-600 dark:text-gray-200 dark:hover:bg-gray-500"
+                    `}
                     disabled={pageNumber === totalPage - 1}
                 >
-                    Next
+                    <BsArrowRight />
                 </button>
             </div>
         </div>

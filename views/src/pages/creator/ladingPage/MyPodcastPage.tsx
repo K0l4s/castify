@@ -159,7 +159,7 @@ const MyPodcastPage: React.FC = () => {
       <h1 className="text-2xl font-bold mb-4 text-black dark:text-white">
         My Podcast Content
       </h1>
-      <div className="flex flex-col gap-4 bg-gray-200 dark:bg-gray-800 rounded min-h-[73vh]">
+      <div className="flex flex-col gap-4 bg-gray-200 dark:bg-gray-800 rounded-md min-h-[73vh]">
         <div className={`expandable-row ${isExpanded ? 'expanded' : ''}`}>
           <div className="flex items-center justify-between px-4 py-2 bg-gray-700 dark:bg-gray-200">
             <span className="text-white dark:text-black border-r-2 border-gray-500 px-4">
@@ -204,7 +204,7 @@ const MyPodcastPage: React.FC = () => {
               id="filter"
               value={filter}
               onChange={handleFilterChange}
-              className="p-2 border border-gray-300 rounded-lg bg-gray-100 dark:bg-gray-800 text-black dark:text-white"
+              className="p-2 border border-gray-300 rounded-lg focus:outline-none bg-gray-100 dark:bg-gray-800 border-none text-black dark:text-white"
             >
               <option value="">Select</option>
               <option value="title">Title</option>
@@ -216,7 +216,7 @@ const MyPodcastPage: React.FC = () => {
                 value={filterValue}
                 onChange={handleFilterValueChange}
                 placeholder={`Enter ${filter}`}
-                className="p-2 border border-gray-300 rounded-lg bg-gray-100 dark:bg-gray-800 text-black dark:text-white"
+                className="p-2 border border-none focus:outline-none rounded-lg bg-gray-100 dark:bg-gray-800 text-black dark:text-white"
               />
             )}
           </div>
@@ -245,9 +245,11 @@ const MyPodcastPage: React.FC = () => {
               type="checkbox"
               checked={selectedPodcasts.length === podcasts.length}
               onChange={handleSelectAllChange}
-              className="w-5 h-5 cursor-pointer"
+              className="w-5 h-5 bg-white/10 rounded-xl cursor-pointer appearance-none border-2 border-gray-200 rounded-sm checked:bg-green-400 checked:border-green-900 transition-all"
+              
               title="Select all"
             />
+            
           </div>
           <div className="col-span-5">Video</div>
           <div className="col-span-1 text-center">Display mode</div>
@@ -275,8 +277,8 @@ const MyPodcastPage: React.FC = () => {
                 type="checkbox"
                 checked={selectedPodcasts.includes(podcast.id)}
                 onChange={() => handleCheckboxChange(podcast.id)}
-                className="w-5 h-5 cursor-pointer"
-              />
+                className="w-5 h-5 rounded-xl bg-white/10 cursor-pointer appearance-none border-2 border-gray-200 rounded-sm checked:bg-green-400 checked:border-green-900 transition-all"
+                />
             </div>
             {/* Thumbnail, Title, Content */}
             <div className="flex gap-4 col-span-5">
