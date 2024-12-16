@@ -124,3 +124,33 @@
 ::-webkit-scrollbar-corner {
   background: #f1f1f1;
 }
+
+
+    input[type="range"]::-webkit-slider-thumb {
+        -webkit-appearance: none;
+        appearance: none;
+        width: 10px; /* Kích thước hình tròn */
+        height: 10px;
+        background-color: rgb(250, 190, 24); /* Màu hình tròn */
+        border-radius: 50%;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2); /* Đổ bóng */
+        cursor: pointer;
+    }
+
+    input[type="range"]::-moz-range-thumb {
+        width: 10px;
+        height: 10px;
+        background-color: rgb(250, 190, 24);
+        border-radius: 50%;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        cursor: pointer;
+    }
+
+    input[type="range"]::-ms-thumb {
+        width: 10px;
+        height: 10px;
+        background-color: rgb(250, 190, 24);
+        border-radius: 50%;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        cursor: pointer;
+    }

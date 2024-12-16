@@ -216,8 +216,8 @@ const CustomPodcastVideo = ({ videoSrc, posterSrc, videoRef }: CustomPodcastVide
                         <div className="flex items-center ml-auto space-x-4">
                             <div className="flex items-center space-x-2">
                                 {audioLevel === 0 ? (
-                                    <BsVolumeMute className="text-white w-5 h-5" onClick={()=>changeAudioLevel(audioLevelHistory)}/>) :
-                                    (<BsVolumeUp className="text-white w-5 h-5" onClick={()=>{setAudioLevelHistory(audioLevel);changeAudioLevel(0)}}/>)}
+                                    <BsVolumeMute className="text-white w-5 h-5" onClick={() => changeAudioLevel(audioLevelHistory)} />) :
+                                    (<BsVolumeUp className="text-white w-5 h-5" onClick={() => { setAudioLevelHistory(audioLevel); changeAudioLevel(0) }} />)}
                                 <input
                                     type="range"
                                     min="0"
