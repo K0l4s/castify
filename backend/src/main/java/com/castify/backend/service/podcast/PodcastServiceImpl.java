@@ -6,6 +6,7 @@ import com.castify.backend.models.PageDTO;
 import com.castify.backend.models.podcast.CreatePodcastModel;
 import com.castify.backend.models.podcast.EditPodcastDTO;
 import com.castify.backend.models.podcast.PodcastModel;
+import com.castify.backend.models.user.FollowInfo;
 import com.castify.backend.models.user.UserSimple;
 import com.castify.backend.models.userActivity.AddActivityRequestDTO;
 import com.castify.backend.repository.*;
@@ -484,7 +485,11 @@ public class PodcastServiceImpl implements IPodcastService {
         UserEntity currentUser = userService.getUserByAuthentication();
 
         // Lấy danh sách ID của following
-        List<String> followingIds = currentUser.getFollowing();
+        List<String> followingIds = currentUser.getFollowing()
+                .stream()
+                .map(FollowInfo::getUserId) // Lấy trường `id` từ từng `FollowingInfo`
+                .toList();
+
         if (followingIds.isEmpty()) {
             return new PageDTO<>(List.of(), page, 0, 0);
         }

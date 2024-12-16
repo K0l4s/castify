@@ -190,20 +190,30 @@ public class UserServiceImpl implements IUserService {
         if (userData.getUsername().equals(targetUser.getUsername())) {
             return "You cannot follow or unfollow yourself.";
         }
+
         if (userData.getFollowing() == null) {
             userData.setFollowing(new ArrayList<>());
         }
-        // Logic xử lý follow hoặc unfollow
-        if (userData.getFollowing().contains(targetUser.getId())) {
-            userData.getFollowing().remove(targetUser.getId());
+
+        // Tìm xem user hiện tại đã theo dõi targetUser chưa
+        Optional<FollowInfo> existingFollowing = userData.getFollowing()
+                .stream()
+                .filter(f -> f.getUserId().equals(targetUser.getId()))
+                .findFirst();
+
+        if (existingFollowing.isPresent()) {
+            // Nếu đã theo dõi, thực hiện unfollow
+            userData.getFollowing().remove(existingFollowing.get());
             userRepository.save(userData);
             return "Unfollowed successfully.";
         } else {
-            userData.getFollowing().add(targetUser.getId());
+            // Nếu chưa theo dõi, thêm targetUser vào danh sách following
+            userData.getFollowing().add(new FollowInfo(targetUser.getId(), LocalDateTime.now()));
             userRepository.save(userData);
             return "Followed successfully.";
         }
     }
+
 
     public List<UserEntity> suggestFriends(UserEntity currentUser) {
         // Lấy danh sách tất cả người dùng

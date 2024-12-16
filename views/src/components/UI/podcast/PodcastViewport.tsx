@@ -96,6 +96,7 @@ const PodcastViewport: React.FC = () => {
   useEffect(() => {
     if (videoRef.current) {
       videoRef.current.src = podcast?.videoUrl || "";
+      
       videoRef.current.load();
       window.scrollTo({ top: 0, behavior: "smooth" });
     }

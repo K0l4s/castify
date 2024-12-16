@@ -70,7 +70,6 @@ public class SecurityConfiguration {
             "/api/v1/user/search",
             "/ws/**",
             "api/v1/search/**",
-            "api/v1/search/post",
             "api/v1/track"
     };
     private final JwtAuthenticationFilter jwtAuthFilter;

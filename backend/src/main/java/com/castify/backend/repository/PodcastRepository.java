@@ -11,6 +11,7 @@ import org.springframework.data.mongodb.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import javax.swing.text.html.Option;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -35,7 +36,7 @@ public interface PodcastRepository extends MongoRepository<PodcastEntity, String
             "{'content': { '$regex': ?0, $options: 'i' }},"+
             "]}")
     Page<PodcastEntity> searchPodcastByFields(String keyword, Pageable pageable);
-
+    List<PodcastEntity> findByUserIdAndCreatedDayBetween(String userId, LocalDateTime start, LocalDateTime end);
     List<PodcastEntity> findByUserId(String userId);
     @Query("{ 'user.$id': { $in: ?0 }, 'isActive': true }")
     Page<PodcastEntity> findByUserIdInAndIsActiveTrue(List<ObjectId> userIds, Pageable pageable);

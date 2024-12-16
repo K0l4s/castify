@@ -71,9 +71,9 @@ export const userService = {
     searchPodcast: async (pageNumber:number,pageSize:number,keyword:string) => {
         const accessToken = Cookies.get('token');
         if(accessToken)
-            return await axiosInstanceAuth.get(`/api/v1/search/podcast?pageNumber=${pageNumber}&pageSize=${pageSize}&keyword=${keyword}`);
+            return await axiosInstanceAuth.get(`/api/v1/search/post?pageNumber=${pageNumber}&pageSize=${pageSize}&keyword=${keyword}`);
         else
-            return await axiosInstance.get(`/api/v1/search/podcast?pageNumber=${pageNumber}&pageSize=${pageSize}&keyword=${keyword}`);
+            return await axiosInstance.get(`/api/v1/search/post?pageNumber=${pageNumber}&pageSize=${pageSize}&keyword=${keyword}`);
         // return await axiosInstanceAuth.get(`/api/v1/search/post?pageNumber=${pageNumber}&pageSize=${pageSize}&keyword=${keyword}`);
     }
 };
