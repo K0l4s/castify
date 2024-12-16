@@ -15,6 +15,12 @@ export default {
         '1/6': '16.666667%',
       }
     },
+    keyframes: {
+      thumbResize: {
+        "0%": { transform: "scale(1)" },
+        "100%": { transform: "scale(1.5)" },
+      },
+    },
   },
   plugins: [],
 }

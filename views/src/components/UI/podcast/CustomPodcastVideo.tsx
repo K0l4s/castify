@@ -1,9 +1,9 @@
 import React, { useRef, useState, useEffect } from "react";
 import { BiLeftArrow, BiPause, BiPlay, BiRightArrow } from "react-icons/bi";
 import { MdOutlineZoomInMap, MdOutlineZoomOutMap } from "react-icons/md";
-import { BsVolumeUp } from "react-icons/bs";
+import { BsVolumeMute, BsVolumeUp } from "react-icons/bs";
 import Tooltip from "../custom/Tooltip";
-
+import logo from "../../../assets/images/logo.png";
 interface CustomPodcastVideoProps {
     videoSrc: string;
     posterSrc: string;
@@ -18,15 +18,18 @@ const CustomPodcastVideo = ({ videoSrc, posterSrc, videoRef }: CustomPodcastVide
     const [hoverTime, setHoverTime] = useState<number | null>(null);
     const [showControls, setShowControls] = useState(true);
     const [isFullscreen, setIsFullscreen] = useState(false);
-    const [audioLevel, setAudioLevel] = useState(1);
+    const [audioLevel, setAudioLevel] = useState<number>(1);
     const hideControlsTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
+    const [audioLevelHistory, setAudioLevelHistory] = useState<number>(1);
 
     const handleChangeAudioLevel = (e: React.ChangeEvent<HTMLInputElement>) => {
+        changeAudioLevel(parseFloat(e.target.value));
+    };
+    const changeAudioLevel = (level: number) => {
         if (!videoRef.current) return;
-        videoRef.current.volume = parseFloat(e.target.value);
-        setAudioLevel(parseFloat(e.target.value));
+        videoRef.current.volume = level;
+        setAudioLevel(level);
     }
-
     const resetHideControlsTimeout = () => {
         if (hideControlsTimeout.current) {
             clearTimeout(hideControlsTimeout.current);
@@ -127,19 +130,30 @@ const CustomPodcastVideo = ({ videoSrc, posterSrc, videoRef }: CustomPodcastVide
                     controls={false}
                     onTimeUpdate={handleTimeUpdate}
                     onLoadedMetadata={handleLoadedMetadata}
-                    // onClick={handlePlayPause}
                 />
 
                 {/* Overlay gradient */}
                 <div
-                onClick={handlePlayPause}
-                 className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                    onClick={handlePlayPause}
+                    className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+                />
 
-                {/* Time display */}
-                <div className={`absolute right-4 bg-black/70 backdrop-blur-sm text-white px-3 py-1.5 text-sm rounded-full shadow-lg transition-all duration-300 bottom-4`}>
-                    {formatTime(currentTime)} / {formatTime(duration)}
+                {/* logo of page, in left top */}
+                <div className="absolute top-0 left-0">
+                    <img src={logo} alt="logo" className="w-12 h-12" />
                 </div>
-
+                {/* user's avatar */}
+                {/* <div className={`absolute duration-300 ease-in-out flex items-center space-x-4 ${showControls ? "bottom-32" : "bottom-5"}`}>
+                    <img
+                        src={Podcast.user} // user's avatar
+                        alt="user"
+                        className="w-10 h-10 rounded-full"
+                    />
+                    <div>
+                        <div className="text-white font-semibold">User Name</div>
+                        <div className="text-white text-sm">Podcast Title</div>
+                    </div>
+                </div> */}
                 {/* Controls container */}
                 <div className="absolute bottom-0 left-0 right-0 px-6 pb-6">
                     {/* Progress bar */}
@@ -155,12 +169,12 @@ const CustomPodcastVideo = ({ videoSrc, posterSrc, videoRef }: CustomPodcastVide
                             onMouseLeave={handleMouseLeaveSlider}
                             className="w-full cursor-pointer appearance-none h-1.5 rounded-lg bg-white/30 hover:bg-white/40 transition-all"
                             style={{
-                                background: `linear-gradient(to right, #8B5CF6 ${((currentTime / duration) * 100).toFixed(2)}%, rgba(255,255,255,0.3) 0%)`,
+                                background: `linear-gradient(to right,rgb(250, 190, 24) ${((currentTime / duration) * 100).toFixed(2)}%, rgba(255,255,255,0.3) 0%)`,
                             }}
                         />
                         {hoverTime !== null && (
                             <div
-                                className="absolute -top-8 bg-black/90 backdrop-blur-sm text-white px-2.5 py-1 text-xs rounded-lg shadow-xl"
+                                className="absolute bg-black/90 backdrop-blur-sm text-white px-2.5 py-1 text-xs rounded-lg shadow-xl"
                                 style={{
                                     left: `${(hoverTime / duration) * 100}%`,
                                     transform: "translateX(-50%)",
@@ -170,6 +184,7 @@ const CustomPodcastVideo = ({ videoSrc, posterSrc, videoRef }: CustomPodcastVide
                             </div>
                         )}
                     </div>
+
 
                     {/* Control buttons */}
                     <div className={`flex items-center space-x-4 transition-opacity duration-300 ${showControls ? "opacity-100" : "opacity-0"}`}>
@@ -184,7 +199,7 @@ const CustomPodcastVideo = ({ videoSrc, posterSrc, videoRef }: CustomPodcastVide
 
                         <button
                             onClick={handlePlayPause}
-                            className="w-12 h-12 flex justify-center items-center rounded-full bg-white/90 hover:bg-white text-purple-600 shadow-lg transform hover:scale-105 transition-all duration-200"
+                            className="w-12 h-12 flex justify-center items-center rounded-full bg-white/90 hover:bg-white text-yellow-600 shadow-lg transform hover:scale-105 transition-all duration-200"
                         >
                             {isPlaying ? <BiPause className="w-6 h-6" /> : <BiPlay className="w-6 h-6 ml-1" />}
                         </button>
@@ -200,7 +215,9 @@ const CustomPodcastVideo = ({ videoSrc, posterSrc, videoRef }: CustomPodcastVide
 
                         <div className="flex items-center ml-auto space-x-4">
                             <div className="flex items-center space-x-2">
-                                <BsVolumeUp className="text-white w-5 h-5" />
+                                {audioLevel === 0 ? (
+                                    <BsVolumeMute className="text-white w-5 h-5" onClick={() => changeAudioLevel(audioLevelHistory)} />) :
+                                    (<BsVolumeUp className="text-white w-5 h-5" onClick={() => { setAudioLevelHistory(audioLevel); changeAudioLevel(0) }} />)}
                                 <input
                                     type="range"
                                     min="0"
@@ -210,24 +227,31 @@ const CustomPodcastVideo = ({ videoSrc, posterSrc, videoRef }: CustomPodcastVide
                                     onChange={handleChangeAudioLevel}
                                     className="w-20 h-1.5 rounded-lg cursor-pointer appearance-none"
                                     style={{
-                                        background: `linear-gradient(to right, #8B5CF6 ${audioLevel * 100}%, rgba(255,255,255,0.3) 0%)`,
+                                        background: `linear-gradient(to right,rgb(250, 190, 24) ${audioLevel * 100}%, rgba(255,255,255,0.3) 0%)`,
                                     }}
                                 />
                             </div>
-
-                            <Tooltip text={isFullscreen ? "Exit fullscreen" : "Enter fullscreen"}>
-                                <button
-                                    onClick={handleFullscreenToggle}
-                                    className="p-2 rounded-full text-white hover:bg-white/20 transition-all duration-200"
-                                >
-                                    {isFullscreen ? 
-                                        <MdOutlineZoomInMap className="w-5 h-5" /> : 
-                                        <MdOutlineZoomOutMap className="w-5 h-5" />
-                                    }
-                                </button>
-                            </Tooltip>
+                        </div>
+                        <div className={` left-4 text-white text-sm rounded-full shadow-lg transition-all duration-300 bottom-2`}>
+                            {formatTime(currentTime)} / {formatTime(duration)}
                         </div>
                     </div>
+                </div>
+
+                {/* Fullscreen Button */}
+                <div className={`absolute bottom-6 right-6 ${showControls ? "opacity-100" : "opacity-0"}`}>
+                    <Tooltip text={isFullscreen ? "Exit fullscreen" : "Enter fullscreen"}>
+                        <button
+                            onClick={handleFullscreenToggle}
+                            className="p-2 rounded-full text-white hover:bg-white/20 transition-all duration-200"
+                        >
+                            {isFullscreen ? (
+                                <MdOutlineZoomInMap className="w-5 h-5" />
+                            ) : (
+                                <MdOutlineZoomOutMap className="w-5 h-5" />
+                            )}
+                        </button>
+                    </Tooltip>
                 </div>
             </div>
         </div>
