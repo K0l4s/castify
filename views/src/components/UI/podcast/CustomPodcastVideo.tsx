@@ -4,13 +4,16 @@ import { MdOutlineZoomInMap, MdOutlineZoomOutMap } from "react-icons/md";
 import { BsVolumeMute, BsVolumeUp } from "react-icons/bs";
 import Tooltip from "../custom/Tooltip";
 import logo from "../../../assets/images/logo.png";
+import { useNavigate } from "react-router-dom";
 interface CustomPodcastVideoProps {
     videoSrc: string;
     posterSrc: string;
+    title?: string;
+    user?: any;
     videoRef: React.RefObject<HTMLVideoElement>;
 }
 
-const CustomPodcastVideo = ({ videoSrc, posterSrc, videoRef }: CustomPodcastVideoProps) => {
+const CustomPodcastVideo = ({ videoSrc, posterSrc, videoRef, title, user }: CustomPodcastVideoProps) => {
     const containerRef = useRef<HTMLDivElement>(null);
     const [currentTime, setCurrentTime] = useState(0);
     const [duration, setDuration] = useState(0);
@@ -21,6 +24,7 @@ const CustomPodcastVideo = ({ videoSrc, posterSrc, videoRef }: CustomPodcastVide
     const [audioLevel, setAudioLevel] = useState<number>(1);
     const hideControlsTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
     const [audioLevelHistory, setAudioLevelHistory] = useState<number>(1);
+    const navigate = useNavigate();
 
     const handleChangeAudioLevel = (e: React.ChangeEvent<HTMLInputElement>) => {
         changeAudioLevel(parseFloat(e.target.value));
@@ -111,7 +115,51 @@ const CustomPodcastVideo = ({ videoSrc, posterSrc, videoRef }: CustomPodcastVide
             }
         };
     }, []);
+    useEffect(() => {
+        if ('mediaSession' in navigator) {
+            // Set metadata for the media session
+            navigator.mediaSession.metadata = new MediaMetadata({
+                title: title ? title : 'Sample Podcast Title',
+                artist: user ? user.fullname : 'Sample User Name',
+                // album: 'Điện Chữ',
+                artwork: [
+                    {
+                        src: posterSrc, // Replace with your album art URL
+                    },
+                ],
+            });
 
+            // Set playback actions
+            navigator.mediaSession.setActionHandler('play', () => {
+                if (videoRef.current) {
+                    videoRef.current.play();
+                }
+            });
+            navigator.mediaSession.setActionHandler('pause', () => {
+                if (videoRef.current) {
+                    videoRef.current.pause();
+                }
+            });
+            navigator.mediaSession.setActionHandler('seekbackward', () => {
+                if (videoRef.current) {
+                    videoRef.current.currentTime -= 10;
+                }
+            });
+            navigator.mediaSession.setActionHandler('seekforward', () => {
+                if (videoRef.current) {
+                    videoRef.current.currentTime += 10;
+                }
+            });
+            navigator.mediaSession.setActionHandler('previoustrack', () => {
+                // Logic for previous track
+            });
+            navigator.mediaSession.setActionHandler('nexttrack', () => {
+                // Logic for next track
+            });
+
+
+        }
+    }, []);
     return (
         <div
             ref={containerRef}
@@ -143,17 +191,17 @@ const CustomPodcastVideo = ({ videoSrc, posterSrc, videoRef }: CustomPodcastVide
                     <img src={logo} alt="logo" className="w-12 h-12" />
                 </div>
                 {/* user's avatar */}
-                {/* <div className={`absolute duration-300 ease-in-out flex items-center space-x-4 ${showControls ? "bottom-32" : "bottom-5"}`}>
-                    <img
-                        src={Podcast.user} // user's avatar
-                        alt="user"
-                        className="w-10 h-10 rounded-full"
-                    />
-                    <div>
-                        <div className="text-white font-semibold">User Name</div>
-                        <div className="text-white text-sm">Podcast Title</div>
+                {user?.avatarUrl && title && (
+                    <div className={`px-3 absolute right-0 duration-300 ease-in-out flex items-center space-x-4 ${showControls ? "bottom-32" : "bottom-5"}`}>
+                        {/* Avatar */}
+                        <img
+                            src={user.avatarUrl} // user's avatar
+                            alt="user"
+                            className="w-10 h-10 rounded-full"
+                            onClick={() => navigate(`/profile/${user.username}`)}
+                        />
                     </div>
-                </div> */}
+                )}
                 {/* Controls container */}
                 <div className="absolute bottom-0 left-0 right-0 px-6 pb-6">
                     {/* Progress bar */}
