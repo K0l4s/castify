@@ -245,7 +245,7 @@ const MyPodcastPage: React.FC = () => {
               type="checkbox"
               checked={selectedPodcasts.length === podcasts.length}
               onChange={handleSelectAllChange}
-              className="w-5 h-5 bg-white/10 rounded-xl cursor-pointer appearance-none border-2 border-gray-200 rounded-sm checked:bg-green-400 checked:border-green-900 transition-all"
+              className="w-5 h-5 bg-white/10 rounded-xl cursor-pointer appearance-none border-2 border-black dark:border-gray-200 rounded-sm checked:bg-green-400 checked:border-green-900 transition-all"
               
               title="Select all"
             />
@@ -277,7 +277,7 @@ const MyPodcastPage: React.FC = () => {
                 type="checkbox"
                 checked={selectedPodcasts.includes(podcast.id)}
                 onChange={() => handleCheckboxChange(podcast.id)}
-                className="w-5 h-5 rounded-xl bg-white/10 cursor-pointer appearance-none border-2 border-gray-200 rounded-sm checked:bg-green-400 checked:border-green-900 transition-all"
+                className="w-5 h-5 rounded-xl bg-white/10 cursor-pointer appearance-none border-2 border-black dark:border-gray-200 rounded-sm checked:bg-green-400 checked:border-green-900 transition-all"
                 />
             </div>
             {/* Thumbnail, Title, Content */}

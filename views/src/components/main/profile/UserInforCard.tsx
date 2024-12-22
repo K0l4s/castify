@@ -5,6 +5,7 @@ import { userService } from '../../../services/UserService';
 import { useToast } from '../../../context/ToastProvider';
 import { useState } from 'react';
 import { LuUserX2 } from 'react-icons/lu';
+import defaultAvatar from '../../../assets/images/default_avatar.jpg';
 
 const UserInforCard = (user: userCard) => {
   const [isFollow, setIsFollow] = useState(user.follow);
@@ -25,7 +26,7 @@ const UserInforCard = (user: userCard) => {
       <div className="w-full max-w-sm bg-gray-800 rounded-lg shadow-lg p-6">
         <div className="flex flex-col items-center">
           <img
-            src={user.avatarUrl ? user.avatarUrl : "https://via.placeholder.com/150"}
+            src={user.avatarUrl ? user.avatarUrl : defaultAvatar}
             alt="Profile"
             className="w-12 h-12 rounded-full border-4 border-blue-500 mb-4 cursor-pointer"
             onClick={() => navigate(`/profile/${user.username}`)}

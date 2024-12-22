@@ -12,6 +12,7 @@ import { FcLike } from "react-icons/fc";
 import { FaRegCommentDots } from "react-icons/fa";
 import { GoReport } from "react-icons/go";
 import { MdCallMissedOutgoing } from "react-icons/md";
+import defaultAvatar from "../../../assets/images/default_avatar.jpg";
 
 const AdminLadingPage = () => {
   const navigate = useNavigate();
@@ -236,7 +237,7 @@ const AdminLadingPage = () => {
                   >
                     <div className="relative">
                       <img
-                        src={user.avatarUrl}
+                        src={user.avatarUrl || defaultAvatar}
                         alt={user.fullname}
                         className="w-12 h-12 rounded-full object-cover shadow-md ring-2 ring-offset-2 ring-blue-500/50 hover:ring-blue-500"
                       />
@@ -271,7 +272,7 @@ const AdminLadingPage = () => {
                     <div className="flex items-center space-x-6 p-2">
                       {podcast.thumbnailUrl ? (
                         <img
-                          src={podcast.thumbnailUrl}
+                          src={podcast.thumbnailUrl || defaultAvatar}
                           alt={podcast.title}
                           className="w-24 h-24 rounded-2xl object-cover shadow-lg group-hover:shadow-xl transform group-hover:scale-105 transition-all duration-300"
                         />
@@ -284,7 +285,7 @@ const AdminLadingPage = () => {
                         </h3>
                         <div className="flex items-center mt-3 text-sm text-gray-600 dark:text-gray-300 space-x-4">
                           <span className="flex items-center bg-gray-100 dark:bg-gray-700 px-3 py-1 rounded-full">
-                            <img src={podcast.user.avatarUrl} alt={podcast.user.username} className="w-4 h-4 rounded-full mr-2" />
+                            <img src={podcast.user.avatarUrl || defaultAvatar} alt={podcast.user.username} className="w-4 h-4 rounded-full mr-2" />
                             {podcast.user.username}
                           </span>
                           <span className="flex items-center bg-gray-100 dark:bg-gray-700 px-3 py-1 rounded-full">
