@@ -8,4 +8,9 @@ export default defineConfig({
     host: true, // Mở server để truy cập từ các thiết bị trong cùng mạng LAN
     port: 5000, // Thay đổi cổng nếu cần thiết
   },
+  resolve: {
+    alias: {
+      'sockjs-client': 'sockjs-client/dist/sockjs.js',
+    },
+  },
 })

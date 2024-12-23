@@ -1,0 +1,38 @@
+{
+    "sidebar": {
+        "home": "Trang chủ",
+        "follow": "Đang theo dõi",
+        "trend": "Xu hướng",
+        "history": "Lịch sử xem",
+        "react": "Tương tác",
+        "studio": "Studio"
+    },
+    "navbar":{
+        "search": "Tìm kiếm podcast, tập phim, nhà sáng tạo...",
+        "profile": "Trang cá nhân",
+        "upload": "Tải lên",
+        "admin": "Quản lý Admin",
+        "theme": "Chủ đề",
+        "login": "Đăng nhập",
+        "register": "Đăng ký",
+        "logout": "Đăng xuất",
+        "language": "Ngôn ngữ"
+    },
+    "profile":{
+        "followers": "Người theo dõi",
+        "following": "Đang theo dõi",
+        "posts": "Bài viết",
+        "reactions": "Tương tác",
+        "studio": "Studio",
+        "edit": "Chỉnh sửa",
+        "save": "Lưu",
+        "cancel": "Hủy",
+        "changeAvatar": "Thay đổi ảnh đại diện",
+        "changeCover": "Thay đổi ảnh bìa",
+        "changePassword": "Thay đổi mật khẩu",
+        "changeEmail": "Thay đổi email",
+        "changePhone": "Thay đổi số điện thoại",
+        "changeName": "Thay đổi tên",
+        "changeGender": "Thay đổi giới tính"
+    }
+}
