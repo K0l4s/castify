@@ -1,6 +1,7 @@
 package com.castify.backend.models.user;
 
 import com.castify.backend.enums.Role;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import lombok.AllArgsConstructor;
@@ -22,6 +23,7 @@ public class UserModel {
     private String username;
     private String avatarUrl;
     private String coverUrl;
+    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS")
     private LocalDateTime birthday;
     private String address;
     private String addressElements;
@@ -34,4 +36,5 @@ public class UserModel {
     @Enumerated(EnumType.STRING)
     private Role role;
     private boolean isEnabled;
+    private long coin;
 }

@@ -21,7 +21,14 @@ interface PodcastTagProps {
 
 const PodcastTag: React.FC<PodcastTagProps> = ({ podcast, onReport, onSave, onShare, onToggleOptionMenu, isOptionMenuOpen }) => {
   const author = podcast.user.fullname;
-  const createdDay = formatDistanceToNow(new Date(podcast.createdDay), { addSuffix: true });
+  console.log(podcast);
+  
+const createdDay = podcast.createdDay 
+  ? formatDistanceToNow(new Date(podcast.createdDay), { addSuffix: true })
+  : 'Unknown Date';
+
+  // tính toán thủ công createdDay
+  
   const optionMenuRef = useRef<HTMLDivElement>(null);
   const currentUsername = useSelector((state: RootState) => state.auth.user?.username);
 
@@ -50,7 +57,7 @@ const PodcastTag: React.FC<PodcastTagProps> = ({ podcast, onReport, onSave, onSh
           <img 
             src={podcast.thumbnailUrl || "/TEST.png"} 
             alt={podcast.title} 
-            className="w-full h-56 object-cover rounded-t-xl"
+            className="w-full object-cover rounded-t-xl"
           />
           <div className="absolute inset-0 bg-gradient-to-b from-transparent to-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
             <div className="absolute inset-0 flex items-center justify-center">

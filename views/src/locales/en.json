@@ -1,0 +1,38 @@
+{
+    "sidebar": {
+        "home": "Home",
+        "follow": "Follow",
+        "trend": "Trend",
+        "history": "History",
+        "react": "Reactions",
+        "studio": "Studio"
+    },
+    "navbar":{
+        "search": "Search podcasts, episodes, creators...",
+        "profile": "Profile",
+        "upload": "Upload",
+        "admin": "Admin Management",
+        "theme": "Theme",
+        "login": "Login",
+        "register": "Register",
+        "logout": "Logout",
+        "language": "Language"
+    },
+    "profile":{
+        "followers": "Followers",
+        "following": "Following",
+        "posts": "Posts",
+        "reactions": "Reactions",
+        "studio": "Studio",
+        "edit": "Edit",
+        "save": "Save",
+        "cancel": "Cancel",
+        "changeAvatar": "Change Avatar",
+        "changeCover": "Change Cover",
+        "changePassword": "Change Password",
+        "changeEmail": "Change Email",
+        "changePhone": "Change Phone",
+        "changeName": "Change Name",
+        "changeGender": "Change"
+    }
+}

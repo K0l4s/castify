@@ -108,7 +108,6 @@ public class AuthenticationService implements IAuthenticationService {
                 .addressElements(request.getAddressElements())
                 .phone(request.getPhone()).birthday(request.getBirthday()).createdDay(LocalDateTime.now()).avatarUrl(null).coverUrl(null).isActive(false).username(request.getUsername()).isNonLocked(true).isNonBanned(true).build();
 
-
         var savedUser = repository.save(user);
         String validToken = jwtService.generateValidToken(request.getUsername());
         saveUserToken(savedUser, validToken, TokenType.VALID);
@@ -143,8 +142,47 @@ public class AuthenticationService implements IAuthenticationService {
         saveUserToken(user, accessToken, TokenType.BEARER);
         return AuthenticationResponse.builder().accessToken(accessToken).refreshToken(refreshToken).build();
     }
+    @Override
+    public void sendRequest(ResetPasswordRequest request) throws IOException {
+//        authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword()));
+//
+        var user = repository.findByEmailOrUsername(request.getEmail()).orElseThrow();
+        var jwtToken = jwtService.generateToken(user);
+        var refreshToken = jwtService.generateRefreshToken(user);
+        revokeAllUserTokens(user);
+        saveUserToken(user, jwtToken, TokenType.RESET_PASS);
+//        return true;
+//        return AuthenticationResponse.builder().accessToken(jwtToken).refreshToken(refreshToken).build();
 
+    }
+    @Override
+    public AuthenticationResponse resetPassword(HttpServletRequest request, HttpServletResponse response, String newPassword) throws IOException {
+        final String authHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
+        final String validToken;
+        final String userEmail;
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            throw new IOException("Authenticate Error, please try again!");
+        }
+        validToken = authHeader.substring(7);
+        userEmail = jwtService.extractUsername(validToken);
+        if (userEmail == null) {
+            throw new IOException("Not found user"+validToken);
+        }
+        var user = this.repository.findByEmailOrUsername(userEmail).orElseThrow();
+        if (!jwtService.isTokenValid(validToken, user)) {
+            throw new IOException(("Your token isn't valid"));
+        }
 
+//        user.setActive(true);
+        user.setPassword(passwordEncoder.encode(newPassword));
+        repository.save(user);
+
+        revokeAllUserTokens(user);
+        var accessToken = jwtService.generateToken(user);
+        String refreshToken = jwtService.generateRefreshToken(user);
+        saveUserToken(user, accessToken, TokenType.BEARER);
+        return AuthenticationResponse.builder().accessToken(accessToken).refreshToken(refreshToken).build();
+    }
     @Override
     public AuthenticationResponse refreshToken(HttpServletRequest request, HttpServletResponse response) throws IOException {
         final String authHeader = request.getHeader(HttpHeaders.AUTHORIZATION);

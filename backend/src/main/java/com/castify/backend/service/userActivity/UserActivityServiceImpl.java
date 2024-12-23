@@ -95,9 +95,10 @@ public class UserActivityServiceImpl implements IUserActivityService{
         UserEntity user = userService.getUserByAuthentication();
 
         // Lấy toàn bộ các hoạt động VIEW_PODCAST của user, sắp xếp giảm dần theo timestamp
-        List<UserActivityEntity> activities = userActivityRepository.findAllByUserIdAndType(
-                user.getId(),
+        List<UserActivityEntity> activities = userActivityRepository.findAllByTypeAndUserId(
                 ActivityType.VIEW_PODCAST,
+                user.getId(),
+
                 Sort.by(Sort.Direction.DESC, "timestamp")
         );
 

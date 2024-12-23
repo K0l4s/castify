@@ -32,7 +32,8 @@ const SettingModals = (props: SettingModals) => {
     firstName: '',
     middleName: '',
     lastName: '',
-    birthday: new Date(),
+    // birthday: new Date(),
+    birthday: '',
     // address: '',
     addressElements: '',
     ward: '',
@@ -56,7 +57,8 @@ const SettingModals = (props: SettingModals) => {
             firstName: userRes.data.firstName,
             middleName: userRes.data.middleName,
             lastName: userRes.data.lastName,
-            birthday: new Date(userRes.data.birthday),
+            // birthday: new Date(userRes.data.birthday),
+            birthday: userRes.data.birthday,
             addressElements: userRes.data.addressElements,
             ward: userRes.data.ward,
             district: userRes.data.district,
@@ -359,11 +361,9 @@ const SettingModals = (props: SettingModals) => {
               <input
                 type="date"
                 name="birthday"
-                value={
-                  editedUser.birthday instanceof Date
-                    ? editedUser.birthday.toISOString().split('T')[0]
-                    : new Date(editedUser.birthday).toISOString().split('T')[0]
-                }
+                    value={
+                      editedUser.birthday
+                    }          
                 onChange={handleInputChange}
                 disabled={!isEdit}
                 className="mt-1 block w-full border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-300 disabled:border-gray-200 disabled:bg-gray-100 dark:disabled:border-gray-700 dark:disabled bg-gray-800 disabled:text-gray-400 dark:disabled:text-gray-500 px-4 py-2 rounded-md"

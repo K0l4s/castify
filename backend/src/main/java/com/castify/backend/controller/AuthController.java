@@ -17,9 +17,10 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 public class AuthController {
 
-//    private final AuthenticationService service;
+    //    private final AuthenticationService service;
     @Autowired
     private IAuthenticationService service = new AuthenticationService();
+
     @PostMapping("/register")
     public ResponseEntity<?> register(
             @RequestBody RegisterRequest request
@@ -36,7 +37,7 @@ public class AuthController {
             @RequestBody AuthenticationRequest request
     ) {
         try {
-            return ResponseEntity.ok(service.authenticate(request));
+        return ResponseEntity.ok(service.authenticate(request));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Error: " + e.getMessage());
         }
@@ -78,25 +79,49 @@ public class AuthController {
             HttpServletResponse response
     ) {
         try {
-            return ResponseEntity.ok(service.confirmUser(request,response));
+            return ResponseEntity.ok(service.confirmUser(request, response));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Error: " + e.getMessage());
         }
     }
+
     @PostMapping("/refresh-token")
-    public  ResponseEntity<?> refreshTokenconfirm(
+    public ResponseEntity<?> refreshTokenconfirm(
             HttpServletRequest request,
             HttpServletResponse response
     ) {
         try {
-            return ResponseEntity.ok(service.refreshToken(request,response));
+            return ResponseEntity.ok(service.refreshToken(request, response));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Error: " + e.getMessage());
         }
     }
+
     @ExceptionHandler(MalformedJwtException.class)
     public ResponseEntity<String> handleMalformedJwtException(MalformedJwtException ex) {
         return new ResponseEntity<>("Invalid JWT token format", HttpStatus.BAD_REQUEST);
     }
 
+    @PostMapping("/reset/send-request")
+    public ResponseEntity<?> sendRequest(ResetPasswordRequest request) {
+        try {
+            service.sendRequest(request);
+            return ResponseEntity.ok("Send completed!");
+        } catch (Exception ex) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Error: " + ex.getMessage());
+        }
+    }
+
+    @PostMapping("/reset/change")
+    public ResponseEntity<?> resetPassword(
+            HttpServletRequest request,
+            HttpServletResponse response,
+            @RequestBody ChangePasswordRequest change
+    ) {
+        try {
+            return ResponseEntity.ok(service.resetPassword(request, response,change.getNewPassword()));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Error: " + e.getMessage());
+        }
+    }
 }

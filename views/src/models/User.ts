@@ -9,7 +9,7 @@ export interface User {
     coverUrl: string,
     email: string,
     password: string,
-    birthday: Date,
+    birthday: string,
     address: string,
     phone: string,
     code: string,
@@ -56,7 +56,7 @@ export interface updateUser {
     firstName: string;
     middleName: string;
     lastName: string;
-    birthday: Date;
+    birthday: string;
     // address: string;
     addressElements: string;
     ward: string;
