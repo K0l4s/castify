@@ -124,13 +124,13 @@ const AdminLadingPage = () => {
             Blankcil Overview
           </h1>
           <div className="flex items-center gap-2 bg-white dark:bg-gray-800 p-1 rounded-xl shadow-md">
-            <CustomButton onClick={() => setType('year')} variant={`${type == 'year' ? "danger" : "ghost"}`} className="rounded-lg px-6">
+            <CustomButton onClick={() => setType('year')} variant="ghost" className={` border-red-500 px-6 duration-300 ease-in-out ${type == 'year' ? "border-b-4 " : ""}`} >
               Year
             </CustomButton>
-            <CustomButton onClick={() => setType('month')} variant={`${type == 'month' ? "danger" : "ghost"}`} className="rounded-lg px-6">
+            <CustomButton onClick={() => setType('month')} variant="ghost" className={` px-6 border-red-500 duration-300 ease-in-out ${type == 'month' ? "border-b-4 " : ""}`}>
               Month
             </CustomButton>
-            <CustomButton onClick={() => setType('day')} variant={`${type == 'day' ? "danger" : "ghost"}`} className="rounded-lg px-6">
+            <CustomButton onClick={() => setType('day')} variant="ghost" className={` px-6 border-red-500 duration-300 ease-in-out ${type == 'day' ? "border-b-4 " : ""}`}>
               Day
             </CustomButton>
           </div>
@@ -236,7 +236,7 @@ const AdminLadingPage = () => {
                   >
                     <div className="relative">
                       <img
-                        src={user.avatarUrl}
+                        src={user.avatarUrl? user.avatarUrl : "https://via.placeholder.com/150"}
                         alt={user.fullname}
                         className="w-12 h-12 rounded-full object-cover shadow-md ring-2 ring-offset-2 ring-blue-500/50 hover:ring-blue-500"
                       />

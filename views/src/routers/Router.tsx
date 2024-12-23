@@ -27,6 +27,12 @@ import SearchPage from '../pages/main/searchPage/SearchPage'
 import CreatorFollower from '../pages/creator/creatorFollower/CreatorFollower'
 import FollowingPage from '../pages/main/followingPodcast/FollowingPage'
 import { RequireAuth } from './RequireAuth'
+import BlankShop from '../pages/main/blankShop/BlankShop'
+import PaymentSuccess from '../pages/main/blankShop/PaymentSuccess'
+import PaymentFailure from '../pages/main/blankShop/PaymentFailure'
+import Payment from '../pages/main/blankShop/Payment'
+import ConversationLayout from '../pages/main/conversation/ConversationLayout'
+// import NotificationComponent from '../components/main/conversation/NotificationComponent'
 
 const Router = () => {
     const isAdmin = useSelector((state: RootState) => state.auth.user?.role === Role.A);
@@ -41,6 +47,12 @@ const Router = () => {
                 <Route path='/vertify' element={<VertifyPage />} />
                 <Route path='/terms' element={<TermsPage />} />
                 <Route path='/privacy' element={<PrivacyPolicy />} />
+                <Route path='/payment-success' element={<PaymentSuccess />} />
+                <Route path='/payment-failure' element={<PaymentFailure />} />
+                <Route path='/payment' element={<Payment />} />
+                <Route path="/msg" element={<ConversationLayout />} />
+                <Route path="/msg/:id" element={<ConversationLayout />} />
+                {/* <Route path='/noti' element={<NotificationComponent />} /> */}
                 {/* </Route> */}
 
                 <Route path="/admin/*" element={isAdmin ? <AdminLayout /> : <NotAccessPage />}>
@@ -69,9 +81,11 @@ const Router = () => {
                     <Route path='/search' element={<SearchPage />} />
                     <Route path='/profile' element={<ProfilePage />} />
                     <Route path='/profile/:username' element={<ProfilePage />} />
+                    <Route path='/shop' element={<BlankShop />} />
+
                 </Route>
                 <Route element={<ProfileLayout />}>
-                    
+
                     {/* <Route path='/setting' element={<SettingPage />} /> */}
                 </Route>
                 <Route path='*' element={<NotFoundPage />} />

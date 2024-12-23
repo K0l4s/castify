@@ -55,6 +55,7 @@ public class UserEntity implements UserDetails {
 //    @Enumerated(EnumType.STRING)
     private Role role;
     private List<FollowInfo> following = new ArrayList<>();
+    private long coin;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

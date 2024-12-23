@@ -1,7 +1,9 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useLanguage } from "../../context/LanguageContext";
 
 const MainSearchBar = () => {
+    const {language} = useLanguage();
 
     const [searchQuery, setSearchQuery] = useState('');
     // const [showSearchResults, setShowSearchResults] = useState(false);
@@ -45,7 +47,7 @@ const MainSearchBar = () => {
                     // onFocus={handleSearchFocus}
                     // onBlur={handleSearchBlur}
                     onKeyDown={handleEnter}
-                    placeholder="Search podcasts, episodes, creators..."
+                    placeholder={language.navbar.search}
                     className="w-full bg-transparent text-black dark:text-white outline-none text-sm placeholder-gray-500 focus:placeholder-gray-400 transition-colors duration-200"
                     aria-label="Search"
                     data-testid="search-input"

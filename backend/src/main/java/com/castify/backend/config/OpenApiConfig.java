@@ -15,14 +15,14 @@ import io.swagger.v3.oas.annotations.servers.Server;
                 contact = @Contact(
                         name = "Castify",
                         email = "blankcil.st@gmail.com",
-                        url = "http://castify.com"
+                        url = "https://castify.vercel.app"
                 ),
                 description = "OpenApi documentation for Spring Security",
-                title = "OpenApi specification - Castify",
+                title = "OpenApi specification",
                 version = "1.0",
                 license = @License(
                         name = "Licence name",
-                        url = "https://some-url.com"
+                        url = "https://castify.vercel.app/license"
                 ),
                 termsOfService = "Terms of service"
         ),
@@ -31,6 +31,10 @@ import io.swagger.v3.oas.annotations.servers.Server;
                         description = "Local ENV",
                         url = "http://localhost:8081"
                 ),
+                @Server(
+                        description = "PROD ENV",
+                        url = "https://castify.com:8081"
+                )
         },
         security = {
                 @SecurityRequirement(

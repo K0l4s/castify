@@ -1,9 +1,6 @@
 package com.castify.backend.service.authenticatation;
 
-import com.castify.backend.models.authentication.AuthenticationRequest;
-import com.castify.backend.models.authentication.AuthenticationResponse;
-import com.castify.backend.models.authentication.RegisterRequest;
-import com.castify.backend.models.authentication.RegisterResponse;
+import com.castify.backend.models.authentication.*;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
@@ -18,6 +15,10 @@ public interface IAuthenticationService {
             HttpServletRequest request,
             HttpServletResponse response
     ) throws IOException;
+
+    void sendRequest(ResetPasswordRequest request) throws IOException;
+
+    AuthenticationResponse resetPassword(HttpServletRequest request, HttpServletResponse response, String newPassword) throws IOException;
 
     //    public void
     AuthenticationResponse refreshToken(

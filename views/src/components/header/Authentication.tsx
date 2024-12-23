@@ -16,8 +16,11 @@ import PodcastUploadModal from "../modals/podcast/PodcastUploadModal";
 import CustomButton from "../UI/custom/CustomButton";
 import { Role } from "../../constants/Role";
 import defaultAvatar from "../../assets/images/default_avatar.jpg";
+import { useLanguage } from "../../context/LanguageContext";
+import coin from "../../assets/images/coin.png";
 
 const Authentication = () => {
+  const { language, changeLanguage } = useLanguage();
   const [isOpen, setIsOpen] = useState(false);
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -27,7 +30,6 @@ const Authentication = () => {
 
   const navigate = useNavigate();
   const location = useLocation();
-
   const toast = useToast();
   const dispatch = useDispatch();
   const handleLogout = () => {
@@ -49,12 +51,12 @@ const Authentication = () => {
   };
   const isAuth = useSelector((state: RootState) => state.auth.isAuthenticated);
   const isEnable = useSelector((state: RootState) => state.auth.user?.enabled);
-  
+
   useEffect(() => {
     if (!isFirstRender && !isEnable) {
       handleLogout();
     } else {
-  setIsFirstRender(false);
+      setIsFirstRender(false);
     }
   }, [isEnable]);
 
@@ -72,6 +74,13 @@ const Authentication = () => {
       <div className="relative">
         {isAuth ? (
           <div className="flex items-center gap-4">
+            {/* blank shop link */}
+            <Link
+              to="/blank-shop"
+              className="px-4 py-2 text-sm border border-gray-500 rounded-full text-black hover:bg-gray-300
+              dark:border-gray-300 dark:text-white dark:hover:bg-gray-600">
+              Blank Shop - Discount 45%
+            </Link>
             {location.pathname.includes("/creator") ? (
               <button
                 onClick={() => setIsModalOpen(true)}
@@ -88,7 +97,7 @@ const Authentication = () => {
                   className="px-4 py-2 text-sm border border-gray-500 rounded-full text-black hover:bg-gray-300
                   dark:border-gray-300 dark:text-white dark:hover:bg-gray-600">
                   <RiVideoAddFill className="inline-block mr-2 ml-1" size={20} />
-                  <p className="hidden sm:inline">Upload</p>
+                  <p className="hidden sm:inline">{language.navbar.upload}</p>
                 </button>
               </Tooltip>
             )}
@@ -132,48 +141,77 @@ const Authentication = () => {
                 <svg className="w-5 h-5 transition-transform group-hover:rotate-12" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1" />
                 </svg>
-                <p className="text-white font-semibold text-sm">Login</p>
+                <p className="text-white font-semibold text-sm">{language.navbar.login}</p>
               </span>
             </CustomButton>
             <ThemeModeSwitch />
+            {/* select option */}
+            <select
+              onChange={(e) => changeLanguage(e.target.value as 'en' | 'vi')}
+              className="border-none bg-transparent gap-2 text-green-500"
+            >
+              <option value="en">EN</option>
+              <option value="vi">VI</option>
+            </select>
           </div>
         )}
 
         <div
-          className={`absolute right-0 top-12 z-50 ${isUserMenuOpen && isAuth ? "" : "hidden"
-            } w-64 mt-2 bg-white dark:bg-gray-800 rounded-xl shadow-lg ring-1 ring-black ring-opacity-5 divide-y divide-gray-100 dark:divide-gray-700 transform opacity-100 scale-100 transition-all duration-200`}
+          className={`absolute right-0 top-9 shadow-5xl z-50 ${isUserMenuOpen && isAuth ? "" : "hidden"
+            }  mt-2 w-48 bg-white dark:bg-gray-800 rounded-xl drop-shadow-xl ring-1 ring-black ring-opacity-5 divide-y divide-gray-100 dark:divide-gray-700 transform opacity-100 scale-100 transition-all duration-200`}
           id="dropdown-user"
         >
-          <ul className="py-1">
+          <ul className="py-4 flex flex-col gap-1">
             <li>
               <Link
                 to={`/profile/${user?.username}`}
-                className="flex items-center px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 dark:text-gray-300 dark:hover:bg-gray-700/50 transition-colors duration-200"
+                className="flex items-center px-4 hover:dark:bg-white/10 hover:bg-black/10 w-full py-2.5 text-sm text-gray-700  dark:text-gray-300 hover:border-l-4 border-red-300 ease-in-out transition-colors duration-300"
               >
-                Profile
+                {language.navbar.profile}
               </Link>
             </li>
             {user?.role === Role.A && (
               <li>
                 <Link
                   to="/admin"
-                  className="flex items-center px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 dark:text-gray-300 dark:hover:bg-gray-700/50 transition-colors duration-200"
+                  className="flex items-center px-4 hover:dark:bg-white/10 hover:bg-black/10 py-2.5 text-sm text-gray-700  dark:text-gray-300 hover:border-l-4 border-red-300 ease-in-out transition-colors duration-300"
                 >
-                  Admin Management
+                  {language.navbar.admin}
                 </Link>
               </li>)}
             <li>
               <div className=" px-4 py-2.5">
-                <span className="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300">Theme
+                <span className="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300">{language.navbar.theme}
                   <ThemeModeSwitch /></span>
+              </div>
+
+
+            </li>
+            <li>
+              <div className="flex items-center px-4 py-2.5 text-sm text-gray-700 dark:text-gray-300">
+                {language.navbar.language}
+                {/* select option */}
+                <select
+                  onChange={(e) => changeLanguage(e.target.value as 'en' | 'vi')}
+                  className="border-none bg-transparent text-blue-500"
+                >
+                  <option value="en">EN</option>
+                  <option value="vi">VI</option>
+                </select>
+              </div>
+            </li>
+            <li>
+              <div className="flex items-center px-4 py-2.5 text-sm text-gray-700 dark:text-gray-300">
+                Blank Coin: {user?.coin}
+                <img src={coin} alt="coin" className="w-5 h-5" />
               </div>
             </li>
             <li>
               <button
                 onClick={handleLogout}
-                className="w-full text-left px-4 py-2.5 text-sm text-red-600 hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-900/20 transition-colors duration-200"
+                className="flex items-center w-full px-4 hover:dark:bg-red-300/10 hover:bg-red-500/10 py-2.5 text-sm text-red-700 dark:text-red-300 hover:border-l-4 border-red-900 ease-in-out transition-colors duration-300"
               >
-                Sign out
+                {language.navbar.logout}
               </button>
             </li>
           </ul>
