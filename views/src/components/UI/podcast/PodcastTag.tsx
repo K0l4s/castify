@@ -86,7 +86,7 @@ const createdDay = podcast.createdDay
           </Link>
           <div className="flex-grow">
             <Link to={`/watch?pid=${podcast.id}`}>
-              <h3 className="text-lg font-semibold line-clamp-2 mb-1 hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
+              <h3 className="text-lg font-semibold line-clamp-2 mb-1 text-black dark:text-white hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
                 {podcast.title}
               </h3>
             </Link>

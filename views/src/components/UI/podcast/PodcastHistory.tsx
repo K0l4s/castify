@@ -41,7 +41,7 @@ const PodcastHistory: React.FC<PodcastHistoryProps> = ({
 
   return (
     <div className="flex flex-col sm:flex-row rounded-lg dark:bg-gray-900 p-3 sm:p-4">
-      <Link to={`/watch?pid=${podcast.id}`} className="block w-full sm:w-48 md:w-56 lg:w-64 xl:w-72 mb-4 sm:mb-0">
+      <Link to={`/watch?pid=${podcast.id}`} className="block flex-shrink-0 w-full sm:w-48 md:w-56 lg:w-64 xl:w-72 mb-4 sm:mb-0">
         <img
           src={podcast.thumbnailUrl || "/TEST.png"}
           alt={podcast.title}
