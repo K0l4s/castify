@@ -47,7 +47,7 @@ public interface UserRepository extends MongoRepository<UserEntity, String> {
             "]}")
     Page<UserEntity> findByKeyword(String keyword, Pageable pageable);
 
-
-
+//    UserEntity findUserEntityByUsername(String username,int pageNumber, int pageSize);
+    Page<UserEntity> findByIdIn(List<String> userIds,Pageable pageable);
 //    boolean existsByUsername(String username);
 }

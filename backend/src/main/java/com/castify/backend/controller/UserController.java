@@ -17,12 +17,45 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.logging.Logger;
+
 @RestController
 @RequestMapping("/api/v1/user")
 @RequiredArgsConstructor
 public class UserController {
     @Autowired
     private IUserService userService = new UserServiceImpl();
+    private static final Logger logger = Logger.getLogger(PodcastController.class.getName());
+    @GetMapping("/list/follower")
+    private ResponseEntity<?> getFollowersList(
+            @RequestParam(value = "username") String username,
+            @RequestParam(value = "pageNumber") int pageNumber,
+            @RequestParam(value = "pageSize") int pageSize
+    ){
+        try{
+            return ResponseEntity.ok(userService.getFollowerList(pageNumber,pageSize,username));
+        } catch (Exception e) {
+            logger.info(e.getMessage());
+            return ResponseEntity
+                    .status(HttpStatus.BAD_REQUEST)
+                    .body("Error: " + e.getMessage());
+        }
+    }
+    @GetMapping("/list/following")
+    private ResponseEntity<?> getFollowingsList(
+            @RequestParam(value = "username") String username,
+            @RequestParam(value = "pageNumber") int pageNumber,
+            @RequestParam(value = "pageSize") int pageSize
+    ){
+        try{
+            return ResponseEntity.ok(userService.getFollowingList(pageNumber,pageSize,username));
+        } catch (Exception e) {
+            logger.info(e.getMessage());
+            return ResponseEntity
+                    .status(HttpStatus.BAD_REQUEST)
+                    .body("Error: " + e.getMessage());
+        }
+    }
     @GetMapping("")
     private ResponseEntity<?> getUserByUsername(
             @RequestParam(value = "username", required = false) String username) {

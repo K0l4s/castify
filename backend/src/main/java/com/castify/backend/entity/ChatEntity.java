@@ -9,6 +9,7 @@ import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Document(collection = "chat")
@@ -23,10 +24,10 @@ public class ChatEntity {
     private String name;
 
 //    @DBRef
-    private List<MemberInfor> memberList;
+    private List<MemberInfor> memberList = new ArrayList<>();
     @DBRef
-    private List<MessageEntity> message;
-    private boolean isActive;
-    private LocalDateTime createdAt;
+    private List<MessageEntity> message = new ArrayList<>();
+    private boolean isActive = true;
+    private LocalDateTime createdAt = LocalDateTime.now();
 }
 

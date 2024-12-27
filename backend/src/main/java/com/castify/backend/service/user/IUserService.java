@@ -63,5 +63,9 @@ public interface IUserService {
 
     PaginatedResponse<UserSimple> getFollowerUserListByUser(int pageNumber, int pageSize) throws Exception;
 
+    PaginatedResponse<UserSimple> getFollowerList(int pageNumber, int pageSize, String username) throws Exception;
+
+    PaginatedResponse<UserSimple> getFollowingList(int pageNumber, int pageSize, String username) throws Exception;
+
     BasicUserModel mapToBasicUser(UserEntity userEntity);
 }
