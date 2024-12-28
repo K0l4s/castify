@@ -120,6 +120,7 @@ const AdminLadingPage = () => {
   return (
     <div className="p-8 text-black dark:text-white min-h-screen">
       <div className="max-w-7xl mx-auto">
+        {/* view detail components */}
         <div className="flex justify-between items-center mb-8">
           <h1 className="text-4xl font-extrabold ">
             Blankcil Overview

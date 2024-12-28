@@ -2,6 +2,7 @@ package com.castify.backend.controller;
 
 import com.castify.backend.entity.TransactionEntity;
 import com.castify.backend.models.payment.PaymentModel;
+import com.castify.backend.models.payment.PaymentResponse;
 import com.castify.backend.service.payment.vnPay.VNPayPaymentService;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,6 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Logger;
@@ -44,17 +46,32 @@ public class PaymentController {
             TransactionEntity trans = vnPayPaymentService.callbackTransaction(request);
 
             if (trans != null && trans.getUserId() != null) {
-                messagingTemplate.convertAndSend(
-                        "/topic/payment-status/" + trans.getUserId(),
-                        trans.getStatus().toString()
+                // Thêm logging để debug
+                logger.info("Sending payment status to user: " + trans.getUserId());
+                logger.info("Status: " + trans.getStatus().toString());
+
+                // Sử dụng convertAndSendToUser với destination đầy đủ
+                messagingTemplate.convertAndSendToUser(
+                        trans.getUserId(), // Đảm bảo chuyển sang String
+                        "/queue/payment-status",
+                        PaymentResponse.builder()
+                                .status(trans.getStatus().toString())
+                                .message("Payment status updated")
+                                .timestamp(new Date())
+                                .build()
                 );
+                logger.info(trans.getUserId());
                 return ResponseEntity.ok("Payment status updated: " + trans.getStatus());
             } else {
+                logger.warning("Invalid transaction data received");
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid transaction data");
             }
         } catch (Exception e) {
-            logger.warning("Error during callback handling: " + e.getMessage());
+            logger.severe("Error during callback handling: " + e.getMessage());
+            e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Callback processing failed");
         }
     }
+
+
 }

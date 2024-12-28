@@ -17,7 +17,7 @@ const MainSidebar = () => {
 
   const getLinkClass = (path: string) => {
     const isActive = pathname === path;
-    return ` ${isActive ? 'text-red-500 dark:text-red-500 border-l-4 border-red-500' : 'hover:border-l-4 border-black dark:border-white'} font-semibold text-sm flex items-center left-0 relative transition-all p-2`;
+    return ` ${isActive ? 'text-red-500 dark:text-red-500 border-b-0 border-red-500' : ' border-black dark:border-white'} font-semibold text-sm flex items-center left-0 relative transition-all p-2`;
   };
   // fixed top-0 left-0
 
@@ -34,7 +34,7 @@ const MainSidebar = () => {
       <aside
         id="logo-sidebar"
         className={`fixed top-0 left-0 h-screen text-black transition-all duration-300 ease-in-out
-    ${isOpenSideBar ? 'w-60 duration-300 ease-in-out' : 'w-[100px] duration-300 ease-in-out'}
+    ${isOpenSideBar ? 'w-60 duration-300 ease-in-out' : 'w-[75px] duration-300 ease-in-out'}
     bg-white border-r border-gray-200 dark:bg-gray-800 dark:border-gray-700 dark:text-white`}
         aria-label="Sidebar"
       >

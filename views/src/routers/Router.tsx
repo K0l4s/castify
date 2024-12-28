@@ -32,6 +32,7 @@ import PaymentSuccess from '../pages/main/blankShop/PaymentSuccess'
 import PaymentFailure from '../pages/main/blankShop/PaymentFailure'
 import Payment from '../pages/main/blankShop/Payment'
 import ConversationLayout from '../pages/main/conversation/ConversationLayout'
+import Test from '../pages/main/blankShop/Test'
 // import NotificationComponent from '../components/main/conversation/NotificationComponent'
 
 const Router = () => {
@@ -52,6 +53,7 @@ const Router = () => {
                 <Route path='/payment' element={<Payment />} />
                 <Route path="/msg" element={<ConversationLayout />} />
                 <Route path="/msg/:id" element={<ConversationLayout />} />
+                <Route path='test' element={<Test/>}/>
                 {/* <Route path='/noti' element={<NotificationComponent />} /> */}
                 {/* </Route> */}
 

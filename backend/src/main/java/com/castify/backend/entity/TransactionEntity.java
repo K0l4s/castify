@@ -3,6 +3,7 @@ package com.castify.backend.entity;
 import com.castify.backend.enums.PaymentType;
 import com.castify.backend.enums.TransactionStatus;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.Id;
@@ -14,6 +15,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @Data
 @NoArgsConstructor
+@Builder
 public class TransactionEntity {
     @Id
     private String id;
