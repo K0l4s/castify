@@ -5,7 +5,7 @@ import coin from '../../../assets/images/coin.png';
 import { useToast } from '../../../context/ToastProvider';
 import { PaymentService } from '../../../services/PaymentService';
 import SockJS from 'sockjs-client';
-import { Client, StompSubscription } from '@stomp/stompjs';
+import { Client } from '@stomp/stompjs';
 import Cookies from 'js-cookie';
 const Payment = () => {
     const [selectedMethod, setSelectedMethod] = useState<string>('vnpay');

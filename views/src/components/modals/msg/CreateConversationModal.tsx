@@ -21,15 +21,15 @@ const CreateConversationModal = (props: ConversationModalProps) => {
 
     const [followers, setFollowers] = useState<userCard[]>([]);
     const [selectedUsers, setSelectedUsers] = useState<userCard[]>([]);
-    const [pageNumber, setPageNumber] = useState(0);
-    const [totalPages, setTotalPages] = useState(0);
+    const [pageNumber] = useState(0);
+    // const [ setTotalPages] = useState(0);
     const pageSize = 10;
 
     useEffect(() => {
         const fetchFollowers = async () => {
             const response = await userService.getFollowings(username?.toString() || "", pageNumber, pageSize);
             setFollowers(response.data.data);
-            setTotalPages(response.data.totalPages);
+            // setTotalPages(response.data.totalPages);
         };
         if (props.isOpen) {
             fetchFollowers();

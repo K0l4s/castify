@@ -9,14 +9,14 @@ interface FollowersModalProps {
   }
 const FollowingsModal = (props: FollowersModalProps) => {
     const [followers, setFollowers] = useState<userCard[]>([]);
-    const [pageNumber, setPageNumbers] = useState(0);
-    const [totalPages, setTotalPages] = useState(0);
+    const [pageNumber] = useState(0);
+    // const [setTotalPages] = useState(0);
     const pageSize = 10;
     useEffect(() => {
         const fetchFollowers = async () => {
             const response = await userService.getFollowings(props.username,pageNumber,pageSize);
             setFollowers(response.data.data);
-            setTotalPages(response.data.totalPages);
+            // setTotalPages(response.data.totalPages);
             // console.log(response.data);
         };
         if (props.isOpen) {
