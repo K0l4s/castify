@@ -4,14 +4,20 @@ import { useEffect, useState } from "react";
 import { userCard } from "../../../models/User";
 import { userService } from "../../../services/UserService";
 import CustomModal from "../../UI/custom/CustomModal";
+import CustomButton from "../../UI/custom/CustomButton";
+import { conversationService } from "../../../services/ConversationService";
+import { shortConversation } from "../../../models/Conversation";
 
 interface ConversationModalProps {
     isOpen: boolean;
     onClose: () => void;
+    conversations: shortConversation[];
+    setConversations: React.Dispatch<React.SetStateAction<shortConversation[]>>;
 }
 
 const CreateConversationModal = (props: ConversationModalProps) => {
     const username = useSelector((state: RootState) => state.auth.user?.username);
+    const userId = useSelector((state: RootState) => state.auth.user?.id); // Lấy ID người tạo
 
     const [followers, setFollowers] = useState<userCard[]>([]);
     const [selectedUsers, setSelectedUsers] = useState<userCard[]>([]);
@@ -27,6 +33,7 @@ const CreateConversationModal = (props: ConversationModalProps) => {
         };
         if (props.isOpen) {
             fetchFollowers();
+            setSelectedUsers([]);
         }
     }, [props.isOpen, pageNumber]);
 
@@ -40,12 +47,78 @@ const CreateConversationModal = (props: ConversationModalProps) => {
         setSelectedUsers((prev) => prev.filter((selected) => selected.id !== user.id));
     };
 
+    const handleCreateConversation = async () => {
+        const currentTime = new Date().toISOString(); // Thời gian hiện tại theo ISO
+
+        const conversationData = {
+            title: (document.getElementById("conversation-name") as HTMLInputElement).value,
+            // name: username || "Unnamed Conversation",
+            memberList: [
+                {
+                    memberId: userId || "",
+                    role: "LEADER",
+                    joinTime: currentTime,
+                },
+                ...selectedUsers.map((user) => ({
+                    memberId: user.id,
+                    role: "MEMBER",
+                    joinTime: currentTime,
+                })),
+            ],
+        };
+        // console.log(conversationData);
+        try {
+            const response = await conversationService.createConversation(conversationData);
+            console.log("Conversation created successfully");
+            props.onClose(); // Đóng modal sau khi tạo thành công
+            // console.log(response);
+            // thêm vào conversations
+            console.log(response.data);
+            props.setConversations((prev) => [
+                {
+                    id: response.data.id,
+                    title: response.data.title,
+                    imageUrl: response.data.imageUrl,
+                    memberSize: response.data.memberSize,
+                },
+                ...prev,
+            ]);
+            
+        } catch (error) {
+            console.error("Failed to create conversation:", error);
+        }
+    };
+
     return (
-        <CustomModal isOpen={props.isOpen} onClose={props.onClose} title="Create conversation" size="md" animation="fade" closeOnEsc closeOnOutsideClick>
+        <CustomModal
+            isOpen={props.isOpen}
+            onClose={props.onClose}
+            title="Create conversation"
+            size="md"
+            animation="fade"
+            closeOnEsc
+            closeOnOutsideClick
+        >
             <div className="p-4 space-y-4">
-                {/* Selected Users */}
-                {/* nút hành động */}
-                
+                {/* Nút Tạo Cuộc Hội Thoại */}
+                <div className="flex justify-end">
+                    <CustomButton onClick={handleCreateConversation} disabled={selectedUsers.length === 0}>
+                        Create conversation
+                    </CustomButton>
+                </div>
+                {/* input name */}
+                <div>
+                    <label htmlFor="conversation-name" className="block text-sm font-semibold text-gray-600">
+                        Conversation Name
+                    </label>
+                    <input
+                        type="text"
+                        id="conversation-name"
+                        className="w-full px-3 py-2 mt-1 border border-gray-300 rounded-md focus:outline-none focus:ring focus:ring-blue-100"
+                        placeholder="Enter conversation name"
+                    />
+                </div>
+                {/* Người Dùng Được Chọn */}
                 <div>
                     <h3 className="text-lg font-semibold mb-2">Selected Users</h3>
                     {selectedUsers.length > 0 ? (
@@ -68,7 +141,7 @@ const CreateConversationModal = (props: ConversationModalProps) => {
                     )}
                 </div>
 
-                {/* Available Followers */}
+                {/* Danh Sách Người Dùng Có Sẵn */}
                 <div>
                     <h3 className="text-lg font-semibold mb-2">Available Users</h3>
                     {followers.length > 0 ? (

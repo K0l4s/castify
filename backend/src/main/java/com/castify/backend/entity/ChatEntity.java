@@ -10,6 +10,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
 @Document(collection = "chat")
@@ -21,13 +22,19 @@ public class ChatEntity {
     private String id;
     private String title;
     private String imageUrl;
-    private String name;
+//    private String name;
 
 //    @DBRef
     private List<MemberInfor> memberList = new ArrayList<>();
-    @DBRef
-    private List<MessageEntity> message = new ArrayList<>();
+//    @DBRef
+//    private List<MessageEntity> message = new ArrayList<>();
     private boolean isActive = true;
     private LocalDateTime createdAt = LocalDateTime.now();
+
+    public int getMemberSize() {
+        return memberList.size();
+    }
+
+
 }
 

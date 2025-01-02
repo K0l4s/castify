@@ -3,6 +3,7 @@ package com.castify.backend.entity;
 import com.castify.backend.enums.Role;
 import com.castify.backend.models.user.FollowInfo;
 import jakarta.validation.constraints.NotNull;
+import org.hibernate.validator.constraints.Length;
 import org.springframework.data.annotation.Id; // Sửa dòng này
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -28,8 +29,10 @@ public class UserEntity implements UserDetails {
 
     @Id
     private String id; // Change Integer to String for MongoDB
+    @NotNull
     private String firstName;
     private String middleName;
+    @NotNull
     private String lastName;
     @NotNull
     private String username;
@@ -41,7 +44,10 @@ public class UserEntity implements UserDetails {
     private String district;
     private String provinces;
 //    private String address;
+    @NotNull
     private String password;
+    @NotNull
+    @Length(min=10,max=11)
     private String phone;
     @NotNull
     private String email;
