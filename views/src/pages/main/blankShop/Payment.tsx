@@ -7,6 +7,7 @@ import { PaymentService } from '../../../services/PaymentService';
 import SockJS from 'sockjs-client';
 import { Client } from '@stomp/stompjs';
 import Cookies from 'js-cookie';
+import { BaseApi } from '../../../utils/axiosInstance';
 const Payment = () => {
     const [selectedMethod, setSelectedMethod] = useState<string>('vnpay');
     const [amount, setAmount] = useState<number>(0);
@@ -18,7 +19,7 @@ const Payment = () => {
 
     useEffect(() => {
         console.log('🔄 Khởi tạo WebSocket...');
-        const socket = new SockJS('http://localhost:8081/ws');
+        const socket = new SockJS(BaseApi+'/ws');
         const stompClient = new Client({
             webSocketFactory: () => socket,
             reconnectDelay: 5000,
