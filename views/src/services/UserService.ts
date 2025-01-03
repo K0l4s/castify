@@ -75,5 +75,14 @@ export const userService = {
         else
             return await axiosInstance.get(`/api/v1/search/post?pageNumber=${pageNumber}&pageSize=${pageSize}&keyword=${keyword}`);
         // return await axiosInstanceAuth.get(`/api/v1/search/post?pageNumber=${pageNumber}&pageSize=${pageSize}&keyword=${keyword}`);
-    }
+    },
+    getFollowers: async (username:string, pageNumber:number,pageSize:number) => {
+        return await axiosInstance.get(`/api/v1/user/list/follower?username=${username}&pageNumber=${pageNumber}&pageSize=${pageSize}`);
+    },
+    getFollowings: async (username:string, pageNumber:number,pageSize:number) => {
+        const accessToken = Cookies.get('token');
+        if(accessToken)
+            return await axiosInstanceAuth.get(`/api/v1/user/list/following?username=${username}&pageNumber=${pageNumber}&pageSize=${pageSize}`);
+        return await axiosInstance.get(`/api/v1/user/list/following?username=${username}&pageNumber=${pageNumber}&pageSize=${pageSize}`);
+    },
 };

@@ -5,9 +5,11 @@ import MainConversation from "../../../components/main/conversation/MainConversa
 const ConversationLayout = () => {
     return (
         <div>
-            <MainHeader/>
-            <ConversationSidebar />
-            <MainConversation />
+            <MainHeader />
+            <div className="flex">
+                <ConversationSidebar />
+                <MainConversation />
+            </div>
         </div>
     )
 }

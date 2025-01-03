@@ -48,6 +48,7 @@ public class UserServiceImpl implements IUserService {
             throw new Exception("Not found user with username " + username);
         }
     }
+
     @Override
     public UserModel getByUserId(String userId) throws Exception {
 
@@ -133,6 +134,7 @@ public class UserServiceImpl implements IUserService {
         userRepository.save(userData);
         return imageUrl;
     }
+
     @Override
     public String updateCover(MultipartFile imageFile) throws Exception {
         UserEntity userData = getUserByAuthentication();
@@ -268,9 +270,10 @@ public class UserServiceImpl implements IUserService {
         // Trả về danh sách người dùng đã được chuyển đổi
         return resultUsers;
     }
+
     @Override
     public PaginatedResponse<BasicUserModel> getAllUser(Integer pageNumber, Integer pageSize) throws Exception {
-        Pageable pageable = PageRequest.of(pageNumber,pageSize);
+        Pageable pageable = PageRequest.of(pageNumber, pageSize);
 
         Page<UserEntity> similarUsers = userRepository.findAll(pageable);
 
@@ -280,10 +283,11 @@ public class UserServiceImpl implements IUserService {
         int totalPages = similarUsers.getTotalPages();
         return new PaginatedResponse<>(resultUsers, totalPages);
     }
+
     @Override
     public PaginatedResponse<BasicUserModel> findUser(Integer pageNumber, Integer pageSize, String keyword) throws Exception {
-        Pageable pageable = PageRequest.of(pageNumber,pageSize);
-        Page<UserEntity> similarUsers = userRepository.findByKeyword(keyword,pageable);
+        Pageable pageable = PageRequest.of(pageNumber, pageSize);
+        Page<UserEntity> similarUsers = userRepository.findByKeyword(keyword, pageable);
 
         List<BasicUserModel> resultUsers = similarUsers.getContent().stream()
                 .map(this::mapToBasicUser)
@@ -291,16 +295,18 @@ public class UserServiceImpl implements IUserService {
         int totalPages = similarUsers.getTotalPages();
         return new PaginatedResponse<>(resultUsers, totalPages);
     }
+
     @Override
     public String toggleBanUser(String userId) throws Exception {
         UserEntity userBan = userRepository.findUserEntityById(userId);
 //        userBan.isNonBanned(!userBan.isNonBanned());
         userBan.setNonBanned(!userBan.isNonBanned());
         userRepository.save(userBan);
-        if(userBan.isNonBanned())
+        if (userBan.isNonBanned())
             return "Unban Account Successfully";
         return "Ban Account Successfully";
     }
+
     @Override
     public void banAccount(String userId) throws Exception {
         UserEntity userBan = userRepository.findUserEntityById(userId);
@@ -308,18 +314,20 @@ public class UserServiceImpl implements IUserService {
         userBan.setNonBanned(false);
         userRepository.save(userBan);
     }
+
     @Override
     public void checkAdmin() throws Exception {
         UserEntity userRequest = getUserByAuthentication();
-        if(!userRequest.getRole().equals(Role.ADMIN))
-           throw new Exception("You don't have permission to send this request! Please login with admin role!");
+        if (!userRequest.getRole().equals(Role.ADMIN))
+            throw new Exception("You don't have permission to send this request! Please login with admin role!");
 
     }
+
     @Override
     public PaginatedResponse<UserSimple> searchUser(Integer pageNumber, Integer pageSize, String keyword) throws Exception {
-        Pageable pageable = PageRequest.of(pageNumber,pageSize);
+        Pageable pageable = PageRequest.of(pageNumber, pageSize);
 //        UserEntity currentUser=getUserByAuthentication();
-        Page<UserEntity> similarUsers = userRepositoryTemplate.findByKeywordWithAggregation(keyword,pageable);
+        Page<UserEntity> similarUsers = userRepositoryTemplate.findByKeywordWithAggregation(keyword, pageable);
 
         List<UserSimple> resultUsers = similarUsers.getContent().stream()
                 .map(this::mapToUserSimpleAnonymous)
@@ -327,6 +335,7 @@ public class UserServiceImpl implements IUserService {
         int totalPages = similarUsers.getTotalPages();
         return new PaginatedResponse<>(resultUsers, totalPages);
     }
+
     @Override
     public PaginatedResponse<UserSimple> getFollowerUserListByUser(int pageNumber, int pageSize) throws Exception {
         // Lấy thông tin người dùng hiện tại
@@ -348,6 +357,58 @@ public class UserServiceImpl implements IUserService {
         return new PaginatedResponse<>(followers, followersPage.getTotalPages());
     }
 
+    @Override
+    public PaginatedResponse<UserSimple> getFollowerList(int pageNumber, int pageSize, String username) throws Exception {
+        Pageable pageable = PageRequest.of(pageNumber, pageSize);
+//        UserEntity currentUser = getUserByAuthentication();
+        UserEntity user = userRepository.findUserEntityByUsername(username);
+
+        // Fetch the list of followers for the user
+        Page<UserEntity> userList = userRepository.findFollowersList(user.getId(), pageable);
+
+        // Map user entities to user simple DTOs
+        List<UserSimple> userSimplesMap = userList.stream()
+                .map(this::mapToUserSimpleAnonymous)
+                .collect(Collectors.toList());
+
+        // Build and return the PaginatedResponse
+        return new PaginatedResponse<>(
+                userSimplesMap,
+                (int) userList.getTotalElements() // Total count of items, not pages
+        );
+    }
+
+    @Override
+    public PaginatedResponse<UserSimple> getFollowingList(int pageNumber, int pageSize, String username) throws Exception {
+        Pageable pageable = PageRequest.of(pageNumber, pageSize);
+
+        // Lấy user theo username
+        UserEntity user = userRepository.findUserEntityByUsername(username);
+        if (user == null) {
+            throw new Exception("User not found with username: " + username);
+        }
+
+        // Lấy danh sách userId từ following
+        List<String> followingUserIds = user.getFollowing()
+                .stream()
+                .map(FollowInfo::getUserId)
+                .collect(Collectors.toList());
+
+        // Truy vấn phân trang từ MongoDB
+        Page<UserEntity> userPage = userRepository.findByIdIn(followingUserIds, pageable);
+
+        // Chuyển đổi sang DTO
+        List<UserSimple> userSimplesMap = userPage.getContent()
+                .stream()
+                .map(this::mapToUserSimpleAnonymous)
+                .collect(Collectors.toList());
+
+        // Trả về kết quả với phân trang
+        return new PaginatedResponse<>(
+                userSimplesMap,
+                (int) userPage.getTotalElements()
+        );
+    }
 
     private UserSimple mapToUserSimpleAnonymous(UserEntity userEntity) {
         // Chuyển đổi UserEntity thành UserSimple
@@ -359,12 +420,13 @@ public class UserServiceImpl implements IUserService {
         try {
             UserEntity currentUser = getUserByAuthentication();
             userSimple.setIsFollow(isUserFollowing(currentUser, userEntity));
-        }catch (Exception ex){
+        } catch (Exception ex) {
             userSimple.setIsFollow(false);
         }
 
         return userSimple;
     }
+
     private UserSimple mapToUserSimple(UserEntity userEntity, UserEntity currentUser) {
         // Chuyển đổi UserEntity thành UserSimple
         UserSimple userSimple = modelMapper.map(userEntity, UserSimple.class);
@@ -395,6 +457,7 @@ public class UserServiceImpl implements IUserService {
             return false;
         }
     }
+
     @Override
     public BasicUserModel mapToBasicUser(UserEntity userEntity) {
         // Chuyển đổi UserEntity thành UserSimple
