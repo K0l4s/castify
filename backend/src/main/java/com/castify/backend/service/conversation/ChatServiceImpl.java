@@ -113,7 +113,8 @@ public class ChatServiceImpl implements IChatService{
     public PaginatedResponse<MessageResponse> getMessageByGroupId(String groupId, int pageNumber, int pageSize) throws Exception {
         UserEntity user = userService.getUserByAuthentication();
         checkValidMessage(groupId, user.getId());
-        Pageable pageable = PageRequest.of(pageNumber,pageSize);
+
+        Pageable pageable = PageRequest.of(pageNumber,pageSize,Sort.by(Sort.Direction.DESC,"timestamp"));
         Page<MessageEntity> msgs = messageRepository.findMessageEntitiesByChatId(groupId,pageable);
         List<MessageResponse> responses = msgs.getContent().stream().map(msg -> modelMapper.map(msg,MessageResponse.class)).toList();
         logger.info(msgs.toString());

@@ -1,6 +1,7 @@
 package com.castify.backend.controller;
 
 import com.castify.backend.models.conversation.CreateChatRequest;
+import com.castify.backend.models.conversation.SendMessageReq;
 import com.castify.backend.service.conversation.ChatServiceImpl;
 import com.castify.backend.service.conversation.IChatService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -45,9 +46,9 @@ public class ConversationController {
     }
 
     @PutMapping("/msg")
-    private ResponseEntity<?> sendMsg(@RequestBody String message, @RequestParam("groupId") String groupId) {
+    private ResponseEntity<?> sendMsg(@RequestBody SendMessageReq req, @RequestParam("groupId") String groupId) {
         try {
-            var messages = chatService.sendMessage(message, groupId);
+            var messages = chatService.sendMessage(req.getMessage(), groupId);
 // Gửi tin nhắn tới tất cả user trong group
             messagingTemplate.convertAndSend(
                     "/topic/group/" + groupId,
@@ -61,7 +62,7 @@ public class ConversationController {
             for (String userId : userIds) {
                 messagingTemplate.convertAndSendToUser(
                         userId,
-                        "/queue/notifications",
+                        "/queue/msg",
                         "Bạn có tin nhắn mới từ nhóm: " + groupId
                 );
                 logger.info("🔔 Notification sent to user: " + userId);
