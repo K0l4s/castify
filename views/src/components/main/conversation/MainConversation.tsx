@@ -54,7 +54,8 @@ const MainConversation = () => {
         setMessages(response.data.data.reverse());
         setPageNumber(2);
         // scroll to bottom
-        window.scrollTo(0, document.body.scrollHeight);
+        // if(messages.length>6)
+        //   window.scrollTo(0, document.body.scrollHeight);
       } catch (error) {
         console.error("❌ Failed to fetch messages:", error);
       }
@@ -65,7 +66,7 @@ const MainConversation = () => {
 
   // ⚡ Setup WebSocket connection
   useEffect(() => {
-    console.log("🔄 Khởi tạo WebSocket...");
+    // console.log("🔄 Khởi tạo WebSocket...");
 
     const socket = new SockJS(BaseApi + "/ws");
     const stompClient = new Client({
@@ -75,34 +76,35 @@ const MainConversation = () => {
         Authorization: `Bearer ${Cookies.get("token")}`,
       },
       onConnect: () => {
-        console.log("✅ WebSocket connected successfully");
+        // console.log("✅ WebSocket connected successfully");
 
         // 📥 Nhận tin nhắn trong nhóm hiện tại
         if (id) {
           stompClient.subscribe(`/topic/group/${id}`, (message) => {
             const newMessage: Message = JSON.parse(message.body);
             setMessages((prev) => [...prev, newMessage]);
+            // scroll to the bottom
           });
         }
 
         // 🔔 Nhận thông báo tin nhắn cá nhân
-        stompClient.subscribe(
-          `/user/${currentUser?.id}/queue/msg`,
-          (message) => {
-            const notification = JSON.parse(message.body);
-            console.log("🔔 New message notification:", notification);
+        // stompClient.subscribe(
+        //   `/user/${currentUser?.id}/queue/msg`,
+        //   (message) => {
+        //     const notification = JSON.parse(message.body);
+        //     console.log("🔔 New message notification:", notification);
 
-            // Kiểm tra xem người dùng có đang ở đúng group không
-            if (notification.groupId === id) {
-              setMessages((prev) => [...prev, notification.message]);
+        //     // Kiểm tra xem người dùng có đang ở đúng group không
+        //     if (notification.groupId === id) {
+        //       setMessages((prev) => [...prev, notification.message]);
 
-            } else {
-              toast.info(
-                `📩 Tin nhắn mới từ nhóm: ${notification.groupName}`
-              );
-            }
-          }
-        );
+        //     } else {
+        //       toast.info(
+        //         `📩 Tin nhắn mới từ nhóm: ${notification.groupName}`
+        //       );
+        //     }
+        //   }
+        // );
       },
       onDisconnect: () => {
         console.log("❎ WebSocket disconnected");
@@ -137,6 +139,7 @@ const MainConversation = () => {
       // const newMessage: Message = response.data;
       // setMessages((prev) => [...prev, newMessage]);
       inputElement.value = "";
+      window.scrollTo(0, document.body.scrollHeight + 50);
     } catch (error) {
       console.error("❌ Failed to send message:", error);
     }
@@ -149,25 +152,26 @@ const MainConversation = () => {
         // scroll xuống dưới cùng
         window.scrollTo(0, 500);
       }
-    }, 500);
+    }, 100);
   }, [pageNumber]);
 
   useEffect(() => {
     // infinite scroll
     const handleScroll = () => {
-      // console.log(window.innerHeight + document.documentElement.scrollTop);
-      // console.log(document.documentElement.offsetHeight);
+      // console.log( document.documentElement.scrollTop);
+      // const chatContainer = document.getElementById("chat-container");
+      // console.log(chatContainer?.scrollHeight);
 
-        if (
-          window.innerHeight + document.documentElement.scrollTop !== 712
-        )
-          return;
-        if (pageNumber > totalPage) return;
-        if (isFeching) return;
+      if (
+        document.documentElement.scrollTop > 5
+      )
+        return;
+      if (pageNumber > totalPage) return;
+      if (isFeching) return;
 
-        setPageNumber((prev) => prev + 1);
-        console.log("🔄 Fetching messages...", pageNumber);
-     
+      setPageNumber((prev) => prev + 1);
+      console.log("🔄 Fetching messages...", pageNumber);
+
     };
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
@@ -176,19 +180,8 @@ const MainConversation = () => {
   return (
     <div className="w-full min-h-full bg-gray-100 dark:bg-gray-800 relative">
       <div
-
+        id="chat-container"
         className="flex flex-col gap-2 p-4 min-h-screen overflow-y-auto">
-        {/* load more */}
-        {/* {pageNumber <= totalPage && (
-          <button
-
-            className="p-2 bg-blue-500 text-white rounded-lg "
-            onClick={fetchMessages}
-          >
-            Load more
-          </button>
-        )} */}
-        {/* nếu fetching thì hiển thị loading */}
         {isFeching && (
           <div className="flex justify-center">
             <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-gray-900"></div>
@@ -202,7 +195,7 @@ const MainConversation = () => {
           >
             {msg.sender.id !== currentUser?.id && (
               <img
-                src={msg.sender.avatarUrl}
+                src={msg.sender?.avatarUrl ? msg.sender.avatarUrl : "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ-uwAPsc9m6frK85uQog_CeCpOwlfgpsjZKA&s"}
                 alt={msg.sender.fullname}
                 className="w-10 h-10 rounded-full"
               />
@@ -211,11 +204,11 @@ const MainConversation = () => {
               className={`flex flex-col ${msg.sender.id === currentUser?.id ? "items-end" : ""
                 }`}
             >
-              <span className="font-semibold">{msg.sender.fullname}</span>
+              <span className="font-semibold text-black dark:text-white">{msg.sender.fullname}</span>
               <span
                 className={`p-2 rounded-lg ${msg.sender.id === currentUser?.id
                   ? "bg-blue-500 text-white"
-                  : "bg-gray-200 dark:bg-gray-700"
+                  : "bg-gray-200 dark:bg-gray-700  text-black dark:text-white"
                   }`}
               >
                 {msg.content}
@@ -247,7 +240,7 @@ const MainConversation = () => {
           </button>
         </div>
       </div>
-      
+
     </div>
   );
 };

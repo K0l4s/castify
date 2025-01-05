@@ -22,12 +22,7 @@ public class ChatEntity {
     private String id;
     private String title;
     private String imageUrl;
-//    private String name;
-
-//    @DBRef
     private List<MemberInfor> memberList = new ArrayList<>();
-//    @DBRef
-//    private List<MessageEntity> message = new ArrayList<>();
     private boolean isActive = true;
     private LocalDateTime createdAt = LocalDateTime.now();
 

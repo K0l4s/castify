@@ -3,11 +3,13 @@ import { configureStore } from '@reduxjs/toolkit';
 import authReducer from './slice/authSlice';
 import commentsReducer from './slice/commentSlice';
 import sidebarReducer from './slice/sidebarSlice';
+import messageSlice from './slice/messageSlice';
 export const store = configureStore({
   reducer: {
     auth: authReducer,
     comments: commentsReducer,
     sidebar: sidebarReducer,
+    message: messageSlice,
   },
 });
 
