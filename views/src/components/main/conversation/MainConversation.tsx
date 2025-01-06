@@ -11,6 +11,7 @@ import { useToast } from "../../../context/ToastProvider";
 import { BaseApi } from "../../../utils/axiosInstance";
 import { formatDistanceToNow } from "date-fns";
 import { TbSend } from "react-icons/tb";
+import useStomp from "../../../hooks/useStomp";
 
 const MainConversation = () => {
   const id = useParams().id;
@@ -63,69 +64,20 @@ const MainConversation = () => {
     fetch();
     console.log("🔄 Fetching messages...", pageNumber);
   }, [useParams().id]);
+  const object = useStomp({
+    subscribeUrl: `/topic/group/${id}`,
+    trigger: [id, currentUser],
+    flag:id?true:false
+  });
 
-  // ⚡ Setup WebSocket connection
   useEffect(() => {
-    // console.log("🔄 Khởi tạo WebSocket...");
-
-    const socket = new SockJS(BaseApi + "/ws");
-    const stompClient = new Client({
-      webSocketFactory: () => socket,
-      reconnectDelay: 5000,
-      connectHeaders: {
-        Authorization: `Bearer ${Cookies.get("token")}`,
-      },
-      onConnect: () => {
-        // console.log("✅ WebSocket connected successfully");
-
-        // 📥 Nhận tin nhắn trong nhóm hiện tại
-        if (id) {
-          stompClient.subscribe(`/topic/group/${id}`, (message) => {
-            const newMessage: Message = JSON.parse(message.body);
-            setMessages((prev) => [...prev, newMessage]);
-            // scroll to the bottom
-          });
-        }
-
-        // 🔔 Nhận thông báo tin nhắn cá nhân
-        // stompClient.subscribe(
-        //   `/user/${currentUser?.id}/queue/msg`,
-        //   (message) => {
-        //     const notification = JSON.parse(message.body);
-        //     console.log("🔔 New message notification:", notification);
-
-        //     // Kiểm tra xem người dùng có đang ở đúng group không
-        //     if (notification.groupId === id) {
-        //       setMessages((prev) => [...prev, notification.message]);
-
-        //     } else {
-        //       toast.info(
-        //         `📩 Tin nhắn mới từ nhóm: ${notification.groupName}`
-        //       );
-        //     }
-        //   }
-        // );
-      },
-      onDisconnect: () => {
-        console.log("❎ WebSocket disconnected");
-      },
-      onStompError: (frame) => {
-        console.error("🚨 Broker reported error: " + frame.headers["message"]);
-        console.error("📄 Additional details: " + frame.body);
-      },
-      onWebSocketError: (error) => {
-        console.error("🔌 WebSocket error:", error);
-      },
-    });
-
-    stompClient.activate();
-    stompClientRef.current = stompClient;
-
-    return () => {
-      console.log("🔄 Cleaning up WebSocket...");
-      stompClient.deactivate();
-    };
-  }, [id, currentUser]);
+    if (object) {
+      const newMessage: Message = object;
+      setMessages((prev) => [...prev, newMessage]);
+      // scroll to the bottom
+      window.scrollTo(0, document.body.scrollHeight);
+    }
+  }, [object]);
 
   // 📩 Send Message
   const sendMessage = async () => {
@@ -158,7 +110,7 @@ const MainConversation = () => {
   useEffect(() => {
     // infinite scroll
     const handleScroll = () => {
-      // console.log( document.documentElement.scrollTop);
+      console.log( document.documentElement.scrollTop);
       // const chatContainer = document.getElementById("chat-container");
       // console.log(chatContainer?.scrollHeight);
 
@@ -206,7 +158,7 @@ const MainConversation = () => {
             >
               <span className="font-semibold text-black dark:text-white">{msg.sender.fullname}</span>
               <span
-                className={`p-2 rounded-lg ${msg.sender.id === currentUser?.id
+                className={`p-2 max-w-5xl rounded-lg ${msg.sender.id === currentUser?.id
                   ? "bg-blue-500 text-white"
                   : "bg-gray-200 dark:bg-gray-700  text-black dark:text-white"
                   }`}
@@ -225,9 +177,9 @@ const MainConversation = () => {
       {/* Input */}
       <div className="sticky bottom-0 left-0 w-full bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 p-2 shadow-md">
         <div className="flex items-center gap-2">
-          <input
+          <textarea
             id="message"
-            type="text"
+            // type="text"
             placeholder="Type your message here..."
             className="flex-1 p-3 rounded-lg border text-black dark:text-white bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400"
             onKeyDown={(e) => e.key === "Enter" && sendMessage()}

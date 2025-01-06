@@ -54,6 +54,8 @@ const Router = () => {
                 <Route path='/payment' element={<Payment />} />
                 <Route path="/msg" element={<ConversationLayout />} />
                 <Route path="/msg/:id" element={<ConversationLayout />} />
+                <Route path='video-editor' element={<VideoEditor />} />
+
                 {/* <Route path='test' element={<Test/>}/> */}
                 {/* <Route path='/noti' element={<NotificationComponent />} /> */}
                 {/* </Route> */}
@@ -70,7 +72,6 @@ const Router = () => {
                     <Route path='dashboard' element={<CreatorLandingPage />} />
                     <Route path='contents' element={<MyPodcastPage />} />
                     <Route path='podcast/:id' element={<DetailPodcastPage />} />
-                    <Route path='video-editor' element={<VideoEditor />} />
                     <Route path='followers' element={<CreatorFollower />} />
                 </Route>
 
