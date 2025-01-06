@@ -1,14 +1,9 @@
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { Message } from "../../../models/Conversation";
 import { conversationService } from "../../../services/ConversationService";
 import { useSelector } from "react-redux";
 import { RootState } from "../../../redux/store";
-import { Client } from "@stomp/stompjs";
-import SockJS from "sockjs-client";
-import Cookies from "js-cookie";
-import { useToast } from "../../../context/ToastProvider";
-import { BaseApi } from "../../../utils/axiosInstance";
 import { formatDistanceToNow } from "date-fns";
 import { TbSend } from "react-icons/tb";
 import useStomp from "../../../hooks/useStomp";
@@ -17,7 +12,6 @@ const MainConversation = () => {
   const id = useParams().id;
   const [messages, setMessages] = useState<Message[]>([]);
   const currentUser = useSelector((state: RootState) => state.auth.user);
-  const stompClientRef = useRef<Client | null>(null);
   const [pageNumber, setPageNumber] = useState(1);
   const [totalPage, setTotalPage] = useState(1);
   const [isFeching, setIsFeching] = useState(false);
@@ -26,7 +20,7 @@ const MainConversation = () => {
   }
   ), [messages];
   const pageSize = 7;
-  const toast = useToast();
+  // const toast = useToast();
   const fetchMessages = async () => {
     if (!id) return;
     setIsFeching(true);
