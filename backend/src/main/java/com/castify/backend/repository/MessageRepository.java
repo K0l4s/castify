@@ -10,4 +10,6 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface MessageRepository extends MongoRepository<MessageEntity, String> {
     Page<MessageEntity> findMessageEntitiesByChatId(String chatId, Pageable pageable);
+    MessageEntity findTopByChatIdOrderByTimestampDesc(String chatId);
+
 }

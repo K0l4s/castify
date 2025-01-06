@@ -1,22 +1,17 @@
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { Message } from "../../../models/Conversation";
 import { conversationService } from "../../../services/ConversationService";
 import { useSelector } from "react-redux";
 import { RootState } from "../../../redux/store";
-import { Client } from "@stomp/stompjs";
-import SockJS from "sockjs-client";
-import Cookies from "js-cookie";
-import { useToast } from "../../../context/ToastProvider";
-import { BaseApi } from "../../../utils/axiosInstance";
 import { formatDistanceToNow } from "date-fns";
 import { TbSend } from "react-icons/tb";
+import useStomp from "../../../hooks/useStomp";
 
 const MainConversation = () => {
   const id = useParams().id;
   const [messages, setMessages] = useState<Message[]>([]);
   const currentUser = useSelector((state: RootState) => state.auth.user);
-  const stompClientRef = useRef<Client | null>(null);
   const [pageNumber, setPageNumber] = useState(1);
   const [totalPage, setTotalPage] = useState(1);
   const [isFeching, setIsFeching] = useState(false);
@@ -25,7 +20,7 @@ const MainConversation = () => {
   }
   ), [messages];
   const pageSize = 7;
-  const toast = useToast();
+  // const toast = useToast();
   const fetchMessages = async () => {
     if (!id) return;
     setIsFeching(true);
@@ -54,7 +49,8 @@ const MainConversation = () => {
         setMessages(response.data.data.reverse());
         setPageNumber(2);
         // scroll to bottom
-        window.scrollTo(0, document.body.scrollHeight);
+        // if(messages.length>6)
+        //   window.scrollTo(0, document.body.scrollHeight);
       } catch (error) {
         console.error("❌ Failed to fetch messages:", error);
       }
@@ -62,68 +58,20 @@ const MainConversation = () => {
     fetch();
     console.log("🔄 Fetching messages...", pageNumber);
   }, [useParams().id]);
+  const object = useStomp({
+    subscribeUrl: `/topic/group/${id}`,
+    trigger: [id, currentUser],
+    flag:id?true:false
+  });
 
-  // ⚡ Setup WebSocket connection
   useEffect(() => {
-    console.log("🔄 Khởi tạo WebSocket...");
-
-    const socket = new SockJS(BaseApi + "/ws");
-    const stompClient = new Client({
-      webSocketFactory: () => socket,
-      reconnectDelay: 5000,
-      connectHeaders: {
-        Authorization: `Bearer ${Cookies.get("token")}`,
-      },
-      onConnect: () => {
-        console.log("✅ WebSocket connected successfully");
-
-        // 📥 Nhận tin nhắn trong nhóm hiện tại
-        if (id) {
-          stompClient.subscribe(`/topic/group/${id}`, (message) => {
-            const newMessage: Message = JSON.parse(message.body);
-            setMessages((prev) => [...prev, newMessage]);
-          });
-        }
-
-        // 🔔 Nhận thông báo tin nhắn cá nhân
-        stompClient.subscribe(
-          `/user/${currentUser?.id}/queue/msg`,
-          (message) => {
-            const notification = JSON.parse(message.body);
-            console.log("🔔 New message notification:", notification);
-
-            // Kiểm tra xem người dùng có đang ở đúng group không
-            if (notification.groupId === id) {
-              setMessages((prev) => [...prev, notification.message]);
-
-            } else {
-              toast.info(
-                `📩 Tin nhắn mới từ nhóm: ${notification.groupName}`
-              );
-            }
-          }
-        );
-      },
-      onDisconnect: () => {
-        console.log("❎ WebSocket disconnected");
-      },
-      onStompError: (frame) => {
-        console.error("🚨 Broker reported error: " + frame.headers["message"]);
-        console.error("📄 Additional details: " + frame.body);
-      },
-      onWebSocketError: (error) => {
-        console.error("🔌 WebSocket error:", error);
-      },
-    });
-
-    stompClient.activate();
-    stompClientRef.current = stompClient;
-
-    return () => {
-      console.log("🔄 Cleaning up WebSocket...");
-      stompClient.deactivate();
-    };
-  }, [id, currentUser]);
+    if (object) {
+      const newMessage: Message = object;
+      setMessages((prev) => [...prev, newMessage]);
+      // scroll to the bottom
+      window.scrollTo(0, document.body.scrollHeight);
+    }
+  }, [object]);
 
   // 📩 Send Message
   const sendMessage = async () => {
@@ -137,6 +85,7 @@ const MainConversation = () => {
       // const newMessage: Message = response.data;
       // setMessages((prev) => [...prev, newMessage]);
       inputElement.value = "";
+      window.scrollTo(0, document.body.scrollHeight + 50);
     } catch (error) {
       console.error("❌ Failed to send message:", error);
     }
@@ -149,25 +98,26 @@ const MainConversation = () => {
         // scroll xuống dưới cùng
         window.scrollTo(0, 500);
       }
-    }, 500);
+    }, 100);
   }, [pageNumber]);
 
   useEffect(() => {
     // infinite scroll
     const handleScroll = () => {
-      // console.log(window.innerHeight + document.documentElement.scrollTop);
-      // console.log(document.documentElement.offsetHeight);
+      console.log( document.documentElement.scrollTop);
+      // const chatContainer = document.getElementById("chat-container");
+      // console.log(chatContainer?.scrollHeight);
 
-        if (
-          window.innerHeight + document.documentElement.scrollTop !== 712
-        )
-          return;
-        if (pageNumber > totalPage) return;
-        if (isFeching) return;
+      if (
+        document.documentElement.scrollTop > 5
+      )
+        return;
+      if (pageNumber > totalPage) return;
+      if (isFeching) return;
 
-        setPageNumber((prev) => prev + 1);
-        console.log("🔄 Fetching messages...", pageNumber);
-     
+      setPageNumber((prev) => prev + 1);
+      console.log("🔄 Fetching messages...", pageNumber);
+
     };
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
@@ -176,19 +126,8 @@ const MainConversation = () => {
   return (
     <div className="w-full min-h-full bg-gray-100 dark:bg-gray-800 relative">
       <div
-
+        id="chat-container"
         className="flex flex-col gap-2 p-4 min-h-screen overflow-y-auto">
-        {/* load more */}
-        {/* {pageNumber <= totalPage && (
-          <button
-
-            className="p-2 bg-blue-500 text-white rounded-lg "
-            onClick={fetchMessages}
-          >
-            Load more
-          </button>
-        )} */}
-        {/* nếu fetching thì hiển thị loading */}
         {isFeching && (
           <div className="flex justify-center">
             <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-gray-900"></div>
@@ -202,7 +141,7 @@ const MainConversation = () => {
           >
             {msg.sender.id !== currentUser?.id && (
               <img
-                src={msg.sender.avatarUrl}
+                src={msg.sender?.avatarUrl ? msg.sender.avatarUrl : "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ-uwAPsc9m6frK85uQog_CeCpOwlfgpsjZKA&s"}
                 alt={msg.sender.fullname}
                 className="w-10 h-10 rounded-full"
               />
@@ -211,11 +150,11 @@ const MainConversation = () => {
               className={`flex flex-col ${msg.sender.id === currentUser?.id ? "items-end" : ""
                 }`}
             >
-              <span className="font-semibold">{msg.sender.fullname}</span>
+              <span className="font-semibold text-black dark:text-white">{msg.sender.fullname}</span>
               <span
-                className={`p-2 rounded-lg ${msg.sender.id === currentUser?.id
+                className={`p-2 max-w-5xl rounded-lg ${msg.sender.id === currentUser?.id
                   ? "bg-blue-500 text-white"
-                  : "bg-gray-200 dark:bg-gray-700"
+                  : "bg-gray-200 dark:bg-gray-700  text-black dark:text-white"
                   }`}
               >
                 {msg.content}
@@ -232,9 +171,9 @@ const MainConversation = () => {
       {/* Input */}
       <div className="sticky bottom-0 left-0 w-full bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 p-2 shadow-md">
         <div className="flex items-center gap-2">
-          <input
+          <textarea
             id="message"
-            type="text"
+            // type="text"
             placeholder="Type your message here..."
             className="flex-1 p-3 rounded-lg border text-black dark:text-white bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400"
             onKeyDown={(e) => e.key === "Enter" && sendMessage()}
@@ -247,7 +186,7 @@ const MainConversation = () => {
           </button>
         </div>
       </div>
-      
+
     </div>
   );
 };

@@ -9,6 +9,8 @@ import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Document(collection = "message")
 @AllArgsConstructor
@@ -20,6 +22,8 @@ public class MessageEntity {
     private String chatId;
     @DBRef
     private UserEntity sender;
+
+    private List<String> seenUsers = new ArrayList<>();
 
 //    @DBRef
 //    private UserEntity receiver;

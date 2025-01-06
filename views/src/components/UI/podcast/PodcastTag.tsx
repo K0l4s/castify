@@ -55,9 +55,9 @@ const createdDay = podcast.createdDay
       <Link to={`/watch?pid=${podcast.id}`} className="block">
         <div className="relative group">
           <img 
-            src={podcast.thumbnailUrl || "/TEST.png"} 
+            src={podcast.thumbnailUrl? podcast.thumbnailUrl : "https://img.freepik.com/free-photo/cement-texture_1194-6523.jpg?semt=ais_hybrid"} 
             alt={podcast.title} 
-            className="w-full object-cover rounded-t-xl"
+            className="w-full h-full object-cover rounded-t-xl"
           />
           <div className="absolute inset-0 bg-gradient-to-b from-transparent to-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
             <div className="absolute inset-0 flex items-center justify-center">

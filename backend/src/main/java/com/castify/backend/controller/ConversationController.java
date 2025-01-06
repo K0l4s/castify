@@ -2,6 +2,7 @@ package com.castify.backend.controller;
 
 import com.castify.backend.models.conversation.CreateChatRequest;
 import com.castify.backend.models.conversation.SendMessageReq;
+import com.castify.backend.models.conversation.ShortConversationModel;
 import com.castify.backend.service.conversation.ChatServiceImpl;
 import com.castify.backend.service.conversation.IChatService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -56,14 +57,16 @@ public class ConversationController {
             );
 
             logger.info("✅ Message broadcasted to group: " + groupId);
-
+            ShortConversationModel shortConversationModel = chatService.findShortConverById(groupId);
+            shortConversationModel.setLastMessage(messages.getContent());
+            shortConversationModel.setLastMessageTimestamp(messages.getTimestamp());
             // Gửi thông báo tới từng user
             List<String> userIds = chatService.getUserIdsInGroup(groupId); // Lấy danh sách userId trong group
             for (String userId : userIds) {
                 messagingTemplate.convertAndSendToUser(
                         userId,
                         "/queue/msg",
-                        "Bạn có tin nhắn mới từ nhóm: " + groupId
+                        shortConversationModel
                 );
                 logger.info("🔔 Notification sent to user: " + userId);
             }

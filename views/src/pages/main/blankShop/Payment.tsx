@@ -1,72 +1,35 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import { useSelector } from 'react-redux';
 import { RootState } from '../../../redux/store';
 import coin from '../../../assets/images/coin.png';
 import { useToast } from '../../../context/ToastProvider';
 import { PaymentService } from '../../../services/PaymentService';
-import SockJS from 'sockjs-client';
-import { Client } from '@stomp/stompjs';
-import Cookies from 'js-cookie';
-import { BaseApi } from '../../../utils/axiosInstance';
+import useStomp from '../../../hooks/useStomp';
 const Payment = () => {
     const [selectedMethod, setSelectedMethod] = useState<string>('vnpay');
     const [amount, setAmount] = useState<number>(0);
     const [paymentStatus, setPaymentStatus] = useState<'PENDING' | 'SUCCESS' | 'FAILED' | null>(null);
     const { user } = useSelector((state: RootState) => state.auth);
     const toast = useToast();
-
-    const stompClientRef = useRef<Client | null>(null);
-
+    const object = useStomp({
+        subscribeUrl: `/user/${user?.id}/queue/payment-status`,
+        trigger: [user],
+        flag: true,
+    });
     useEffect(() => {
-        console.log('🔄 Khởi tạo WebSocket...');
-        const socket = new SockJS(BaseApi+'/ws');
-        const stompClient = new Client({
-            webSocketFactory: () => socket,
-            reconnectDelay: 5000,
-            connectHeaders: {
-                Authorization: `Bearer ${Cookies.get('token')}`,
-            },
-            onConnect: () => {
-                console.log('✅ WebSocket connected successfully');
-                stompClient.subscribe(
-                    `/user/${user?.id}/queue/payment-status`,
-                    (message:any) => {
-                        console.log( message.body);
-                        const body = JSON.parse(message.body);
-                        const status = body.status;
-                        if (status === 'SUCCESS') {
-                            console.log('✅ Payment status: SUCCESS');
-                            toast.success('Thanh toán thành công.');
-                        } else if (status === 'FAILED') {
-                            console.log('❌ Payment status: FAILED');
-                            toast.error('Thanh toán thất bại.');
-                        } else {
-                            console.log('ℹ️ Payment status:', status);
-                        }
-                    }
-                );
-            },
-            onDisconnect: () => {
-                console.log('❎ WebSocket disconnected');
-            },
-            onStompError: (frame) => {
-                console.error('🚨 Broker reported error: ' + frame.headers['message']);
-                console.error('📄 Additional details: ' + frame.body);
-            },
-            onWebSocketError: (error) => {
-                console.error('🔌 WebSocket error:', error);
+        if (object) {
+            const status = object.status;
+            if (status === 'SUCCESS') {
+                console.log('✅ Payment status: SUCCESS');
+                toast.success('Thanh toán thành công.');
+            } else if (status === 'FAILED') {
+                console.log('❌ Payment status: FAILED');
+                toast.error('Thanh toán thất bại.');
+            } else {
+                console.log('ℹ️ Payment status:', status);
             }
-        });
-    
-        stompClient.activate();
-        stompClientRef.current = stompClient;
-    
-        return () => {
-            console.log('🔄 Cleaning up WebSocket...');
-            stompClient.deactivate();
-        };
-    }, [user]);
-    
+        }
+    }, [object]);
 
     
     const handlePayment = async () => {

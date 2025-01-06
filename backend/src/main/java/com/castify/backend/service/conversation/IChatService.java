@@ -13,6 +13,8 @@ public interface IChatService {
     void addMemberToGroup(String groupId, List<String> memberIds);
 
 
+    ShortConversationModel findShortConverById(String id);
+
     PaginatedResponse<ShortConversationModel> getConversationByUser(int pageNumber, int pageSize) throws Exception;
 
     MessageResponse sendMessage(String message, String groupId) throws Exception;

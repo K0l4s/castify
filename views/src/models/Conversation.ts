@@ -15,6 +15,8 @@ export interface shortConversation {
     title: string;
     imageUrl: string;
     memberSize: number;
+    lastMessage: string;
+    lastMessageTimestamp: string;
 }
 
 export interface Message {

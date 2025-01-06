@@ -6,7 +6,7 @@ const ConversationLayout = () => {
     return (
         <div>
             <MainHeader />
-            <div className="flex">
+            <div className="flex ">
                 <ConversationSidebar />
                 <MainConversation />
             </div>
