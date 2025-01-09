@@ -5,6 +5,7 @@ import MainLayout from './layouts/MainLayout'
 import LandingPage from '../pages/main/landingPage/LandingPage'
 import AdminLadingPage from '../pages/admin/ladingPage/AdminLadingPage'
 import AdminUserPage from '../pages/admin/userPage/AdminUserPage'
+import AdminGenrePage from '../pages/admin/genrePage/AdminGenrePage'
 import CreatorLandingPage from '../pages/creator/ladingPage/CreatorLandingPage'
 import NotFoundPage from '../pages/informationPage/NotFoundPage'
 import NotAccessPage from '../pages/informationPage/NotAccessPage'
@@ -65,6 +66,7 @@ const Router = () => {
                     <Route path='dashboard' element={<AdminLadingPage />} />
                     <Route path="user" element={<AdminUserPage />} />
                     <Route path="report" element={<AdminReportPage />} />
+                    <Route path="genre" element={<AdminGenrePage />} />
                 </Route>
 
                 <Route path='/creator/*' element={<RequireAuth><CreatorLayout /></RequireAuth>} >

@@ -1,6 +1,7 @@
 import { AiOutlineDashboard } from "react-icons/ai";
 import { FaUsersCog } from "react-icons/fa";
 import { TbReport } from "react-icons/tb";
+import { FaRegListAlt } from 'react-icons/fa';
 import { Link } from "react-router-dom";
 
 
@@ -29,6 +30,11 @@ const AdminSidebar = () => {
                 className={childrenClass}>
                 <TbReport />
                 Report Management</Link>
+              <Link to="/admin/genre" 
+                className={childrenClass}>
+                <FaRegListAlt />
+                Genre Management
+              </Link>
             </li>
           </ul>
         </div>
