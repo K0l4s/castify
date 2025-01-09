@@ -10,6 +10,7 @@ public interface IGenreService {
     List<GenreSimple> getAllGenreName();
     List<GenreModel> getALlGenre();
     GenreModel createGenre(String name);
+    GenreModel updateGenre(String id, String newName);
     String deleteGenre(String id);
     List<GenreSimple> getGenresByIds(List<String> ids);
 }
