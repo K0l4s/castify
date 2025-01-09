@@ -1,4 +1,4 @@
-import { axiosInstance } from '../utils/axiosInstance';
+import { axiosInstance, axiosInstanceAuth } from '../utils/axiosInstance';
 
 export const getGenres = async () => {
   try {
@@ -12,6 +12,42 @@ export const getGenres = async () => {
 export const getGenresByList = async (genreIds: string[]) => {
   try {
     const response = await axiosInstance.post('/api/v1/genre/namesByList', genreIds);
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};
+
+export const getAllGenres = async () => {
+  try {
+    const response = await axiosInstance.get('/api/v1/genre/all');
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};
+
+export const createGenre = async (name: string) => {
+  try {
+    const response = await axiosInstanceAuth.post('/api/v1/genre/create', { name });
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};
+
+export const updateGenre = async (id: string, name: string) => {
+  try {
+    const response = await axiosInstance.put(`/api/v1/genre/update/${id}`, { name });
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};
+
+export const deleteGenre = async (id: string) => {
+  try {
+    const response = await axiosInstance.put(`/api/v1/genre/delete/${id}`);
     return response.data;
   } catch (error) {
     throw error;

@@ -50,6 +50,18 @@ public class GenreServiceImpl implements IGenreService {
     }
 
     @Override
+    public GenreModel updateGenre(String id, String newName){
+        GenreEntity genreEntity = genreRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Genre not found"));
+
+        genreEntity.setName(newName);
+        genreEntity.setLastEdited(LocalDateTime.now());
+
+        genreRepository.save(genreEntity);
+        return modelMapper.map(genreEntity, GenreModel.class);
+    }
+
+    @Override
     public String deleteGenre(String id) {
         GenreEntity genreEntity = genreRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Genre not found"));
