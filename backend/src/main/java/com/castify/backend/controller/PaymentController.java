@@ -1,8 +1,11 @@
 package com.castify.backend.controller;
 
 import com.castify.backend.entity.TransactionEntity;
+import com.castify.backend.enums.NotiType;
+import com.castify.backend.enums.TransactionStatus;
 import com.castify.backend.models.payment.PaymentModel;
 import com.castify.backend.models.payment.PaymentResponse;
+import com.castify.backend.service.notification.INotificationService;
 import com.castify.backend.service.payment.vnPay.VNPayPaymentService;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,7 +29,8 @@ public class PaymentController {
 
     @Autowired
     private SimpMessagingTemplate messagingTemplate;
-
+    @Autowired
+    private INotificationService notificationService;
     @PostMapping("/vnpay")
     public ResponseEntity<Map<String, String>> createVNPayPayment(@RequestBody PaymentModel request, HttpServletRequest req) {
         try {
@@ -60,6 +64,14 @@ public class PaymentController {
                                 .timestamp(new Date())
                                 .build()
                 );
+                if(trans.getStatus()== TransactionStatus.SUCCESS)
+                    notificationService.saveNotification(
+                            trans.getUserId(),
+                            NotiType.PAYMENT,
+                            "Thanh toán thành công!",
+                            "Bạn vừa thanh toán thành công "+trans.getAmount() / 1000+" vào tài khoản.",
+                            ""
+                    );
                 logger.info(trans.getUserId());
                 return ResponseEntity.ok("Payment status updated: " + trans.getStatus());
             } else {

@@ -2,6 +2,7 @@ package com.castify.backend.service.podcast;
 
 import com.castify.backend.entity.*;
 import com.castify.backend.enums.ActivityType;
+import com.castify.backend.enums.NotiType;
 import com.castify.backend.models.PageDTO;
 import com.castify.backend.models.podcast.CreatePodcastModel;
 import com.castify.backend.models.podcast.EditPodcastDTO;
@@ -10,6 +11,7 @@ import com.castify.backend.models.user.FollowInfo;
 import com.castify.backend.models.user.UserSimple;
 import com.castify.backend.models.userActivity.AddActivityRequestDTO;
 import com.castify.backend.repository.*;
+import com.castify.backend.service.notification.INotificationService;
 import com.castify.backend.service.uploadFile.UploadFileServiceImpl;
 import com.castify.backend.service.user.IUserService;
 import com.castify.backend.service.userActivity.UserActivityServiceImpl;
@@ -69,7 +71,8 @@ public class PodcastServiceImpl implements IPodcastService {
 
     @Autowired
     private UploadFileServiceImpl uploadFileService;
-
+    @Autowired
+    private INotificationService notificationService;
     @Override
     public PodcastModel createPodcast(CreatePodcastModel createPodcastModel, String userId) {
         PodcastEntity podcastEntity = modelMapper.map(createPodcastModel, PodcastEntity.class);
@@ -341,7 +344,13 @@ public class PodcastServiceImpl implements IPodcastService {
             newLike.setPodcastEntity(podcastEntity);
             newLike.setTimestamp(LocalDateTime.now());
             podcastLikeRepository.save(newLike);
-
+            notificationService.saveNotification(
+                    podcastEntity.getUser().getId(),
+                    NotiType.LIKE,
+                    "Bạn vừa nhận thêm 1 lượt thích!",
+                    "Bạn vừa nhận thêm 1 lượt thích ở video "+podcastEntity.getTitle()+"!",
+                    "/watch?pid=" + podcastEntity.getId()
+            );
             // Thêm tham chiếu ngược
             if (podcastEntity.getLikes() == null) {
                 podcastEntity.setLikes(new ArrayList<>());

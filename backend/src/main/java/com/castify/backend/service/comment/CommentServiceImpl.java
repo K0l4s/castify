@@ -96,16 +96,16 @@ public class CommentServiceImpl implements ICommentService {
             podcastEntity.getComments().add(commentEntity);
 
             podcastRepository.save(podcastEntity);
-//            String content = userEntity.getFullname() + " đã bình luận trên video " + podcastEntity.getTitle();
-//            if (podcastEntity.getUser() != null) {
-//                notificationService.saveNotification(
-//                        podcastEntity.getUser().getId(),
-//                        NotiType.COMMENT,
-//                        "Bạn có bình luận mới!",
-//                        content,
-//                        "/watch?pid=" + podcastEntity.getId()
-//                );
-//            }
+            String content = userEntity.getFullname() + " đã bình luận "+commentRequestDTO.getContent()+" trên video " + podcastEntity.getTitle();
+            if (podcastEntity.getUser() != null) {
+                notificationService.saveNotification(
+                        podcastEntity.getUser().getId(),
+                        NotiType.COMMENT,
+                        "Bạn có bình luận mới!",
+                        content,
+                        "/watch?pid=" + podcastEntity.getId()
+                );
+            }
             return modelMapper.map(commentEntity, CommentModel.class);
         } catch (Exception e) {
             System.out.println("Error saving comment: " + e.getMessage());
