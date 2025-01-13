@@ -37,6 +37,8 @@ public class NotificationServiceImpl implements INotificationService {
     @Override
     public void saveNotification(String receiverId, NotiType type, String title, String content, String url) throws Exception {
         UserEntity sender = userService.getUserByAuthentication(); // Sử dụng userService đã được inject
+//        if(receiverId.equals(sender.getId()))
+//            return; // Ngan gui thong bao cho ban than
         NotificationEntity notificationEntity = new NotificationEntity();
         notificationEntity.setSender(sender);
         notificationEntity.setReceiverId(receiverId);
