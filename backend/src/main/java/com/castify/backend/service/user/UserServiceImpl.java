@@ -1,12 +1,15 @@
 package com.castify.backend.service.user;
 
 import com.castify.backend.entity.UserEntity;
+import com.castify.backend.enums.NotiType;
 import com.castify.backend.enums.Role;
 import com.castify.backend.models.paginated.PaginatedResponse;
 import com.castify.backend.models.user.*;
 import com.castify.backend.repository.PodcastRepository;
 import com.castify.backend.repository.UserRepository;
 import com.castify.backend.repository.template.UserTemplate;
+import com.castify.backend.service.notification.INotificationService;
+import com.castify.backend.service.notification.NotificationServiceImpl;
 import com.castify.backend.service.uploadFile.IUploadFileService;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,7 +39,8 @@ public class UserServiceImpl implements IUserService {
     private IUploadFileService uploadFileService;
     @Autowired
     UserTemplate userRepositoryTemplate;
-
+    @Autowired
+    private INotificationService notificationService = new NotificationServiceImpl();
 
     @Override
     public UserModel getUserByUsername(String username) throws Exception {
@@ -210,8 +214,16 @@ public class UserServiceImpl implements IUserService {
             return "Unfollowed successfully.";
         } else {
             // Nếu chưa theo dõi, thêm targetUser vào danh sách following
+//            String receiverId, NotiType type, String title, String content, String url
             userData.getFollowing().add(new FollowInfo(targetUser.getId(), LocalDateTime.now()));
             userRepository.save(userData);
+            notificationService.saveNotification(
+                    targetUser.getId(),
+                    NotiType.FOLLOW,
+                    "Bạn có một Follow mơi!",
+                    "Bạn đã được theo dõi bởi "+userData.getFullname()+"!",
+                    "/profile/"+targetUser.getUsername()
+            );
             return "Followed successfully.";
         }
     }

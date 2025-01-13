@@ -1,10 +1,13 @@
 package com.castify.backend.service.comment;
 
 import com.castify.backend.entity.*;
+import com.castify.backend.enums.NotiType;
 import com.castify.backend.models.PageDTO;
 import com.castify.backend.models.comment.CommentModel;
 import com.castify.backend.models.comment.CommentRequestDTO;
 import com.castify.backend.repository.*;
+import com.castify.backend.service.notification.INotificationService;
+import com.castify.backend.service.notification.NotificationServiceImpl;
 import com.castify.backend.service.user.IUserService;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,6 +41,9 @@ public class CommentServiceImpl implements ICommentService {
     @Autowired
     private UserActivityRepository userActivityRepository;
 
+    @Autowired
+    private INotificationService notificationService = new NotificationServiceImpl();
+
     @Override
     public CommentModel addComment(CommentRequestDTO commentRequestDTO) {
         try {
@@ -52,7 +58,7 @@ public class CommentServiceImpl implements ICommentService {
             commentEntity.setUser(userEntity);
             commentEntity.setContent(commentEntity.getContent());
             commentEntity.setTimestamp(LocalDateTime.now());
-
+            CommentEntity savedComment = new CommentEntity();
             // Nếu có parentId, tìm comment cha và thêm vào replies
             if (commentRequestDTO.getParentId() != null) {
                 CommentEntity parentComment = commentRepository.findById(commentRequestDTO.getParentId())
@@ -64,7 +70,7 @@ public class CommentServiceImpl implements ICommentService {
                 }
 
                 // Lưu comment con trước để MongoDB sinh ID cho commentEntity
-                commentRepository.save(commentEntity);
+                savedComment= commentRepository.save(commentEntity);
 
                 // Sau khi lưu, commentEntity sẽ có ID hợp lệ
                 parentComment.getReplies().add(commentEntity);
@@ -79,7 +85,7 @@ public class CommentServiceImpl implements ICommentService {
                 commentRepository.save(parentComment);
             } else {
                 // Nếu không có parentId, đây là comment cấp 0
-                commentRepository.save(commentEntity);
+                savedComment= commentRepository.save(commentEntity);
             }
 
             // Thêm ref trong PodcastEntity
@@ -90,7 +96,16 @@ public class CommentServiceImpl implements ICommentService {
             podcastEntity.getComments().add(commentEntity);
 
             podcastRepository.save(podcastEntity);
-
+//            String content = userEntity.getFullname() + " đã bình luận trên video " + podcastEntity.getTitle();
+//            if (podcastEntity.getUser() != null) {
+//                notificationService.saveNotification(
+//                        podcastEntity.getUser().getId(),
+//                        NotiType.COMMENT,
+//                        "Bạn có bình luận mới!",
+//                        content,
+//                        "/watch?pid=" + podcastEntity.getId()
+//                );
+//            }
             return modelMapper.map(commentEntity, CommentModel.class);
         } catch (Exception e) {
             System.out.println("Error saving comment: " + e.getMessage());

@@ -1,76 +1,69 @@
 
 const PrivacyPolicy = () => {
-    
   return (
-    <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI2MCIgaGVpZ2h0PSI2MCI+CiAgPHBhdGggZD0iTTAgMGg2MHY2MEgweiIgZmlsbD0ibm9uZSIvPgogIDxwYXRoIGQ9Ik0zMCAzMGMwLTE2LjU2OSAxMy40MzEtMzAgMzAtMzB2NjBjLTE2LjU2OSAwLTMwLTEzLjQzMS0zMC0zMHoiIGZpbGw9InJnYmEoMCwyNTUsMCwwLjEpIi8+Cjwvc3ZnPg==')] opacity-10">
+    <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900 px-4 py-8">
+      <div className="max-w-4xl w-full bg-white dark:bg-gray-800 rounded-xl shadow-xl overflow-hidden">
+        <div className="p-8 sm:p-12">
+          <h1 className="text-4xl font-bold text-gray-900 dark:text-white text-center mb-6">Privacy Policy</h1>
+          <p className="text-center text-gray-600 dark:text-gray-400 mb-10">
+            Last updated: <span className="font-medium">07/01/2025</span>
+          </p>
 
-      <div className="max-w-4xl mx-auto bg-white dark:bg-gray-800 rounded-lg shadow-lg">
-        <div className="px-6 py-8">
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-8">Privacy Policy</h1>
-          
-          <div className="space-y-6 text-gray-600 dark:text-gray-300">
+          <div className="space-y-8 text-gray-700 dark:text-gray-300">
             <section>
-              <h2 className="text-xl font-semibold text-gray-800 dark:text-white mb-4">1. Information We Collect</h2>
-              <p>We collect information that you provide directly to us, including:</p>
-              <ul className="list-disc pl-6 mt-2">
-                <li>Name and contact information</li>
-                <li>Account credentials</li>
-                <li>Profile information</li>
-                <li>Content you create, upload, or share</li>
-                <li>Communications with us</li>
+              <h2 className="text-2xl font-semibold mb-2">1. Information We Collect</h2>
+              <ul className="list-disc list-inside space-y-1">
+                <li>Personal information: Name, email address, phone number, profile picture.</li>
+                <li>Content you upload: Video podcasts, comments, likes.</li>
+                <li>Device information: IP, operating system, browser.</li>
               </ul>
             </section>
 
             <section>
-              <h2 className="text-xl font-semibold text-gray-800 dark:text-white mb-4">2. How We Use Your Information</h2>
-              <p>We use the collected information to:</p>
-              <ul className="list-disc pl-6 mt-2">
-                <li>Provide and maintain our services</li>
-                <li>Improve user experience</li>
-                <li>Communicate with users</li>
-                <li>Ensure platform security</li>
-                <li>Comply with legal obligations</li>
+              <h2 className="text-2xl font-semibold mb-2">2. How We Use Information</h2>
+              <ul className="list-disc list-inside space-y-1">
+                <li>Provide and maintain services.</li>
+                <li>Personalize user experience.</li>
+                <li>Contact customer support.</li>
+                <li>Develop new features.</li>
               </ul>
             </section>
 
             <section>
-              <h2 className="text-xl font-semibold text-gray-800 dark:text-white mb-4">3. Information Sharing</h2>
-              <p>We may share your information with:</p>
-              <ul className="list-disc pl-6 mt-2">
-                <li>Service providers</li>
-                <li>Legal authorities when required</li>
-                <li>Other users (based on your privacy settings)</li>
+              <h2 className="text-2xl font-semibold mb-2">3. Sharing Information</h2>
+              <p>We do not sell your personal information. We share information with third parties only when you consent or when required by law.</p>
+            </section>
+
+            <section>
+              <h2 className="text-2xl font-semibold mb-2">4. Securing Information</h2>
+              <p>We use technical and organizational measures to protect your personal information.</p>
+            </section>
+
+            <section>
+              <h2 className="text-2xl font-semibold mb-2">5. Your Rights</h2>
+              <ul className="list-disc list-inside space-y-1">
+                <li>Access, edit, or delete your information.</li>
+                <li>Withdraw consent at any time.</li>
               </ul>
             </section>
 
             <section>
-              <h2 className="text-xl font-semibold text-gray-800 dark:text-white mb-4">4. Data Security</h2>
-              <p>
-                We implement appropriate security measures to protect your personal information. 
-                However, no method of transmission over the Internet is 100% secure.
-              </p>
+              <h2 className="text-2xl font-semibold mb-2">6. Policy Changes</h2>
+              <p>This policy may be updated. We will notify you via email or our homepage.</p>
             </section>
 
             <section>
-              <h2 className="text-xl font-semibold text-gray-800 dark:text-white mb-4">5. Your Rights</h2>
-              <p>You have the right to:</p>
-              <ul className="list-disc pl-6 mt-2">
-                <li>Access your personal data</li>
-                <li>Correct inaccurate data</li>
-                <li>Request data deletion</li>
-                <li>Object to data processing</li>
-                <li>Data portability</li>
-              </ul>
+              <h2 className="text-2xl font-semibold mb-2">7. Contact</h2>
+              <p>For any questions, please contact us:</p>
+              <p className="font-medium">Email: blankcil.st@gmail.com</p>
+              <p className="font-medium">Phone: 0000000000</p>
             </section>
+          </div>
 
-            <section>
-              <h2 className="text-xl font-semibold text-gray-800 dark:text-white mb-4">6. Contact Us</h2>
-              <p>
-                If you have any questions about this Privacy Policy, please contact us at:
-                <br />
-                Email: privacy@blankcil.com
-              </p>
-            </section>
+          <div className="border-t mt-10 pt-6 text-center">
+            <p className="text-sm text-gray-500 dark:text-gray-400">
+              © 2025 Blank Team. All rights reserved.
+            </p>
           </div>
         </div>
       </div>
