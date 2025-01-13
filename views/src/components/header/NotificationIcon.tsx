@@ -7,7 +7,8 @@ import { RootState } from '../../redux/store';
 import { NotificationService } from '../../services/NotificationService';
 import { setTotalUnRead } from '../../redux/slice/notificationSlice';
 import { NotiModel } from '../../models/Notification';
-import { Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
+import { HiOutlineDotsHorizontal } from 'react-icons/hi';
 
 const NotificationIcon = () => {
     const user = useSelector((state: RootState) => state.auth.user);
@@ -45,7 +46,7 @@ const NotificationIcon = () => {
             fetchNotifications();
         }
     }, [isOpen]);
-
+    const navigate = useNavigate();
     return (
         <div className='relative flex'>
             <Tooltip text="Notifications">
@@ -71,20 +72,35 @@ const NotificationIcon = () => {
                             {notifications.map((noti) => (
                                 <li
                                     key={noti.id}
-                                    className="p-3 border rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700"
+                                    onClick={() => navigate(noti.targetUrl)}
+                                    className="p-3 w-full rounded-lg hover:bg-gray-100 cursor-pointer dark:hover:bg-gray-700 flex items-center justify-between"
                                 >
-                                    <p className="text-sm font-medium text-gray-800 dark:text-gray-100">
-                                        {noti.title}
-                                    </p>
-                                    <p className="text-sm text-gray-600 dark:text-gray-400">
-                                        {noti.content}
-                                    </p>
-                                    <Link
+                                    <div>
+                                        <p className="text-sm font-medium text-gray-800 dark:text-gray-100">
+                                            {noti.title}
+                                        </p>
+                                        <p className="text-sm text-gray-600 dark:text-gray-400">
+                                            {noti.content}
+                                        </p>
+                                    </div>
+                                    {/* nút 3 chấm */}
+                                    <button
+                                    onClick={(e)=>
+                                    {
+                                        // xóa bỏ tác động của bên ngoài
+                                        e.stopPropagation();
+                                    }
+                                    }
+                                        className="relative p-2 text-gray-700 dark:text-gray-200 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                    >
+                                        <HiOutlineDotsHorizontal className="w-5 h-5" />
+                                    </button>
+                                    {/* <Link
                                         to={noti.targetUrl}
                                         className="text-sm text-blue-500 hover:underline"
                                     >
                                         Xem chi tiết
-                                    </Link>
+                                    </Link> */}
                                 </li>
                             ))}
                         </ul>
