@@ -30,7 +30,8 @@ const NotificationIcon = () => {
 
     useEffect(() => {
         if (stomp) {
-            console.log(stomp);
+            // console.log(stomp);
+            dispatch(setTotalUnRead(totalUnRead + 1));
         }
     }, [stomp]);
 
