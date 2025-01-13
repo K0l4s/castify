@@ -7,6 +7,7 @@ import { RootState } from '../../redux/store';
 import { NotificationService } from '../../services/NotificationService';
 import { setTotalUnRead } from '../../redux/slice/notificationSlice';
 import { NotiModel } from '../../models/Notification';
+import { Link } from 'react-router-dom';
 
 const NotificationIcon = () => {
     const user = useSelector((state: RootState) => state.auth.user);
@@ -78,12 +79,12 @@ const NotificationIcon = () => {
                                     <p className="text-sm text-gray-600 dark:text-gray-400">
                                         {noti.content}
                                     </p>
-                                    <a
-                                        href={noti.targetUrl}
+                                    <Link
+                                        to={noti.targetUrl}
                                         className="text-sm text-blue-500 hover:underline"
                                     >
                                         Xem chi tiết
-                                    </a>
+                                    </Link>
                                 </li>
                             ))}
                         </ul>
