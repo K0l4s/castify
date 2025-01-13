@@ -20,7 +20,7 @@ export const getGenresByList = async (genreIds: string[]) => {
 
 export const getAllGenres = async () => {
   try {
-    const response = await axiosInstance.get('/api/v1/genre/all');
+    const response = await axiosInstanceAuth.get('/api/v1/genre/all');
     return response.data;
   } catch (error) {
     throw error;
@@ -38,7 +38,7 @@ export const createGenre = async (name: string) => {
 
 export const updateGenre = async (id: string, name: string) => {
   try {
-    const response = await axiosInstance.put(`/api/v1/genre/update/${id}`, { name });
+    const response = await axiosInstanceAuth.put(`/api/v1/genre/update/${id}`, { name });
     return response.data;
   } catch (error) {
     throw error;
@@ -47,7 +47,7 @@ export const updateGenre = async (id: string, name: string) => {
 
 export const deleteGenre = async (id: string) => {
   try {
-    const response = await axiosInstance.put(`/api/v1/genre/delete/${id}`);
+    const response = await axiosInstanceAuth.put(`/api/v1/genre/delete/${id}`);
     return response.data;
   } catch (error) {
     throw error;
