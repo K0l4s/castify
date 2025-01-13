@@ -13,6 +13,7 @@ import java.util.stream.Collectors;
 public enum Role {
 
     USER(Collections.emptySet()),
+    BUSINESS(Collections.emptySet()),
     ADMIN(
             Set.of(
                     Permission.ADMIN_READ,

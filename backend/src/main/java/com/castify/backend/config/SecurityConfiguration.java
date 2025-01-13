@@ -27,8 +27,7 @@ import static com.castify.backend.enums.Permission.MANAGER_CREATE;
 import static com.castify.backend.enums.Permission.MANAGER_DELETE;
 import static com.castify.backend.enums.Permission.MANAGER_READ;
 import static com.castify.backend.enums.Permission.MANAGER_UPDATE;
-import static com.castify.backend.enums.Role.ADMIN;
-import static com.castify.backend.enums.Role.MANAGER;
+import static com.castify.backend.enums.Role.*;
 import static org.springframework.http.HttpMethod.DELETE;
 import static org.springframework.http.HttpMethod.GET;
 import static org.springframework.http.HttpMethod.POST;
@@ -99,6 +98,7 @@ public class SecurityConfiguration {
                         req.requestMatchers(WHITE_LIST_URL)
                                 .permitAll()
                                 .requestMatchers("/api/v1/admin/**").hasAnyRole(ADMIN.name())
+                                .requestMatchers("/api/v1/business/**").hasRole(BUSINESS.name())
                                 .requestMatchers("/api/v1/management/**").hasAnyRole(ADMIN.name(), MANAGER.name())
                                 .requestMatchers(GET, "/api/v1/management/**").hasAnyAuthority(ADMIN_READ.name(), MANAGER_READ.name())
                                 .requestMatchers(POST, "/api/v1/management/**").hasAnyAuthority(ADMIN_CREATE.name(), MANAGER_CREATE.name())

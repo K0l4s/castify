@@ -10,7 +10,6 @@ import AuthenticationModal from "../modals/authentication/AuthenticationModal";
 import { useEffect, useState } from "react";
 import ThemeModeSwitch from "../UI/custom/ThemeModeSwitch";
 import { RiVideoAddFill } from "react-icons/ri";
-import { IoIosNotifications } from "react-icons/io";
 import Tooltip from "../UI/custom/Tooltip";
 import PodcastUploadModal from "../modals/podcast/PodcastUploadModal";
 import CustomButton from "../UI/custom/CustomButton";
@@ -19,7 +18,8 @@ import defaultAvatar from "../../assets/images/default_avatar.jpg";
 import { useLanguage } from "../../context/LanguageContext";
 import coin from "../../assets/images/coin.png";
 import { BsCart3 } from "react-icons/bs";
-import { BiMessageRoundedDots } from "react-icons/bi";
+import MessageIcon from "./MessageIcon";
+import NotificationIcon from "./NotificationIcon";
 
 const Authentication = () => {
   const { language, changeLanguage } = useLanguage();
@@ -29,7 +29,6 @@ const Authentication = () => {
   // const [mode, setMode] = useState(localStorage.getItem('theme') || 'light');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isFirstRender, setIsFirstRender] = useState(true);
-  const conversation = useSelector((state: RootState) => state.message.conversation);
 
   const navigate = useNavigate();
   const location = useLocation();
@@ -72,6 +71,7 @@ const Authentication = () => {
     dropdown?.classList.toggle("hidden");
   };
   const user = useSelector((state: RootState) => state.auth.user);
+  
   return (
     <div>
       <div className="relative">
@@ -94,15 +94,6 @@ const Authentication = () => {
               </button>
             ) : (
 
-              // <Tooltip text="Upload">
-              //   <button
-              //     onClick={() => navigate('/creator/contents')}
-              //     className="px-4 py-2 text-sm border border-gray-500 rounded-full text-black hover:bg-gray-300
-              //     dark:border-gray-300 dark:text-white dark:hover:bg-gray-600">
-              //     <RiVideoAddFill className="inline-block mr-2 ml-1" size={20} />
-              //     <p className="hidden sm:inline">{language.navbar.upload}</p>
-              //   </button>
-              // </Tooltip>
               <Tooltip text="Upload">
                 <button
                   onClick={() => navigate('/creator/contents')}
@@ -117,19 +108,8 @@ const Authentication = () => {
                   <BsCart3 className="w-5 h-5" />
                 </button>
               </Tooltip>
-              <Tooltip text="Messages">
-                <button
-                  onClick={() => navigate('/msg')}
-                  className="p-2 text-gray-700 dark:text-gray-200 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500">
-                  {conversation.length > 0 && <span className="absolute top-0 right-0 w-5 h-5 bg-red-500 rounded-full flex items-center justify-center text-white text-xs">{conversation.length}</span>}
-                  <BiMessageRoundedDots className="w-5 h-5" />
-                </button>
-              </Tooltip>
-              <Tooltip text="Notifications">
-                <button className="p-2 text-gray-700 dark:text-gray-200 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500">
-                  <IoIosNotifications className="w-5 h-5" />
-                </button>
-              </Tooltip>
+              <MessageIcon />
+              <NotificationIcon />
             </div>
             <button
               onClick={toggleUserMenu}
