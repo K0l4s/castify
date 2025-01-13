@@ -1,7 +1,7 @@
 export interface Genre {
     id: string;
     name: string;
-    isActive: boolean;
+    active: boolean;
     lastEdited: Date;
 }
 
