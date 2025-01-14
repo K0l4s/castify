@@ -25,7 +25,7 @@ public class BasicUserModel {
     private String phone;
     private String email;
     private List<String> badgesId;
-    @Enumerated(EnumType.STRING)
+//    @Enumerated(EnumType.STRING)
     private Role role;
     private boolean isActive;
     private boolean isNonLocked;

@@ -9,7 +9,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.time.LocalDateTime;
 
-@Entity
+//@Entity
 @Data
 @Document(collection = "visitor")
 @NoArgsConstructor

@@ -1,4 +1,5 @@
 
+import ChatNotification from './components/modals/msg/ChatNotification';
 import { LanguageProvider } from './context/LanguageContext'
 import { PodcastProvider } from './context/PodcastContext'
 // import { ThemeProvider } from './context/ThemeContext'
@@ -12,6 +13,8 @@ function App() {
       <LanguageProvider>
         <PodcastProvider>
           <Router />
+          <ChatNotification/>
+
         </PodcastProvider>
       </LanguageProvider>
       {/* </ThemeProvider> */}
