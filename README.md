@@ -18,6 +18,7 @@ Blankcil is an innovative social platform designed exclusively for podcast enthu
 |-|-|-|-|
 |21110223|Huỳnh Trung Kiên|Full-stack Developer|[Github](https://github.com/K0l4s)|
 |21110314|Ngô Minh Thuận|Full-stack Developer|[Github](https://github.com/nauth1)|
+|21110300|Nguyễn Thế Thành|Full-stack Developer|[Github](https://github.com/nauth1)|
 ## Tables of tasks
 | **ID** | **Task**            | **Member Implementation**            | **NOTES**|
 |--------|---------------------|---------------------------------------|-|
@@ -30,8 +31,6 @@ Blankcil is an innovative social platform designed exclusively for podcast enthu
 | 6      | Search     | Huỳnh Trung Kiên   |
 | 7      | Create Podcast     | Ngô Minh Thuận  |
 | 8      | Podcast Reaction     | Ngô Minh Thuận  |
-| 9      | Blankcil Store     | Ngô Minh Thuận  |
-
 
 
 ## Class Diagram

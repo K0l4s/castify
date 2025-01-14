@@ -30,4 +30,7 @@ public class MessageEntity {
 
     private String content;
     private LocalDateTime timestamp = LocalDateTime.now();
+    private boolean isSeen(String userId){
+        return seenUsers.contains(userId);
+    }
 }

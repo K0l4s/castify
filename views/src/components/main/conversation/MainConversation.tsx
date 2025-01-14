@@ -122,6 +122,15 @@ const MainConversation = () => {
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
+  // nếu không có id thì return về banner
+  if (!id) {
+    return (
+      <div className="h-full w-full grid place-items-center">
+        <img className="" src="https://cdni.iconscout.com/illustration/premium/thumb/conversation-illustration-download-in-svg-png-gif-file-formats--like-logo-love-discussion-romantic-comment-social-media-reaction-communication-pack-network-illustrations-4705280.png?f=webp" alt="" />
+        <h1 className="text-3xl font-semibold text-gray-500 dark:text-gray-400">Please select a conversation</h1>
+      </div>
+    );
+  }
 
   return (
     <div className="w-full min-h-full bg-gray-100 dark:bg-gray-800 relative">

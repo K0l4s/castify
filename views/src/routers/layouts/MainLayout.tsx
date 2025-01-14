@@ -17,6 +17,7 @@ const MainLayout = () => {
     <>
       <MainHeader />
       <MainSidebar />
+
       <div className={`py-2 min-h-screen duration-300 ease-in-out ${isOpenSideBar ? "ml-60" : "ml-[100px]"} max-w-[1920px] mx-auto px-4 sm:px-6 lg:px-11`}>
         <Outlet />
       </div>
