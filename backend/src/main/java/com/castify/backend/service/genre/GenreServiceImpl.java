@@ -80,4 +80,9 @@ public class GenreServiceImpl implements IGenreService {
                 .map(genreEntity -> modelMapper.map(genreEntity, GenreSimple.class))
                 .toList();
     }
+
+    @Override
+    public long countActiveGenres() {
+        return genreRepository.countByIsActiveTrue();
+    }
 }

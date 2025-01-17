@@ -1,6 +1,5 @@
 package com.castify.backend.service.genre;
 
-import com.castify.backend.models.genre.CreateGenreDTO;
 import com.castify.backend.models.genre.GenreModel;
 import com.castify.backend.models.genre.GenreSimple;
 
@@ -13,4 +12,5 @@ public interface IGenreService {
     GenreModel updateGenre(String id, String newName);
     String deleteGenre(String id);
     List<GenreSimple> getGenresByIds(List<String> ids);
+    long countActiveGenres();
 }

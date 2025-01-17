@@ -53,3 +53,30 @@ export const deleteGenre = async (id: string) => {
     throw error;
   }
 };
+
+export const getTotalActiveGenresCount = async () => {
+  try {
+    const response = await axiosInstanceAuth.get('/api/v1/genre/countActiveGenres');
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};
+
+// export const getMostUsedGenres = async () => {
+//   try {
+//     const response = await axiosInstanceAuth.get('/api/v1/genre/mostUsed');
+//     return response.data;
+//   } catch (error) {
+//     throw error;
+//   }
+// };
+
+// export const getGenreCountByDate = async () => {
+//   try {
+//     const response = await axiosInstanceAuth.get('/api/v1/genre/countByDate');
+//     return response.data;
+//   } catch (error) {
+//     throw error;
+//   }
+// };

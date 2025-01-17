@@ -79,4 +79,15 @@ public class GenreController {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+
+    @GetMapping("/countActiveGenres")
+    public ResponseEntity<?> countActiveGenres() {
+        try {
+            // Gọi phương thức countActiveGenres từ service
+            long count = genreService.countActiveGenres();
+            return new ResponseEntity<>(count, HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
 }

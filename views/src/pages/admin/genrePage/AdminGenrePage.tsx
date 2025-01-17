@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { getGenres, createGenre, updateGenre, deleteGenre } from "../../../services/GenreService";
+import { getGenres, createGenre, updateGenre, deleteGenre, getTotalActiveGenresCount } from "../../../services/GenreService";
 import { Genre } from "../../../models/GenreModel";
 import { MdOutlineModeEdit } from "react-icons/md";
 import { MdDelete } from "react-icons/md";
@@ -8,6 +8,9 @@ import { useToast } from "../../../context/ToastProvider";
 
 const AdminGenrePage = () => {
   const [genres, setGenres] = useState<Genre[]>([]);
+  const [totalGenreCount, setTotalGenreCount] = useState<number>(0);
+  // const [mostUsedGenres, setMostUsedGenres] = useState<Genre[]>([]);
+  // const [genreCountByDate, setGenreCountByDate] = useState<any>({});
   const [loading, setLoading] = useState<boolean>(false);
   const [newGenreName, setNewGenreName] = useState<string>('');
   const [editingGenre, setEditingGenre] = useState<Genre | null>(null);
@@ -37,6 +40,11 @@ const AdminGenrePage = () => {
   }, []);
 
   useEffect(() => {
+    // Fetch statistics data when component is mounted
+    fetchStatistics();
+  }, []);
+
+  useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       const target = event.target as HTMLElement;
       if (!target.closest('.relative')) {
@@ -49,6 +57,25 @@ const AdminGenrePage = () => {
       document.removeEventListener('mousedown', handleClickOutside);
     };
   }, []);
+
+  const fetchStatistics = async () => {
+    try {
+      // Get total genre count
+      const totalCount = await getTotalActiveGenresCount ();
+      setTotalGenreCount(totalCount);
+
+      // // Get most used genres
+      // const mostUsed = await getMostUsedGenres();
+      // setMostUsedGenres(mostUsed);
+
+      // // Get genre count by date (daily, weekly, monthly)
+      // const countByDate = await getGenreCountByDate();
+      // setGenreCountByDate(countByDate);
+    } catch (error) {
+      console.error('Error fetching statistics:', error);
+      toast.error('Có lỗi xảy ra khi lấy dữ liệu thống kê');
+    }
+  };
 
   const handleCreateGenre = async () => {
     if (!newGenreName.trim()) {
@@ -159,6 +186,31 @@ const AdminGenrePage = () => {
 
       {loading && <p className="text-blue-500">Loading genres...</p>}
 
+      {/* Thống kê */}
+`    <div className="mb-8">
+      <h3 className="text-2xl font-extrabold mb-6 text-black dark:text-white">Thống kê thể loại</h3>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {/* Tổng số thể loại */}
+        <div className="bg-gradient-to-r from-blue-400 to-purple-500 p-6 rounded-2xl shadow-xl text-white hover:shadow-2xl transition-all duration-300">
+          <h4 className="text-xl font-semibold mb-4">Tổng số thể loại</h4>
+          <p className="text-3xl font-bold">{totalGenreCount}</p>
+          <div className="mt-4">
+            <p className="text-sm">Thể loại tổng quan</p>
+          </div>
+        </div>
+
+        {/* Top 5 thể loại được sử dụng nhiều nhất */}
+        {/* <div className="bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300">
+          <h4 className="text-xl font-semibold text-gray-600 dark:text-gray-300 mb-4">TOP 5 thể loại được sử dụng nhiều nhất</h4>
+          <ul className="space-y-2">
+            {mostUsedGenres.map((genre) => (
+              <li key={genre.id} className="text-gray-900 dark:text-white text-lg">{genre.name}</li>
+            ))}
+          </ul>
+        </div> */}
+      </div>
+    </div>
+`
       <div className="mb-6">
         <div className="relative max-w-xl mx-auto">
           <div className="flex items-center px-4 py-2 mb-5 rounded-full border border-gray-300 dark:border-gray-600 hover:border-blue-500 focus-within:border-blue-500 focus-within:ring-2 focus-within:ring-blue-200 dark:focus-within:ring-blue-800 transition-all duration-200 bg-white/5 backdrop-blur-sm">
