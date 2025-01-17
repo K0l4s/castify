@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { getAllGenres, createGenre, updateGenre, deleteGenre } from "../../../services/GenreService";
+import { getGenres, createGenre, updateGenre, deleteGenre } from "../../../services/GenreService";
 import { Genre } from "../../../models/GenreModel";
 import { MdOutlineModeEdit } from "react-icons/md";
 import { MdDelete } from "react-icons/md";
@@ -23,7 +23,7 @@ const AdminGenrePage = () => {
 
   useEffect(() => {
     setLoading(true);
-    getAllGenres()
+    getGenres()
       .then((data) => {
         setAllGenres(data);
         setGenres(data);
