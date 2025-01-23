@@ -1,22 +1,30 @@
 package com.castify.backend.service.genre;
 
 import com.castify.backend.entity.GenreEntity;
+import com.castify.backend.entity.PodcastEntity;
 import com.castify.backend.models.genre.CreateGenreDTO;
 import com.castify.backend.models.genre.GenreModel;
 import com.castify.backend.models.genre.GenreSimple;
+import com.castify.backend.models.genre.GenreUsageCount;
 import com.castify.backend.repository.GenreRepository;
+import com.castify.backend.repository.PodcastRepository;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.rest.webmvc.ResourceNotFoundException;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Service
 public class GenreServiceImpl implements IGenreService {
     @Autowired
     private GenreRepository genreRepository;
+
+    @Autowired
+    private PodcastRepository podcastRepository;
 
     @Autowired
     private ModelMapper modelMapper;
@@ -78,6 +86,32 @@ public class GenreServiceImpl implements IGenreService {
         List<GenreEntity> genreEntities =  genreRepository.findAllById(ids);
         return genreEntities.stream()
                 .map(genreEntity -> modelMapper.map(genreEntity, GenreSimple.class))
+                .toList();
+    }
+
+    @Override
+    public long countActiveGenres() {
+        return genreRepository.countByIsActiveTrue();
+    }
+
+    @Override
+    public List<GenreUsageCount> countGenreUsage() {
+        List<GenreEntity> allGenres = genreRepository.findAll();
+        List<PodcastEntity> podcasts = podcastRepository.findAllGenresInPodcasts();
+
+        Map<String, Long> genreUsageMap = new HashMap<>();
+        podcasts.forEach(podcast -> {
+            podcast.getGenres().forEach(genre -> {
+                genreUsageMap.put(genre.getId(), genreUsageMap.getOrDefault(genre.getId(), 0L) + 1);
+            });
+        });
+
+        return allGenres.stream()
+                .map(genre -> new GenreUsageCount(
+                        genre.getId(),
+                        genre.getName(),
+                        genreUsageMap.getOrDefault(genre.getId(), 0L)
+                ))
                 .toList();
     }
 }
