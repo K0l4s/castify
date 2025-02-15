@@ -1,7 +1,7 @@
 # CASTIFY - PODCAST SOCIAL MEDIA PLATFORM
 ## Project Introduction
 ### I. Description
-Castify is an innovative social platform designed exclusively for podcast enthusiasts. Whether you're a passionate listener or a creative podcaster, Blankcil offers a dynamic space to connect, share, and engage with a like-minded community.
+Castify is an innovative social platform designed exclusively for podcast enthusiasts. Whether you're a passionate listener or a creative podcaster, Castify offers a dynamic space to connect, share, and engage with a like-minded community.
 
 > ROLE: ADMIN, CREATOR, GUEST
 
