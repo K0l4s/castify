@@ -171,10 +171,10 @@ public class PodcastController {
     }
 
     @GetMapping("/video")
-    public ResponseEntity<Resource> getVideo(@RequestParam String path, HttpServletRequest request, @RequestHeader(value = "Referer", required = false) String referer) {
+    public ResponseEntity<Resource> getVideo(@RequestParam String path, HttpServletRequest request, @RequestHeader(value = "Referer", required = false) String referer, @RequestHeader(value = "X-Mobile-App", required = false) String mobileApp) {
         try {
             // Kiểm tra nguồn gốc yêu cầu
-            if (referer == null || (!referer.startsWith("http://localhost:5000") && !referer.startsWith("https://castifyapp.vercel.app/"))) {
+            if ((referer == null || (!referer.startsWith("http://localhost:5000") && !referer.startsWith("https://castifyapp.vercel.app/"))) && mobileApp == null) {
                 logger.warning("Invalid referer: " + referer);
                 return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
             }
