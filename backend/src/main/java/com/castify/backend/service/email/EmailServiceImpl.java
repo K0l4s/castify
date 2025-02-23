@@ -45,12 +45,16 @@ public class EmailServiceImpl implements IEmailService {
     }
 
     @Override
-    public void sendVerificationMail(String email,String tokenValid) {
+    public void sendVerificationMail(String email,String tokenValid, boolean isMobile) {
         String subject = "Blankcil Verification";
 
         // use the Frontend domain when click on button in email body
-        String verificationUrl = "http://localhost:5000" + "/vertify?token=" + tokenValid;
+//        String verificationUrl = "http://localhost:5000" + "/verify?token=" + tokenValid;
+        String verificationUrl = !isMobile
+                ? "https://castify-link.vercel.app?token=" + tokenValid
+                : "http://localhost:5000/verify?token=" + tokenValid; // Mặc định là Web
 
+        System.out.println(verificationUrl);
         Context context = new Context();
         context.setVariable("verificationUrl", verificationUrl);
         context.setVariable("verificationCode", null);
