@@ -1,23 +1,24 @@
-# Blankcil v2.0 - PODCAST SOCIAL MEDIA PLATFORM
+# CASTIFY - PODCAST SOCIAL MEDIA PLATFORM
 ## Project Introduction
 ### I. Description
-Blankcil is an innovative social platform designed exclusively for podcast enthusiasts. Whether you're a passionate listener or a creative podcaster, Blankcil offers a dynamic space to connect, share, and engage with a like-minded community.
+Castify is an innovative social platform designed exclusively for podcast enthusiasts. Whether you're a passionate listener or a creative podcaster, Castify offers a dynamic space to connect, share, and engage with a like-minded community.
 
 > ROLE: ADMIN, CREATOR, GUEST
 
->[Demo Video Here](https://youtube.com/)
-#### Why Blankcil?
+>[Demo Video Here](Not available)
+#### Why Castify?
   Discover Inspiring Podcasts: Explore a vast library of podcasts across diverse genres and topics, tailored to your interests.
   Build Connections: Follow your favorite creators, interact with their content, and join discussions to share your thoughts.
   Empower Creators: Podcasters can easily publish episodes, grow their audience, and receive real-time feedback.
   Seamless Listening Experience: Enjoy high-quality streaming, curated playlists, and personalized recommendations.
-  Blankcil isn’t just about consuming content – it’s about creating meaningful conversations and building a community around the stories that inspire us.
+  Castify isn’t just about consuming content – it’s about creating meaningful conversations and building a community around the stories that inspire us.
 ### II. Collobration
 #### 1. Table of members
 |**ID**|**Fullname**|**Role**|**Contact**|
 |-|-|-|-|
 |21110223|Huỳnh Trung Kiên|Full-stack Developer|[Github](https://github.com/K0l4s)|
 |21110314|Ngô Minh Thuận|Full-stack Developer|[Github](https://github.com/nauth1)|
+|21110300|Nguyễn Thế Thành|Full-stack Developer|[Github](https://github.com/nauth1)|
 ## Tables of tasks
 | **ID** | **Task**            | **Member Implementation**            | **NOTES**|
 |--------|---------------------|---------------------------------------|-|
@@ -30,8 +31,6 @@ Blankcil is an innovative social platform designed exclusively for podcast enthu
 | 6      | Search     | Huỳnh Trung Kiên   |
 | 7      | Create Podcast     | Ngô Minh Thuận  |
 | 8      | Podcast Reaction     | Ngô Minh Thuận  |
-| 9      | Blankcil Store     | Ngô Minh Thuận  |
-
 
 
 ## Class Diagram

@@ -28,4 +28,6 @@ public class RegisterRequest {
     private String district;
     private String provinces;
     private String phone;
+
+    private boolean isMobile;
 }

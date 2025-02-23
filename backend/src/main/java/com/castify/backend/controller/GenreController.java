@@ -3,7 +3,10 @@ package com.castify.backend.controller;
 import com.castify.backend.models.genre.CreateGenreDTO;
 import com.castify.backend.models.genre.GenreModel;
 import com.castify.backend.models.genre.GenreSimple;
+import com.castify.backend.models.genre.GenreUsageCount;
 import com.castify.backend.service.genre.IGenreService;
+import com.castify.backend.service.podcast.IPodcastService;
+import com.castify.backend.service.podcast.PodcastServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.rest.webmvc.ResourceNotFoundException;
 import org.springframework.http.HttpStatus;
@@ -17,6 +20,10 @@ import java.util.List;
 public class GenreController {
     @Autowired
     private IGenreService genreService;
+    @Autowired
+    private IPodcastService podcastService;
+    @Autowired
+    private PodcastServiceImpl podcastServiceImpl;
 
     @GetMapping("/names")
     public ResponseEntity<?> getAllGenresName() {
@@ -78,5 +85,22 @@ public class GenreController {
         } catch (Exception e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
+    }
+
+    @GetMapping("/countActiveGenres")
+    public ResponseEntity<?> countActiveGenres() {
+        try {
+            // Gọi phương thức countActiveGenres từ service
+            long count = genreService.countActiveGenres();
+            return new ResponseEntity<>(count, HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @GetMapping("/usage-count")
+    public ResponseEntity<List<GenreUsageCount>> getGenreUsageCount() {
+        List<GenreUsageCount> genreUsageCounts = genreService.countGenreUsage();
+        return ResponseEntity.ok(genreUsageCounts);
     }
 }

@@ -26,6 +26,7 @@ public class AuthController {
             @RequestBody RegisterRequest request
     ) {
         try {
+            System.out.println("Request controller: " + request);
             return ResponseEntity.ok(service.register(request));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Error: " + e.getMessage());
@@ -73,7 +74,7 @@ public class AuthController {
 //    }
 //}
 
-    @PostMapping("/vetify-email")
+    @PostMapping("/verify-email")
     public ResponseEntity<?> confirm(
             HttpServletRequest request,
             HttpServletResponse response
