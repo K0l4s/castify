@@ -17,4 +17,5 @@ public class MessageResponse {
     @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS")
     private LocalDateTime timestamp = LocalDateTime.now();
     private String chatId;
+    private boolean isRead = false;
 }

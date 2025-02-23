@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { RootState } from '../../../redux/store';
-import { Link, useParams } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 
 const ChatNotification = () => {
     const newConversation = useSelector((state: RootState) => state.message.newConversation);
@@ -33,7 +33,7 @@ const ChatNotification = () => {
             </div>
             <div>
                 <div className="text-xl font-medium">{newConversation?.title}</div>
-                <p className="text-slate-500 dark:text-slate-200">{newConversation?.lastMessage}</p>
+                <p className="text-slate-500 dark:text-slate-200">{newConversation?.lastMessage?.content}</p>
             </div>
         </Link>
     );

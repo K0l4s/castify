@@ -15,9 +15,10 @@ public class ShortConversationModel {
     private String title;
     private String imageUrl;
     private int memberSize;
-    private String lastMessage; // Nội dung tin nhắn mới nhất
-    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS")
-    private LocalDateTime lastMessageTimestamp; // Thời gian tin nhắn mới nhất
+//    private String lastMessage; // Nội dung tin nhắn mới nhất
+//    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS")
+//    private LocalDateTime lastMessageTimestamp; // Thời gian tin nhắn mới nhất
+    private MessageResponse lastMessage;
     @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS")
     private LocalDateTime createdAt = LocalDateTime.now();
 }

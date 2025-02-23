@@ -21,6 +21,7 @@ const MessageIcon = () => {
   )
   useEffect(() => {
     if (data) {
+      console.log(data)
       dispatch(receiveMsg(data));
     }
   }, [data])
