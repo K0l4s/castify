@@ -1,5 +1,6 @@
 package com.castify.backend.entity;
 
+import com.castify.backend.entity.location.WardEntity;
 import com.castify.backend.enums.Role;
 import com.castify.backend.models.user.FollowInfo;
 import jakarta.validation.constraints.NotNull;
@@ -9,6 +10,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -43,6 +45,9 @@ public class UserEntity implements UserDetails {
     private String ward;
     private String district;
     private String provinces;
+    @DBRef
+    private WardEntity location;
+    private String locality;
 //    private String address;
     @NotNull
     private String password;
@@ -156,5 +161,7 @@ public class UserEntity implements UserDetails {
     public void setNonBanned(boolean isNotBanned){
         this.isNonBanned = isNotBanned;
     }
-
+    public String getLocationDetail() {
+        return locality +","+location.getName()+", "+location.getDistrict().getName() + ", "+location.getDistrict().getCity().getName() + ".";
+    }
 }

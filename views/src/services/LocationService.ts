@@ -1,13 +1,14 @@
-import { axiosInstanceLocation } from "../utils/axiosInstance";
+import { axiosInstance } from "../utils/axiosInstance";
 
 export const locationService = {
     getProvinces: async () => {
-        return await axiosInstanceLocation.get('provinces?page=0&size=63');
+        // return await axiosInstanceLocation.get('provinces?page=0&size=63');'
+        return await axiosInstance.get('/api/v1/locations/cities');
     },
     getDistricts: async (provinceId: string) => {
-        return await axiosInstanceLocation.get(`districts/${provinceId}?page=0&size=100`);
+        return await axiosInstance.get(`/api/v1/locations/districts?cityId=${provinceId}`);
     },
     getWards: async (districtId: string) => {
-        return await axiosInstanceLocation.get(`/wards/${districtId}?page=0&size=100`);
+        return await axiosInstance.get(`/api/v1/locations/wards?districtId=${districtId}`);
     }
 };

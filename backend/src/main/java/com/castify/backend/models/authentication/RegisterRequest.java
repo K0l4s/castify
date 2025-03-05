@@ -27,6 +27,7 @@ public class RegisterRequest {
     private String ward;
     private String district;
     private String provinces;
+    private String wardId;
     private String phone;
 
     private boolean isMobile;

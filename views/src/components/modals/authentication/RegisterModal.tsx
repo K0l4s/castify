@@ -3,7 +3,9 @@ import { useToast } from "../../../context/ToastProvider";
 import { userRegister } from "../../../models/User";
 import { authenticateApi } from "../../../services/AuthenticateService";
 import CustomModal from "../../UI/custom/CustomModal";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+// import CustomInput from "../../UI/custom/CustomInput";
+import { locationService } from "../../../services/LocationService";
 import CustomInput from "../../UI/custom/CustomInput";
 
 interface DefaultModalProps {
@@ -14,10 +16,42 @@ interface DefaultModalProps {
 }
 
 const RegisterModal = (props: DefaultModalProps) => {
-  const [step, setStep] = useState(1);
+  const [step, setStep] = useState(2);
   const [isRequest, setIsRequest] = useState(false);
-
-
+  const [provincesList, setProvincesList] = useState<any[]>([]);
+  const [districtsList, setDistrictsList] = useState<any[]>([]);
+  const [wardsList, setWardsList] = useState<any[]>([]);
+  useEffect(() => {
+    const fetchProvinces = async () => {
+      const provinces = await locationService.getProvinces();
+      // console.log(provinces.data);
+      setProvincesList(provinces.data);
+      console.log(provincesList);
+    };
+    fetchProvinces();
+  }, []);
+  const handleProvincesChange = async (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const id = e.target.value;
+    console.log(id === "");
+    if (id === "") {
+      setDistrictsList([]);
+      setWardsList([]);
+      return;
+    }
+    console.log(id);
+    const districts = await locationService.getDistricts(id);
+    setDistrictsList(districts.data);
+  };
+  const handleDistrictsChange = async (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const id = e.target.value;
+    if (id === "") {
+      setWardsList([]);
+      return;
+    }
+    console.log(id);
+    const wards = await locationService.getWards(id);
+    setWardsList(wards.data);
+  }
   const [formData, setFormData] = useState<userRegister>({
     lastName: '',
     middleName: '',
@@ -32,6 +66,7 @@ const RegisterModal = (props: DefaultModalProps) => {
     ward: '',
     district: '',
     provinces: '',
+    wardId: '',
     phone: ''
   });
 
@@ -78,12 +113,17 @@ const RegisterModal = (props: DefaultModalProps) => {
     }
   };
 
-  const handleReturn = () => {
-    setStep(1);
-  };
+  // const handleReturn = () => {
+  //   setStep(1);
+  // };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    // set Ward for formData
+    const wardId = document.getElementById("ward") as HTMLSelectElement;
+    console.log(wardId.value);
+    formData.wardId = wardId.value;
+    console.log(formData);
     const loadingToastId = toast.loading("Creating account...");
     setIsRequest(true);
     try {
@@ -144,7 +184,7 @@ const RegisterModal = (props: DefaultModalProps) => {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label htmlFor="email" className={labelClasses}>Email</label>
-                  <input
+                  <CustomInput
                     type="email"
                     id="email"
                     name="email"
@@ -156,7 +196,7 @@ const RegisterModal = (props: DefaultModalProps) => {
                 </div>
                 <div>
                   <label htmlFor="repeatEmail" className={labelClasses}>Confirm Email</label>
-                  <input
+                  <CustomInput
                     type="email"
                     id="repeatEmail"
                     name="repeatEmail"
@@ -171,7 +211,7 @@ const RegisterModal = (props: DefaultModalProps) => {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label htmlFor="password" className={labelClasses}>Password</label>
-                  <input
+                  <CustomInput
                     type="password"
                     id="password"
                     name="password"
@@ -184,7 +224,7 @@ const RegisterModal = (props: DefaultModalProps) => {
                 </div>
                 <div>
                   <label htmlFor="confirmPassword" className={labelClasses}>Confirm Password</label>
-                  <input
+                  <CustomInput
                     type="password"
                     id="confirmPassword"
                     name="confirmPassword"
@@ -206,11 +246,14 @@ const RegisterModal = (props: DefaultModalProps) => {
             </>
           ) : (
             <>
+              <div>
+                <p className="font-bold text-md">Register for {formData.email} (*)</p>
+              </div>
               {/* Step 2 Fields */}
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div>
                   <label htmlFor="firstName" className={labelClasses}>First Name</label>
-                  <input
+                  <CustomInput
                     type="text"
                     id="firstName"
                     name="firstName"
@@ -222,7 +265,7 @@ const RegisterModal = (props: DefaultModalProps) => {
                 </div>
                 <div>
                   <label htmlFor="middleName" className={labelClasses}>Middle Name</label>
-                  <input
+                  <CustomInput
                     type="text"
                     id="middleName"
                     name="middleName"
@@ -233,7 +276,7 @@ const RegisterModal = (props: DefaultModalProps) => {
                 </div>
                 <div>
                   <label htmlFor="lastName" className={labelClasses}>Last Name</label>
-                  <input
+                  <CustomInput
                     type="text"
                     id="lastName"
                     name="lastName"
@@ -248,8 +291,8 @@ const RegisterModal = (props: DefaultModalProps) => {
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div>
                   <label htmlFor="birthday" className={labelClasses}>Birthday</label>
-                  <input
-                    type="Date"
+                  <CustomInput
+                    type="date"
                     id="birthday"
                     name="birthday"
                     value={formData.birthday instanceof Date ? formData.birthday.toISOString().split('T')[0] : formData.birthday}
@@ -260,7 +303,7 @@ const RegisterModal = (props: DefaultModalProps) => {
                 </div>
                 <div>
                   <label htmlFor="phone" className={labelClasses}>Phone</label>
-                  <input
+                  <CustomInput
                     type="tel"
                     id="phone"
                     name="phone"
@@ -272,7 +315,7 @@ const RegisterModal = (props: DefaultModalProps) => {
                 </div>
                 <div>
                   <label htmlFor="nickName" className={labelClasses}>Nickname</label>
-                  <input
+                  <CustomInput
                     type="text"
                     id="nickName"
                     name="username"
@@ -284,7 +327,7 @@ const RegisterModal = (props: DefaultModalProps) => {
               </div>
               <div>
                 <label htmlFor="addressElements" className={labelClasses}>Hamlet</label>
-                <input
+                <CustomInput
                   type="text"
                   id="addressElements"
                   name="addressElements"
@@ -295,40 +338,82 @@ const RegisterModal = (props: DefaultModalProps) => {
                 />
               </div>
               {/* <div className="grid grid-cols-1 md:grid-cols-3 gap-4"> */}
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  <div>
-                    <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">Provinces</label>
-                    <CustomInput
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">Provinces</label>
+                  {/* <CustomInput
                       type="text"
                       name="provinces"
                       value={formData.provinces}
                       onChange={handleInputChange}
                       variant="primary"
                       className="mt-1 block w-full"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">District</label>
-                    <CustomInput
+                    /> */}
+                  {/* select */}
+                  <select
+                    id="provinces"
+                    name="provinces"
+                    onChange={handleProvincesChange}
+                    // value={selectedProvince?.name ? selectedProvince.name : ""}
+                    className={inputClasses}
+                    required
+                  >
+                    <option value="">Select Provinces</option>
+                    {provincesList.map(province => (
+                      <option key={province.id} value={province.id}>{province.name}</option>
+                    ))}
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">District</label>
+                  {/* <CustomInput
                       type="text"
                       name="district"
                       value={formData.district}
                       onChange={handleInputChange}
                       variant="primary"
                       className="mt-1 block w-full"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">Ward</label>
-                    <CustomInput
+                    /> */}
+                  {/* select */}
+                  <select
+                    id="district"
+                    name="district"
+                    onChange={handleDistrictsChange}
+                    // value={selectedDistrict?.name ? selectedDistrict.name : ""}
+                    className={inputClasses}
+                    required
+                  >
+                    <option value="">Select District</option>
+                    {districtsList.map(district => (
+                      <option key={district.id} value={district.id}>{district.name}</option>
+                    ))}
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 dark:text-gray -300 mb-1">Ward</label>
+                  {/* <CustomInput
                       type="text"
                       name="ward"
                       value={formData.ward}
                       onChange={handleInputChange}
                       variant="primary"
                       className="mt-1 block w-full"
-                    />
-                  </div>
+                    /> */}
+                  {/* select */}
+                  <select
+                    id="ward"
+                    name="ward"
+                    // value={selectedDistrict?.name ? selectedDistrict.name : ""}
+                    // onChange={handleSelectChange}
+                    className={inputClasses}
+                    required
+                  >
+                    <option value="">Select Ward</option>
+                    {wardsList.map(ward => (
+                      <option key={ward.id} value={ward.id}>{ward.name}</option>
+                    ))}
+                  </select>
+                </div>
                 {/* <div>
                   <label htmlFor="provinces" className={labelClasses}>Province/ City</label>
                   <select
@@ -382,14 +467,14 @@ const RegisterModal = (props: DefaultModalProps) => {
                 By creating an account, you agree to our <Link to="/terms" target="_blank" rel="noopener noreferrer" className="text-red-500 dark:text-red-500">Terms of Service</Link> and <Link to="/privacy" target="_blank" rel="noopener noreferrer" className="text-red-500 dark:text-red-500">Privacy Policy</Link>.
               </p>
               <div className="flex gap-4">
-                <button
+                {/* <button
                   type="button"
                   onClick={handleReturn}
                   className={`${buttonClasses} bg-gray-600 hover:bg-gray-700 ${isRequest && 'cursor-not-allowed bg-gray-400'}`}
                   {...isRequest && { disabled: true }}
                 >
                   {isRequest ? 'Loading...' : '< Back'}
-                </button>
+                </button> */}
                 <button
                   type="submit"
                   className={`${buttonClasses} bg-indigo-600 hover:bg-indigo-700 ${isRequest && 'cursor-not-allowed bg-gray-600'}`}
