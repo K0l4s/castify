@@ -33,7 +33,7 @@ const ChatNotification = () => {
             </div>
             <div>
                 <div className="text-xl font-medium">{newConversation?.title}</div>
-                <p className="text-slate-500 dark:text-slate-200">{newConversation?.lastMessage}</p>
+                <p className="text-slate-500 dark:text-slate-200">{newConversation?.lastMessage?.content}</p>
             </div>
         </Link>
     );

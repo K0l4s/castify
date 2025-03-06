@@ -9,19 +9,19 @@ export interface CreateConversationProps {
         joinTime: string;
     }[];
 }
-
-export interface shortConversation {
-    id: string;
-    title: string;
-    imageUrl: string;
-    memberSize: number;
-    lastMessage: string;
-    lastMessageTimestamp: string;
-}
-
 export interface Message {
     id: string;
     sender: shortUser;
     content: string;
     timestamp: string;
 }
+export interface shortConversation {
+    id: string;
+    title: string;
+    imageUrl: string;
+    memberSize: number;
+    lastMessage?: Message;
+    // lastMessage: string;
+    // lastMessageTimestamp: string;
+}
+

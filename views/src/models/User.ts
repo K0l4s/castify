@@ -102,6 +102,7 @@ export interface userRegister {
     confirmPassword:string,
     birthday:Date,
     // address:string,
+    wardId:string,
     addressElements: string,
     ward:string,
     district:string,

@@ -2,8 +2,6 @@ import React, { useEffect, useState } from 'react';
 import { updateUser, User } from '../../../models/User';
 import { userService } from '../../../services/UserService';
 import { useToast } from '../../../context/ToastProvider';
-// import { district, provinces, ward } from '../../../models/Location';
-// import { locationService } from '../../../services/LocationService';
 import CustomButton from '../../UI/custom/CustomButton';
 import CustomInput from '../../UI/custom/CustomInput';
 import { BiEditAlt, BiLoader, BiSave } from 'react-icons/bi';
@@ -22,19 +20,11 @@ const SettingModals = (props: SettingModals) => {
 
   const [isLoading, setIsLoading] = useState(true);
   const [user, setUser] = useState<User>();
-  // const [provincesList, setProvincesList] = useState<provinces[]>([]);
-  // const [districtsList, setDistrictsList] = useState<district[]>([]);
-  // const [wardsList, setWardsList] = useState<ward[]>([]);
-  // const [selectedProvinceId, setSelectedProvinceId] = useState<string>('');
-  // const [selectedDistrictId, setSelectedDistrictId] = useState<string>('');
-  // const [selectedWardId, setSelectedWardId] = useState<string>('');
   const [editedUser, setEditedUser] = useState<updateUser>({
     firstName: '',
     middleName: '',
     lastName: '',
-    // birthday: new Date(),
     birthday: '',
-    // address: '',
     addressElements: '',
     ward: '',
     district: '',
@@ -57,22 +47,19 @@ const SettingModals = (props: SettingModals) => {
             firstName: userRes.data.firstName,
             middleName: userRes.data.middleName,
             lastName: userRes.data.lastName,
-            // birthday: new Date(userRes.data.birthday),
             birthday: userRes.data.birthday,
             addressElements: userRes.data.addressElements,
             ward: userRes.data.ward,
             district: userRes.data.district,
             provinces: userRes.data.provinces,
-            // address: userRes.data.address,
             phone: userRes.data.phone
           });
-          // const selectedDistrictId = 
+          console.log(editedUser)
         } else {
           toast.error("Error loading user details");
         }
       } catch (error) {
         console.error(error);
-        // toast.error("Error fetching user details");
       } finally {
         setIsLoading(false);
       }
@@ -104,9 +91,19 @@ const SettingModals = (props: SettingModals) => {
 
     setEditedUser(prev => ({
       ...prev,
-      [name]: name === "birthday" ? new Date(value) : value
+      [name]: value
     }));
   };
+
+  const handleDateInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+
+    setEditedUser(prev => ({
+      ...prev,
+      [name]: new Date(value)
+    }));
+  };
+
 
 
   const handleCancel = () => {
@@ -126,96 +123,11 @@ const SettingModals = (props: SettingModals) => {
     }
     setIsEdit(false);
   };
-  // Fetch provinces when modal is open
-  // useEffect(() => {
-  //   const fetchData = async () => {
-  //     try {
-  //       const response = await locationService.getProvinces();
-  //       const proList = response.data.data;
-  //       // setProvincesList(proList);
-  //       const province = proList.find((province: provinces) => province.name === user?.provinces);
-  //       setSelectedProvinceId(province?.id || '');
-  //     } catch (error) {
-  //       // toast.error("Failed to load provinces");
-  //     }
-  //   }
-  //   fetchData();
-
-  // }, [user]);
-
-  // // Fetch districts based on selected province
-  // useEffect(() => {
-  //   console.log(selectedProvinceId);
-  //   if (selectedProvinceId) {
-  //     const fetchData = async () => {
-  //       try {
-
-  //         const response = await locationService.getDistricts(selectedProvinceId);
-  //         const disList = response.data.data;
-  //         // setDistrictsList(disList);
-  //         const district = disList.find((district: district) => district.name === user?.district);
-  //         setSelectedDistrictId(district?.id || '');
-  //       } catch (error) {
-  //         // toast.error("Failed to load districts");
-  //       }
-  //     };
-  //     fetchData();
-  //   }
-  // }, [selectedProvinceId]);
-
-  // // Fetch wards based on selected district
-  // useEffect(() => {
-  //   if (selectedDistrictId) {
-  //     const fetchData = async () => {
-  //       try {
-  //         const response = await locationService.getWards(selectedDistrictId);
-  //         const warList = response.data.data;
-  //         setWardsList(warList);
-  //         const ward = warList.find((ward: ward) => ward.name === user?.ward);
-  //         setSelectedWardId(ward?.id || '');
-  //       } catch (error) {
-  //         // toast.error("Failed to load wards");
-  //       }
-  //     };
-  //     fetchData();
-  //   }
-  // }, [selectedDistrictId]);
-  // const handleSelectChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-  //   const { name, value } = e.target;
-  //   // console.log(value);
-  //   // console.log(name)
-  //   // Update selected province/district ID and formData
-  //   if (name === 'provinces') {
-  //     setSelectedProvinceId(value);
-  //     const province = provincesList.find(province => province.id === value);
-  //     setSelectedProvinceId(province?.id || '');
-  //     setEditedUser(prev => ({ ...prev, provinces: province?.name || '' }));
-  //     setEditedUser(prev => ({ ...prev, district: '' }));
-  //     setEditedUser(prev => ({ ...prev, ward: '' }));
-  //     setDistrictsList([]);
-  //     setWardsList([]);
-  //   } else if (name === 'district') {
-  //     setSelectedDistrictId(value);
-
-  //     const district = districtsList.find(district => district.id === value);
-  //     setSelectedDistrictId(district?.id || '');
-  //     setEditedUser(prev => ({ ...prev, district: district?.name || '' }));
-  //     setEditedUser(prev => ({ ...prev, ward: '' }));
-  //     setWardsList([]);
-  //   } else if (name === 'ward') {
-  //     const ward = wardsList.find(ward => ward.id === value);
-  //     setSelectedWardId(ward?.id || '');
-  //     setEditedUser(prev => ({ ...prev, ward: ward?.name || '' }));
-  //     console.log(editedUser)
-  //   }
-  // };
 
   const handleChangeAvatar = async (e: React.ChangeEvent<HTMLInputElement>) => {
     toast.loading("Uploading avatar...");
     const file = e.target.files?.[0];
     if (file) {
-      // const formData = new FormData();
-      // formData.append('avatar', file);
       await userService.changeAvatar(file).then(res => {
         console.log(res);
         toast.clearAllToasts();
@@ -228,7 +140,6 @@ const SettingModals = (props: SettingModals) => {
         toast.clearAllToasts();
         toast.error("Error update avatar");
       });
-      // console.log(formData.get('avatar'));
     }
   };
 
@@ -236,8 +147,6 @@ const SettingModals = (props: SettingModals) => {
     toast.loading("Uploading cover...");
     const file = e.target.files?.[0];
     if (file) {
-      // const formData = new FormData();
-      // formData.append('avatar', file);
       await userService.changeCover(file).then(res => {
         console.log(res);
         toast.clearAllToasts();
@@ -250,14 +159,12 @@ const SettingModals = (props: SettingModals) => {
         toast.clearAllToasts();
         toast.error("Error update cover");
       });
-      // console.log(formData.get('avatar'));
     }
   };
 
 
 
   return (
-    // <div className="min-h-screen bg-gray-50 dark:bg-gray-900 p-8">
     <CustomModal title='Setting' isOpen={props.isOpen} onClose={props.onClose} size='xl'>
       <div className=" mx-auto">
         <div className="relative">
@@ -324,7 +231,7 @@ const SettingModals = (props: SettingModals) => {
                   type="text"
                   name="lastName"
                   value={editedUser.lastName}
-                  onChange={handleInputChange}
+                  onChange={handleDateInputChange}
                   disabled={!isEdit}
                   variant="primary"
                   className="mt-1 block w-full"
@@ -366,7 +273,7 @@ const SettingModals = (props: SettingModals) => {
                     }          
                 onChange={handleInputChange}
                 disabled={!isEdit}
-                className="mt-1 block w-full border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-300 disabled:border-gray-200 disabled:bg-gray-100 dark:disabled:border-gray-700 dark:disabled bg-gray-800 disabled:text-gray-400 dark:disabled:text-gray-500 px-4 py-2 rounded-md"
+                // className="mt-1 block w-full border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-300 disabled:border-gray-200 disabled:bg-gray-100 dark:disabled:border-gray-700 dark:disabled bg-gray-800 disabled:text-gray-400 dark:disabled:text-gray-500 px-4 py-2 rounded-md"
               />
             </div>
             <div>
@@ -421,57 +328,7 @@ const SettingModals = (props: SettingModals) => {
               </div>
             </div>
             <div>
-              {/* <div className="flex flex-col items-start">
-                <label htmlFor="provinces" className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">District</label>
-                <select
-                  id="provinces"
-                  name="provinces"
-                  value={selectedProvinceId}
-                  onChange={handleSelectChange}
-                  required
-                  disabled={!isEdit}
-                  className="mt-1 block w-full border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-300 disabled:border-gray-200 disabled:bg-gray-100 dark:disabled:border-gray-700 dark:disabled bg-gray-800 disabled:text-gray-400 dark:disabled:text-gray-500 px-4 py-2 rounded-md"
-                >
-                  <option value="">Select Provinces</option>
-                  {provincesList.map(province => (
-                    <option key={province.id} value={province.id}>{province.name}</option>
-                  ))}
-                </select>
-              </div>
-              <div className="flex flex-col items-start">
-                <label htmlFor="district" className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">District</label>
-                <select
-                  id="district"
-                  name="district"
-                  value={selectedDistrictId}
-                  onChange={handleSelectChange}
-                  required
-                  disabled={!isEdit}
-                  className="mt-1 block w-full border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-300 disabled:border-gray-200 disabled:bg-gray-100 dark:disabled:border-gray-700 dark:disabled bg-gray-800 disabled:text-gray-400 dark:disabled:text-gray-500 px-4 py-2 rounded-md"
-                >
-                  <option value="">Select District</option>
-                  {districtsList.map(district => (
-                    <option key={district.id} value={district.id}>{district.name}</option>
-                  ))}
-                </select>
-              </div>
-              <div className="flex flex-col items-start">
-                <label htmlFor="ward" className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">Ward</label>
-                <select
-                  id="ward"
-                  name="ward"
-                  value={selectedWardId}
-                  onChange={handleSelectChange}
-                  required
-                  disabled={!isEdit}
-                  className="mt-1 block w-full border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-300 disabled:border-gray-200 disabled:bg-gray-100 dark:disabled:border-gray-700 dark:disabled bg-gray-800 disabled:text-gray-400 dark:disabled:text-gray-500 px-4 py-2 rounded-md"
-                >
-                  <option value="">Select Ward</option>
-                  {wardsList.map(ward => (
-                    <option key={ward.id} value={ward.id}>{ward.name}</option>
-                  ))}
-                </select>
-              </div> */}
+              
             </div>
           </div>
 

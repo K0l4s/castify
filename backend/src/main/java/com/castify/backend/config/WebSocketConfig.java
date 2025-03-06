@@ -27,6 +27,8 @@ import org.springframework.web.socket.config.annotation.StompEndpointRegistry;
 import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerConfigurer;
 import org.springframework.web.socket.config.annotation.WebSocketTransportRegistration;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.logging.Logger;
 
 @Configuration
@@ -42,8 +44,10 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
     }
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
+        registry.addEndpoint("/websocket") // WebSocket thuần
+                .setAllowedOrigins("*");
         registry.addEndpoint("/ws")
-                .setAllowedOrigins("http://localhost:5000") // Chấp nhận tất cả origin
+                .setAllowedOriginPatterns("http://localhost:5000", "https://castifyapp.vercel.app", "http://10.0.2.2:8081")
                 .withSockJS();
     }
     @Override

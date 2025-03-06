@@ -9,6 +9,9 @@ import { formatTimeDuration } from './video';
 import { HiDotsVertical } from 'react-icons/hi';
 import { useSelector } from 'react-redux';
 import { RootState } from '../../../redux/store';
+import Avatar from '../user/Avatar';
+import { CgEyeAlt } from 'react-icons/cg';
+import { BsClock } from 'react-icons/bs';
 
 interface PodcastTagProps {
   podcast: Podcast;
@@ -22,13 +25,13 @@ interface PodcastTagProps {
 const PodcastTag: React.FC<PodcastTagProps> = ({ podcast, onReport, onSave, onShare, onToggleOptionMenu, isOptionMenuOpen }) => {
   const author = podcast.user.fullname;
   console.log(podcast);
-  
-const createdDay = podcast.createdDay 
-  ? formatDistanceToNow(new Date(podcast.createdDay), { addSuffix: true })
-  : 'Unknown Date';
+
+  const createdDay = podcast.createdDay
+    ? formatDistanceToNow(new Date(podcast.createdDay), { addSuffix: true })
+    : 'Unknown Date';
 
   // tính toán thủ công createdDay
-  
+
   const optionMenuRef = useRef<HTMLDivElement>(null);
   const currentUsername = useSelector((state: RootState) => state.auth.user?.username);
 
@@ -51,14 +54,16 @@ const createdDay = podcast.createdDay
   }, [isOptionMenuOpen, onToggleOptionMenu, podcast.id]);
 
   return (
-    <div className="relative bg-white dark:bg-gray-800 rounded-xl shadow-lg hover:shadow-2xl transform hover:-translate-y-1 transition-all duration-300">
+    <div className="relative w-64 bg-white dark:bg-gray-800 rounded-xl shadow-lg hover:shadow-2xl transform hover:-translate-y-1 transition-all duration-300">
       <Link to={`/watch?pid=${podcast.id}`} className="block">
         <div className="relative group">
-          <img 
-            src={podcast.thumbnailUrl? podcast.thumbnailUrl : "https://img.freepik.com/free-photo/cement-texture_1194-6523.jpg?semt=ais_hybrid"} 
-            alt={podcast.title} 
-            className="w-full h-full object-cover rounded-t-xl"
-          />
+          <div className='w-64 h-36'>
+            <img
+              src={podcast.thumbnailUrl ? podcast.thumbnailUrl : "https://img.freepik.com/free-photo/cement-texture_1194-6523.jpg?semt=ais_hybrid"}
+              alt={podcast.title}
+              className="w-full h-full object-fit object-cover rounded-t-xl"
+            />
+          </div>
           <div className="absolute inset-0 bg-gradient-to-b from-transparent to-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
             <div className="absolute inset-0 flex items-center justify-center">
               <button className="bg-white/90 hover:bg-white p-4 rounded-full transform hover:scale-110 transition-all duration-300 shadow-xl">
@@ -75,14 +80,15 @@ const createdDay = podcast.createdDay
         </div>
       </Link>
 
-      <div className="p-4">
+      <div className="p-4 flex flex-col gap-2 items-center">
         <div className="flex gap-3">
           <Link to={`/profile/${podcast.user.username}`} className="flex-shrink-0">
-            <img 
-              src={podcast.user.avatarUrl || default_avatar} 
-              alt={author} 
+            {/* <img
+              src={podcast.user.avatarUrl || default_avatar}
+              alt={author}
               className="w-12 h-12 rounded-full object-cover ring-2 ring-gray-200 dark:ring-gray-700"
-            />
+            /> */}
+            <Avatar src={podcast.user.avatarUrl || default_avatar} width="12" height="12" alt={author} />
           </Link>
           <div className="flex-grow">
             <Link to={`/watch?pid=${podcast.id}`}>
@@ -95,12 +101,13 @@ const createdDay = podcast.createdDay
                 {author}
               </p>
             </Link>
-            <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400 mt-1">
-              <span>{formatViewsToShortly(podcast.views)} views</span>
-              <span>•</span>
-              <span>{createdDay}</span>
-            </div>
+
           </div>
+        </div>
+        <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400 mt-1">
+          <span className='flex flex-cols items-center gap-1'><CgEyeAlt/><p> {formatViewsToShortly(podcast.views)} </p> </span>
+          <span>•</span>
+          <span className='flex flex-cols items-center gap-1'><BsClock/> {createdDay}</span>
         </div>
       </div>
 
@@ -112,8 +119,8 @@ const createdDay = podcast.createdDay
       </button>
 
       {isOptionMenuOpen && (
-        <div 
-          ref={optionMenuRef} 
+        <div
+          ref={optionMenuRef}
           className="absolute top-14 right-4 w-52 bg-white dark:bg-gray-800 rounded-xl shadow-xl border border-gray-200 dark:border-gray-700 overflow-hidden z-50"
         >
           <ul className="py-1">

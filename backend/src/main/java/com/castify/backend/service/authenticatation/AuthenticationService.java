@@ -2,9 +2,11 @@ package com.castify.backend.service.authenticatation;
 
 import com.castify.backend.entity.TokenEntity;
 import com.castify.backend.entity.UserEntity;
+import com.castify.backend.entity.location.WardEntity;
 import com.castify.backend.enums.Role;
 import com.castify.backend.enums.TokenType;
 import com.castify.backend.models.authentication.*;
+import com.castify.backend.repository.WardRepository;
 import com.castify.backend.service.email.EmailServiceImpl;
 import com.castify.backend.service.email.IEmailService;
 import com.castify.backend.service.authenticatation.jwt.IJwtService;
@@ -47,7 +49,8 @@ public class AuthenticationService implements IAuthenticationService {
     private UserRepository repository;
     @Autowired
     private AuthenticationManager authenticationManager;
-
+    @Autowired
+    private WardRepository wardRepository;
     @Autowired
     private IEmailService emailService = new EmailServiceImpl();
 
@@ -98,14 +101,16 @@ public class AuthenticationService implements IAuthenticationService {
         checkRegisterValid(request);
 //        String code = this.getRandom();
         System.out.println("IsMobile: " + request.isMobile());
+        WardEntity selectedWard = wardRepository.findWardEntityById(request.getWardId());
         var user = UserEntity.builder()
 //                .fullname(request.getFullname())
                 .firstName(request.getFirstName()).lastName(request.getLastName()).middleName(request.getMiddleName()).email(request.getEmail()).password(passwordEncoder.encode(request.getPassword())).role(Role.USER)
 //                .address(request.getAddress())
+                .location(selectedWard)
                 .provinces(request.getProvinces())
                 .ward(request.getWard())
                 .district(request.getDistrict())
-                .addressElements(request.getAddressElements())
+                .locality(request.getAddressElements())
                 .phone(request.getPhone()).birthday(request.getBirthday()).createdDay(LocalDateTime.now()).avatarUrl(null).coverUrl(null).isActive(false).username(request.getUsername()).isNonLocked(true).isNonBanned(true).build();
 
         var savedUser = repository.save(user);

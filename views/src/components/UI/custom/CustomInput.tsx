@@ -5,7 +5,7 @@ interface InputProps {
   id?: string;
   type?: 'text' | 'email' | 'password' | 'tel' | 'number' | 'date';
   name?: string;
-  value?: string | number ;
+  value?: string | number;
   onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
   disabled?: boolean;
   placeholder?: string;
@@ -13,6 +13,8 @@ interface InputProps {
   variant?: 'primary' | 'secondary' | 'outline';
   size?: 'xs' | 'sm' | 'md' | 'lg' | 'xl';
   rounded?: 'none' | 'sm' | 'md' | 'lg' | 'full';
+  minLength?: number;
+  maxLength?: number;
 }
 
 const CustomInput = ({
@@ -27,7 +29,9 @@ const CustomInput = ({
   required = false,
   variant = 'primary',
   size = 'md',
-  rounded = 'md'
+  rounded = 'md',
+  minLength,
+  maxLength,
 }: InputProps) => {
   const getVariantClasses = () => {
     const variants = {
@@ -85,6 +89,8 @@ const CustomInput = ({
       disabled={disabled}
       placeholder={placeholder}
       required={required}
+      minLength={minLength}
+      maxLength={maxLength}
       className={baseClasses}
     />
   );

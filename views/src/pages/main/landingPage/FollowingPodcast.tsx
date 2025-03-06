@@ -70,7 +70,10 @@ const FollowingPodcast: React.FC = () => {
   }
 
   if (error) {
-    return <div className='text-black dark:text-white flex justify-center'>{error}</div>;
+    return <div className='text-black dark:text-white flex justify-center'>
+      <img src="https://cdn.staticcrate.com/stock-hd/effects/footagecrate-red-error-icon@3X.png" alt="erorr" />
+      {error}
+      </div>;
   }
 
   return (
