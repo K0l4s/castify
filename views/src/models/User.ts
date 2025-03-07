@@ -43,6 +43,19 @@ export interface userDetail{
     coverUrl: string,
     birthday: Date,
     address: string,
+    location: {
+        id: string,
+        name: string,
+        district: {
+            id: string,
+            name: string,
+            city: {
+                id: string,
+                name: string
+            }
+        }
+    },
+    locality: string,
     phone: string,
     email: string,
     badgesId: string[],

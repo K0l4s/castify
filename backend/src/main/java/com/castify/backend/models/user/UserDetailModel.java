@@ -1,5 +1,6 @@
 package com.castify.backend.models.user;
 
+import com.castify.backend.entity.location.WardEntity;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -21,6 +22,8 @@ public class UserDetailModel {
     private String coverUrl;
     private LocalDateTime birthday;
     private String address;
+    private WardEntity location;
+    private String locality;
     private String phone;
     private String email;
     private List<String> badgesId;
