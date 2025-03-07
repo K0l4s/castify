@@ -71,6 +71,19 @@ export interface updateUser {
     lastName: string;
     birthday: string;
     // address: string;
+    location: {
+        id: string,
+        name: string,
+        district: {
+            id: string,
+            name: string,
+            city: {
+                id: string,
+                name: string
+            }
+        }
+    },
+    locality: string,
     addressElements: string;
     ward: string;
     district: string;

@@ -221,7 +221,7 @@ const ProfileMainContent: React.FC<ProfileMainContentProps> = ({
                                             {isOwner && (
                                             <Tooltip text="Edit Profile">
                                                 <FaEdit
-                                                    // onClick={() => setIsOpenEditModel(true)}
+                                                    onClick={() => setIsOpenEditModel(true)}
                                                     className="ml-2 cursor-pointer text-gray-500 dark:text-gray-400 hover:text-blue-500 dark:hover:text-blue-400 transition-colors duration-300"
                                                 />
                                             </Tooltip>

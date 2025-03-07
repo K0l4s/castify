@@ -26,6 +26,19 @@ const SettingModals = (props: SettingModals) => {
     lastName: '',
     birthday: '',
     addressElements: '',
+    location: {
+      id: '',
+      name: '',
+      district: {
+        id: '',
+        name: '',
+        city: {
+          id: '',
+          name: ''
+        }
+      }
+    },
+    locality: '',
     ward: '',
     district: '',
     provinces: '',
@@ -34,36 +47,42 @@ const SettingModals = (props: SettingModals) => {
   const [isEdit, setIsEdit] = useState(false);
   const toast = useToast();
   const dispatch = useDispatch();
-
-  useEffect(() => {
-    const fetchUserDetails = async () => {
-      setIsLoading(true);
-      try {
-        const userRes = await userService.getUserAuth();
-        console.log(userRes);
-        if (userRes?.data) {
-          setUser(userRes.data);
-          setEditedUser({
-            firstName: userRes.data.firstName,
-            middleName: userRes.data.middleName,
-            lastName: userRes.data.lastName,
-            birthday: userRes.data.birthday,
-            addressElements: userRes.data.addressElements,
-            ward: userRes.data.ward,
-            district: userRes.data.district,
-            provinces: userRes.data.provinces,
-            phone: userRes.data.phone
-          });
-          console.log(editedUser)
-        } else {
-          toast.error("Error loading user details");
+  const fetchUserDetails = async () => {
+    setIsLoading(true);
+    try {
+      const userRes = await userService.getUserAuth();
+      // console.log(userRes);
+      if (userRes?.data) {
+        setUser(userRes.data);
+        setEditedUser({
+          firstName: userRes.data.firstName,
+          middleName: userRes.data.middleName,
+          lastName: userRes.data.lastName,
+          birthday: userRes.data.birthday,
+          addressElements: userRes.data.addressElements,
+          location: userRes.data.location,
+          locality: userRes.data.locality,
+          ward: userRes.data.ward,
+          district: userRes.data.district,
+          provinces: userRes.data.provinces,
+          phone: userRes.data.phone
+        });
+        const birthdayInput = document.querySelector('input[type="date"]') as HTMLInputElement;
+        if (birthdayInput) {
+          birthdayInput.value = new Date(userRes.data.birthday).toISOString().split('T')[0];
         }
-      } catch (error) {
-        console.error(error);
-      } finally {
-        setIsLoading(false);
+        // console.log(editedUser)
+      } else {
+        toast.error("Error loading user details");
       }
-    };
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+  useEffect(() => {
+    
 
     fetchUserDetails();
   }, [props.isOpen]);
@@ -71,7 +90,7 @@ const SettingModals = (props: SettingModals) => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
-    console.log(editedUser);
+    // console.log(editedUser);
     try {
       const response = await userService.updateUser(editedUser);
       if (response.data) {
@@ -95,32 +114,42 @@ const SettingModals = (props: SettingModals) => {
     }));
   };
 
-  const handleDateInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
+  // const handleDateInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  //   const { name, value } = e.target;
 
-    setEditedUser(prev => ({
-      ...prev,
-      [name]: new Date(value)
-    }));
-  };
+  //   setEditedUser(prev => ({
+  //     ...prev,
+  //     [name]: new Date(value)
+  //   }));
+  // };
 
 
 
   const handleCancel = () => {
-    if (user) {
-      setEditedUser({
-        firstName: user.firstName,
-        middleName: user.middleName,
-        lastName: user.lastName,
-        birthday: user.birthday,
-        addressElements: user.addressElements,
-        ward: user.ward,
-        district: user.district,
-        provinces: user.provinces,
-        // address: user.address,
-        phone: user.phone
-      });
-    }
+    // if (user) {
+    //   setEditedUser({
+    //     firstName: user.firstName,
+    //     middleName: user.middleName,
+    //     lastName: user.lastName,
+    //     birthday: user.birthday,
+    //     addressElements: user.addressElements,
+    //     location: user.location,
+    //     locality: user.locality,
+    //     ward: user.ward,
+    //     district: user.district,
+    //     provinces: user.provinces,
+    //     // address: user.address,
+    //     phone: user.phone
+    //   });
+    // }
+    // console.log(user);
+    // const birthdayInput = document.querySelector('input[type="date"]') as HTMLInputElement;
+    // if (birthdayInput && user?.data?.birthday) {
+    //   birthdayInput.value = new Date(user.data.birthday).toISOString().split('T')[0];
+    // } else {
+    //   console.warn('Birthday is not available or user data is undefined');
+    // }
+    fetchUserDetails();
     setIsEdit(false);
   };
 
@@ -231,7 +260,7 @@ const SettingModals = (props: SettingModals) => {
                   type="text"
                   name="lastName"
                   value={editedUser.lastName}
-                  onChange={handleDateInputChange}
+                  onChange={handleInputChange}
                   disabled={!isEdit}
                   variant="primary"
                   className="mt-1 block w-full"
@@ -265,23 +294,23 @@ const SettingModals = (props: SettingModals) => {
             </div>
             <div>
               <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">Birthday</label>
-              <input
+              <CustomInput
                 type="date"
                 name="birthday"
-                    value={
-                      editedUser.birthday
-                    }          
-                onChange={handleInputChange}
+                // value={
+                //   editedUser.birthday
+                // }
+                // onChange={handleInputChange}
                 disabled={!isEdit}
-                // className="mt-1 block w-full border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-300 disabled:border-gray-200 disabled:bg-gray-100 dark:disabled:border-gray-700 dark:disabled bg-gray-800 disabled:text-gray-400 dark:disabled:text-gray-500 px-4 py-2 rounded-md"
+              // className="mt-1 block w-full border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-300 disabled:border-gray-200 disabled:bg-gray-100 dark:disabled:border-gray-700 dark:disabled bg-gray-800 disabled:text-gray-400 dark:disabled:text-gray-500 px-4 py-2 rounded-md"
               />
             </div>
             <div>
-              <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">Hamlet</label>
+              <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">Locality</label>
               <CustomInput
                 type="text"
                 name="addressElements"
-                value={editedUser.addressElements}
+                value={editedUser.locality}
                 onChange={handleInputChange}
                 disabled={!isEdit}
                 variant="primary"
@@ -295,7 +324,7 @@ const SettingModals = (props: SettingModals) => {
                 <CustomInput
                   type="text"
                   name="provinces"
-                  value={editedUser.provinces}
+                  value={editedUser.location.district.city.name}
                   onChange={handleInputChange}
                   disabled={!isEdit}
                   variant="primary"
@@ -307,7 +336,7 @@ const SettingModals = (props: SettingModals) => {
                 <CustomInput
                   type="text"
                   name="district"
-                  value={editedUser.district}
+                  value={editedUser.location.district.name}
                   onChange={handleInputChange}
                   disabled={!isEdit}
                   variant="primary"
@@ -319,7 +348,7 @@ const SettingModals = (props: SettingModals) => {
                 <CustomInput
                   type="text"
                   name="ward"
-                  value={editedUser.ward}
+                  value={editedUser.location.name}
                   onChange={handleInputChange}
                   disabled={!isEdit}
                   variant="primary"
@@ -328,7 +357,7 @@ const SettingModals = (props: SettingModals) => {
               </div>
             </div>
             <div>
-              
+
             </div>
           </div>
 
