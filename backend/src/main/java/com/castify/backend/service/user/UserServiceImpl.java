@@ -1,12 +1,14 @@
 package com.castify.backend.service.user;
 
 import com.castify.backend.entity.UserEntity;
+import com.castify.backend.entity.location.WardEntity;
 import com.castify.backend.enums.NotiType;
 import com.castify.backend.enums.Role;
 import com.castify.backend.models.paginated.PaginatedResponse;
 import com.castify.backend.models.user.*;
 import com.castify.backend.repository.PodcastRepository;
 import com.castify.backend.repository.UserRepository;
+import com.castify.backend.repository.WardRepository;
 import com.castify.backend.repository.template.UserTemplate;
 import com.castify.backend.service.notification.INotificationService;
 import com.castify.backend.service.notification.NotificationServiceImpl;
@@ -37,6 +39,8 @@ public class UserServiceImpl implements IUserService {
     private ModelMapper modelMapper;
     @Autowired
     private IUploadFileService uploadFileService;
+    @Autowired
+    private WardRepository wardRepository;
     @Autowired
     UserTemplate userRepositoryTemplate;
     @Autowired
@@ -167,6 +171,15 @@ public class UserServiceImpl implements IUserService {
         userData.setProvinces(updateUserModel.getProvinces());
         userData.setDistrict(updateUserModel.getDistrict());
         userData.setWard(updateUserModel.getWard());
+        WardEntity wards = wardRepository.findWardEntityById(updateUserModel.getWardId());
+//        WardEntity wards = wardRepository.findWardEntityById(updateUserModel.getWardId());
+        if (wards == null) {
+            throw new Exception("Ward not found with ID: " + updateUserModel.getWardId());
+        }
+        userData.setLocation(wards);
+
+        userData.setLocation(wards);
+        userData.setLocality(updateUserModel.getAddressElements());
 
         UserEntity updatedUser = userRepository.save(userData);
         return modelMapper.map(updatedUser, UpdateUserModel.class);
