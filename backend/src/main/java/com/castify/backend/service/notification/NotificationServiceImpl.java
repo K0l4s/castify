@@ -68,4 +68,15 @@ public class NotificationServiceImpl implements INotificationService {
         UserEntity userEntity = userService.getUserByAuthentication();
         return new ReturnNumber(notificationRepository.countByReceiverIdAndReadIsFalse(userEntity.getId()));
     }
+    @Override
+    public void readNotifi(String notiId) throws Exception {
+        UserEntity userEntity = userService.getUserByAuthentication();
+        NotificationEntity noti = notificationRepository.getNotificationEntityById(notiId);
+        if(!noti.getReceiverId().equals(userEntity.getId()))
+        {
+            throw new Exception("You don't have permission to do this action!");
+        }
+        noti.setRead(true);
+        notificationRepository.save(noti);
+    }
 }

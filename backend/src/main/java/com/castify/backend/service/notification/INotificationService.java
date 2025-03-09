@@ -11,4 +11,6 @@ public interface INotificationService {
     PaginatedResponse<NotifiModel> getNotiByUser(int pageNumber, int pageSize) throws Exception;
 
     ReturnNumber getTotalUnreadNotifications() throws Exception;
+
+    void readNotifi(String notiId) throws Exception;
 }

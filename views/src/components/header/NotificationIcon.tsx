@@ -47,6 +47,29 @@ const NotificationIcon = () => {
         }
     }, [isOpen]);
     const navigate = useNavigate();
+    // const formatTime = (time: string) => {
+    //     const date = new Date(time);
+    //     return date.toLocaleString();
+    // };
+    const formatTimeCalculation = (time: string) => {
+        const date = new Date(time);
+        const now = new Date();
+        const diff = now.getTime() - date.getTime();
+        const seconds = Math.floor(diff / 1000);
+        const minutes = Math.floor(seconds / 60);
+        const hours = Math.floor(minutes / 60);
+        const days = Math.floor(hours / 24);
+        if (days > 0) return `${days} ngày trước`;
+        if (hours > 0) return `${hours} giờ trước`;
+        if (minutes > 0) return `${minutes} phút trước`;
+        return `${seconds} giây trước`;
+    };
+    const readNoti = async (id: string) => {
+        await NotificationService.readNoti(id);
+        // const data = await NotificationService.getTotalUnRead();
+        dispatch(setTotalUnRead(totalUnRead - 1));
+
+    };
     return (
         <div className='relative flex'>
             <Tooltip text="Notifications">
@@ -72,25 +95,36 @@ const NotificationIcon = () => {
                             {notifications.map((noti) => (
                                 <li
                                     key={noti.id}
-                                    onClick={() => navigate(noti.targetUrl)}
-                                    className="p-3 w-full rounded-lg hover:bg-gray-100 cursor-pointer dark:hover:bg-gray-700 flex items-center justify-between"
+                                    onClick={() => {
+                                        readNoti(noti.id);
+                                        noti.read = true;
+                                        navigate(noti.targetUrl)
+                                    }}
+                                    className={`p-3 w-full rounded-lg hover:bg-gray-100 cursor-pointer dark:hover:bg-gray-700 flex items-center justify-between ${!noti.read && 'bg-gray-200/10'}`}
                                 >
                                     <div>
-                                        <p className="text-sm font-medium text-gray-800 dark:text-gray-100">
+                                        <p className={`flex gap-1 text-sm font-medium text-gray-800 dark:text-gray-100 items-center`}>
                                             {noti.title}
+                                            {/* thêm tag NEW nếu chưa xem */}
+                                            {!noti.read && <div className='bg-red-500 p-1 rounded-lg text-[10px]'>
+                                                NEW
+                                                </div>}
+                                            <p className="text-sm text-gray-600 dark:text-gray-400 text-right">
+                                                {formatTimeCalculation(noti.createdAt)}
+                                            </p>
                                         </p>
                                         <p className="text-sm text-gray-600 dark:text-gray-400">
                                             {noti.content}
                                         </p>
+
                                     </div>
                                     {/* nút 3 chấm */}
                                     <button
-                                    onClick={(e)=>
-                                    {
-                                        // xóa bỏ tác động của bên ngoài
-                                        e.stopPropagation();
-                                    }
-                                    }
+                                        onClick={(e) => {
+                                            // xóa bỏ tác động của bên ngoài
+                                            e.stopPropagation();
+                                        }
+                                        }
                                         className="relative p-2 text-gray-700 dark:text-gray-200 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500"
                                     >
                                         <HiOutlineDotsHorizontal className="w-5 h-5" />

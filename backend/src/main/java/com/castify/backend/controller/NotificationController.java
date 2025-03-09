@@ -5,10 +5,7 @@ import com.castify.backend.service.notification.INotificationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -30,6 +27,15 @@ public class NotificationController {
     public ResponseEntity<?> getTotalUnRead() {
         try {
             return new ResponseEntity<>(notificationService.getTotalUnreadNotifications(), HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+    @PutMapping("/read")
+    public ResponseEntity<?> readNoti(@RequestParam("id") String id){
+        try {
+            notificationService.readNotifi(id);
+            return new ResponseEntity<>("Read Successful", HttpStatus.OK);
         } catch (Exception e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
