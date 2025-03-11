@@ -40,4 +40,14 @@ public class NotificationController {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+
+    @PutMapping("/read/all")
+    public ResponseEntity<?> readAllNoti(){
+        try {
+            notificationService.makeReadAll();
+            return new ResponseEntity<>("Read Successful", HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
 }

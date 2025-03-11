@@ -79,4 +79,12 @@ public class NotificationServiceImpl implements INotificationService {
         noti.setRead(true);
         notificationRepository.save(noti);
     }
+    @Override
+    public void makeReadAll() throws Exception{
+        UserEntity userEntity = userService.getUserByAuthentication();
+        List<NotificationEntity> unreadNotis = notificationRepository.getNotificationEntitiesByReceiverIdAndReadIsFalse(userEntity.getId());
+
+        unreadNotis.forEach(noti -> noti.setRead(true));
+        notificationRepository.saveAll(unreadNotis);
+    }
 }

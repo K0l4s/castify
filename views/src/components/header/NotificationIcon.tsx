@@ -40,13 +40,7 @@ const NotificationIcon = () => {
     //     const date = new Date(time);
     //     return date.toLocaleString();
     // };
-    const readNoti = async (id: string) => {
-        await NotificationService.readNoti(id);
-        // const data = await NotificationService.getTotalUnRead();
-        dispatch(setTotalUnRead(totalUnRead - 1));
-
-    };
-
+   
     return (
         <div className='relative flex'>
             <Tooltip text="Notifications">
@@ -62,9 +56,9 @@ const NotificationIcon = () => {
                     <IoIosNotifications className="w-5 h-5" />
                 </button>
             </Tooltip>
-            {isOpen && (
-                <NotificationPopup readNoti={readNoti} newMessage={newMessage} />
-            )}
+            {/* {isOpen && ( */}
+                <NotificationPopup newMessage={newMessage} isOpen={isOpen} />
+            {/* )} */}
         </div>
     );
 };

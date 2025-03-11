@@ -13,4 +13,6 @@ public interface INotificationService {
     ReturnNumber getTotalUnreadNotifications() throws Exception;
 
     void readNotifi(String notiId) throws Exception;
+
+    void makeReadAll() throws Exception;
 }

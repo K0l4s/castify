@@ -10,4 +10,7 @@ export const NotificationService = {
     readNoti: async (id:string) => {
         return axiosInstanceAuth.put(`/api/v1/notification/read?id=`+id);
     },
+    readAllNoti: async () => {
+        return axiosInstanceAuth.put(`/api/v1/notification/read/all`);
+    },
 }
