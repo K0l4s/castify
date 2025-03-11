@@ -17,4 +17,6 @@ public class WardEntity {
     private String name;
     @DBRef
     private DistrictEntity district;
+    private String type;
+    private String typeText;
 }

@@ -37,6 +37,19 @@ const defaultUser = {
     coverUrl: "",
     birthday: new Date(),
     address: "",
+    location: {
+        id: "",
+        name: "",
+        district: {
+            id: "",
+            name: "",
+            city: {
+                id: "",
+                name: ""
+            }
+        }
+    },
+    locality: "",
     phone: "",
     email: "",
     badgesId: [],
@@ -54,10 +67,17 @@ const ProfileMainContent: React.FC<ProfileMainContentProps> = ({
     const [isOpenReportModel, setIsOpenReportModel] = useState(false);
     const [isOpenFollowerModel, setIsOpenFollowerModel] = useState(false);
     const [isFollowingModal, setIsFollowingModal] = useState(false);
+    const [user, setUser] = useState<userDetail>(defaultUser);
+    const [address, setAddress] = useState("");
+    useEffect(() => {
+        if (user.locality && user.address && user.location && user.location.district && user.location.district.city) {
+            setAddress(`${user.locality} , ${user.location.name} , ${user.location.district.name} , ${user.location.district.city.name}`);
+        }
+    }, [user.locality, defaultUser.address]);
     // const [isOpenFollowingModel,setIsOpenFollowingModel] = useState(false);
 
     const toast = useToast();
-    const [user, setUser] = useState<userDetail>(defaultUser);
+
     useEffect(() => {
         const fetchUserDetails = async () => {
             setIsLoading(true);
@@ -69,6 +89,7 @@ const ProfileMainContent: React.FC<ProfileMainContentProps> = ({
 
                     if (userRes?.data) {
                         setUser(userRes.data);
+                        console.log(userRes.data);
                     } else {
                         setUser(defaultUser);
                         toast.error("User not found");
@@ -195,7 +216,16 @@ const ProfileMainContent: React.FC<ProfileMainContentProps> = ({
                                     ) : (
                                         <div className="flex items-center text-gray-600 dark:text-gray-300 mt-1 sm:mt-2 hover:text-blue-500 dark:hover:text-blue-400 transition-colors duration-300 text-sm sm:text-base">
                                             <FaMapMarkerAlt className="mr-2" />
-                                            <span>{user.address || "No address provided"}</span>
+                                            <span>{address || "No address provided"}</span>
+                                            {/* nếu isAuth thì hiển thị nút edit */}
+                                            {isOwner && (
+                                            <Tooltip text="Edit Profile">
+                                                <FaEdit
+                                                    onClick={() => setIsOpenEditModel(true)}
+                                                    className="ml-2 cursor-pointer text-gray-500 dark:text-gray-400 hover:text-blue-500 dark:hover:text-blue-400 transition-colors duration-300"
+                                                />
+                                            </Tooltip>
+                                            )}
                                         </div>
                                     )}
                                 </div>
@@ -259,7 +289,7 @@ const ProfileMainContent: React.FC<ProfileMainContentProps> = ({
             </div>
             <SettingModals isOpen={isOpenEditModel} onClose={() => setIsOpenEditModel(false)} />
             <ReportModal isOpen={isOpenReportModel} onClose={() => setIsOpenReportModel(false)} reportType={ReportType.U} targetId={user.id} />
-            <FollowersModal isOpen={isOpenFollowerModel} onClose={() => setIsOpenFollowerModel(false)} username={username?.toString() || ''}/>
+            <FollowersModal isOpen={isOpenFollowerModel} onClose={() => setIsOpenFollowerModel(false)} username={username?.toString() || ''} />
             <FollowingsModal isOpen={isFollowingModal} onClose={() => setIsFollowingModal(false)} username={username?.toString() || ''} />
         </div >
 

@@ -14,4 +14,7 @@ public class CityEntity {
     @Id
     private String id;
     private String name;
+    private int type;
+    private String typeText;
+    private String slug;
 }
