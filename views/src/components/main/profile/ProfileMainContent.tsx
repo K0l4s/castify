@@ -70,7 +70,7 @@ const ProfileMainContent: React.FC<ProfileMainContentProps> = ({
     const [user, setUser] = useState<userDetail>(defaultUser);
     const [address, setAddress] = useState("");
     useEffect(() => {
-        if (user.locality && user.address) {
+        if (user.locality && user.address && user.location && user.location.district && user.location.district.city) {
             setAddress(`${user.locality} , ${user.location.name} , ${user.location.district.name} , ${user.location.district.city.name}`);
         }
     }, [user.locality, defaultUser.address]);

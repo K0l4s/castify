@@ -23,36 +23,36 @@ const SettingModals = (props: SettingModals) => {
   const [wardsList, setWardsList] = useState<any[]>([]);
 
   useEffect(() => {
-      const fetchProvinces = async () => {
-        const provinces = await locationService.getProvinces();
-        // console.log(provinces.data);
-        setProvincesList(provinces.data);
-        console.log(provincesList);
-      };
-      fetchProvinces();
-    }, []);
-    const handleProvincesChange = async (e: React.ChangeEvent<HTMLSelectElement>) => {
-      const id = e.target.value;
-      console.log(id === "");
-      if (id === "") {
-        setDistrictsList([]);
-        setWardsList([]);
-        return;
-      }
-      console.log(id);
-      const districts = await locationService.getDistricts(id);
-      setDistrictsList(districts.data);
+    const fetchProvinces = async () => {
+      const provinces = await locationService.getProvinces();
+      // console.log(provinces.data);
+      setProvincesList(provinces.data);
+      console.log(provincesList);
     };
-    const handleDistrictsChange = async (e: React.ChangeEvent<HTMLSelectElement>) => {
-      const id = e.target.value;
-      if (id === "") {
-        setWardsList([]);
-        return;
-      }
-      console.log(id);
-      const wards = await locationService.getWards(id);
-      setWardsList(wards.data);
+    fetchProvinces();
+  }, []);
+  const handleProvincesChange = async (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const id = e.target.value;
+    console.log(id === "");
+    if (id === "") {
+      setDistrictsList([]);
+      setWardsList([]);
+      return;
     }
+    console.log(id);
+    const districts = await locationService.getDistricts(id);
+    setDistrictsList(districts.data);
+  };
+  const handleDistrictsChange = async (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const id = e.target.value;
+    if (id === "") {
+      setWardsList([]);
+      return;
+    }
+    console.log(id);
+    const wards = await locationService.getWards(id);
+    setWardsList(wards.data);
+  }
 
   const [isLoading, setIsLoading] = useState(true);
   const [user, setUser] = useState<User>();
@@ -114,26 +114,28 @@ const SettingModals = (props: SettingModals) => {
           phone: userRes.data.phone
         });
         // lấy select provinces và set value
-        const provincesSelect = document.querySelector('select[name="provinces"]') as HTMLSelectElement;
-        if (provincesSelect) {
-          console.log(userRes.data.location.district.city.id);
-          provincesSelect.value = userRes.data.location.district.city.id;
-        }
-        await fetchDistricts(userRes.data.location.district.city.id);
-        // lấy select district và set value
-        const districtSelect = document.querySelector('select[name="district"]') as HTMLSelectElement;
-        if (districtSelect) {
-          districtSelect.value = userRes.data.location.district.id;
-        }
-        await fetchWards(userRes.data.location.district.id);
-        // lấy select ward và set value
-        const wardSelect = document.querySelector('select[name="ward"]') as HTMLSelectElement;
-        if (wardSelect) {
-          wardSelect.value = userRes.data.location.id;
-        }
-        const birthdayInput = document.querySelector('input[type="date"]') as HTMLInputElement;
-        if (birthdayInput) {
-          birthdayInput.value = new Date(userRes.data.birthday).toISOString().split('T')[0];
+        if (userRes.data.location && userRes.data.location.district && userRes.data.location.district.city) {
+          const provincesSelect = document.querySelector('select[name="provinces"]') as HTMLSelectElement;
+          if (provincesSelect) {
+            // console.log(userRes.data.location.district.city.id);
+            provincesSelect.value = userRes.data.location.district.city.id;
+          }
+          await fetchDistricts(userRes.data.location.district.city.id);
+          // lấy select district và set value
+          const districtSelect = document.querySelector('select[name="district"]') as HTMLSelectElement;
+          if (districtSelect) {
+            districtSelect.value = userRes.data.location.district.id;
+          }
+          await fetchWards(userRes.data.location.district.id);
+          // lấy select ward và set value
+          const wardSelect = document.querySelector('select[name="ward"]') as HTMLSelectElement;
+          if (wardSelect) {
+            wardSelect.value = userRes.data.location.id;
+          }
+          const birthdayInput = document.querySelector('input[type="date"]') as HTMLInputElement;
+          if (birthdayInput) {
+            birthdayInput.value = new Date(userRes.data.birthday).toISOString().split('T')[0];
+          }
         }
         // console.log(editedUser)
       } else {
@@ -146,12 +148,12 @@ const SettingModals = (props: SettingModals) => {
     }
   };
   useEffect(() => {
-    
+
 
     fetchUserDetails();
   }, [props.isOpen]);
   const handleWardsChange = async (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const {value } = e.target;
+    const { value } = e.target;
     setEditedUser(prev => ({
       ...prev,
       wardId: value
@@ -241,7 +243,7 @@ const SettingModals = (props: SettingModals) => {
   };
 
   const inputClasses = "mt-1 block w-full px-3 py-2 bg-gray-800/30 border border-gray-700 rounded-md " +
-  "focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 text-white placeholder-gray-500";
+    "focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 text-white placeholder-gray-500";
   return (
     <CustomModal title='Setting' isOpen={props.isOpen} onClose={props.onClose} size='xl'>
       <div className=" mx-auto">
@@ -351,7 +353,7 @@ const SettingModals = (props: SettingModals) => {
                 // }
                 // onChange={handleInputChange}
                 disabled={!isEdit}
-                />
+              />
             </div>
             <div>
               <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">Locality</label>
@@ -378,21 +380,21 @@ const SettingModals = (props: SettingModals) => {
                   variant="primary"
                   className="mt-1 block w-full"
                 /> */}
-                 <select
-                    id="provinces"
-                    name="provinces"
-                    onChange={handleProvincesChange}
-                    // value={editedUser.location.district.city.name}
-                    // value={selectedProvince?.name ? selectedProvince.name : ""}
-                    disabled={!isEdit}
-                    className={inputClasses}
-                    required
-                  >
-                    <option value="">Select Provinces</option>
-                    {provincesList.map(province => (
-                      <option key={province.id} value={province.id}>{province.name}</option>
-                    ))}
-                  </select>
+                <select
+                  id="provinces"
+                  name="provinces"
+                  onChange={handleProvincesChange}
+                  // value={editedUser.location.district.city.name}
+                  // value={selectedProvince?.name ? selectedProvince.name : ""}
+                  disabled={!isEdit}
+                  className={inputClasses}
+                  required
+                >
+                  <option value="">Select Provinces</option>
+                  {provincesList.map(province => (
+                    <option key={province.id} value={province.id}>{province.name}</option>
+                  ))}
+                </select>
               </div>
               <div>
                 <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">District</label>
@@ -406,20 +408,20 @@ const SettingModals = (props: SettingModals) => {
                   className="mt-1 block w-full"
                 /> */}
                 <select
-                    id="district"
-                    name="district"
-                    onChange={handleDistrictsChange}
-                    // value={editedUser.location.district.city.name}
-                    // value={selectedProvince?.name ? selectedProvince.name : ""}
-                    disabled={!isEdit}
-                    className={inputClasses}
-                    required
-                  >
-                    <option value="">Select Districts</option>
-                    {districtsList.map(district => (
-                      <option key={district.id} value={district.id}>{district.name}</option>
-                    ))}
-                  </select>
+                  id="district"
+                  name="district"
+                  onChange={handleDistrictsChange}
+                  // value={editedUser.location.district.city.name}
+                  // value={selectedProvince?.name ? selectedProvince.name : ""}
+                  disabled={!isEdit}
+                  className={inputClasses}
+                  required
+                >
+                  <option value="">Select Districts</option>
+                  {districtsList.map(district => (
+                    <option key={district.id} value={district.id}>{district.name}</option>
+                  ))}
+                </select>
               </div>
               <div>
                 <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">Ward</label>
@@ -432,21 +434,21 @@ const SettingModals = (props: SettingModals) => {
                   variant="primary"
                   className="mt-1 block w-full"
                 /> */}
-                 <select
-                    id="ward"
-                    name="ward"
-                    onChange={handleWardsChange}
-                    disabled={!isEdit}
-                    // value={editedUser.location.district.city.name}
-                    // value={selectedProvince?.name ? selectedProvince.name : ""}
-                    className={inputClasses}
-                    required
-                  >
-                    <option value="">Select Ward</option>
-                    {wardsList.map(ward => (
-                      <option key={ward.id} value={ward.id}>{ward.name}</option>
-                    ))}
-                  </select>
+                <select
+                  id="ward"
+                  name="ward"
+                  onChange={handleWardsChange}
+                  disabled={!isEdit}
+                  // value={editedUser.location.district.city.name}
+                  // value={selectedProvince?.name ? selectedProvince.name : ""}
+                  className={inputClasses}
+                  required
+                >
+                  <option value="">Select Ward</option>
+                  {wardsList.map(ward => (
+                    <option key={ward.id} value={ward.id}>{ward.name}</option>
+                  ))}
+                </select>
               </div>
             </div>
             <div>
