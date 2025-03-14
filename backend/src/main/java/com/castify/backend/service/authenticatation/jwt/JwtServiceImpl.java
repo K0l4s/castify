@@ -1,5 +1,7 @@
 package com.castify.backend.service.authenticatation.jwt;
 
+import com.castify.backend.entity.TokenEntity;
+import com.castify.backend.repository.TokenRepository;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
@@ -9,8 +11,10 @@ import java.security.Key;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.function.Function;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
@@ -26,6 +30,9 @@ public class JwtServiceImpl implements IJwtService{
     private long refreshExpiration;
     @Value("${JWT_VALID_EXPIRATION}")
     private long validExpiration;
+
+    @Autowired
+    private TokenRepository tokenRepository;
 
     @Override
     public String extractUsername(String token) {
@@ -126,5 +133,19 @@ public class JwtServiceImpl implements IJwtService{
     private Key getSignInKey() {
         byte[] keyBytes = Decoders.BASE64.decode(secretKey);
         return Keys.hmacShaKeyFor(keyBytes);
+    }
+
+    public boolean isTokenValid(String token) {
+        try {
+            extractAllClaims(token);
+            return !isTokenExpired(token) && !isTokenExpiredFromDB(token);
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    private boolean isTokenExpiredFromDB(String token) {
+        Optional<TokenEntity> storedToken = tokenRepository.findByToken(token);
+        return storedToken.isPresent() && storedToken.get().isExpired();
     }
 }
