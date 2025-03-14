@@ -80,8 +80,9 @@ const CreateConversationModal = (props: ConversationModalProps) => {
                     title: response.data.title,
                     imageUrl: response.data.imageUrl,
                     memberSize: response.data.memberSize,
-                    lastMessage: "",
-                    lastMessageTimestamp: "",
+                    // lastMessage: null
+                    // lastMessage: "",
+                    // lastMessageTimestamp: "",
                 },
                 ...prev,
             ]);

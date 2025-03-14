@@ -58,8 +58,9 @@ public class ConversationController {
 
             logger.info("✅ Message broadcasted to group: " + groupId);
             ShortConversationModel shortConversationModel = chatService.findShortConverById(groupId);
-            shortConversationModel.setLastMessage(messages.getContent());
-            shortConversationModel.setLastMessageTimestamp(messages.getTimestamp());
+//            shortConversationModel.setLastMessage(messages.getContent());
+//            shortConversationModel.setLastMessageTimestamp(messages.getTimestamp());
+            shortConversationModel.setLastMessage(messages);
             // Gửi thông báo tới từng user
             List<String> userIds = chatService.getUserIdsInGroup(groupId); // Lấy danh sách userId trong group
             for (String userId : userIds) {

@@ -100,10 +100,13 @@ public class ChatServiceImpl implements IChatService {
             // Lấy lastMessage cho mỗi conversation
             MessageEntity lastMessage = messageRepository.findTopByChatIdOrderByTimestampDesc(chat.getId());
             if (lastMessage != null) {
-                model.setLastMessage(lastMessage.getContent());
-                model.setLastMessageTimestamp(lastMessage.getTimestamp());
+                MessageResponse messageResponse = modelMapper.map(lastMessage, MessageResponse.class);
+                model.setLastMessage(messageResponse);
+//                model.setLastMessage(lastMessage.getContent());
+//                model.setLastMessageTimestamp(lastMessage.getTimestamp());
             } else {
-                model.setLastMessageTimestamp(null); // Xử lý trường hợp không có lastMessage
+                model.setLastMessage(null);
+//                model.setLastMessageTimestamp(null); // Xử lý trường hợp không có lastMessage
             }
             return model;
         }).toList());
@@ -111,13 +114,19 @@ public class ChatServiceImpl implements IChatService {
         // Sắp xếp danh sách theo lastMessageTimestamp giảm dần
         // Sắp xếp danh sách theo lastMessageTimestamp giảm dần, nếu null thì sắp xếp theo createdAt
         conversationModels.sort((a, b) -> {
-            if (a.getLastMessageTimestamp() == null && b.getLastMessageTimestamp() == null) {
-                // Nếu cả hai lastMessageTimestamp đều null, so sánh createdAt
-                return b.getCreatedAt().compareTo(a.getCreatedAt());
-            }
-            if (a.getLastMessageTimestamp() == null) return 1; // null được đưa xuống dưới
-            if (b.getLastMessageTimestamp() == null) return -1; // null được đưa xuống dưới
-            return b.getLastMessageTimestamp().compareTo(a.getLastMessageTimestamp());
+//            if (a.getLastMessageTimestamp() == null && b.getLastMessageTimestamp() == null) {
+//                // Nếu cả hai lastMessageTimestamp đều null, so sánh createdAt
+//                return b.getCreatedAt().compareTo(a.getCreatedAt());
+//            }
+//            if (a.getLastMessageTimestamp() == null) return 1; // null được đưa xuống dưới
+//            if (b.getLastMessageTimestamp() == null) return -1; // null được đưa xuống dưới
+//            return b.getLastMessageTimestamp().compareTo(a.getLastMessageTimestamp());
+                if (a.getLastMessage() == null && b.getLastMessage() == null) {
+                    return b.getCreatedAt().compareTo(a.getCreatedAt()); // So sánh createdAt nếu cả hai đều không có lastMessage
+                }
+                if (a.getLastMessage() == null) return 1; // a không có lastMessage -> đưa xuống
+                if (b.getLastMessage() == null) return -1; // b không có lastMessage -> đưa xuống
+                return b.getLastMessage().getTimestamp().compareTo(a.getLastMessage().getTimestamp()); // So sánh lastMessage timestamp
         });
 
 

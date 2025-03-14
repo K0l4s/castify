@@ -1,5 +1,6 @@
 package com.castify.backend.models.user;
 
+import com.castify.backend.entity.location.WardEntity;
 import com.castify.backend.enums.Role;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.persistence.EnumType;
@@ -26,6 +27,8 @@ public class UserModel {
     @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS")
     private LocalDateTime birthday;
     private String address;
+    private WardEntity location;
+    private String locality;
     private String addressElements;
     private String provinces;
     private String district;

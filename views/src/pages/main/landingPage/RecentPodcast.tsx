@@ -20,7 +20,7 @@ const RecentPodcast: React.FC = () => {
   const [currentPage, setCurrentPage] = useState<number>(0);
   const [totalPages, setTotalPages] = useState<number>(0);
   const toast = useToast();
-  
+
   const fetchRecentPodcasts = async (page: number) => {
     try {
       const response = await getPodcastRecent(page, 20);
@@ -66,18 +66,21 @@ const RecentPodcast: React.FC = () => {
   };
 
   if (loading) {
-    return <div className="flex justify-center h-screen"><FiLoader size={48} className="text-black dark:text-white animate-spin"/></div>;
+    return <div className="flex justify-center h-screen"><FiLoader size={48} className="text-black dark:text-white animate-spin" /></div>;
   }
 
   if (error) {
-    return <div className='text-black dark:text-white flex justify-center'>{error}</div>;
+    return <div className='text-black dark:text-white flex justify-center flex-col items-center font-bold text-2xl'>
+      <img src="https://cdn.staticcrate.com/stock-hd/effects/footagecrate-red-error-icon@3X.png" alt="erorr" className='w-56'/>
+
+      {error}</div>;
   }
 
   return (
     <div>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         {podcasts.map((podcast) => (
-          <PodcastTag 
+          <PodcastTag
             key={podcast.id}
             podcast={podcast}
             onReport={() => toggleReportModal(podcast.id)}
