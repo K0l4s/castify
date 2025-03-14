@@ -3,6 +3,7 @@ package com.castify.backend.controller;
 import com.castify.backend.models.authentication.*;
 import com.castify.backend.service.authenticatation.AuthenticationService;
 import com.castify.backend.service.authenticatation.IAuthenticationService;
+import com.castify.backend.service.authenticatation.jwt.IJwtService;
 import io.jsonwebtoken.MalformedJwtException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -12,6 +13,10 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Map;
+
+import static com.cloudinary.AccessControlRule.AccessType.token;
+
 @RestController
 @RequestMapping("/api/v1/auth")
 @RequiredArgsConstructor
@@ -20,6 +25,9 @@ public class AuthController {
     //    private final AuthenticationService service;
     @Autowired
     private IAuthenticationService service = new AuthenticationService();
+
+    @Autowired
+    private IJwtService jwtService;
 
     @PostMapping("/register")
     public ResponseEntity<?> register(
@@ -124,5 +132,12 @@ public class AuthController {
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Error: " + e.getMessage());
         }
+    }
+
+    // Check if access token is valid ?
+    @PostMapping("/check-token")
+    public ResponseEntity<?> checkToken(@RequestParam(value = "token") String token) {
+        boolean isValid = jwtService.isTokenValid(token);
+        return ResponseEntity.ok(Map.of("valid", isValid));
     }
 }

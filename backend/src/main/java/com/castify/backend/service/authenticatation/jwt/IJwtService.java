@@ -29,4 +29,5 @@ public interface IJwtService {
     );
 
     boolean isTokenValid(String token, UserDetails userDetails);
+    boolean isTokenValid(String token);
 }
