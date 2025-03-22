@@ -85,7 +85,8 @@
 }
 
 .swiper-slide {
-  flex: 1 0 25%; /* 4 items per row (25% each) */
+  flex: 1 0 25%;
+  /* 4 items per row (25% each) */
   transition: transform 0.3s ease;
 }
 
@@ -96,12 +97,14 @@
 
 /* Hide scrollbar for IE, Edge and Firefox */
 .scrollbar-hide {
-  -ms-overflow-style: none;  /* IE and Edge */
-  scrollbar-width: none;  /* Firefox */
+  -ms-overflow-style: none;
+  /* IE and Edge */
+  scrollbar-width: none;
+  /* Firefox */
 }
 
 /* Scrollbar Styles */
-::-webkit-scrollbar {
+/* ::-webkit-scrollbar {
   width: 10px;
   height: 10px;
 }
@@ -118,39 +121,65 @@
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: linear-gradient(to bottom, #666, #444); 
+  background: linear-gradient(to bottom, #666, #444);
 }
 
 ::-webkit-scrollbar-corner {
   background: #f1f1f1;
+} */
+
+::-webkit-scrollbar {
+  width: 6px;
+  scrollbar-width: thin;
+  scrollbar-color: #a0aec0 transparent; /* thumb + track */
 }
 
 
-    input[type="range"]::-webkit-slider-thumb {
-        -webkit-appearance: none;
-        appearance: none;
-        width: 10px; /* Kích thước hình tròn */
-        height: 10px;
-        background-color: rgb(250, 190, 24); /* Màu hình tròn */
-        border-radius: 50%;
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2); /* Đổ bóng */
-        cursor: pointer;
-    }
+::-webkit-scrollbar-track {
+  background: transparent;
+}
 
-    input[type="range"]::-moz-range-thumb {
-        width: 10px;
-        height: 10px;
-        background-color: rgb(250, 190, 24);
-        border-radius: 50%;
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-        cursor: pointer;
-    }
+::-webkit-scrollbar-thumb {
+  background-color: rgba(100, 116, 139, 0.5); /* slate-500/50 */
+  border-radius: 9999px;
+  border: 5px solid transparent;
+  background-clip: content-box;
+  transition: background-color 0.3s ease-in-out;
+}
 
-    input[type="range"]::-ms-thumb {
-        width: 10px;
-        height: 10px;
-        background-color: rgb(250, 190, 24);
-        border-radius: 50%;
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-        cursor: pointer;
-    }
+:hover::-webkit-scrollbar-thumb {
+  background-color: rgba(100, 116, 139, 0.8); /* darker when hover */
+  border: 0px solid transparent;
+}
+
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 10px;
+  /* Kích thước hình tròn */
+  height: 10px;
+  background-color: rgb(250, 190, 24);
+  /* Màu hình tròn */
+  border-radius: 50%;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  /* Đổ bóng */
+  cursor: pointer;
+}
+
+input[type="range"]::-moz-range-thumb {
+  width: 10px;
+  height: 10px;
+  background-color: rgb(250, 190, 24);
+  border-radius: 50%;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  cursor: pointer;
+}
+
+input[type="range"]::-ms-thumb {
+  width: 10px;
+  height: 10px;
+  background-color: rgb(250, 190, 24);
+  border-radius: 50%;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  cursor: pointer;
+}

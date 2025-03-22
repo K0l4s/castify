@@ -104,7 +104,7 @@ const MainConversation = () => {
   useEffect(() => {
     // infinite scroll
     const handleScroll = () => {
-      console.log( document.documentElement.scrollTop);
+      // console.log( document.documentElement.scrollTop);
       // const chatContainer = document.getElementById("chat-container");
       // console.log(chatContainer?.scrollHeight);
 
