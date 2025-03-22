@@ -44,10 +44,9 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
     }
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
-        registry.addEndpoint("/websocket") // WebSocket thuần
-                .setAllowedOrigins("*");
         registry.addEndpoint("/ws")
-                .setAllowedOriginPatterns("http://localhost:5000", "https://castifyapp.vercel.app", "http://10.0.2.2:8081")
+                .setAllowedOriginPatterns("*")
+//                .setAllowedOriginPatterns("http://localhost:5000", "https://castifyapp.vercel.app", "http://10.0.2.2:8081")
                 .withSockJS();
     }
     @Override

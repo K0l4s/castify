@@ -35,11 +35,6 @@ const NotificationIcon = () => {
         }
     }, [stomp]);
 
-
-    // const formatTime = (time: string) => {
-    //     const date = new Date(time);
-    //     return date.toLocaleString();
-    // };
    
     return (
         <div className='relative flex'>
