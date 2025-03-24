@@ -16,7 +16,7 @@ public class MemberInfor {
     private boolean isAccepted;
     private boolean isHide; //Ẩn nhóm hay không
     private LocalDateTime joinTime = LocalDateTime.now();
-
+    private LastReadMessage lastReadMessage;
     public void setIsAccepted(boolean isAccepted){
         this.isAccepted = isAccepted;
     }

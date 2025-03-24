@@ -7,6 +7,7 @@ export interface CreateConversationProps {
         memberId: string;
         role: string;
         joinTime: string;
+        isAccepted:boolean;
     }[];
 }
 export interface Message {
@@ -15,6 +16,7 @@ export interface Message {
     content: string;
     timestamp: string;
     status?: "sending" | "sent" | "seen";
+    read?: boolean;
 }
 export interface shortConversation {
     id: string;
