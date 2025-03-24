@@ -8,7 +8,7 @@ import com.castify.backend.models.paginated.PaginatedResponse;
 import java.util.List;
 
 public interface IChatService {
-    ShortConversationModel createConversation(CreateChatRequest request);
+    ShortConversationModel createConversation(CreateChatRequest request) throws Exception;
 
     void addMemberToGroup(String groupId, List<String> memberIds);
 

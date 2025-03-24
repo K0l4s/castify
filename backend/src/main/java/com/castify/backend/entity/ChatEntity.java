@@ -29,7 +29,4 @@ public class ChatEntity {
     public int getMemberSize() {
         return memberList.size();
     }
-
-
 }
-

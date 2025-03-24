@@ -43,14 +43,26 @@ public class ChatServiceImpl implements IChatService {
     private static final Logger logger = Logger.getLogger(ConversationController.class.getName());
 
     @Override
-    public ShortConversationModel createConversation(CreateChatRequest request) {
+    public ShortConversationModel createConversation(CreateChatRequest request) throws Exception {
         ChatEntity chatEntity = modelMapper.map(request, ChatEntity.class);
+        logger.info(request.toString());
 
         // Gán trạng thái mặc định cho Active
         chatEntity.setActive(true); // Hoặc false tùy vào logic của mày
+        UserEntity user = userService.getUserByAuthentication();
+        List<MemberInfor> updatedMemberList = request.getMemberList().stream()
+                .map(member -> {
+                    if (member.getMemberId().equals(user.getId())) {
+                        member.setIsAccepted(true); // hoặc sửa gì tuỳ ý mày
+                        // member.setRole("LEADER"); // nếu cần
+                    }
+                    return member;
+                })
+                .collect(Collectors.toList());
 
-        // Lưu chatEntity vào repository
+        request.setMemberList(updatedMemberList);        // Lưu chatEntity vào repository
         ChatEntity newConver = chatRepository.save(chatEntity);
+        logger.info(newConver.toString());
         return modelMapper.map(newConver, ShortConversationModel.class);
     }
 
@@ -204,7 +216,6 @@ public class ChatServiceImpl implements IChatService {
     public PaginatedResponse<MessageResponse> getMessageByGroupId(String groupId, int pageNumber, int pageSize) throws Exception {
         UserEntity user = userService.getUserByAuthentication();
         checkValidMessage(groupId, user.getId());
-
         Pageable pageable = PageRequest.of(pageNumber, pageSize, Sort.by(Sort.Direction.DESC, "timestamp"));
         Page<MessageEntity> msgs = messageRepository.findMessageEntitiesByChatId(groupId, pageable);
         List<MessageResponse> responses = msgs.getContent().stream().map(msg -> modelMapper.map(msg, MessageResponse.class)).toList();
@@ -221,5 +232,6 @@ public class ChatServiceImpl implements IChatService {
                 .collect(Collectors.toList()); // Thu thập thành List
     }
 
+//    public
 
 }

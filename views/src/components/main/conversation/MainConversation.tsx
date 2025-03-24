@@ -123,6 +123,12 @@ const MainConversation = () => {
 
   return (
     <div className="w-full min-h-full bg-gray-100 dark:bg-gray-800 relative">
+      <div className="flex items-center justify-between w-full px-4 py-2 bg-white border-b dark:bg-gray-900 dark:border-gray-700 sticky top-[65px] z-10">
+        <h1 className="text-lg font-semibold text-gray-900 dark:text-white">Hội này hài!</h1>
+        <div className="flex items-center gap-2">
+
+        </div>
+      </div>
       <div
         id="chat-container"
         className="flex flex-col gap-2 p-4 min-h-screen overflow-y-auto">
@@ -133,6 +139,16 @@ const MainConversation = () => {
             currentUser={currentUser}
           />
         ))}
+        {messages.length < 1 &&
+          <div className="flex flex-col items-center justify-center h-full absolute top-0 left-0 right-0 bottom-0">
+            <img
+              src="https://cdn.pixabay.com/animation/2023/06/13/15/13/15-13-25-972_512.gif"
+              alt=""
+              className="w-32 h-32 rounded-full mb-4 animate-bounce"
+            />
+            <h1 className="text-xl font-semibold text-gray-500 dark:text-gray-400 p-10 text-center">Ở đây hơi trống trải, hãy thử gửi tin nhắn đầu tiên xem nào!</h1>
+          </div>
+        }
       </div>
       {/* isFetching */}
       {isFeching && pageNumber > 1 && pageNumber <= totalPage &&

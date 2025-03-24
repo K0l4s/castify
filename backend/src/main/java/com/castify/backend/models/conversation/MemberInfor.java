@@ -13,7 +13,11 @@ import java.time.LocalDateTime;
 public class MemberInfor {
     private String memberId;
     private MemberRole role = MemberRole.MEMBER;
-    private boolean isAccepted = false; //Đông ý tham gia nhom hay khng
-    private boolean isHide = false; //Ẩn nhóm hay không
+    private boolean isAccepted;
+    private boolean isHide; //Ẩn nhóm hay không
     private LocalDateTime joinTime = LocalDateTime.now();
+
+    public void setIsAccepted(boolean isAccepted){
+        this.isAccepted = isAccepted;
+    }
 }

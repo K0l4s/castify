@@ -23,14 +23,9 @@ public class MessageEntity {
     @DBRef
     private UserEntity sender;
 
-    private List<String> seenUsers = new ArrayList<>();
-
 //    @DBRef
 //    private UserEntity receiver;
 
     private String content;
     private LocalDateTime timestamp = LocalDateTime.now();
-    private boolean isSeen(String userId){
-        return seenUsers.contains(userId);
-    }
 }

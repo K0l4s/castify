@@ -4,13 +4,16 @@ import ConversationSidebar from "../../../components/main/conversation/Conversat
 import MainConversation from "../../../components/main/conversation/MainConversation"
 
 const ConversationLayout = () => {
-      const id = useParams().id;
-    
+    const id = useParams().id;
+
     return (
         <div>
             <MainHeader />
+           
             <div className="flex ">
                 <ConversationSidebar />
+                {/* conversation navbar */}
+
                 {id ? (<MainConversation />) : (
                     <div className="h-full w-full grid place-items-center">
                         <img className="" src="https://cdni.iconscout.com/illustration/premium/thumb/conversation-illustration-download-in-svg-png-gif-file-formats--like-logo-love-discussion-romantic-comment-social-media-reaction-communication-pack-network-illustrations-4705280.png?f=webp" alt="" />
