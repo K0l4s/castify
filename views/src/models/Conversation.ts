@@ -14,6 +14,7 @@ export interface Message {
     sender: shortUser;
     content: string;
     timestamp: string;
+    status?: "sending" | "sent" | "seen";
 }
 export interface shortConversation {
     id: string;

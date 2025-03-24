@@ -13,7 +13,8 @@ import java.util.List;
 @Repository
 public interface ChatRepository extends MongoRepository<ChatEntity, String> {
     ChatEntity findChatEntityById(String id);
-    @Query("{ 'memberList.memberId': ?0 }")
+//    @Query("{ 'memberList.memberId': ?0 }")
+    @Query("{ 'memberList': { $elemMatch: { 'memberId': ?0, 'isAccepted': true } } }")
     List<ChatEntity> findAllByMemberIdOrderByLastMessage(String userId);
 
 //    Page<ChatEntity> findAllByMemberId(String memberId, Pageable pageable);

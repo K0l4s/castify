@@ -69,7 +69,7 @@ const ConversationSidebar = () => {
                     text-black dark:text-white 
                     overflow-y-scroll`}
             >
-                <div className="flex items-center gap-3 flex-col pb-10">
+                <div className="flex items-center gap-1 flex-col pb-10">
                     {/* create conversation button */}
                     <div
                         className="flex w-full items-center cursor-pointer gap-2 p-2 sticky bg-gray-200 dark:bg-gray-900 top-0 z-10"

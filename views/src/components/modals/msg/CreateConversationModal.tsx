@@ -58,15 +58,17 @@ const CreateConversationModal = (props: ConversationModalProps) => {
                     memberId: userId || "",
                     role: "LEADER",
                     joinTime: currentTime,
+                    isAccepted:true
                 },
                 ...selectedUsers.map((user) => ({
                     memberId: user.id,
                     role: "MEMBER",
                     joinTime: currentTime,
+                    isAccepted:false
                 })),
             ],
         };
-        // console.log(conversationData);
+        console.log(conversationData);
         try {
             const response = await conversationService.createConversation(conversationData);
             console.log("Conversation created successfully");

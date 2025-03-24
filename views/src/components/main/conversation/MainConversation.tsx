@@ -1,12 +1,13 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useParams } from "react-router-dom";
 import { Message } from "../../../models/Conversation";
 import { conversationService } from "../../../services/ConversationService";
 import { useSelector } from "react-redux";
 import { RootState } from "../../../redux/store";
-import { formatDistanceToNow } from "date-fns";
 import { TbSend } from "react-icons/tb";
 import useStomp from "../../../hooks/useStomp";
+import MessageItem from "./MessageItem";
+import { VscLoading } from "react-icons/vsc";
 
 const MainConversation = () => {
   const id = useParams().id;
@@ -17,10 +18,8 @@ const MainConversation = () => {
   const [isFeching, setIsFeching] = useState(false);
   useEffect(() => {
     console.log(messages.length);
-  }
-  ), [messages];
+  }, [messages]);
   const pageSize = 7;
-  // const toast = useToast();
   const fetchMessages = async () => {
     if (!id) return;
     setIsFeching(true);
@@ -30,7 +29,7 @@ const MainConversation = () => {
       console.log(pageNumber)
       console.log(response.data);
       // đảo ngược mảng để hiển thị tin nhắn mới nhất ở cuối
-      setMessages((prevMessages) => [...response.data.data.reverse(), ...prevMessages]);
+      setMessages((prevMessages) => [...prevMessages, ...response.data.data]);
       // setPageNumber((prev) => prev + 1);
     } catch (error) {
       console.error("❌ Failed to fetch messages:", error);
@@ -46,8 +45,9 @@ const MainConversation = () => {
       try {
         const response = await conversationService.getMsgByConversationId(id, 0, pageSize);
         setTotalPage(response.data.totalPages);
-        setMessages(response.data.data.reverse());
+        setMessages(response.data.data);
         setPageNumber(2);
+        bottomRef.current?.scrollIntoView({ behavior: "smooth" });
         // scroll to bottom
         // if(messages.length>6)
         //   window.scrollTo(0, document.body.scrollHeight);
@@ -61,19 +61,20 @@ const MainConversation = () => {
   const object = useStomp({
     subscribeUrl: `/topic/group/${id}`,
     trigger: [id, currentUser],
-    flag:id?true:false
+    flag: id ? true : false
   });
 
   useEffect(() => {
     if (object) {
       const newMessage: Message = object;
-      setMessages((prev) => [...prev, newMessage]);
+      setMessages((prev) => [newMessage, ...prev]);
       // scroll to the bottom
       window.scrollTo(0, document.body.scrollHeight);
     }
   }, [object]);
 
   // 📩 Send Message
+  const bottomRef = useRef<HTMLDivElement | null>(null);
   const sendMessage = async () => {
     const inputElement = document.getElementById("message") as HTMLInputElement;
     const message = inputElement.value.trim();
@@ -82,6 +83,7 @@ const MainConversation = () => {
 
     try {
       await conversationService.sendMessage(message, id);
+      bottomRef.current?.scrollIntoView({ behavior: "smooth" });
       // const newMessage: Message = response.data;
       // setMessages((prev) => [...prev, newMessage]);
       inputElement.value = "";
@@ -104,10 +106,6 @@ const MainConversation = () => {
   useEffect(() => {
     // infinite scroll
     const handleScroll = () => {
-      // console.log( document.documentElement.scrollTop);
-      // const chatContainer = document.getElementById("chat-container");
-      // console.log(chatContainer?.scrollHeight);
-
       if (
         document.documentElement.scrollTop > 5
       )
@@ -122,60 +120,43 @@ const MainConversation = () => {
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
-  // nếu không có id thì return về banner
-  if (!id) {
-    return (
-      <div className="h-full w-full grid place-items-center">
-        <img className="" src="https://cdni.iconscout.com/illustration/premium/thumb/conversation-illustration-download-in-svg-png-gif-file-formats--like-logo-love-discussion-romantic-comment-social-media-reaction-communication-pack-network-illustrations-4705280.png?f=webp" alt="" />
-        <h1 className="text-3xl font-semibold text-gray-500 dark:text-gray-400">Please select a conversation</h1>
-      </div>
-    );
-  }
 
   return (
     <div className="w-full min-h-full bg-gray-100 dark:bg-gray-800 relative">
+      <div className="flex items-center justify-between w-full px-4 py-2 bg-white border-b dark:bg-gray-900 dark:border-gray-700 sticky top-[65px] z-10">
+        <h1 className="text-lg font-semibold text-gray-900 dark:text-white">Hội này hài!</h1>
+        <div className="flex items-center gap-2">
+
+        </div>
+      </div>
       <div
         id="chat-container"
         className="flex flex-col gap-2 p-4 min-h-screen overflow-y-auto">
-        {isFeching && (
-          <div className="flex justify-center">
-            <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-gray-900"></div>
-          </div>
-        )}
-        {messages.map((msg) => (
-          <div
+        {messages.slice().reverse().map((msg) => (
+          <MessageItem
             key={msg.id}
-            className={`flex gap-2 ${msg.sender.id === currentUser?.id ? "justify-end" : ""
-              }`}
-          >
-            {msg.sender.id !== currentUser?.id && (
-              <img
-                src={msg.sender?.avatarUrl ? msg.sender.avatarUrl : "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ-uwAPsc9m6frK85uQog_CeCpOwlfgpsjZKA&s"}
-                alt={msg.sender.fullname}
-                className="w-10 h-10 rounded-full"
-              />
-            )}
-            <div
-              className={`flex flex-col ${msg.sender.id === currentUser?.id ? "items-end" : ""
-                }`}
-            >
-              <span className="font-semibold text-black dark:text-white">{msg.sender.fullname}</span>
-              <span
-                className={`p-2 max-w-5xl rounded-lg ${msg.sender.id === currentUser?.id
-                  ? "bg-blue-500 text-white"
-                  : "bg-gray-200 dark:bg-gray-700  text-black dark:text-white"
-                  }`}
-              >
-                {msg.content}
-                {/*  */}
-              </span>
-              <span className="text-xs text-gray-500 dark:text-gray-400">
-                {formatDistanceToNow(new Date(msg.timestamp), { addSuffix: true })}
-              </span>
-            </div>
-          </div>
+            msg={msg}
+            currentUser={currentUser}
+          />
         ))}
+        {messages.length < 1 &&
+          <div className="flex flex-col items-center justify-center h-full absolute top-0 left-0 right-0 bottom-0">
+            <img
+              src="https://cdn.pixabay.com/animation/2023/06/13/15/13/15-13-25-972_512.gif"
+              alt=""
+              className="w-32 h-32 rounded-full mb-4 animate-bounce"
+            />
+            <h1 className="text-xl font-semibold text-gray-500 dark:text-gray-400 p-10 text-center">Ở đây hơi trống trải, hãy thử gửi tin nhắn đầu tiên xem nào!</h1>
+          </div>
+        }
       </div>
+      {/* isFetching */}
+      {isFeching && pageNumber > 1 && pageNumber <= totalPage &&
+        <div className="flex justify-center flex-col items-center fixed z-10 top-20 left-0 right-0">
+          <VscLoading className="animate-spin" color="gray" />
+          <p className="text-gray-500">Đang tải thêm...</p>
+        </div>
+      }
 
       {/* Input */}
       <div className="sticky bottom-0 left-0 w-full bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 p-2 shadow-md">
