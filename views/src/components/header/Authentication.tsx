@@ -104,7 +104,9 @@ const Authentication = () => {
             )}
             <div className="flex items-center">
               <Tooltip text="Blank Shop">
-                <button className="p-2 text-gray-700 dark:text-gray-200 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                <button 
+                  onClick={() => navigate('/shop')}
+                  className="p-2 text-gray-700 dark:text-gray-200 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500">
                   <BsCart3 className="w-5 h-5" />
                 </button>
               </Tooltip>
