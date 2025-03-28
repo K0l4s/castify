@@ -29,6 +29,7 @@ import CreatorFollower from '../pages/creator/creatorFollower/CreatorFollower'
 import FollowingPage from '../pages/main/followingPodcast/FollowingPage'
 import { RequireAuth } from './RequireAuth'
 import BlankShop from '../pages/main/blankShop/BlankShop'
+import MyShop from '../pages/main/blankShop/MyShop'
 import PaymentSuccess from '../pages/main/blankShop/PaymentSuccess'
 import PaymentFailure from '../pages/main/blankShop/PaymentFailure'
 import Payment from '../pages/main/blankShop/Payment'
@@ -88,6 +89,7 @@ const Router = () => {
                     <Route path='/profile' element={<ProfilePage />} />
                     <Route path='/profile/:username' element={<ProfilePage />} />
                     <Route path='/shop' element={<BlankShop />} />
+                    <Route path='/my-shop' element={<RequireAuth><MyShop /></RequireAuth>} />
 
                 </Route>
                 <Route element={<ProfileLayout />}>

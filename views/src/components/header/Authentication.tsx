@@ -17,7 +17,7 @@ import { Role } from "../../constants/Role";
 import defaultAvatar from "../../assets/images/default_avatar.jpg";
 import { useLanguage } from "../../context/LanguageContext";
 import coin from "../../assets/images/coin.png";
-import { BsCart3 } from "react-icons/bs";
+import { BsCart3, BsShop } from "react-icons/bs";
 import MessageIcon from "./MessageIcon";
 import NotificationIcon from "./NotificationIcon";
 
@@ -93,7 +93,6 @@ const Authentication = () => {
                 Upload
               </button>
             ) : (
-
               <Tooltip text="Upload">
                 <button
                   onClick={() => navigate('/creator/contents')}
@@ -103,13 +102,23 @@ const Authentication = () => {
               </Tooltip>
             )}
             <div className="flex items-center">
-              <Tooltip text="Blank Shop">
-                <button 
-                  onClick={() => navigate('/shop')}
-                  className="p-2 text-gray-700 dark:text-gray-200 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500">
-                  <BsCart3 className="w-5 h-5" />
+              {location.pathname.includes("/shop") ? (
+                <button
+                  onClick={() => navigate('/my-shop')}
+                  className="px-4 py-2 text-sm border border-gray-500 rounded-full text-black hover:bg-gray-300
+                    dark:border-gray-300 dark:text-white dark:hover:bg-gray-600">
+                  <BsShop className="inline-block mr-2 ml-1" size={20} />
+                  My Shop
                 </button>
-              </Tooltip>
+              ) : (
+                <Tooltip text="Blank Shop">
+                  <button 
+                    onClick={() => navigate('/shop')}
+                    className="p-2 text-gray-700 dark:text-gray-200 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <BsCart3 className="w-5 h-5" />
+                  </button>
+                </Tooltip>
+              )}
               <MessageIcon />
               <NotificationIcon />
             </div>
