@@ -207,7 +207,50 @@ public class ChatServiceImpl implements IChatService {
                 .map(MemberInfor::getMemberId) // Lấy memberId từ mỗi MemberInfor
                 .collect(Collectors.toList()); // Thu thập thành List
     }
+    @Override
+    public void readLastedMessage(String groupId) throws Exception {
+        UserEntity currentUser = userService.getUserByAuthentication();
 
-//    public void readAllMessage
+        MessageEntity lastMessage = messageRepository
+                .findTopByChatIdOrderByTimestampDesc(groupId);
+
+        if (lastMessage == null){
+            
+            return;
+        }
+
+        ChatEntity conver = chatRepository.findChatEntityById(groupId);
+
+        String lastedUserMessageId = conver.getMemberList().stream()
+                .filter(p -> p.getMemberId().equals(currentUser.getId()))
+                .map(p -> {
+                    LastReadMessage msg = p.getLastReadMessage();
+                    return msg != null ? msg.getLastMessageId() : null;
+                })
+                .findFirst()
+                .orElse(null);
+
+
+        if (lastMessage.getId().equals(lastedUserMessageId))
+            return;
+
+        conver.getMemberList().forEach(p -> {
+            if (p.getMemberId().equals(currentUser.getId())) {
+                if (p.getLastReadMessage() == null) {
+                    p.setLastReadMessage(new LastReadMessage());
+                }
+                p.getLastReadMessage().setLastMessageId(lastMessage.getId());
+                p.getLastReadMessage().setLastReadTime(LocalDateTime.now());
+            }
+        });
+
+
+        chatRepository.save(conver);
+    }
+
+    @Override
+    public ChatEntity getChatDetail(String groupId) throws Exception {
+        return chatRepository.findChatEntityById(groupId);
+    }
 
 }

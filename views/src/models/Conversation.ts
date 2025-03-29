@@ -1,14 +1,15 @@
 import { shortUser } from "./User";
+export interface MemberInfor {
+    memberId: string;
+    role: string;
+    joinTime: string;
+    isAccepted: boolean;
 
+}
 export interface CreateConversationProps {
     title: string;
     // name: string;
-    memberList: {
-        memberId: string;
-        role: string;
-        joinTime: string;
-        isAccepted:boolean;
-    }[];
+    memberList: MemberInfor[];
 }
 export interface Message {
     id: string;
@@ -28,3 +29,12 @@ export interface shortConversation {
     // lastMessageTimestamp: string;
 }
 
+export interface ConversationDetail {
+    id: string;
+    title: string;
+    imageUrl: string;
+    memberSize: number;
+    memberList: MemberInfor[];
+    createdAt: string;
+    active: boolean;
+}

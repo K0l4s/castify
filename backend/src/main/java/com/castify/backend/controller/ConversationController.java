@@ -102,4 +102,25 @@ public class ConversationController {
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+
+    @PutMapping("/read")
+    private ResponseEntity<?> readMessage(@RequestParam("groupId") String groupId) {
+        try {
+//            chatService.createConversation(request);
+            chatService.readLastedMessage(groupId);
+            return ResponseEntity.ok("OK!");
+        } catch (Exception ex) {
+            logger.info(ex.getMessage());
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+    @GetMapping("/msg/detail")
+    private ResponseEntity<?> getDetailChat(@RequestParam("groupId") String groupId) throws Exception {
+        try{
+            return ResponseEntity.ok(chatService.getChatDetail(groupId));
+        } catch (Exception ex) {
+            logger.info(ex.getMessage());
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
 }
