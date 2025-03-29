@@ -1,6 +1,7 @@
 package com.castify.backend.entity;
 
 import com.castify.backend.models.conversation.MemberInfor;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import org.springframework.data.annotation.Id; // Sửa dòng này
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -24,6 +25,7 @@ public class ChatEntity {
     private String imageUrl;
     private List<MemberInfor> memberList = new ArrayList<>();
     private boolean isActive = true;
+    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS")
     private LocalDateTime createdAt = LocalDateTime.now();
 
     public int getMemberSize() {
