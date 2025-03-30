@@ -7,8 +7,10 @@ import com.castify.backend.entity.UserEntity;
 import com.castify.backend.enums.MemberRole;
 import com.castify.backend.models.conversation.*;
 import com.castify.backend.models.paginated.PaginatedResponse;
+import com.castify.backend.models.user.ShortUser;
 import com.castify.backend.repository.ChatRepository;
 import com.castify.backend.repository.MessageRepository;
+import com.castify.backend.repository.UserRepository;
 import com.castify.backend.service.user.IUserService;
 import com.castify.backend.service.user.UserServiceImpl;
 import org.modelmapper.ModelMapper;
@@ -17,9 +19,11 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.logging.Logger;
@@ -37,8 +41,11 @@ public class ChatServiceImpl implements IChatService {
 //    private ChatCustomRepository chatCustomRepository;
     @Autowired
     private IUserService userService = new UserServiceImpl();
+    @Autowired
+    private UserRepository userRepository;
     private static final Logger logger = Logger.getLogger(ConversationController.class.getName());
-
+    @Autowired
+    private SimpMessagingTemplate messagingTemplate;
     @Override
     public ShortConversationModel createConversation(CreateChatRequest request) throws Exception {
         ChatEntity chatEntity = modelMapper.map(request, ChatEntity.class);
@@ -246,11 +253,42 @@ public class ChatServiceImpl implements IChatService {
 
 
         chatRepository.save(conver);
+        ShortUser user = modelMapper.map(currentUser,ShortUser.class);
+        messagingTemplate.convertAndSend(
+                "/topic/group/read" + groupId,
+                user
+        );
     }
 
     @Override
     public ChatEntity getChatDetail(String groupId) throws Exception {
         return chatRepository.findChatEntityById(groupId);
+    }
+    @Override
+    public List<FullMemberInfor> getMemberList(String groupId) {
+        ChatEntity chat = chatRepository.findChatEntityById(groupId);
+        if (chat == null) {
+            throw new IllegalArgumentException("Group not found");
+        }
+
+        List<FullMemberInfor> memberList = new ArrayList<>();
+
+        for (MemberInfor member : chat.getMemberList()) {
+            // Lấy thông tin người dùng
+            UserEntity user = userRepository.findById(member.getMemberId())
+                    .orElseThrow(() -> new IllegalArgumentException("User not found"));
+
+            // Map ShortUser từ UserEntity
+            ShortUser shortUser = modelMapper.map(user, ShortUser.class);
+
+            // Map FullMemberInfor từ MemberInfor
+            FullMemberInfor fullMember = modelMapper.map(member, FullMemberInfor.class);
+            fullMember.setMembers(shortUser);
+
+            memberList.add(fullMember);
+        }
+
+        return memberList;
     }
 
 }

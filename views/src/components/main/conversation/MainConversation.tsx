@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { useParams } from "react-router-dom";
-import { ConversationDetail, Message } from "../../../models/Conversation";
+import { ConversationDetail, FullMemberInfor, Message } from "../../../models/Conversation";
 import { conversationService } from "../../../services/ConversationService";
 import { useSelector } from "react-redux";
 import { RootState } from "../../../redux/store";
@@ -9,6 +9,7 @@ import useStomp from "../../../hooks/useStomp";
 import MessageItem from "./MessageItem";
 import { VscLoading } from "react-icons/vsc";
 import { BsInfoCircle } from "react-icons/bs";
+import { shortUser } from "../../../models/User";
 
 const MainConversation = () => {
   const id = useParams().id;
@@ -29,6 +30,21 @@ const MainConversation = () => {
       active: false,
     }
   );
+  const [members, setMembers] = useState<FullMemberInfor[]>([]);
+  useEffect(() => {
+    const fetchMembers = async () => {
+      if (!id) return;
+      try {
+        const response = await conversationService.getMembers(id);
+        setMembers(response.data);
+        console.log(response.data);
+      } catch (error) {
+        console.error("❌ Failed to fetch members:", error);
+      }
+    };
+    fetchMembers();
+  }
+    , [id]);
   useEffect(() => {
     const fetchChatDetail = async () => {
       if (!id) return;
@@ -96,10 +112,28 @@ const MainConversation = () => {
       const newMessage: Message = object;
       setMessages((prev) => [newMessage, ...prev]);
       // scroll to the bottom
+      // gửi thông báo đến server người dùng đã đọc tin nhắn
+      // conversationService.sendMessage("", id);
       window.scrollTo(0, document.body.scrollHeight);
     }
   }, [object]);
-
+  const readObject = useStomp({
+    subscribeUrl: `/topic/group/${id}/read`,
+    trigger: [id, currentUser],
+    flag: id ? true : false
+  });
+  useEffect(() => {
+    if (readObject) {
+      const newMessage: shortUser = readObject;
+      console.log(newMessage);
+      // tìm kiếm 
+      // scroll to the bottom
+      // gửi thông báo đến server người dùng đã đọc tin nhắn
+      // conversationService.sendMessage("", id);
+      window.scrollTo(0, document.body.scrollHeight);
+    }
+  }
+    , [readObject]);
   // 📩 Send Message
   const bottomRef = useRef<HTMLDivElement | null>(null);
   const sendMessage = async () => {
@@ -162,7 +196,7 @@ const MainConversation = () => {
             <h1 className="text-lg font-semibold text-gray-900 dark:text-white">{chatDetail.title}</h1>
           </div>
           <div className="flex items-center gap-2">
-            <button 
+            <button
               onClick={() => setShowInfo(!showInfo)}
               className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-full"
             >
@@ -179,9 +213,10 @@ const MainConversation = () => {
             <MessageItem
               key={msg.id}
               msg={msg}
+              members={members}
               currentUser={currentUser}
-            />
-          ))}
+            />)
+          )}
           {messages.length < 1 &&
             <div className="flex flex-col items-center justify-center h-full absolute top-0 left-0 right-0 bottom-0">
               <img
@@ -225,13 +260,13 @@ const MainConversation = () => {
         <div className="w-80 bg-white dark:bg-gray-900 border-l border-gray-200 dark:border-gray-700 p-4 sticky top-[66px] right-0 h-[calc(100vh-66px)] overflow-y-auto overflow-x-hidden">
           <div className="flex flex-col gap-4 h-[100000px]">
             <h2 className="text-xl font-semibold mb-4">Chat Information</h2>
-            
+
             <div className="space-y-4">
               <div className="flex flex-row gap-2">
                 <h3 className="text-sm text-gray-500 font-semibold">Created At:</h3>
                 <p className="text-gray-200">{new Date(chatDetail.createdAt).toLocaleDateString()}</p>
               </div>
-              
+
               <div>
                 <h3 className="text-sm text-gray-500">Members ({chatDetail.memberSize})</h3>
               </div>

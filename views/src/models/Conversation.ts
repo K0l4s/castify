@@ -38,3 +38,13 @@ export interface ConversationDetail {
     createdAt: string;
     active: boolean;
 }
+export interface LastReadMessage{
+    lastMessageId: string;
+    lastReadTime: string;
+}
+export interface FullMemberInfor {
+    members: shortUser;
+    role: string;
+    joinTime: string;
+    lastReadMessage: LastReadMessage;
+}
