@@ -16,5 +16,8 @@ export const conversationService = {
     },
     getDetailChat(conversationId: string) {
         return axiosInstanceAuth.get(`/api/v1/conversation/msg/detail?groupId=${conversationId}`);
-    }
+    },
+    getMembers(conversationId: string) {
+        return axiosInstanceAuth.get(`/api/v1/conversation/msg/members?groupId=${conversationId}`);
+    },
 }
