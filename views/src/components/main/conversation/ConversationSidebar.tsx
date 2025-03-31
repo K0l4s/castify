@@ -1,4 +1,4 @@
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../../../redux/store";
 import { useEffect, useState } from "react";
 import CreateConversationModal from "../../modals/msg/CreateConversationModal";
@@ -17,7 +17,7 @@ const ConversationSidebar = () => {
 
     const conversation = useSelector((state: RootState) => state.message.newConversation);
     const { id } = useParams();
-
+    
     const fetchData = async (pageNumber = 0) => {
         console.log("Fetching page:", pageNumber);
         try {
@@ -31,6 +31,7 @@ const ConversationSidebar = () => {
             }
 
             setConversations((prev) => [...prev, ...data]);
+
         } catch (error) {
             console.error("Failed to fetch conversations:", error);
         } finally {
@@ -52,10 +53,13 @@ const ConversationSidebar = () => {
 
     useEffect(() => {
         if (conversation) {
-            setConversations((prevConversations) => {
-                const updatedConversations = prevConversations.filter((c) => c.id !== conversation.id);
-                return [conversation, ...updatedConversations];
-            });
+            // setConversations((prevConversations) => {
+            //     const isExist = prevConversations.some((c) => c.id === conversation.id);
+            //     if (isExist) return [];
+            //     return [conversation, ...prevConversations];
+            // });
+            setPage(0);
+            setHasMore(true);
         }
     }, [conversation]);
 
