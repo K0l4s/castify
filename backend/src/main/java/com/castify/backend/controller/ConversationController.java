@@ -103,7 +103,7 @@ public class ConversationController {
         }
     }
 
-    @PutMapping("/read")
+    @PutMapping("/msg/read")
     private ResponseEntity<?> readMessage(@RequestParam("groupId") String groupId) {
         try {
 //            chatService.createConversation(request);

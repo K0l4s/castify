@@ -37,7 +37,6 @@ const MainConversation = () => {
       try {
         const response = await conversationService.getMembers(id);
         setMembers(response.data);
-        console.log(response.data);
       } catch (error) {
         console.error("❌ Failed to fetch members:", error);
       }
@@ -51,7 +50,6 @@ const MainConversation = () => {
       try {
         const response = await conversationService.getDetailChat(id);
         setChatDetail(response.data);
-        console.log(response.data);
       } catch (error) {
         console.error("❌ Failed to fetch chat detail:", error);
       }
@@ -111,6 +109,8 @@ const MainConversation = () => {
     if (object) {
       const newMessage: Message = object;
       setMessages((prev) => [newMessage, ...prev]);
+      if(id)
+        conversationService.readMsg(id.toString())
       // scroll to the bottom
       // gửi thông báo đến server người dùng đã đọc tin nhắn
       // conversationService.sendMessage("", id);
@@ -118,15 +118,36 @@ const MainConversation = () => {
     }
   }, [object]);
   const readObject = useStomp({
-    subscribeUrl: `/topic/group/${id}/read`,
+    subscribeUrl: `/topic/read/${id}`,
     trigger: [id, currentUser],
     flag: id ? true : false
   });
   useEffect(() => {
     if (readObject) {
       const newMessage: shortUser = readObject;
-      console.log(newMessage);
-      // tìm kiếm 
+      // console.log(newMessage);
+      console.log(members)
+      // tìm members.members có members.member.id bằng shortUser.id, cập nhật lại lastMessageId là id của message mới nhất
+      setMembers((prevMembers) =>
+        prevMembers.map((member) => {
+          if (member.members.id === newMessage.id && messages.length > 0) {
+            return {
+              ...member,
+              lastReadMessage: {
+                ...member.lastReadMessage,
+                lastMessageId: messages[0].id,
+                lastReadTime: new Date().toString()
+              },
+            };
+          }
+          return member;
+        })
+      );
+      console.log(members)
+      // if (memberInfor) {
+      //   // Cập nhật lastMessageId
+      //   memberInfor.lastMessageId = newMessage.messageId;
+      // }      // tìm kiếm 
       // scroll to the bottom
       // gửi thông báo đến server người dùng đã đọc tin nhắn
       // conversationService.sendMessage("", id);

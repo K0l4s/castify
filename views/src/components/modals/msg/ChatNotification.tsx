@@ -23,7 +23,7 @@ const ChatNotification = () => {
     if (!visible) return null; // Không hiển thị nếu `visible` là false
 
     return (
-        <Link to={'/msg/'+newConversation?.id} className="p-6 max-w-lg mx-auto bg-white/95 dark:bg-black/95 text-black dark:text-white rounded-xl shadow-md flex items-center space-x-4 fixed left-4 bottom-4 z-50">
+        <Link to={'/msg/'+newConversation?.id} className="p-6 max-w-lg mx-auto bg-white/95 dark:bg-black/20 text-black dark:text-white rounded-xl shadow-md flex items-center space-x-4 fixed left-4 bottom-4 z-50">
             <div className="shrink-0">
                 <img
                     className="h-12 w-12"
