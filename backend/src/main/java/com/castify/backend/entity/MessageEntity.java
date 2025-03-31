@@ -23,9 +23,6 @@ public class MessageEntity {
     @DBRef
     private UserEntity sender;
 
-//    @DBRef
-//    private UserEntity receiver;
-
     private String content;
     private LocalDateTime timestamp = LocalDateTime.now();
 }

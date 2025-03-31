@@ -22,5 +22,8 @@ export const conversationService = {
     },
     readMsg(conversationId:string){
         return axiosInstanceAuth.put(`/api/v1/conversation/msg/read?groupId=${conversationId}`)
+    },
+    hasUnreadMsg(){
+        return axiosInstanceAuth.get(`/api/v1/conversation/isUnread`)
     }
 }

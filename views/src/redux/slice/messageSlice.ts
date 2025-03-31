@@ -5,11 +5,13 @@ import { shortConversation } from '../../models/Conversation';
 interface MessageState {
     conversation: shortConversation[];
     newConversation: shortConversation | null;
+    isClick:boolean
 }
 
 const initialState: MessageState = {
     conversation: [],
     newConversation: null,
+    isClick:true,
 };
 
 const messageSlice = createSlice({
@@ -22,9 +24,12 @@ const messageSlice = createSlice({
     },
     resetNewConversation(state) {
       state.newConversation = null;
+    },
+    setClick(state,action: PayloadAction<boolean>){
+      state.isClick = action.payload;
     }
   }
 });
 
-export const { receiveMsg,resetNewConversation} = messageSlice.actions;
+export const { receiveMsg,resetNewConversation,setClick} = messageSlice.actions;
 export default messageSlice.reducer;

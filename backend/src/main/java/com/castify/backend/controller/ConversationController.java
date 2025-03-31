@@ -134,4 +134,14 @@ public class ConversationController {
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+
+    @GetMapping("/isUnread")
+    private ResponseEntity<?> hasUnreadMsg() throws Exception {
+        try{
+            return ResponseEntity.ok(chatService.hasUnreadMessages());
+        } catch (Exception ex) {
+            logger.info(ex.getMessage());
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
 }

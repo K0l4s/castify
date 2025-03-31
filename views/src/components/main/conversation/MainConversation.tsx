@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { useParams } from "react-router-dom";
 import { ConversationDetail, FullMemberInfor, Message } from "../../../models/Conversation";
 import { conversationService } from "../../../services/ConversationService";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../../../redux/store";
 import { TbSend } from "react-icons/tb";
 import useStomp from "../../../hooks/useStomp";
@@ -10,6 +10,7 @@ import MessageItem from "./MessageItem";
 import { VscLoading } from "react-icons/vsc";
 import { BsInfoCircle } from "react-icons/bs";
 import { shortUser } from "../../../models/User";
+import { setClick } from "../../../redux/slice/messageSlice";
 
 const MainConversation = () => {
   const id = useParams().id;
@@ -44,7 +45,12 @@ const MainConversation = () => {
     fetchMembers();
   }
     , [id]);
+  const dispatch = useDispatch();
+  const click = useSelector((state: RootState) => state.message.isClick);
+
   useEffect(() => {
+    dispatch(setClick(!click))
+
     const fetchChatDetail = async () => {
       if (!id) return;
       try {
@@ -52,6 +58,9 @@ const MainConversation = () => {
         setChatDetail(response.data);
       } catch (error) {
         console.error("❌ Failed to fetch chat detail:", error);
+      }
+      {
+        conversationService.readMsg(id);
       }
     };
     fetchChatDetail();
@@ -109,8 +118,9 @@ const MainConversation = () => {
     if (object) {
       const newMessage: Message = object;
       setMessages((prev) => [newMessage, ...prev]);
-      if(id)
+      if (id)
         conversationService.readMsg(id.toString())
+      setClick(!click)
       // scroll to the bottom
       // gửi thông báo đến server người dùng đã đọc tin nhắn
       // conversationService.sendMessage("", id);
@@ -125,6 +135,8 @@ const MainConversation = () => {
   useEffect(() => {
     if (readObject) {
       const newMessage: shortUser = readObject;
+      dispatch(setClick(!click))
+
       // console.log(newMessage);
       console.log(members)
       // tìm members.members có members.member.id bằng shortUser.id, cập nhật lại lastMessageId là id của message mới nhất
@@ -143,6 +155,7 @@ const MainConversation = () => {
           return member;
         })
       );
+      
       console.log(members)
       // if (memberInfor) {
       //   // Cập nhật lastMessageId
