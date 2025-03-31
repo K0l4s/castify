@@ -26,6 +26,7 @@ const useStomp = ({ subscribeUrl,trigger,flag=true,onConnect,onDisconnect,onStom
             reconnectDelay: reconnectDelay? reconnectDelay : 5000,
             connectHeaders: {
                 Authorization: `Bearer ${Cookies.get("token")}`,
+                "ngrok-skip-browser-warning": "true"
             },
             onConnect: () => {
                 // console.log("✅ WebSocket connected successfully");

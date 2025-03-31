@@ -7,6 +7,9 @@ export default defineConfig({
   server: {
     host: true, // Mở server để truy cập từ các thiết bị trong cùng mạng LAN
     port: 5000, // Thay đổi cổng nếu cần thiết
+    hmr: {
+      protocol: 'ws', // Chuyển từ wss sang ws
+    }
   },
   resolve: {
     alias: {
