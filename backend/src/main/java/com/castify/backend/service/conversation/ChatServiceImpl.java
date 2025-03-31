@@ -221,44 +221,33 @@ public class ChatServiceImpl implements IChatService {
         MessageEntity lastMessage = messageRepository
                 .findTopByChatIdOrderByTimestampDesc(groupId);
 
-        if (lastMessage == null){
-            
+        if (lastMessage == null) {
             return;
         }
 
         ChatEntity conver = chatRepository.findChatEntityById(groupId);
 
-        String lastedUserMessageId = conver.getMemberList().stream()
-                .filter(p -> p.getMemberId().equals(currentUser.getId()))
-                .map(p -> {
-                    LastReadMessage msg = p.getLastReadMessage();
-                    return msg != null ? msg.getLastMessageId() : null;
-                })
-                .findFirst()
-                .orElse(null);
-
-
-        if (lastMessage.getId().equals(lastedUserMessageId))
-            return;
 
         conver.getMemberList().forEach(p -> {
             if (p.getMemberId().equals(currentUser.getId())) {
-                if (p.getLastReadMessage() == null) {
-                    p.setLastReadMessage(new LastReadMessage());
-                }
-                p.getLastReadMessage().setLastMessageId(lastMessage.getId());
-                p.getLastReadMessage().setLastReadTime(LocalDateTime.now());
+                LastReadMessage lastReadMessage = new LastReadMessage();
+                    // Cập nhật nếu đã tồn tại
+                lastReadMessage.setLastMessageId(lastMessage.getId());
+                lastReadMessage.setLastReadTime(LocalDateTime.now());
+                p.setLastReadMessage(lastReadMessage);
             }
         });
 
-
         chatRepository.save(conver);
-        ShortUser user = modelMapper.map(currentUser,ShortUser.class);
+
+        ShortUser user = modelMapper.map(currentUser, ShortUser.class);
         messagingTemplate.convertAndSend(
-                "/topic/group/read" + groupId,
+                "/topic/read/" + groupId,
                 user
         );
     }
+
+
 
     @Override
     public ChatEntity getChatDetail(String groupId) throws Exception {

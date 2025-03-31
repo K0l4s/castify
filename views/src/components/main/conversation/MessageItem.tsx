@@ -11,11 +11,12 @@ interface MessageItemProps {
 
 const MessageItem: React.FC<MessageItemProps> = ({ msg, currentUser, members }) => {
     // Lấy danh sách những người đã đọc
-    console.log(msg.sender.id);
+    // console.log(msg.sender.id);
     const readers = members.filter(member =>
-        member.lastReadMessage?.lastMessageId === msg.id
+        member.lastReadMessage?.lastMessageId === msg.id 
+        && member.members.id !== currentUser?.id
     );
-    console.log(readers);
+    // console.log(readers);
     return (
         <div
             key={msg.id}

@@ -20,4 +20,7 @@ export const conversationService = {
     getMembers(conversationId: string) {
         return axiosInstanceAuth.get(`/api/v1/conversation/msg/members?groupId=${conversationId}`);
     },
+    readMsg(conversationId:string){
+        return axiosInstanceAuth.put(`/api/v1/conversation/msg/read?groupId=${conversationId}`)
+    }
 }

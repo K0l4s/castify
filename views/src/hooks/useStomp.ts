@@ -30,7 +30,7 @@ const useStomp = ({ subscribeUrl,trigger,flag=true,onConnect,onDisconnect,onStom
             },
             onConnect: () => {
                 // console.log("✅ WebSocket connected successfully");
-
+                console.log("subscribe: "+subscribeUrl)
                 // 📥 Nhận tin nhắn trong nhóm hiện tại
                 if (flag) {
                     stompClient.subscribe(subscribeUrl, (message) => {
