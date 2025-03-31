@@ -5,13 +5,12 @@ import com.castify.backend.entity.ChatEntity;
 import com.castify.backend.entity.MessageEntity;
 import com.castify.backend.entity.UserEntity;
 import com.castify.backend.enums.MemberRole;
-import com.castify.backend.models.conversation.CreateChatRequest;
-import com.castify.backend.models.conversation.MemberInfor;
-import com.castify.backend.models.conversation.MessageResponse;
-import com.castify.backend.models.conversation.ShortConversationModel;
+import com.castify.backend.models.conversation.*;
 import com.castify.backend.models.paginated.PaginatedResponse;
+import com.castify.backend.models.user.ShortUser;
 import com.castify.backend.repository.ChatRepository;
 import com.castify.backend.repository.MessageRepository;
+import com.castify.backend.repository.UserRepository;
 import com.castify.backend.service.user.IUserService;
 import com.castify.backend.service.user.UserServiceImpl;
 import org.modelmapper.ModelMapper;
@@ -20,9 +19,11 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.logging.Logger;
@@ -40,8 +41,11 @@ public class ChatServiceImpl implements IChatService {
 //    private ChatCustomRepository chatCustomRepository;
     @Autowired
     private IUserService userService = new UserServiceImpl();
+    @Autowired
+    private UserRepository userRepository;
     private static final Logger logger = Logger.getLogger(ConversationController.class.getName());
-
+    @Autowired
+    private SimpMessagingTemplate messagingTemplate;
     @Override
     public ShortConversationModel createConversation(CreateChatRequest request) throws Exception {
         ChatEntity chatEntity = modelMapper.map(request, ChatEntity.class);
@@ -113,9 +117,20 @@ public class ChatServiceImpl implements IChatService {
             MessageEntity lastMessage = messageRepository.findTopByChatIdOrderByTimestampDesc(chat.getId());
             if (lastMessage != null) {
                 MessageResponse messageResponse = modelMapper.map(lastMessage, MessageResponse.class);
+                ChatEntity conver = chatRepository.findChatEntityById(messageResponse.getChatId());
+                for (MemberInfor props : conver.getMemberList()) {
+                    if (props.getMemberId().equals(user.getId())) {
+                        LastReadMessage lastRead = props.getLastReadMessage();
+                        if (lastRead != null) {
+                            messageResponse.setRead(lastRead.getLastMessageId().equals(lastMessage.getId()));
+                        } else {
+                            messageResponse.setRead(false); // hoặc true tùy vào logic
+                        }
+                        break;
+                    }
+
+                }
                 model.setLastMessage(messageResponse);
-//                model.setLastMessage(lastMessage.getContent());
-//                model.setLastMessageTimestamp(lastMessage.getTimestamp());
             } else {
                 model.setLastMessage(null);
 //                model.setLastMessageTimestamp(null); // Xử lý trường hợp không có lastMessage
@@ -126,13 +141,6 @@ public class ChatServiceImpl implements IChatService {
         // Sắp xếp danh sách theo lastMessageTimestamp giảm dần
         // Sắp xếp danh sách theo lastMessageTimestamp giảm dần, nếu null thì sắp xếp theo createdAt
         conversationModels.sort((a, b) -> {
-//            if (a.getLastMessageTimestamp() == null && b.getLastMessageTimestamp() == null) {
-//                // Nếu cả hai lastMessageTimestamp đều null, so sánh createdAt
-//                return b.getCreatedAt().compareTo(a.getCreatedAt());
-//            }
-//            if (a.getLastMessageTimestamp() == null) return 1; // null được đưa xuống dưới
-//            if (b.getLastMessageTimestamp() == null) return -1; // null được đưa xuống dưới
-//            return b.getLastMessageTimestamp().compareTo(a.getLastMessageTimestamp());
                 if (a.getLastMessage() == null && b.getLastMessage() == null) {
                     return b.getCreatedAt().compareTo(a.getCreatedAt()); // So sánh createdAt nếu cả hai đều không có lastMessage
                 }
@@ -161,31 +169,6 @@ public class ChatServiceImpl implements IChatService {
         int totalPages = (int) Math.ceil((double) totalConversations / pageSize);
         return new PaginatedResponse<>(paginatedConversations, totalPages);
     }
-
-
-
-    ;
-//    @Override
-//    public PaginatedResponse<ShortConversationModel> getConversationByUser(int pageNumber, int pageSize) throws Exception {
-//        UserEntity user = userService.getUserByAuthentication();
-//        Pageable pageable = PageRequest.of(pageNumber, pageSize);
-//        Page<ChatEntity> conversations = chatCustomRepository.findConversationsByUserIdSortedByLatestMessage(
-//                user.getId(), pageable
-//        );
-//
-//        List<ShortConversationModel> converList = conversations.getContent().stream().map(chat -> {
-//            ShortConversationModel model = modelMapper.map(chat, ShortConversationModel.class);
-//
-//            MessageEntity lastMessage = messageRepository.findTopByChatIdOrderByTimestampDesc(chat.getId());
-//            if (lastMessage != null) {
-//                model.setLastMessage(lastMessage.getContent());
-//                model.setLastMessageTimestamp(lastMessage.getTimestamp());
-//            }
-//            return model;
-//        }).toList();
-//
-//        return new PaginatedResponse<>(converList, conversations.getTotalPages());
-//    }
 
     @Override
     public MessageResponse sendMessage(String message, String groupId) throws Exception {
@@ -231,7 +214,70 @@ public class ChatServiceImpl implements IChatService {
                 .map(MemberInfor::getMemberId) // Lấy memberId từ mỗi MemberInfor
                 .collect(Collectors.toList()); // Thu thập thành List
     }
+    @Override
+    public void readLastedMessage(String groupId) throws Exception {
+        UserEntity currentUser = userService.getUserByAuthentication();
 
-//    public
+        MessageEntity lastMessage = messageRepository
+                .findTopByChatIdOrderByTimestampDesc(groupId);
+
+        if (lastMessage == null) {
+            return;
+        }
+
+        ChatEntity conver = chatRepository.findChatEntityById(groupId);
+
+
+        conver.getMemberList().forEach(p -> {
+            if (p.getMemberId().equals(currentUser.getId())) {
+                LastReadMessage lastReadMessage = new LastReadMessage();
+                    // Cập nhật nếu đã tồn tại
+                lastReadMessage.setLastMessageId(lastMessage.getId());
+                lastReadMessage.setLastReadTime(LocalDateTime.now());
+                p.setLastReadMessage(lastReadMessage);
+            }
+        });
+
+        chatRepository.save(conver);
+
+        ShortUser user = modelMapper.map(currentUser, ShortUser.class);
+        messagingTemplate.convertAndSend(
+                "/topic/read/" + groupId,
+                user
+        );
+    }
+
+
+
+    @Override
+    public ChatEntity getChatDetail(String groupId) throws Exception {
+        return chatRepository.findChatEntityById(groupId);
+    }
+    @Override
+    public List<FullMemberInfor> getMemberList(String groupId) {
+        ChatEntity chat = chatRepository.findChatEntityById(groupId);
+        if (chat == null) {
+            throw new IllegalArgumentException("Group not found");
+        }
+
+        List<FullMemberInfor> memberList = new ArrayList<>();
+
+        for (MemberInfor member : chat.getMemberList()) {
+            // Lấy thông tin người dùng
+            UserEntity user = userRepository.findById(member.getMemberId())
+                    .orElseThrow(() -> new IllegalArgumentException("User not found"));
+
+            // Map ShortUser từ UserEntity
+            ShortUser shortUser = modelMapper.map(user, ShortUser.class);
+
+            // Map FullMemberInfor từ MemberInfor
+            FullMemberInfor fullMember = modelMapper.map(member, FullMemberInfor.class);
+            fullMember.setMembers(shortUser);
+
+            memberList.add(fullMember);
+        }
+
+        return memberList;
+    }
 
 }

@@ -13,5 +13,14 @@ export const conversationService = {
     },
     sendMessage: async (data: string, groupId: string) => {
         return axiosInstanceAuth.put('/api/v1/conversation/msg?groupId=' + groupId, { message: data });
+    },
+    getDetailChat(conversationId: string) {
+        return axiosInstanceAuth.get(`/api/v1/conversation/msg/detail?groupId=${conversationId}`);
+    },
+    getMembers(conversationId: string) {
+        return axiosInstanceAuth.get(`/api/v1/conversation/msg/members?groupId=${conversationId}`);
+    },
+    readMsg(conversationId:string){
+        return axiosInstanceAuth.put(`/api/v1/conversation/msg/read?groupId=${conversationId}`)
     }
 }

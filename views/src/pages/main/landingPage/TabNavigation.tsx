@@ -9,7 +9,11 @@ interface TabNavigationProps {
 }
 
 const TabNavigation: React.FC<TabNavigationProps> = ({ selectedTab, onSelectTab, genres }) => {
-  const tabs = ['Popular', 'Recent', ...genres.map((genre) => genre.name)];
+  // const tabs = ['Popular', 'Recent', ...genres.map((genre) => genre.name)];
+  const tabs = ['Popular', 'Recent', ...(Array.isArray(genres) ? genres.map((genre) => genre.name) : [])];
+
+  console.log('Genres:', genres);
+
   const containerRef = useRef<HTMLDivElement>(null);
 
   const handlePrevClick = () => {

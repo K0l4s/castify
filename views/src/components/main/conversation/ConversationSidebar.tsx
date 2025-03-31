@@ -24,8 +24,8 @@ const ConversationSidebar = () => {
             setIsLoading(true);
             const response = await conversationService.getByUserId(pageNumber, limit);
             const data = response.data.data;
-            console.log("Total pages:", response.data.totalPages);
-
+            // console.log("Total pages:", response.data.totalPages);
+            console.log("Data length:", data);
             if (pageNumber >= response.data.totalPages - 1 || data.length < limit) {
                 setHasMore(false);
             }
@@ -86,24 +86,31 @@ const ConversationSidebar = () => {
                         <Link
                             to={`/msg/${conversation.id}`}
                             key={conversation.id}
-                            className={`flex w-full items-center gap-2 p-2 cursor-pointer duration-300 ease-in-out hover:bg-gray-200 hover:dark:bg-gray-900 ${
-                                conversation.id === id ? 'bg-gray-200 dark:bg-gray-900' : ''
-                            }`}
+                            className={`flex w-full items-center gap-2 p-2 cursor-pointer duration-300 ease-in-out hover:bg-gray-200 hover:dark:bg-gray-900 ${conversation.id === id ? 'bg-gray-200 dark:bg-gray-900' : ''
+                                }`}
                         >
-                            <img
-                                src={
-                                    conversation.imageUrl
-                                        ? conversation.imageUrl
-                                        : "https://png.pngtree.com/png-vector/20190725/ourmid/pngtree-group-avatar-icon-design-vector-png-image_1585671.jpg"
-                                }
-                                alt="avatar"
-                                className="w-10 h-full rounded-full object-cover object-center border-2 border-yellow-500"
-                            />
+                            <div className="relative">
+                                <img
+                                    src={
+                                        conversation.imageUrl
+                                            ? conversation.imageUrl
+                                            : "https://png.pngtree.com/png-vector/20190725/ourmid/pngtree-group-avatar-icon-design-vector-png-image_1585671.jpg"
+                                    }
+                                    alt="avatar"
+                                    className="w-10 h-full rounded-full object-cover object-center border-2 border-yellow-500"
+                                />
+                                {/* chấm đỏ nếu read = false */}
+                                <div className="absolute top-1 right-1">
+                                    {!conversation.lastMessage?.read && (
+                                        <div className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full border-2 border-white"></div>
+                                    )}
+                                </div>
+                            </div>
                             <div>
                                 {isOpenSideBar && (
                                     <div>
                                         <h2 className="font-semibold">{conversation.title}</h2>
-                                        <p className="text-gray-500">
+                                        <p className={`text-gray-500 ${conversation.lastMessage?.read ? 'font-normal' : 'font-bold text-red-300'}`}>
                                             {conversation.lastMessage?.content || "Nhóm đã được tạo"}
                                         </p>
                                     </div>
