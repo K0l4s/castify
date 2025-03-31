@@ -1,6 +1,8 @@
 package com.castify.backend.entity;
 
 import com.castify.backend.models.conversation.MemberInfor;
+import com.castify.backend.repository.ChatRepository;
+import com.castify.backend.repository.MessageRepository;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import org.springframework.data.annotation.Id; // Sửa dòng này
 import lombok.AllArgsConstructor;
@@ -31,4 +33,6 @@ public class ChatEntity {
     public int getMemberSize() {
         return memberList.size();
     }
+
+
 }

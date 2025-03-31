@@ -279,5 +279,34 @@ public class ChatServiceImpl implements IChatService {
 
         return memberList;
     }
+    @Override
+    public boolean hasUnreadMessages() throws Exception {
+        // Lấy danh sách các nhóm mà người dùng tham gia
+        UserEntity user = userService.getUserByAuthentication();
+        List<ChatEntity> chats = chatRepository.findAllByMemberIdOrderByLastMessage(user.getId());
+    logger.info(String.valueOf(chats.size()));
+        for (ChatEntity chat : chats) {
+            // Lấy thông tin thành viên trong nhóm
+            MemberInfor member = chat.getMemberList().stream()
+                    .filter(m -> m.getMemberId().equals(user.getId()))
+                    .findFirst()
+                    .orElse(null);
+
+            // Nếu thành viên không tồn tại hoặc chưa có thời gian đọc tin nhắn
+            if (member == null || member.getLastReadMessage() == null) {
+                return true; // Nếu chưa có thời gian đọc tin nhắn, cho là chưa đọc
+            }
+
+            LocalDateTime lastReadTime = member.getLastReadMessage().getLastReadTime();
+
+            // Kiểm tra xem có tin nhắn nào trong nhóm mà người dùng chưa đọc
+            long unreadCount = messageRepository.countUnreadMessages(chat.getId(), lastReadTime).orElse(0L);
+            if (unreadCount > 0) {
+                return true; // Nếu có tin nhắn chưa đọc, trả về true
+            }
+        }
+
+        return false; // Nếu không có nhóm nào có tin nhắn chưa đọc
+    }
 
 }

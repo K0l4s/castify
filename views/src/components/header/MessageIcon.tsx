@@ -4,14 +4,16 @@ import { BiMessageRoundedDots } from 'react-icons/bi'
 import { useDispatch, useSelector } from 'react-redux'
 import { useNavigate } from 'react-router-dom'
 import { RootState } from '../../redux/store'
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { receiveMsg } from '../../redux/slice/messageSlice'
 import useStomp from '../../hooks/useStomp'
 import { shortConversation } from '../../models/Conversation'
+import { conversationService } from '../../services/ConversationService'
 const MessageIcon = () => {
   const navigate = useNavigate()
-  const conversation = useSelector((state: RootState) => state.message.conversation);
+  // const conversation = useSelector((state: RootState) => state.message.conversation);
   const currentUser = useSelector((state: RootState) => state.auth.user);
+  const [isRead, setIsRead] = useState<boolean>(false);
   const dispatch = useDispatch();
   const data: shortConversation = useStomp(
     {
@@ -19,9 +21,25 @@ const MessageIcon = () => {
       trigger: [currentUser],
     }
   )
+  const isClick = useSelector((state:RootState)=> state.message.isClick)
+  useEffect(() => {
+    const fetchIsRead = async () => {
+      try {
+        const response = await conversationService.hasUnreadMsg();
+        console.log("Hello " + response.data);
+        setIsRead(!response.data)
+        
+      } catch (error) {
+        console.error("Error fetching unread messages:", error);
+      }
+    };
+    fetchIsRead(); 
+  }, [isClick]);
+  
   useEffect(() => {
     if (data) {
       console.log(data)
+      setIsRead(false);
       dispatch(receiveMsg(data));
     }
   }, [data])
@@ -81,7 +99,7 @@ const MessageIcon = () => {
         <button
           onClick={() => navigate('/msg')}
           className="p-2 text-gray-700 dark:text-gray-200 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500">
-          {conversation.length > 0 && <span className="absolute top-0 right-0 w-5 h-5 bg-red-500 rounded-full flex items-center justify-center text-white text-xs">{conversation.length}</span>}
+          {!isRead && <span className="absolute top-2 right-2 w-2 h-2 bg-red-500 rounded-full flex items-center justify-center text-white text-xs"> </span>}
           <BiMessageRoundedDots className="w-5 h-5" />
         </button>
       </Tooltip>

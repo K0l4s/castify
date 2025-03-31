@@ -6,6 +6,8 @@ import com.castify.backend.models.conversation.FullMemberInfor;
 import com.castify.backend.models.conversation.MessageResponse;
 import com.castify.backend.models.conversation.ShortConversationModel;
 import com.castify.backend.models.paginated.PaginatedResponse;
+import com.castify.backend.repository.ChatRepository;
+import com.castify.backend.repository.MessageRepository;
 
 import java.util.List;
 
@@ -30,4 +32,6 @@ public interface IChatService {
     ChatEntity getChatDetail(String groupId) throws Exception;
 
     List<FullMemberInfor> getMemberList(String groupId);
+
+    boolean hasUnreadMessages() throws Exception;
 }

@@ -5,7 +5,7 @@ import CreateConversationModal from "../../modals/msg/CreateConversationModal";
 import { shortConversation } from "../../../models/Conversation";
 import { conversationService } from "../../../services/ConversationService";
 import { Link, useParams } from "react-router-dom";
-import { resetNewConversation } from "../../../redux/slice/messageSlice";
+import { resetNewConversation, setClick } from "../../../redux/slice/messageSlice";
 
 const ConversationSidebar = () => {
     const isOpenSideBar = useSelector((state: RootState) => state.sidebar.isOpen);
@@ -59,20 +59,21 @@ const ConversationSidebar = () => {
             setConversations((prevConversations) => {
                 const updatedConversations = prevConversations.filter((c) => c.id != conversation.id);
                 const newConversation = { ...conversation };
-            
+
                 if (id === conversation.id && conversation.lastMessage?.id) {
                     newConversation.lastMessage = {
                         ...conversation.lastMessage,
                         read: true,
                     };
                 }
-            
+
                 return [newConversation, ...updatedConversations] as shortConversation[];
             });
-        
+
             dispatch(resetNewConversation());
         }
     }, [conversation]);
+    const click = useSelector((state: RootState) => state.message.isClick);
     const handleClickConversation = (converId: string) => {
         setConversations((prevConversations) =>
             prevConversations.map((conversation) => {
@@ -90,10 +91,8 @@ const ConversationSidebar = () => {
                 return conversation;
             })
         );
+        dispatch(setClick(!click))
     };
-    
-    
-    
     return (
         <div id="logo-sidebar" className={`h-screen ${isOpenSideBar ? 'w-56' : 'w-16'}`}>
             <div
@@ -119,7 +118,7 @@ const ConversationSidebar = () => {
                     {/* conversation list */}
                     {conversations.map((conversation) => (
                         <Link
-                        onClick={()=>handleClickConversation(conversation.id)}
+                            onClick={() => handleClickConversation(conversation.id)}
                             to={`/msg/${conversation.id}`}
                             key={conversation.id}
                             className={`flex w-full items-center gap-2 p-2 cursor-pointer duration-300 ease-in-out hover:bg-gray-200 hover:dark:bg-gray-900 ${conversation.id === id ? 'bg-gray-200 dark:bg-gray-900' : ''
