@@ -5,6 +5,7 @@ import CreateConversationModal from "../../modals/msg/CreateConversationModal";
 import { shortConversation } from "../../../models/Conversation";
 import { conversationService } from "../../../services/ConversationService";
 import { Link, useParams } from "react-router-dom";
+import { resetNewConversation } from "../../../redux/slice/messageSlice";
 
 const ConversationSidebar = () => {
     const isOpenSideBar = useSelector((state: RootState) => state.sidebar.isOpen);
@@ -17,7 +18,7 @@ const ConversationSidebar = () => {
 
     const conversation = useSelector((state: RootState) => state.message.newConversation);
     const { id } = useParams();
-    
+
     const fetchData = async (pageNumber = 0) => {
         console.log("Fetching page:", pageNumber);
         try {
@@ -29,8 +30,9 @@ const ConversationSidebar = () => {
             if (pageNumber >= response.data.totalPages - 1 || data.length < limit) {
                 setHasMore(false);
             }
-
-            setConversations((prev) => [...prev, ...data]);
+            setConversations((prev) => {
+                return [...prev, ...data]
+            });
 
         } catch (error) {
             console.error("Failed to fetch conversations:", error);
@@ -50,19 +52,48 @@ const ConversationSidebar = () => {
             setPage(page + 1);
         }
     };
-
+    const dispatch = useDispatch();
     useEffect(() => {
+        console.log(conversation);
         if (conversation) {
-            // setConversations((prevConversations) => {
-            //     const isExist = prevConversations.some((c) => c.id === conversation.id);
-            //     if (isExist) return [];
-            //     return [conversation, ...prevConversations];
-            // });
-            setPage(0);
-            setHasMore(true);
+            setConversations((prevConversations) => {
+                const updatedConversations = prevConversations.filter((c) => c.id != conversation.id);
+                const newConversation = { ...conversation };
+            
+                if (id === conversation.id && conversation.lastMessage?.id) {
+                    newConversation.lastMessage = {
+                        ...conversation.lastMessage,
+                        read: true,
+                    };
+                }
+            
+                return [newConversation, ...updatedConversations] as shortConversation[];
+            });
+        
+            dispatch(resetNewConversation());
         }
     }, [conversation]);
-
+    const handleClickConversation = (converId: string) => {
+        setConversations((prevConversations) =>
+            prevConversations.map((conversation) => {
+                if (conversation.id === converId && conversation.lastMessage?.id) {
+                    // Chỉ cập nhật khi lastMessage và id tồn tại
+                    return {
+                        ...conversation,
+                        lastMessage: {
+                            ...conversation.lastMessage,
+                            id: conversation.lastMessage.id, // Đảm bảo không bị undefined
+                            read: true,
+                        },
+                    };
+                }
+                return conversation;
+            })
+        );
+    };
+    
+    
+    
     return (
         <div id="logo-sidebar" className={`h-screen ${isOpenSideBar ? 'w-56' : 'w-16'}`}>
             <div
@@ -88,6 +119,7 @@ const ConversationSidebar = () => {
                     {/* conversation list */}
                     {conversations.map((conversation) => (
                         <Link
+                        onClick={()=>handleClickConversation(conversation.id)}
                             to={`/msg/${conversation.id}`}
                             key={conversation.id}
                             className={`flex w-full items-center gap-2 p-2 cursor-pointer duration-300 ease-in-out hover:bg-gray-200 hover:dark:bg-gray-900 ${conversation.id === id ? 'bg-gray-200 dark:bg-gray-900' : ''

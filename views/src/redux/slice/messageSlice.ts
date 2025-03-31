@@ -19,9 +19,12 @@ const messageSlice = createSlice({
     receiveMsg(state, action: PayloadAction<shortConversation>) {
       state.conversation.push(action.payload);
       state.newConversation = action.payload;
+    },
+    resetNewConversation(state) {
+      state.newConversation = null;
     }
   }
 });
 
-export const { receiveMsg} = messageSlice.actions;
+export const { receiveMsg,resetNewConversation} = messageSlice.actions;
 export default messageSlice.reducer;
