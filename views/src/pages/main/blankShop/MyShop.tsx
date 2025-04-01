@@ -1,15 +1,8 @@
 import { useEffect, useState } from 'react';
 import { useToast } from '../../../context/ToastProvider';
 import defaultFrame from '../../../assets/images/frame_test.png';
-
-interface Frame {
-  id: string;
-  name: string;
-  price: number;
-  imageUrl: string;
-  status: 'PENDING' | 'APPROVED' | 'REJECTED';
-  createdAt: string;
-}
+import { Frame } from '../../../models/FrameModel';
+import { getAllFrames, deleteFrame } from '../../../services/FrameService';
 
 const MyShop = () => {
   const [frames, setFrames] = useState<Frame[]>([]);
@@ -22,9 +15,7 @@ const MyShop = () => {
 
   const fetchMyFrames = async () => {
     try {
-      // TODO: Thay thế bằng API call thực tế
-      const response = await fetch('/api/my-frames');
-      const data = await response.json();
+      const data = await getAllFrames();
       setFrames(data);
     } catch (error) {
       toast.error('Failed to fetch frames');
@@ -33,15 +24,25 @@ const MyShop = () => {
     }
   };
 
+  const handleDelete = async (id: string) => {
+    try {
+      await deleteFrame(id);
+      toast.success('Frame deleted successfully');
+      fetchMyFrames(); // Refresh the list
+    } catch (error) {
+      toast.error('Failed to delete frame');
+    }
+  };
+
   const getStatusBadge = (status: string) => {
     const statusConfig = {
-      APPROVED: {
+      ACCEPTED: {
         color: 'text-green-600 bg-green-100 dark:bg-green-900/30',
-        text: 'Approved'
+        text: 'Accepted'
       },
-      PENDING: {
+      PROCESSING: {
         color: 'text-yellow-600 bg-yellow-100 dark:bg-yellow-900/30',
-        text: 'Pending'
+        text: 'Processing'
       },
       REJECTED: {
         color: 'text-red-600 bg-red-100 dark:bg-red-900/30',
@@ -82,7 +83,7 @@ const MyShop = () => {
           <div key={frame.id} className="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden">
             <div className="relative aspect-square">
               <img 
-                src={frame.imageUrl || defaultFrame}
+                src={frame.imageURL || defaultFrame}
                 alt={frame.name}
                 className="w-full h-full object-contain p-4"
               />
@@ -101,9 +102,6 @@ const MyShop = () => {
               </div>
               
               <div className="flex justify-between items-center">
-                <span className="text-blue-500 font-bold">
-                  {frame.price} Coins
-                </span>
                 <span className="text-sm text-gray-500 dark:text-gray-400">
                   {new Date(frame.createdAt).toLocaleDateString()}
                 </span>
@@ -118,7 +116,7 @@ const MyShop = () => {
                 Edit
               </button>
               <button 
-                onClick={() => {/* Implement delete */}}
+                onClick={() => handleDelete(frame.id)}
                 className="text-red-500 hover:text-red-600"
               >
                 Delete
