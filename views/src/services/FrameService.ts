@@ -1,7 +1,41 @@
 import { axiosInstance, axiosInstanceAuth } from '../utils/axiosInstance';
 import { Frame, FrameCreateUpdate } from '../models/FrameModel';
 
-//Lấy tất cả các Frame, tất cả các trạng thái (cho trang MyShop)
+// For BlankShop - Get all accepted frames for public view
+export const getAcceptedFrames = async () => {
+  try {
+    const response = await axiosInstance.get('/api/v1/frame/all');
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};
+
+
+
+// For MyShop - Get all frames of current user
+export const getMyUploads = async () => {
+  try {
+    const response = await axiosInstanceAuth.get('/api/v1/frame/my-uploads');
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};
+
+
+
+// For PurchasedFrames - Get all frames that user has purchased
+export const getPurchasedFrames = async () => {
+  try {
+    const response = await axiosInstanceAuth.get('/api/v1/frame/purchased');
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};
+
+// For AdminFrameManagement - Get all frames from all users
 export const getAllFrames = async () => {
   try {
     const response = await axiosInstanceAuth.get('/api/admin/v1/frame/all');
@@ -11,15 +45,7 @@ export const getAllFrames = async () => {
   }
 };
 
-export const getAcceptedFrames = async () => {
-  try {
-    const response = await axiosInstanceAuth.get('/api/v1/frame/all');
-    return response.data;
-  } catch (error) {
-    throw error;
-  }
-};
-
+// Upload new frame
 export const uploadFrame = async (frameData: FormData) => {
   try {
     const response = await axiosInstanceAuth.post('/api/v1/frame/upload', frameData, {
@@ -33,7 +59,8 @@ export const uploadFrame = async (frameData: FormData) => {
   }
 };
 
-export const updateFrame = async (id: string, frameData: FrameCreateUpdate) => {
+// Update frame (including status)
+export const updateFrame = async (id: string, frameData: Partial<FrameCreateUpdate>) => {
   try {
     const response = await axiosInstanceAuth.put(`/api/v1/frame/update/${id}`, frameData);
     return response.data;
@@ -42,6 +69,7 @@ export const updateFrame = async (id: string, frameData: FrameCreateUpdate) => {
   }
 };
 
+// Delete frame
 export const deleteFrame = async (id: string) => {
   try {
     const response = await axiosInstanceAuth.delete(`/api/v1/frame/delete/${id}`);

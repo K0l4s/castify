@@ -12,6 +12,7 @@ import org.springframework.web.multipart.MultipartFile;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.awt.*;
 import java.util.List;
 
 @RestController
@@ -28,23 +29,32 @@ public class FrameController {
         try{
             UploadFrameRequest uploadFrameRequest = new UploadFrameRequest(name, image);
             FrameModel frameModel = frameService.uploadFrame(uploadFrameRequest);
-            logger.info("Successfully uploaded frame: {}", frameModel);
             return new ResponseEntity<>(frameModel, HttpStatus.CREATED);
         } catch (Exception e) {
-            logger.error("Error while uploading frame: {}", e.getMessage(), e);
             return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
+    // For BlankShop - Get all accepted frames for public view
     @GetMapping("/all")
     public ResponseEntity<?> getAllAcceptedFrames() {
-        System.out.println("getAllAcceptedFrames");
         try {
             List<FrameModel> frameModels = frameService.getAllAcceptedFrames();
-            logger.info("All frames: {}", frameModels);
             return new ResponseEntity<>(frameModels, HttpStatus.OK);
         } catch (Exception e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+
+    // For MyShop - Get all frames of current user
+    @GetMapping("/my-uploads")
+    public ResponseEntity<?> getMyUploads() {
+        try{
+            List<FrameModel> frameModels = frameService.getUserUploadedFrames();
+            return new ResponseEntity<>(frameModels, HttpStatus.OK);
+        } catch(Exception e){
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
 }

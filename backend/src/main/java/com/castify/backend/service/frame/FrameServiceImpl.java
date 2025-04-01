@@ -2,6 +2,7 @@ package com.castify.backend.service.frame;
 
 import com.castify.backend.entity.FrameEntity;
 import com.castify.backend.entity.UserFrameEntity;
+import com.castify.backend.entity.UserEntity;
 import com.castify.backend.enums.FrameStatus;
 import com.castify.backend.models.frame.FrameModel;
 import com.castify.backend.models.frame.UploadFrameRequest;
@@ -14,6 +15,7 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.awt.*;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -35,6 +37,7 @@ public class FrameServiceImpl implements IFrameService{
 
     @Autowired
     private UserRepository userRepository;
+
     @Autowired
     private UserFrameRepository userFrameRepository;
 
@@ -66,15 +69,33 @@ public class FrameServiceImpl implements IFrameService{
         return modelMapper.map(frameEntity, FrameModel.class);
     }
 
+//  Get all accepted frame for shop public
+    @Override
+    public List<FrameModel> getAllAcceptedFrames() throws Exception {
+        List<FrameEntity> frames = frameRepository.findAllByStatus(FrameStatus.ACCEPTED);
+        return frames.stream().map(frameEntity -> modelMapper.map(frameEntity, FrameModel.class)).collect(Collectors.toList());
+    }
+
+//   Get all uploads by one user currently login (MyShop)
+    @Override
+    public List<FrameModel> getUserUploadedFrames() throws Exception {
+        UserEntity currentUser = userService.getUserByAuthentication();
+
+        List<FrameEntity> frames = frameRepository.findByUserId(currentUser.getId());
+
+        return frames.stream()
+                .map(frameEntity -> modelMapper.map(frameEntity, FrameModel.class))
+                .collect(Collectors.toList());
+    }
+
+    //    Get all frame for admin
     @Override
     public List<FrameModel> getAllFrames() throws Exception {
         List<FrameEntity> frames = frameRepository.findAll();
         return frames.stream().map(frameEntity -> modelMapper.map(frameEntity, FrameModel.class)).collect(Collectors.toList());
     }
 
-    @Override
-    public List<FrameModel> getAllAcceptedFrames() throws Exception {
-        List<FrameEntity> frames = frameRepository.findAllByStatus(FrameStatus.ACCEPTED);
-        return frames.stream().map(frameEntity -> modelMapper.map(frameEntity, FrameModel.class)).collect(Collectors.toList());
-    }
+
+
+
 }

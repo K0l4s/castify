@@ -8,7 +8,7 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 @Repository
-
 public interface FrameRepository extends MongoRepository<FrameEntity, String> {
     List<FrameEntity> findAllByStatus(FrameStatus status);
+    List<FrameEntity> findByUserId(String userId);
 }

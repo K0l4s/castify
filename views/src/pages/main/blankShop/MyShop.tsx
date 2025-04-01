@@ -1,13 +1,15 @@
 import { useEffect, useState } from 'react';
 import { useToast } from '../../../context/ToastProvider';
+import { useNavigate } from 'react-router-dom';
 import defaultFrame from '../../../assets/images/frame_test.png';
 import { Frame } from '../../../models/FrameModel';
-import { getAllFrames, deleteFrame } from '../../../services/FrameService';
+import { getMyUploads,  deleteFrame } from '../../../services/FrameService';
 
 const MyShop = () => {
   const [frames, setFrames] = useState<Frame[]>([]);
   const [loading, setLoading] = useState(true);
   const toast = useToast();
+  const navigate = useNavigate();
 
   useEffect(() => {
     fetchMyFrames();
@@ -15,7 +17,7 @@ const MyShop = () => {
 
   const fetchMyFrames = async () => {
     try {
-      const data = await getAllFrames();
+      const data = await getMyUploads();
       setFrames(data);
     } catch (error) {
       toast.error('Failed to fetch frames');
@@ -70,12 +72,20 @@ const MyShop = () => {
     <div className="container mx-auto px-4 py-8">
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl font-bold dark:text-white">My Frames</h1>
-        <button 
-          onClick={() => {/* Implement upload new frame */}}
-          className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
-        >
-          Upload New Frame
-        </button>
+        <div className="flex gap-4">
+          <button 
+            onClick={() => navigate('/purchased-frames')}
+            className="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors"
+          >
+            My Purchased Frames
+          </button>
+          <button 
+            onClick={() => {/* Implement upload new frame */}}
+            className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
+          >
+            Upload New Frame
+          </button>
+        </div>
       </div>
       
       <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6">

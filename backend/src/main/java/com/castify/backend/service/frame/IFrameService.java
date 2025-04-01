@@ -9,4 +9,5 @@ public interface IFrameService {
     FrameModel uploadFrame(UploadFrameRequest uploadFrameRequest) throws Exception;
     List<FrameModel> getAllFrames() throws Exception;
     List<FrameModel> getAllAcceptedFrames() throws Exception;
+    List<FrameModel> getUserUploadedFrames() throws Exception;
 }
