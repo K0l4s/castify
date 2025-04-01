@@ -35,6 +35,11 @@ const AdminSidebar = () => {
                 <FaRegListAlt />
                 Genre Management
               </Link>
+              <Link to="/admin/frame" 
+                className={childrenClass}>
+                <FaRegListAlt />
+                Frame Management
+              </Link>
             </li>
           </ul>
         </div>
