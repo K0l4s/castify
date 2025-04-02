@@ -13,9 +13,9 @@ import { IoFilter } from "react-icons/io5";
 import "./animation.css";
 import CustomButton from "../../../components/UI/custom/CustomButton";
 import { deletePodcasts, togglePodcasts } from "../../../services/PodcastService";
-import ConfirmDeleteModal from "../../../components/modals/utils/ConfirmDelete";
 import { useToast } from "../../../context/ToastProvider";
 import { GrView } from "react-icons/gr";
+import ConfirmModal from "../../../components/modals/utils/ConfirmDelete";
 
 const MyPodcastPage: React.FC = () => {
   const isAuthenticated = useSelector((state: RootState) => state.auth.isAuthenticated);
@@ -180,7 +180,8 @@ const MyPodcastPage: React.FC = () => {
                 onClick={openDeleteModal}
                 className="text-white hover:text-red-400 hover:dark:text-red-700 dark:text-gray-900 hover:bg-gray-500 hover:dark:bg-gray-400"
               />
-              <ConfirmDeleteModal
+              <ConfirmModal
+                title="Are you sure to delete this content?"
                 isOpen={isDeleteModalOpen}
                 onClose={() => setIsDeleteModalOpen(false)}
                 onConfirm={handleDeleteSelected}
@@ -237,7 +238,7 @@ const MyPodcastPage: React.FC = () => {
             </div>
           )}
         </div>
-        
+
         {/* Header Row */}
         <div className="text-sm grid grid-cols-12 border-b border-gray-400 dark:border-gray-600 overflow-hidden p-4 font-semibold text-slate-900 dark:text-white">
           <div className="col-span-1 text-center">
@@ -246,10 +247,10 @@ const MyPodcastPage: React.FC = () => {
               checked={selectedPodcasts.length === podcasts.length}
               onChange={handleSelectAllChange}
               className="w-5 h-5 bg-white/10 rounded-xl cursor-pointer appearance-none border-2 border-black dark:border-gray-200 rounded-sm checked:bg-green-400 checked:border-green-900 transition-all"
-              
+
               title="Select all"
             />
-            
+
           </div>
           <div className="col-span-5">Video</div>
           <div className="col-span-1 text-center">Display mode</div>
@@ -278,7 +279,7 @@ const MyPodcastPage: React.FC = () => {
                 checked={selectedPodcasts.includes(podcast.id)}
                 onChange={() => handleCheckboxChange(podcast.id)}
                 className="w-5 h-5 rounded-xl bg-white/10 cursor-pointer appearance-none border-2 border-black dark:border-gray-200 rounded-sm checked:bg-green-400 checked:border-green-900 transition-all"
-                />
+              />
             </div>
             {/* Thumbnail, Title, Content */}
             <div className="flex gap-4 col-span-5">
@@ -303,7 +304,7 @@ const MyPodcastPage: React.FC = () => {
             <div className="flex items-center justify-center col-span-1 text-sm text-slate-800 dark:text-white">
               {podcast.active ? (
                 <>
-                  <FaGlobeAsia className="mb-1 mr-1"/>
+                  <FaGlobeAsia className="mb-1 mr-1" />
                   Public
                 </>
               ) : (
@@ -339,14 +340,14 @@ const MyPodcastPage: React.FC = () => {
               >
                 <FiEdit size={20} />
               </button>
-              <button 
+              <button
                 title="View on Blankcil"
                 onClick={() => navigate(`/watch?pid=${podcast.id}`)}
                 className="text-blue-500 hover:text-blue-700 ml-4"
               >
                 <GrView size={20} />
               </button>
-                
+
             </div>
           </div>
         ))}
