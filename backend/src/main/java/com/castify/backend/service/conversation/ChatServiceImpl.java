@@ -11,6 +11,7 @@ import com.castify.backend.models.user.ShortUser;
 import com.castify.backend.repository.ChatRepository;
 import com.castify.backend.repository.MessageRepository;
 import com.castify.backend.repository.UserRepository;
+import com.castify.backend.service.uploadFile.IUploadFileService;
 import com.castify.backend.service.user.IUserService;
 import com.castify.backend.service.user.UserServiceImpl;
 import org.modelmapper.ModelMapper;
@@ -21,6 +22,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -46,6 +48,8 @@ public class ChatServiceImpl implements IChatService {
     private static final Logger logger = Logger.getLogger(ConversationController.class.getName());
     @Autowired
     private SimpMessagingTemplate messagingTemplate;
+    @Autowired
+    private IUploadFileService uploadFileService;
     @Override
     public ShortConversationModel createConversation(CreateChatRequest request) throws Exception {
         ChatEntity chatEntity = modelMapper.map(request, ChatEntity.class);
@@ -308,5 +312,23 @@ public class ChatServiceImpl implements IChatService {
 
         return false; // Nếu không có nhóm nào có tin nhắn chưa đọc
     }
-
+    @Override
+    public String updateGroupImage(MultipartFile imageFile, String groupId) throws Exception {
+        UserEntity userData = userService.getUserByAuthentication();
+        ChatEntity chat = chatRepository.findChatEntityById(groupId);
+        MemberInfor memberInfor = chat.getMemberList().stream()
+                .filter(obj -> obj.getMemberId().equals(userData.getId()))
+                .findFirst()
+                .orElse(null);
+        assert memberInfor != null;
+        if(memberInfor.getRole().equals(MemberRole.LEADER) || memberInfor.getRole().equals(MemberRole.DEPUTY)) {
+            String imageUrl = uploadFileService.uploadImage(imageFile);
+            chat.setImageUrl(imageUrl);
+            chatRepository.save(chat);
+            return imageUrl;
+        }
+        else {
+            throw new Exception("You don't have permission!");
+        }
+    }
 }

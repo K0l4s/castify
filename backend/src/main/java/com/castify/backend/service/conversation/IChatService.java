@@ -8,6 +8,7 @@ import com.castify.backend.models.conversation.ShortConversationModel;
 import com.castify.backend.models.paginated.PaginatedResponse;
 import com.castify.backend.repository.ChatRepository;
 import com.castify.backend.repository.MessageRepository;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -34,4 +35,7 @@ public interface IChatService {
     List<FullMemberInfor> getMemberList(String groupId);
 
     boolean hasUnreadMessages() throws Exception;
+
+
+    String updateGroupImage(MultipartFile imageFile, String groupId) throws Exception;
 }

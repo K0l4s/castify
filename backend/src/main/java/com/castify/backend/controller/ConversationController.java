@@ -10,6 +10,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 import java.util.logging.Logger;
@@ -139,6 +140,15 @@ public class ConversationController {
     private ResponseEntity<?> hasUnreadMsg() throws Exception {
         try{
             return ResponseEntity.ok(chatService.hasUnreadMessages());
+        } catch (Exception ex) {
+            logger.info(ex.getMessage());
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+    @PutMapping("/msg/avt")
+    private ResponseEntity<?> changeGroupAvt(@RequestParam("groupId") String groupId, @RequestPart("imageFile") MultipartFile imageFile) throws Exception {
+        try{
+            return ResponseEntity.ok(chatService.updateGroupImage(imageFile,groupId));
         } catch (Exception ex) {
             logger.info(ex.getMessage());
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);

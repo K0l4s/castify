@@ -1,5 +1,5 @@
 import { CreateConversationProps } from "../models/Conversation";
-import { axiosInstanceAuth } from "../utils/axiosInstance";
+import { axiosInstanceAuth, axiosInstanceFile } from "../utils/axiosInstance";
 
 export const conversationService = {
     createConversation: async (data: CreateConversationProps) => {
@@ -20,10 +20,15 @@ export const conversationService = {
     getMembers(conversationId: string) {
         return axiosInstanceAuth.get(`/api/v1/conversation/msg/members?groupId=${conversationId}`);
     },
-    readMsg(conversationId:string){
+    readMsg(conversationId: string) {
         return axiosInstanceAuth.put(`/api/v1/conversation/msg/read?groupId=${conversationId}`)
     },
-    hasUnreadMsg(){
+    hasUnreadMsg() {
         return axiosInstanceAuth.get(`/api/v1/conversation/isUnread`)
-    }
+    },
+    changeImage: async (imgFile: File,groupId:string) => {
+        const formData = new FormData();
+        formData.append('imageFile', imgFile);
+        return await axiosInstanceFile.put(`/api/v1/conversation/msg/avt?groupId=${groupId}`, formData);
+    },
 }

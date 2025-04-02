@@ -11,6 +11,7 @@ import { VscLoading } from "react-icons/vsc";
 import { BsInfoCircle } from "react-icons/bs";
 import { shortUser } from "../../../models/User";
 import { setClick } from "../../../redux/slice/messageSlice";
+import ChatSettingSidebar from "./ChatSettingSidebar";
 
 const MainConversation = () => {
   const id = useParams().id;
@@ -155,7 +156,7 @@ const MainConversation = () => {
           return member;
         })
       );
-      
+
       console.log(members)
       // if (memberInfor) {
       //   // Cập nhật lastMessageId
@@ -215,7 +216,6 @@ const MainConversation = () => {
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
-
   return (
     <div className="w-full min-h-full bg-gray-100 dark:bg-gray-800 relative flex">
       <div className="flex-1">
@@ -290,7 +290,7 @@ const MainConversation = () => {
       </div>
 
       {/* Chat Information Sidebar */}
-      {showInfo && (
+      {/* {showInfo && (
         <div className="w-80 bg-white dark:bg-gray-900 border-l border-gray-200 dark:border-gray-700 p-4 sticky top-[66px] right-0 h-[calc(100vh-66px)] overflow-y-auto overflow-x-hidden">
           <div className="flex flex-col gap-4 h-[100000px]">
             <h2 className="text-xl font-semibold mb-4">Chat Information</h2>
@@ -307,7 +307,8 @@ const MainConversation = () => {
             </div>
           </div>
         </div>
-      )}
+      )} */}
+      <ChatSettingSidebar isShow={showInfo} chatDetail={chatDetail} memberList={members} setChatDetail={setChatDetail}/>
     </div>
   );
 };
