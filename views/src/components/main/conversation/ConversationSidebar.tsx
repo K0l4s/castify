@@ -125,15 +125,17 @@ const ConversationSidebar = () => {
                                 }`}
                         >
                             <div className="relative">
-                                <img
-                                    src={
-                                        conversation.imageUrl
-                                            ? conversation.imageUrl
-                                            : "https://png.pngtree.com/png-vector/20190725/ourmid/pngtree-group-avatar-icon-design-vector-png-image_1585671.jpg"
-                                    }
-                                    alt="avatar"
-                                    className="w-10 h-full rounded-full object-cover object-center border-2 border-yellow-500"
-                                />
+                                <div className="w-10 h-10">
+                                    <img
+                                        src={
+                                            conversation.imageUrl
+                                                ? conversation.imageUrl
+                                                : "https://png.pngtree.com/png-vector/20190725/ourmid/pngtree-group-avatar-icon-design-vector-png-image_1585671.jpg"
+                                        }
+                                        alt="avatar"
+                                        className="w-full h-full object-center object-cover rounded-full object-cover object-center border-2 border-yellow-500"
+                                    />
+                                </div>
                                 {/* chấm đỏ nếu read = false */}
                                 <div className="absolute top-1 right-1">
                                     {!conversation.lastMessage?.read && (

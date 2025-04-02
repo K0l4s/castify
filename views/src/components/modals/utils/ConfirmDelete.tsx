@@ -2,13 +2,14 @@ import React from 'react';
 import CustomModal from '../../UI/custom/CustomModal';
 import CustomButton from '../../UI/custom/CustomButton';
 
-interface ConfirmDeleteModalProps {
+interface ConfirmModalProps {
   isOpen: boolean;
+  title:string;
   onClose: () => void;
   onConfirm: () => void;
 }
 
-const ConfirmDeleteModal: React.FC<ConfirmDeleteModalProps> = ({ isOpen, onClose, onConfirm }) => {
+const ConfirmModal: React.FC<ConfirmModalProps> = ({ isOpen,title, onClose, onConfirm }) => {
   return (
     <CustomModal
       title="Confirm Delete"
@@ -16,7 +17,7 @@ const ConfirmDeleteModal: React.FC<ConfirmDeleteModalProps> = ({ isOpen, onClose
       onClose={onClose}
       size="md"
     >
-      <p>Are you sure you want to delete permanently ?</p>
+      <p>{title}</p>
       <div className="flex justify-end gap-4 mt-4">
         <CustomButton 
           text="Cancel" 
@@ -34,4 +35,4 @@ const ConfirmDeleteModal: React.FC<ConfirmDeleteModalProps> = ({ isOpen, onClose
   );
 };
 
-export default ConfirmDeleteModal;
+export default ConfirmModal;

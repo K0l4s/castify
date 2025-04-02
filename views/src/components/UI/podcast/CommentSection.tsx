@@ -18,7 +18,7 @@ import { addNewComment, deleteCommentAction, fetchCommentReplies, fetchComments,
 import { AiOutlineLoading3Quarters } from "react-icons/ai";
 import ReportModal from "../../modals/report/ReportModal";
 import { ReportType } from "../../../models/Report";
-import ConfirmDeleteModal from "../../modals/utils/ConfirmDelete";
+import ConfirmModal from "../../modals/utils/ConfirmDelete";
 
 interface CommentSectionProps {
   podcastId: string;
@@ -736,9 +736,10 @@ const CommentSection: React.FC<CommentSectionProps> = ({ podcastId, totalComment
         reportType={ReportType.C}
       />
       {/* Confirm Delete Modal */}
-      <ConfirmDeleteModal
+      <ConfirmModal
         isOpen={isConfirmDeleteOpen}
         onClose={() => setIsConfirmDeleteOpen(false)}
+        title="Are you sure to delete?"
         onConfirm={confirmDelete}
       />
     </div>
