@@ -13,7 +13,7 @@ interface ChatSettingProps {
 const ChatSettingSidebar = (props: ChatSettingProps) => {
     if (!props.isShow) return null;
 
-    const [isEdit, setIsEdit] = useState<boolean>(true);
+    const [isEdit] = useState<boolean>(true);
     const [hovering, setHovering] = useState<boolean>(false);
     const [selectedFile, setSelectedFile] = useState<File | null>(null);
     const [previewUrl, setPreviewUrl] = useState<string>(props.chatDetail.imageUrl);
