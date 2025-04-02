@@ -14,8 +14,8 @@ import Loading from "../../../components/UI/custom/Loading";
 import CommentSection from "../../../components/UI/podcast/CommentSection";
 import { useSelector } from "react-redux";
 import { RootState } from "../../../redux/store";
-import ConfirmDeleteModal from "../../../components/modals/utils/ConfirmDelete";
 import NotAccessPage from "../../informationPage/NotAccessPage";
+import ConfirmModal from "../../../components/modals/utils/ConfirmDelete";
 
 const DetailPodcastPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -232,8 +232,9 @@ const DetailPodcastPage: React.FC = () => {
               className="uppercase text-sm leading-normal font-medium text-white dark:text-white hover:dark:text-white 
                 bg-red-600 hover:bg-red-700 hover:dark:bg-red-700 hover:text-white"
             />
-            <ConfirmDeleteModal
+            <ConfirmModal
                 isOpen={isDeleteModalOpen}
+                title= "Are you sure to delete this content?"
                 onClose={() => setIsDeleteModalOpen(false)}
                 onConfirm={handleDelete}
               />
