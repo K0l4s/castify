@@ -1,15 +1,15 @@
 import { useEffect, useState } from 'react';
 import { useToast } from '../../../context/ToastProvider';
-import { useNavigate } from 'react-router-dom';
 import defaultFrame from '../../../assets/images/frame_test.png';
 import { Frame } from '../../../models/FrameModel';
-import { getMyUploads,  deleteFrame } from '../../../services/FrameService';
+import { getMyUploads, deleteFrame } from '../../../services/FrameService';
+import FramePreviewModal from './FramePreviewModal';
 
 const MyShop = () => {
   const [frames, setFrames] = useState<Frame[]>([]);
   const [loading, setLoading] = useState(true);
+  const [selectedFrame, setSelectedFrame] = useState<Frame | null>(null);
   const toast = useToast();
-  const navigate = useNavigate();
 
   useEffect(() => {
     fetchMyFrames();
@@ -29,11 +29,15 @@ const MyShop = () => {
   const handleDelete = async (id: string) => {
     try {
       await deleteFrame(id);
-      toast.success('Frame deleted successfully');
+      toast.success(`Frame ${id} deleted successfully`);
       fetchMyFrames(); // Refresh the list
     } catch (error) {
-      toast.error('Failed to delete frame');
+      toast.error(`Failed to delete frame ${id}`);
     }
+  };
+
+  const handlePreview = (frame: Frame) => {
+    setSelectedFrame(frame);
   };
 
   const getStatusBadge = (status: string) => {
@@ -74,12 +78,6 @@ const MyShop = () => {
         <h1 className="text-2xl font-bold dark:text-white">My Frames</h1>
         <div className="flex gap-4">
           <button 
-            onClick={() => navigate('/purchased-frames')}
-            className="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors"
-          >
-            My Purchased Frames
-          </button>
-          <button 
             onClick={() => {/* Implement upload new frame */}}
             className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
           >
@@ -99,7 +97,10 @@ const MyShop = () => {
               />
               {/* Preview overlay */}
               <div className="absolute inset-0 bg-black bg-opacity-0 hover:bg-opacity-50 transition-opacity flex items-center justify-center opacity-0 hover:opacity-100">
-                <button className="px-4 py-2 bg-white text-black rounded-lg">
+                <button 
+                  onClick={() => handlePreview(frame)}
+                  className="px-4 py-2 bg-white text-black rounded-lg"
+                >
                   Preview
                 </button>
               </div>
@@ -141,6 +142,14 @@ const MyShop = () => {
           You haven't uploaded any frames yet.
         </div>
       )}
+
+      {/* Frame Preview Modal */}
+      <FramePreviewModal
+        isOpen={!!selectedFrame}
+        onClose={() => setSelectedFrame(null)}
+        frameImage={selectedFrame?.imageURL || ''}
+        frameName={selectedFrame?.name || ''}
+      />
     </div>
   );
 };
