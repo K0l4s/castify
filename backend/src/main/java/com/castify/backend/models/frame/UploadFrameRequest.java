@@ -9,5 +9,6 @@ import org.springframework.web.multipart.MultipartFile;
 @NoArgsConstructor
 public class UploadFrameRequest {
     private String name;
+    private Integer price;
     private MultipartFile imageFile;
 }

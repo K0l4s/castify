@@ -51,6 +51,7 @@ public class FrameServiceImpl implements IFrameService{
 
         String imageURL = uploadFileService.uploadImage(uploadFrameRequest.getImageFile());
         frameEntity.setImageURL(imageURL);
+        frameEntity.setPrice(uploadFrameRequest.getPrice());
         frameEntity.setUser(userService.getUserByAuthentication());
         frameEntity.setName(uploadFrameRequest.getName());
         frameEntity.setStatus(FrameStatus.PROCESSING);

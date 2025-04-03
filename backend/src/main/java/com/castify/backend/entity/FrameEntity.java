@@ -26,6 +26,8 @@ public class FrameEntity {
 
     private String imageURL;
 
+    private Integer price;
+
     @DBRef (lazy = true)
     private UserEntity user;
 
