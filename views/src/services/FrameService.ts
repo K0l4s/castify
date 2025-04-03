@@ -1,5 +1,5 @@
 import { axiosInstance, axiosInstanceAuth } from '../utils/axiosInstance';
-import { Frame, FrameCreateUpdate } from '../models/FrameModel';
+import { FrameCreateUpdate } from '../models/FrameModel';
 
 // For BlankShop - Get all accepted frames for public view
 export const getAcceptedFrames = async () => {
