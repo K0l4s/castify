@@ -3,6 +3,7 @@ export interface Frame {
     name: string;
     status: 'PROCESSING' | 'ACCEPTED' | 'REJECTED';
     imageURL: string;
+    price: number;
     createdAt: string;
     lastEditedAt: string;
 }

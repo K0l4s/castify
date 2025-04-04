@@ -4,14 +4,17 @@ import { useNavigate } from "react-router-dom";
 import coin from "../../../assets/images/coin.png";
 import { RootState } from "../../../redux/store";
 import { Frame } from "../../../models/FrameModel";
-import { getAcceptedFrames } from "../../../services/FrameService";
+import { getAcceptedFrames, purchaseFrame } from "../../../services/FrameService";
 import { useToast } from "../../../context/ToastProvider";
 import FramePreviewModal from "./FramePreviewModal";
+import PurchaseConfirmationModal from "./PurchaseConfirmationModal";
 
 const BlankShop = () => {
     const [frames, setFrames] = useState<Frame[]>([]);
     const [loading, setLoading] = useState(true);
     const [selectedFrame, setSelectedFrame] = useState<Frame | null>(null);
+    const [frameToPurchase, setFrameToPurchase] = useState<Frame | null>(null);
+    const [purchasing, setPurchasing] = useState(false);
     const user = useSelector((state: RootState) => state.auth.user);
     const toast = useToast();
     const navigate = useNavigate();
@@ -31,9 +34,35 @@ const BlankShop = () => {
         }
     };
 
-    const handlePurchase = async (frameId: string) => {
-        // TODO: Implement purchase functionality
-        toast.success(`Frame ${frameId} purchased successfully!`);
+    const handlePurchase = async (frame: Frame) => {
+        setFrameToPurchase(frame);
+    };
+
+    const handleConfirmPurchase = async () => {
+        if (!frameToPurchase || !user) return;
+        
+        try {
+            setPurchasing(true);
+            const response = await purchaseFrame(frameToPurchase.id);
+            if (response) {
+                toast.success(`Frame ${frameToPurchase.name} purchased successfully!`);
+                
+                // Refresh frames list
+                fetchAcceptedFrames();
+                
+                // Close modal
+                setFrameToPurchase(null);
+                
+                // Navigate to purchased frames page
+                navigate('/purchased-frames');
+            }
+        } catch (error: any) {
+            const errorMessage = error.response?.data?.message || 'Failed to purchase frame';
+            toast.error(errorMessage);
+            console.error('Purchase error:', error);
+        } finally {
+            setPurchasing(false);
+        }
     };
 
     const handleGift = async (frameId: string) => {
@@ -100,7 +129,7 @@ const BlankShop = () => {
                             <div className="flex justify-between items-start mb-2">
                                 <h2 className="text-lg font-semibold dark:text-white">{frame.name}</h2>
                                 <div className="text-blue-600 dark:text-blue-400 text-xl flex gap-1 items-center font-bold">
-                                    100
+                                    {frame.price}
                                     <div className="w-5 h-5">
                                         <img src={coin} alt="coin" className="w-full" />
                                     </div>
@@ -116,7 +145,7 @@ const BlankShop = () => {
                                 GIFT
                             </button>
                             <button 
-                                onClick={() => handlePurchase(frame.id)}
+                                onClick={() => handlePurchase(frame)}
                                 className="w-full bg-blue-500 text-white py-2 rounded hover:bg-blue-600 transition-colors ml-2"
                             >
                                 BUY NOW
@@ -138,6 +167,17 @@ const BlankShop = () => {
                 onClose={() => setSelectedFrame(null)}
                 frameImage={selectedFrame?.imageURL || ''}
                 frameName={selectedFrame?.name || ''}
+            />
+
+            {/* Purchase Confirmation Modal */}
+            <PurchaseConfirmationModal
+                isOpen={!!frameToPurchase}
+                onClose={() => setFrameToPurchase(null)}
+                onConfirm={handleConfirmPurchase}
+                frameName={frameToPurchase?.name || ''}
+                frameImage={frameToPurchase?.imageURL || ''}
+                framePrice={frameToPurchase?.price || 0}
+                purchasing={purchasing}
             />
         </div>
     );

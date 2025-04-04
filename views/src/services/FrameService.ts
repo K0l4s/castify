@@ -1,7 +1,8 @@
 import { axiosInstance, axiosInstanceAuth } from '../utils/axiosInstance';
-import { FrameCreateUpdate } from '../models/FrameModel';
+import { Frame, FrameCreateUpdate } from '../models/FrameModel';
 
-// For BlankShop - Get all accepted frames for public view
+// For BlankShop
+//  Get all accepted frames for public view
 export const getAcceptedFrames = async () => {
   try {
     const response = await axiosInstance.get('/api/v1/frame/all');
@@ -11,34 +12,22 @@ export const getAcceptedFrames = async () => {
   }
 };
 
+// Purchase frame
+export const purchaseFrame = async (frameId: string): Promise<Frame> => {
+  try {
+    const response = await axiosInstanceAuth.post(`/api/v1/frame/purchase/${frameId}`);
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+}; 
 
 
-// For MyShop - Get all frames of current user
+// For MyShop
+// Get all frames of current user
 export const getMyUploads = async () => {
   try {
     const response = await axiosInstanceAuth.get('/api/v1/frame/my-uploads');
-    return response.data;
-  } catch (error) {
-    throw error;
-  }
-};
-
-
-
-// For PurchasedFrames - Get all frames that user has purchased
-export const getPurchasedFrames = async () => {
-  try {
-    const response = await axiosInstanceAuth.get('/api/v1/frame/purchased');
-    return response.data;
-  } catch (error) {
-    throw error;
-  }
-};
-
-// For AdminFrameManagement - Get all frames from all users
-export const getAllFrames = async () => {
-  try {
-    const response = await axiosInstanceAuth.get('/api/admin/v1/frame/all');
     return response.data;
   } catch (error) {
     throw error;
@@ -53,6 +42,28 @@ export const uploadFrame = async (frameData: FormData) => {
         'Content-Type': 'multipart/form-data',
       },
     });
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};
+
+
+// For PurchasedFrames
+// Get all frames that user has purchased
+export const getPurchasedFrames = async () => {
+  try {
+    const response = await axiosInstanceAuth.get('/api/v1/frame/purchased');
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};
+
+// For AdminFrameManagement - Get all frames from all users
+export const getAllFrames = async () => {
+  try {
+    const response = await axiosInstanceAuth.get('/api/admin/v1/frame/all');
     return response.data;
   } catch (error) {
     throw error;
@@ -77,4 +88,4 @@ export const deleteFrame = async (id: string) => {
   } catch (error) {
     throw error;
   }
-}; 
+};
