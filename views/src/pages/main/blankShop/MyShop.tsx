@@ -4,6 +4,7 @@ import defaultFrame from '../../../assets/images/frame_test.png';
 import { Frame } from '../../../models/FrameModel';
 import { getMyUploads, deleteFrame } from '../../../services/FrameService';
 import FramePreviewModal from './FramePreviewModal';
+import coin from '../../../assets/images/coin.png';
 
 const MyShop = () => {
   const [frames, setFrames] = useState<Frame[]>([]);
@@ -109,13 +110,19 @@ const MyShop = () => {
             <div className="p-4 border-t dark:border-gray-700">
               <div className="flex justify-between items-start mb-2">
                 <h2 className="text-lg font-semibold dark:text-white">{frame.name}</h2>
-                {getStatusBadge(frame.status)}
+                <div className="text-blue-600 dark:text-blue-400 text-xl flex gap-1 items-center font-bold">
+                  {frame.price}
+                  <div className="w-5 h-5">
+                    <img src={coin} alt="coin" className="w-full" />
+                  </div>
+                </div>
               </div>
               
               <div className="flex justify-between items-center">
                 <span className="text-sm text-gray-500 dark:text-gray-400">
                   {new Date(frame.createdAt).toLocaleDateString()}
                 </span>
+                {getStatusBadge(frame.status)}
               </div>
             </div>
 
