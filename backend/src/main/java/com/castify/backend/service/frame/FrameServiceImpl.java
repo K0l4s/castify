@@ -96,7 +96,46 @@ public class FrameServiceImpl implements IFrameService{
         return frames.stream().map(frameEntity -> modelMapper.map(frameEntity, FrameModel.class)).collect(Collectors.toList());
     }
 
+    @Override
+    public FrameModel purchaseFrame(String frameId) throws Exception {
+        UserEntity currentUser = userService.getUserByAuthentication();
 
+        FrameEntity frame = frameRepository.findById(frameId)
+                .orElseThrow(() -> new Exception("Frame not found"));
 
+        if (frame.getStatus() != FrameStatus.ACCEPTED) {
+            throw new Exception("Frame is not available for purchase");
+        }
+
+        if (currentUser.getCoin() < frame.getPrice()) {
+            throw new Exception("Insufficient coins. You need " + frame.getPrice() + " coins to purchase this frame.");
+        }
+
+        boolean alreadyOwned = userFrameRepository.existsByUserIdAndFrameId(currentUser.getId(), frameId);
+        if (alreadyOwned) {
+            throw new Exception("You already own this frame");
+        }
+        
+        try {
+            // Deduct coins from buyer
+            currentUser.setCoin(currentUser.getCoin() - frame.getPrice());
+            userRepository.save(currentUser);
+            
+            // Add coins to seller
+            UserEntity seller = frame.getUser();
+            seller.setCoin(seller.getCoin() + frame.getPrice());
+            userRepository.save(seller);
+
+            UserFrameEntity userFrame = new UserFrameEntity();
+            userFrame.setUser(currentUser);
+            userFrame.addFrame(frame);
+            userFrame.setPurchasedAt(LocalDateTime.now());
+            userFrameRepository.save(userFrame);
+            
+            return modelMapper.map(frame, FrameModel.class);
+        } catch (Exception e) {
+            throw new Exception("Failed to process purchase: " + e.getMessage());
+        }
+    }
 
 }
