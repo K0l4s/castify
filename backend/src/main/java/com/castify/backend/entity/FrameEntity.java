@@ -1,7 +1,6 @@
 package com.castify.backend.entity;
 
 import com.castify.backend.enums.FrameStatus;
-import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
