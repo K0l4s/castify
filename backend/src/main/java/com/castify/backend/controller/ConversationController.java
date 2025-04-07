@@ -154,4 +154,14 @@ public class ConversationController {
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+
+    @PutMapping("/msg/title")
+    private ResponseEntity<?> changeGroupName(@RequestParam("groupId") String groupId, @RequestParam("title") String title) throws Exception {
+        try{
+            return ResponseEntity.ok(chatService.changeGroupName(title,groupId));
+        } catch (Exception ex) {
+            logger.info(ex.getMessage());
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
 }

@@ -31,4 +31,10 @@ export const conversationService = {
         formData.append('imageFile', imgFile);
         return await axiosInstanceFile.put(`/api/v1/conversation/msg/avt?groupId=${groupId}`, formData);
     },
+    changeTitle: async (title: string, groupId: string) => {
+        return await axiosInstanceAuth.put(`/api/v1/conversation/msg/title?groupId=${groupId}&title=${title}`);
+    },
+    addMembers: async (userId: string[], groupId: string) => {
+        axiosInstanceAuth.put(`/api/v1/conversation/msg/add?groupId=${groupId}`, userId);
+    }
 }

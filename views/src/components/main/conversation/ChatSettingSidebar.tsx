@@ -1,7 +1,9 @@
 import { useState } from "react";
-import { ConversationDetail, FullMemberInfor } from "../../../models/Conversation"
+import { ConversationDetail, FullMemberInfor } from "../../../models/Conversation";
 import CustomInput from "../../UI/custom/CustomInput";
 import { conversationService } from "../../../services/ConversationService";
+import CustomButton from "../../UI/custom/CustomButton";
+import { FaKey } from "react-icons/fa";
 
 interface ChatSettingProps {
     chatDetail: ConversationDetail;
@@ -13,11 +15,14 @@ interface ChatSettingProps {
 const ChatSettingSidebar = (props: ChatSettingProps) => {
     if (!props.isShow) return null;
 
-    const [isEdit] = useState<boolean>(true);
-    const [hovering, setHovering] = useState<boolean>(false);
+    const [hovering, setHovering] = useState(false);
     const [selectedFile, setSelectedFile] = useState<File | null>(null);
     const [previewUrl, setPreviewUrl] = useState<string>(props.chatDetail.imageUrl);
-    const [isLoading, setIsLoading] = useState<boolean>(false);
+    const [isLoading, setIsLoading] = useState(false);
+    const [isEditGroupName, setIsEditGroupName] = useState(false);
+    const [groupName, setGroupName] = useState(props.chatDetail.title);
+    const [isNameChanged, setIsNameChanged] = useState(false);
+
 
     const handleImageClick = () => {
         document.getElementById("avatarInput")?.click();
@@ -54,9 +59,28 @@ const ChatSettingSidebar = (props: ChatSettingProps) => {
         setPreviewUrl(props.chatDetail.imageUrl);
     };
 
+    const handleChangeName = async () => {
+        if (!groupName.trim() || groupName === props.chatDetail.title) return;
+
+        try {
+            setIsLoading(true);
+            await conversationService.changeTitle(groupName.trim(), props.chatDetail.id);
+            props.setChatDetail(prev => ({
+                ...prev,
+                title: groupName.trim(),
+            }));
+            setIsNameChanged(false);
+            setIsEditGroupName(false);
+        } catch (error) {
+            console.error("Failed to change group name:", error);
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+
     return (
         <div className="w-80 bg-white dark:bg-gray-900 border-l border-gray-200 dark:border-gray-700 p-4 sticky top-[66px] right-0 h-[calc(100vh-66px)] overflow-y-auto overflow-x-hidden relative">
-            {/* Loading Overlay */}
             {isLoading && (
                 <div className="absolute inset-0 bg-black/50 flex items-center justify-center z-10">
                     <div className="w-12 h-12 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
@@ -84,51 +108,85 @@ const ChatSettingSidebar = (props: ChatSettingProps) => {
 
                 {selectedFile && (
                     <div className="flex gap-2 mt-2 m-auto">
-                        <button
-                            onClick={handleConfirmChange}
-                            className="bg-blue-500 text-white p-2 rounded"
-                            disabled={isLoading}
-                        >
-                            Confirm
-                        </button>
-                        <button
-                            onClick={handleCancelChange}
-                            className="bg-gray-500 text-white p-2 rounded"
-                            disabled={isLoading}
-                        >
-                            Cancel
-                        </button>
+                        <button onClick={handleConfirmChange} className="bg-blue-500 text-white p-2 rounded">Confirm</button>
+                        <button onClick={handleCancelChange} className="bg-gray-500 text-white p-2 rounded">Cancel</button>
                     </div>
                 )}
 
-                <h3>Group name</h3>
-                {isEdit ? (
-                    <CustomInput value={props.chatDetail.title} />
-                ) : (
-                    <h2 className="text-xl font-semibold mb-4">{props.chatDetail.title}</h2>
-                )}
-
-                <div className="space-y-4">
-                    <div className="flex flex-row gap-2">
-                        <h3 className="text-sm text-gray-500 font-semibold">Created At:</h3>
-                        <p className="text-gray-200">{new Date(props.chatDetail.createdAt).toLocaleDateString()}</p>
+                <div>
+                    <div className="flex items-center justify-between mb-2">
+                        <h3 className="text-sm font-semibold text-gray-600 dark:text-gray-300 mb-1">Group Name</h3>
+                        {isEditGroupName ? (
+                            <CustomButton
+                                className="text-sm text-red-500 font-semibold"
+                                variant="danger"
+                                onClick={() => {
+                                    setIsEditGroupName(!isEditGroupName);
+                                    setIsNameChanged(false);
+                                    setGroupName(props.chatDetail.title);
+                                }}
+                            >Cancel</CustomButton>
+                        ) : (
+                            <CustomButton
+                                className="text-sm text-blue-500 font-semibold"
+                                onClick={() => {
+                                    setIsEditGroupName(!isEditGroupName);
+                                    setIsNameChanged(false);
+                                }}
+                            >Change</CustomButton>
+                        )}
                     </div>
+                    {isEditGroupName ? (
+                        <div>
+                            <CustomInput
+                                value={groupName}
+                                onChange={(e) => {
+                                    setGroupName(e.target.value);
+                                    setIsNameChanged(true);
+                                }}
+                            />
+                            {isNameChanged && (
+                                <CustomButton className="mt-2" onClick={handleChangeName}>
+                                    Save Name
+                                </CustomButton>
+                            )}
 
-                    <div>
-                        <h3 className="text-sm text-gray-500">Members ({props.chatDetail.memberSize})</h3>
-                        {props.memberList.map((member) => (
-                            <div key={member.members.id} className="flex items-center gap-3 p-2 border-b">
-                                <img
-                                    src={member.members.avatarUrl}
-                                    alt={member.members.fullname}
-                                    className="w-10 h-10 rounded-full object-cover"
-                                />
-                                <span className={`font-medium ${member.role === "LEADER" ? "text-yellow-500" : member.role === "DEPUTY" ? "text-blue-500" : "text-white"}`}>
+                        </div>
+                    ) : (
+                        <span className="text-gray-500 dark:text-gray-400">{props.chatDetail.title}</span>
+                    )}
+
+                </div>
+                <div>
+                    <div className="flex items-center justify-between mb-2">
+                        <h3 className="text-md text-gray-500 font-semibold">Members ({props.chatDetail.memberSize})</h3>
+                        {/* add button */}
+                        <div className="flex gap-2 mt-2">
+                            <CustomButton
+                            >
+                                Add
+                            </CustomButton>
+                        </div>
+                    </div>
+                    {props.memberList.map((member) => (
+                        <div key={member.members.id} className="flex items-center gap-3 p-2 hover:bg-gray-700 rounded-md cursor-pointer">
+                            <img
+                                src={member.members.avatarUrl ? member.members.avatarUrl : "https://cdn-icons-png.flaticon.com/512/149/149071.png"}
+                                alt={member.members.fullname}
+                                className="w-10 h-10 rounded-full object-cover"
+                            />
+                            <div className={`flex flex-col flex-1 ${member.role === "LEADER" ? "text-yellow-500" :
+                                member.role === "DEPUTY" ? "text-blue-500" : "text-white"
+                                }`}>
+                                <span className={`font-medium flex items-center gap-1`}>
                                     {member.members.fullname}
+                                    {member.role === "LEADER" && <span className="text-yellow-500 text-sm font-semibold"><FaKey /> </span>}
                                 </span>
+                                <span className="text-sm">@{member.members.username}</span>
                             </div>
-                        ))}
-                    </div>
+
+                        </div>
+                    ))}
                 </div>
             </div>
         </div>

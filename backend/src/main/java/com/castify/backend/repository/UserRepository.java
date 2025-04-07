@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Optional;
 
 import com.castify.backend.entity.UserEntity;
+import org.bson.types.ObjectId;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.mongodb.repository.MongoRepository;
@@ -32,6 +33,28 @@ public interface UserRepository extends MongoRepository<UserEntity, String> {
 
     @Query("{ 'following.userId': ?0, 'following.timeStamp': { $gte: ?1, $lte: ?2 } }")
     List<UserEntity> findUsersFollowersBetween(String userId, LocalDateTime start, LocalDateTime end);
+    @Query("""
+    {
+      "following.userId": ?0,
+      "_id": {
+        "$in": ?1
+      }
+    }
+    """)
+    Page<UserEntity> findMutualFriends(String currentUserId, List<ObjectId> followedUserIds,Pageable pageable);
+    @Query("""
+    {
+      "following.userId": ?0,
+      "_id": { "$in": ?1 },
+      "$or": [
+        { "firstName": { "$regex": ?2, "$options": "i" } },
+            { "middleName": { "$regex": ?2, "$options": "i" } },
+        { "lastName": { "$regex": ?2, "$options": "i" } },
+        { "username": { "$regex": ?2, "$options": "i" } }
+      ]
+    }
+    """)
+    Page<UserEntity> findMutualFriendsWithKeyword(String currentUserId, List<ObjectId> followedUserIds, String keyword, Pageable pageable);
 
 
     @Query("{ 'following.userId': ?0 }")

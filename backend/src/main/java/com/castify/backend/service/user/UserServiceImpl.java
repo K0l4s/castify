@@ -13,6 +13,7 @@ import com.castify.backend.repository.template.UserTemplate;
 import com.castify.backend.service.notification.INotificationService;
 import com.castify.backend.service.notification.NotificationServiceImpl;
 import com.castify.backend.service.uploadFile.IUploadFileService;
+import org.bson.types.ObjectId;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -493,6 +494,32 @@ public class UserServiceImpl implements IUserService {
         userSimple.setTotalPost(getPostCount(userEntity));
 
         return userSimple;
+    }
+    @Override
+    public PaginatedResponse<UserSimple> getFriendList(String keyword, Integer pageNumber, Integer pageSize) throws Exception {
+        UserEntity currentUser = getUserByAuthentication();
+
+        List<ObjectId> followedIds = currentUser.getFollowing()
+                .stream()
+                .map(f -> new ObjectId(f.getUserId()))
+                .collect(Collectors.toList());
+
+        Pageable pageable = PageRequest.of(pageNumber, pageSize);
+
+        Page<UserEntity> friends;
+
+        if (keyword != null && !keyword.trim().isEmpty()) {
+            friends = userRepository.findMutualFriendsWithKeyword(currentUser.getId(), followedIds, keyword, pageable);
+        } else {
+            friends = userRepository.findMutualFriends(currentUser.getId(), followedIds, pageable);
+        }
+
+        List<UserSimple> resultUsers = friends.getContent()
+                .stream()
+                .map(this::mapToUserSimpleAnonymous)
+                .toList();
+
+        return new PaginatedResponse<>(resultUsers, pageable.getPageSize());
     }
 
 }

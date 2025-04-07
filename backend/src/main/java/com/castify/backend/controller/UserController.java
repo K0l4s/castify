@@ -167,6 +167,21 @@ public class UserController {
                     .body("Error"+ex.getMessage());
         }
     }
+    @GetMapping("/list/friends")
+    private ResponseEntity<?> getFriendsList (
+            @RequestParam("pageNumber") Integer pageNumber,
+            @RequestParam("pageSize") Integer pageSize,
+            @RequestParam(value = "keyword",required = false) String keyword
+    ){
+        try{
+            return ResponseEntity.ok(
+                    userService.getFriendList(keyword,pageNumber,pageSize)
+            );
+        }catch(Exception ex){
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body("Error"+ex.getMessage());
+        }
+    }
     @ExceptionHandler(MalformedJwtException.class)
     public ResponseEntity<String> handleMalformedJwtException(MalformedJwtException ex) {
         return new ResponseEntity<>("Invalid JWT token format", HttpStatus.BAD_REQUEST);

@@ -68,4 +68,6 @@ public interface IUserService {
     PaginatedResponse<UserSimple> getFollowingList(int pageNumber, int pageSize, String username) throws Exception;
 
     BasicUserModel mapToBasicUser(UserEntity userEntity);
+
+    PaginatedResponse<UserSimple> getFriendList(String keyword,Integer pageNumber, Integer pageSize) throws Exception;
 }
