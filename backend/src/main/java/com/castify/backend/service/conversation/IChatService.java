@@ -15,7 +15,7 @@ import java.util.List;
 public interface IChatService {
     ShortConversationModel createConversation(CreateChatRequest request) throws Exception;
 
-    void addMemberToGroup(String groupId, List<String> memberIds);
+    void addMemberToGroup(String groupId, List<String> memberIds) throws Exception;
 
 
     ShortConversationModel findShortConverById(String id);
@@ -38,4 +38,6 @@ public interface IChatService {
 
 
     String updateGroupImage(MultipartFile imageFile, String groupId) throws Exception;
+
+    String changeGroupName(String newName, String groupId) throws Exception;
 }

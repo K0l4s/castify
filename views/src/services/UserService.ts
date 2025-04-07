@@ -85,4 +85,9 @@ export const userService = {
             return await axiosInstanceAuth.get(`/api/v1/user/list/following?username=${username}&pageNumber=${pageNumber}&pageSize=${pageSize}`);
         return await axiosInstance.get(`/api/v1/user/list/following?username=${username}&pageNumber=${pageNumber}&pageSize=${pageSize}`);
     },
+    getFriends: async (pageNumber:number,pageSize:number,keyword?:string) => {
+        if(keyword)
+            return await axiosInstanceAuth.get(`/api/v1/user/list/friends?keyword=${keyword}&pageNumber=${pageNumber}&pageSize=${pageSize}`);
+        return await axiosInstanceAuth.get(`/api/v1/user/list/friends?pageNumber=${pageNumber}&pageSize=${pageSize}`);
+    }
 };

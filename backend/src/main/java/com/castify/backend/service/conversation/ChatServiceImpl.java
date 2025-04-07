@@ -75,7 +75,12 @@ public class ChatServiceImpl implements IChatService {
     }
 
     @Override
-    public void addMemberToGroup(String groupId, List<String> memberIds) {
+    public void addMemberToGroup(String groupId, List<String> memberIds) throws Exception {
+        ChatEntity chat = chatRepository.findChatEntityById(groupId);
+        for (MemberInfor member : chat.getMemberList()) {
+            if(memberIds.contains(member.getMemberId()))
+                throw new Exception("This member joined group, please try again!");
+        }
         // Tạo danh sách MemberInfor từ memberIds
         List<MemberInfor> memberList = memberIds
                 .stream()
@@ -326,9 +331,27 @@ public class ChatServiceImpl implements IChatService {
             chat.setImageUrl(imageUrl);
             chatRepository.save(chat);
             return imageUrl;
+        } else {
+            throw new Exception("You don't have permission!");
+        }
+    }
+    @Override
+    public String changeGroupName(String newName, String groupId) throws Exception {
+        UserEntity userData = userService.getUserByAuthentication();
+        ChatEntity chat = chatRepository.findChatEntityById(groupId);
+        MemberInfor memberInfor = chat.getMemberList().stream()
+                .filter(obj -> obj.getMemberId().equals(userData.getId()))
+                .findFirst()
+                .orElse(null);
+        assert memberInfor != null;
+        if(memberInfor.getRole().equals(MemberRole.LEADER) || memberInfor.getRole().equals(MemberRole.DEPUTY)) {
+            chat.setTitle(newName);
+            chatRepository.save(chat);
+            return chat.getTitle();
         }
         else {
             throw new Exception("You don't have permission!");
         }
     }
+
 }
