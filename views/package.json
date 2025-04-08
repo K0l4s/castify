@@ -10,6 +10,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@headlessui/react": "^2.2.0",
     "@reduxjs/toolkit": "^2.2.7",
     "@stomp/stompjs": "^7.0.0",
     "@types/js-cookie": "^3.0.6",
