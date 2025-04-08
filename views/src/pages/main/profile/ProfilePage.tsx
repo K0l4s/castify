@@ -130,7 +130,8 @@ const ProfilePage: React.FC = () => {
             <CustomButton variant={sortBy === 'oldest' ? 'primary' : 'secondary'} onClick={() => handleSortChange('oldest')}>Oldest</CustomButton>
           </div>
           <div className="min-h-[80vh]">
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+          <div className="flex flex-wrap
+       gap-6">
             {podcasts.map((podcast) => (
               <PodcastTag
                 key={podcast.id}

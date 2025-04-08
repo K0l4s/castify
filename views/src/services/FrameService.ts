@@ -1,5 +1,7 @@
 import { axiosInstance, axiosInstanceAuth } from '../utils/axiosInstance';
-import { Frame, FrameCreateUpdate } from '../models/FrameModel';
+import { Frame
+  //, FrameCreateUpdate 
+} from '../models/FrameModel';
 
 // For BlankShop
 //  Get all accepted frames for public view
@@ -71,7 +73,10 @@ export const getAllFrames = async () => {
 };
 
 // Update frame (including status)
-export const updateFrame = async (id: string, frameData: Partial<FrameCreateUpdate>) => {
+export const updateFrame = async (id: string, 
+  frameData: any//Partial<FrameCreateUpdate>
+
+) => {
   try {
     const response = await axiosInstanceAuth.put(`/api/v1/frame/update/${id}`, frameData);
     return response.data;
