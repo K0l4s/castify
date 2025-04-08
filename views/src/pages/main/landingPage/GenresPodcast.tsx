@@ -99,7 +99,8 @@ const GenresPodcast: React.FC<GenresPodcastProps> = ({ genreId }) => {
 
   return (
     <div className="genres-podcast">
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="flex flex-wrap 
+       gap-6">
         {podcasts.map((podcast) => (
           <PodcastTag 
             key={podcast.id}
