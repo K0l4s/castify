@@ -75,7 +75,7 @@ public class ChatServiceImpl implements IChatService {
     }
 
     @Override
-    public void addMemberToGroup(String groupId, List<String> memberIds) throws Exception {
+    public List<FullMemberInfor> addMemberToGroup(String groupId, List<String> memberIds) throws Exception {
         ChatEntity chat = chatRepository.findChatEntityById(groupId);
         for (MemberInfor member : chat.getMemberList()) {
             if(memberIds.contains(member.getMemberId()))
@@ -106,6 +106,41 @@ public class ChatServiceImpl implements IChatService {
 
         // Lưu lại vào database
         chatRepository.save(chatEntity);
+        List<FullMemberInfor> newMemberAdded = new ArrayList<>();
+
+        for (MemberInfor member : memberList) {
+            // Lấy thông tin người dùng
+            UserEntity user = userRepository.findById(member.getMemberId())
+                    .orElseThrow(() -> new IllegalArgumentException("User not found"));
+
+            // Map ShortUser từ UserEntity
+            ShortUser shortUser = modelMapper.map(user, ShortUser.class);
+
+            // Map FullMemberInfor từ MemberInfor
+            FullMemberInfor fullMember = modelMapper.map(member, FullMemberInfor.class);
+            fullMember.setMembers(shortUser);
+
+            newMemberAdded.add(fullMember);
+        }
+        return newMemberAdded;
+    }
+    @Override
+    public void deleteUser(String groupId, String userId) throws Exception {
+        UserEntity userData = userService.getUserByAuthentication();
+        ChatEntity chat = chatRepository.findChatEntityById(groupId);
+        MemberInfor memberInfor = chat.getMemberList().stream()
+                .filter(obj -> obj.getMemberId().equals(userData.getId()))
+                .findFirst()
+                .orElse(null);
+        assert memberInfor != null;
+        if(memberInfor.getRole().equals(MemberRole.LEADER) || memberInfor.getRole().equals(MemberRole.DEPUTY)) {
+            List<MemberInfor> memberList = chat.getMemberList();
+            memberList.removeIf(member -> member.getMemberId().equals(userId));
+            chat.setMemberList(memberList);
+            chatRepository.save(chat);
+        } else {
+            throw new Exception("You don't have permission!");
+        }
     }
     @Override
     public ShortConversationModel findShortConverById(String id){

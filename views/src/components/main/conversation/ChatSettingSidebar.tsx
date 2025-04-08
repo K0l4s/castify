@@ -4,11 +4,15 @@ import CustomInput from "../../UI/custom/CustomInput";
 import { conversationService } from "../../../services/ConversationService";
 import CustomButton from "../../UI/custom/CustomButton";
 import { FaKey } from "react-icons/fa";
+import { FiMoreVertical } from "react-icons/fi";
+import AddMembersModal from "../../modals/msg/AddMembersModal";
+import { FcDeleteRow } from "react-icons/fc";
 
 interface ChatSettingProps {
     chatDetail: ConversationDetail;
     isShow: boolean;
     memberList: FullMemberInfor[];
+    setMemberList: React.Dispatch<React.SetStateAction<FullMemberInfor[]>>;
     setChatDetail: React.Dispatch<React.SetStateAction<ConversationDetail>>;
 }
 
@@ -22,7 +26,7 @@ const ChatSettingSidebar = (props: ChatSettingProps) => {
     const [isEditGroupName, setIsEditGroupName] = useState(false);
     const [groupName, setGroupName] = useState(props.chatDetail.title);
     const [isNameChanged, setIsNameChanged] = useState(false);
-
+    const [isOpenAddMembers, setIsOpenAddMembers] = useState(false);
 
     const handleImageClick = () => {
         document.getElementById("avatarInput")?.click();
@@ -77,6 +81,19 @@ const ChatSettingSidebar = (props: ChatSettingProps) => {
             setIsLoading(false);
         }
     };
+
+    const handleDeleteMember = async (memberId: string) => {
+        try {
+            setIsLoading(true);
+            await conversationService.deleteMembers(memberId, props.chatDetail.id);
+            props.setMemberList(prev => prev.filter(member => member.members.id !== memberId));
+        }
+        catch (error) {
+            console.error("Failed to delete member:", error);
+        } finally {
+            setIsLoading(false);
+        }
+    }
 
 
     return (
@@ -163,6 +180,8 @@ const ChatSettingSidebar = (props: ChatSettingProps) => {
                         {/* add button */}
                         <div className="flex gap-2 mt-2">
                             <CustomButton
+                            onClick={() => setIsOpenAddMembers(true)}
+                            className="text-sm text-blue-500 font-semibold"
                             >
                                 Add
                             </CustomButton>
@@ -184,11 +203,18 @@ const ChatSettingSidebar = (props: ChatSettingProps) => {
                                 </span>
                                 <span className="text-sm">@{member.members.username}</span>
                             </div>
-
+                            <FiMoreVertical className="text-gray-400 hover:text-gray-200 cursor-pointer" size={20} />
+                            <FcDeleteRow className="text-gray-400 hover:text-red-500 cursor-pointer" size={20} onClick={() => handleDeleteMember(member.members.id)} />
                         </div>
                     ))}
                 </div>
             </div>
+            <AddMembersModal
+                isOpen={isOpenAddMembers}
+                onClose={()=>setIsOpenAddMembers(false)}
+                members={props.memberList}
+                setMembers={props.setMemberList}
+                />
         </div>
     );
 };

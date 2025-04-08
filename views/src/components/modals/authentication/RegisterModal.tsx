@@ -16,7 +16,7 @@ interface DefaultModalProps {
 }
 
 const RegisterModal = (props: DefaultModalProps) => {
-  const [step, setStep] = useState(2);
+  const [step, setStep] = useState(1);
   const [isRequest, setIsRequest] = useState(false);
   const [provincesList, setProvincesList] = useState<any[]>([]);
   const [districtsList, setDistrictsList] = useState<any[]>([]);

@@ -308,7 +308,7 @@ const MainConversation = () => {
           </div>
         </div>
       )} */}
-      <ChatSettingSidebar isShow={showInfo} chatDetail={chatDetail} memberList={members} setChatDetail={setChatDetail}/>
+      <ChatSettingSidebar isShow={showInfo} chatDetail={chatDetail} memberList={members} setChatDetail={setChatDetail} setMemberList={setMembers}/>
     </div>
   );
 };

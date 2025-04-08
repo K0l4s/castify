@@ -93,17 +93,25 @@ public class ConversationController {
         }
     }
 
-    @PutMapping("/add")
+    @PostMapping("/member/add")
     private ResponseEntity<?> addMemberToChat(@RequestParam String groupId, @RequestBody List<String> memberIds) {
         try {
 //            chatService.createConversation(request);
-            chatService.addMemberToGroup(groupId, memberIds);
+
+            return ResponseEntity.ok(chatService.addMemberToGroup(groupId, memberIds));
+        } catch (Exception ex) {
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+    @DeleteMapping("/member/del")
+    private ResponseEntity<?> deleteMemberFromChat(@RequestParam String groupId, @RequestParam String memberId) {
+        try {
+            chatService.deleteUser(groupId, memberId);
             return ResponseEntity.ok("OK!");
         } catch (Exception ex) {
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-
     @PutMapping("/msg/read")
     private ResponseEntity<?> readMessage(@RequestParam("groupId") String groupId) {
         try {

@@ -6,8 +6,6 @@ import com.castify.backend.models.conversation.FullMemberInfor;
 import com.castify.backend.models.conversation.MessageResponse;
 import com.castify.backend.models.conversation.ShortConversationModel;
 import com.castify.backend.models.paginated.PaginatedResponse;
-import com.castify.backend.repository.ChatRepository;
-import com.castify.backend.repository.MessageRepository;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
@@ -15,8 +13,10 @@ import java.util.List;
 public interface IChatService {
     ShortConversationModel createConversation(CreateChatRequest request) throws Exception;
 
-    void addMemberToGroup(String groupId, List<String> memberIds) throws Exception;
+    List<FullMemberInfor> addMemberToGroup(String groupId, List<String> memberIds) throws Exception;
 
+
+    void deleteUser(String groupId, String userId) throws Exception;
 
     ShortConversationModel findShortConverById(String id);
 
