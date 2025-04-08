@@ -1,75 +1,66 @@
-import React, { useEffect, useRef } from 'react';
+import CustomModal from '../../../components/UI/custom/CustomModal';
+import Avatar from '../../../components/UI/user/Avatar';
+import defaultAvatar from '../../../assets/images/default_avatar.jpg';
+import { useSelector } from 'react-redux';
+import { RootState } from '../../../redux/store';
+import { useState } from 'react';
 
 interface FramePreviewModalProps {
-  isOpen: boolean;
-  onClose: () => void;
-  frameImage: string;
-  frameName: string;
+    isOpen: boolean;
+    onClose: () => void;
+    frameImage: string;
+    frameName: string;
 }
 
-const FramePreviewModal: React.FC<FramePreviewModalProps> = ({
-  isOpen,
-  onClose,
-  frameImage,
-  frameName,
-}) => {
-  const modalRef = useRef<HTMLDivElement>(null);
+const FramePreviewModal = ({ isOpen, onClose, frameImage, frameName }: FramePreviewModalProps) => {
+    const user = useSelector((state: RootState) => state.auth.user);
+    const [avatarScale, setAvatarScale] = useState(1);
 
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (modalRef.current && !modalRef.current.contains(event.target as Node)) {
-        onClose();
-      }
+    const handleZoomIn = () => {
+        setAvatarScale(prev => Math.min(prev + 0.1, 1.5));
     };
 
-    if (isOpen) {
-      document.addEventListener('mousedown', handleClickOutside);
-    }
-
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
+    const handleZoomOut = () => {
+        setAvatarScale(prev => Math.max(prev - 0.1, 0.5));
     };
-  }, [isOpen, onClose]);
 
-  if (!isOpen) return null;
-
-  return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div 
-        ref={modalRef}
-        className="bg-white dark:bg-gray-800 rounded-lg p-6 max-w-2xl w-full mx-4"
-      >
-        <div className="flex justify-between items-center mb-4">
-          <h2 className="text-xl font-bold dark:text-white">{frameName}</h2>
-          <button
-            onClick={onClose}
-            className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
-          >
-            <svg
-              className="w-6 h-6"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M6 18L18 6M6 6l12 12"
-              />
-            </svg>
-          </button>
-        </div>
-        <div className="relative aspect-square">
-          <img
-            src={frameImage}
-            alt={frameName}
-            className="w-full h-full object-contain"
-          />
-        </div>
-      </div>
-    </div>
-  );
+    return (
+        <CustomModal isOpen={isOpen} onClose={onClose} title={frameName}>
+            <div className="p-6">
+                <div className="flex flex-col items-center gap-6">
+                    {/* Preview với avatar của user */}
+                    <div className="w-64 h-64">
+                        <Avatar
+                            src={user?.avatarUrl || defaultAvatar}
+                            width="64"
+                            height="64"
+                            frameSrc={frameImage}
+                            avatarScale={avatarScale}
+                        />
+                    </div>
+                    
+                    {/* Zoom controls */}
+                    <div className="flex items-center gap-4 mt-4">
+                        <button 
+                            onClick={handleZoomOut}
+                            className="px-3 py-1 bg-gray-200 dark:bg-gray-700 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600"
+                        >
+                            Zoom Out
+                        </button>
+                        <span className="text-sm text-gray-600 dark:text-gray-400">
+                            {Math.round(avatarScale * 100)}%
+                        </span>
+                        <button 
+                            onClick={handleZoomIn}
+                            className="px-3 py-1 bg-gray-200 dark:bg-gray-700 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600"
+                        >
+                            Zoom In
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </CustomModal>
+    );
 };
 
 export default FramePreviewModal; 
