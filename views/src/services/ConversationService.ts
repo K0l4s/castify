@@ -35,6 +35,9 @@ export const conversationService = {
         return await axiosInstanceAuth.put(`/api/v1/conversation/msg/title?groupId=${groupId}&title=${title}`);
     },
     addMembers: async (userId: string[], groupId: string) => {
-        axiosInstanceAuth.put(`/api/v1/conversation/msg/add?groupId=${groupId}`, userId);
+        return await axiosInstanceAuth.post(`/api/v1/conversation/member/add?groupId=${groupId}`, userId);
+    },
+    deleteMembers: async (userId: string, groupId: string) => {
+        return await axiosInstanceAuth.delete(`/api/v1/conversation/member/del?groupId=${groupId}&memberId=${userId}`);
     }
 }

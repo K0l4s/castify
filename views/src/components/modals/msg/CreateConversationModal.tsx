@@ -8,7 +8,6 @@ import CustomButton from "../../UI/custom/CustomButton";
 import { conversationService } from "../../../services/ConversationService";
 import { shortConversation } from "../../../models/Conversation";
 import { FaSearch } from "react-icons/fa";
-import { IoIosVideocam } from "react-icons/io";
 
 interface ConversationModalProps {
     isOpen: boolean;
