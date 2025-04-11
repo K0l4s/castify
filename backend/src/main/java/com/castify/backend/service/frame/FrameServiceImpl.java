@@ -138,4 +138,25 @@ public class FrameServiceImpl implements IFrameService{
         }
     }
 
+    @Override
+    public List<FrameModel> getPurchasedFrames() throws Exception {
+        UserEntity currentUser = userService.getUserByAuthentication();
+        
+        // Get all user frames for current user
+        List<UserFrameEntity> userFrames = userFrameRepository.findByUserId(currentUser.getId());
+        
+        // Extract frame IDs from user frames
+        List<String> frameIds = userFrames.stream()
+                .flatMap(userFrame -> userFrame.getFrames().stream())
+                .collect(Collectors.toList());
+        
+        // Get all frames by IDs
+        List<FrameEntity> frames = frameRepository.findAllById(frameIds);
+        
+        // Map to FrameModel and return
+        return frames.stream()
+                .map(frame -> modelMapper.map(frame, FrameModel.class))
+                .collect(Collectors.toList());
+    }
+
 }
