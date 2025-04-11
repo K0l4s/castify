@@ -1,4 +1,4 @@
-import { axiosInstance, axiosInstanceAuth } from '../utils/axiosInstance';
+import { axiosInstance, axiosInstanceAuth, axiosInstanceFile } from '../utils/axiosInstance';
 import { Frame
   //, FrameCreateUpdate 
 } from '../models/FrameModel';
@@ -39,13 +39,10 @@ export const getMyUploads = async () => {
 // Upload new frame
 export const uploadFrame = async (frameData: FormData) => {
   try {
-    const response = await axiosInstanceAuth.post('/api/v1/frame/upload', frameData, {
-      headers: {
-        'Content-Type': 'multipart/form-data',
-      },
-    });
+    const response = await axiosInstanceFile.post('/api/v1/frame/upload', frameData);
     return response.data;
   } catch (error) {
+    console.error('Upload frame error:', error);
     throw error;
   }
 };
