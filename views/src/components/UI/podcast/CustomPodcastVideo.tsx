@@ -170,7 +170,7 @@ const CustomPodcastVideo = ({ videoSrc, posterSrc, videoRef, title, user }: Cust
             >
                 <video
                     ref={videoRef}
-                    className="w-full h-full max-h-[460px] rounded-xl m-auto"
+                    className={` w-full  ${isFullscreen ? "h-screen" : "h-[480px]"} rounded-xl m-auto`}
                     poster={posterSrc}
                     src={videoSrc}
                     autoPlay={true}

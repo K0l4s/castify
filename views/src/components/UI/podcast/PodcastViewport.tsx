@@ -213,6 +213,7 @@ const PodcastViewport: React.FC = () => {
           Your browser does not support the video tag.
         </video> */}
         <CustomPodcastVideo user={podcast.user} title={podcast.title} videoRef={videoRef} videoSrc={podcast.videoUrl} posterSrc={podcast.thumbnailUrl || "/TEST.png"}/>
+ 
         {!podcast.active && (
           <div>
             <span className="font-medium py-2 px-4 rounded-full bg-gray-800 dark:bg-gray-700 text-white">
