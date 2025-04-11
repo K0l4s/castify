@@ -4,12 +4,14 @@ import defaultFrame from '../../../assets/images/frame_test.png';
 import { Frame } from '../../../models/FrameModel';
 import { getMyUploads, deleteFrame } from '../../../services/FrameService';
 import FramePreviewModal from './FramePreviewModal';
+import FrameUploadModal from '../../../components/modals/frame/FrameUploadModal';
 import coin from '../../../assets/images/coin.png';
 
 const MyShop = () => {
   const [frames, setFrames] = useState<Frame[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedFrame, setSelectedFrame] = useState<Frame | null>(null);
+  const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
   const toast = useToast();
 
   useEffect(() => {
@@ -79,7 +81,7 @@ const MyShop = () => {
         <h1 className="text-2xl font-bold dark:text-white">My Frames</h1>
         <div className="flex gap-4">
           <button 
-            onClick={() => {/* Implement upload new frame */}}
+            onClick={() => setIsUploadModalOpen(true)}
             className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
           >
             Upload New Frame
@@ -156,6 +158,16 @@ const MyShop = () => {
         onClose={() => setSelectedFrame(null)}
         frameImage={selectedFrame?.imageURL || ''}
         frameName={selectedFrame?.name || ''}
+      />
+
+      {/* Frame Upload Modal */}
+      <FrameUploadModal
+        isOpen={isUploadModalOpen}
+        onClose={() => setIsUploadModalOpen(false)}
+        onSuccess={() => {
+          fetchMyFrames();
+          setIsUploadModalOpen(false);
+        }}
       />
     </div>
   );
