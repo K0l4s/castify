@@ -97,7 +97,7 @@ const CreateConversationModal = (props: ConversationModalProps) => {
                     memberId: user.id,
                     role: "MEMBER",
                     joinTime: currentTime,
-                    isAccepted: false
+                    isAccepted: true
                 }))
             ]
         };
