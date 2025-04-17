@@ -11,4 +11,5 @@ public interface IFrameService {
     List<FrameModel> getAllAcceptedFrames() throws Exception;
     List<FrameModel> getUserUploadedFrames() throws Exception;
     FrameModel purchaseFrame(String frameId) throws Exception;
+    List<FrameModel> getPurchasedFrames() throws Exception;
 }

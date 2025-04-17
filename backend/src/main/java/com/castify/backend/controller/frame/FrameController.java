@@ -6,6 +6,7 @@ import com.castify.backend.models.ErrorResponse;
 import com.castify.backend.service.frame.IFrameService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -48,12 +49,24 @@ public class FrameController {
         }
     }
 
+    // Get all frames that user has purchased
+    @GetMapping("/purchased")
+    public ResponseEntity<?> getPurchasedFrames() {
+        try {
+            List<FrameModel> purchasedFrames = frameService.getPurchasedFrames();
+            return new ResponseEntity<>(purchasedFrames, HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<>(new ErrorResponse(e.getMessage()), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
     // For MyShop
     // Upload
-    @PostMapping ("/upload")
-    public ResponseEntity<?> uploadFrame(@RequestPart("name") String name,
-                                         @RequestPart("price") Integer price,
-                                         @RequestPart("image") MultipartFile image) {
+    @PostMapping (value="/upload",
+            consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<?> uploadFrame(@RequestParam("name") String name,
+                                         @RequestParam("price") Integer price,
+                                         @RequestParam("image") MultipartFile image) {
         try{
             UploadFrameRequest uploadFrameRequest = new UploadFrameRequest(name, price, image);
             FrameModel frameModel = frameService.uploadFrame(uploadFrameRequest);
