@@ -162,7 +162,7 @@ const CustomPodcastVideo = ({ videoSrc, posterSrc, videoRef, title, user }: Cust
     return (
         <div
             ref={containerRef}
-            className={`container mx-auto p-4 relative group ${isFullscreen ? "fullscreen" : ""}`}
+            className={`container mx-auto p-4 relative  group ${isFullscreen ? "fullscreen" : ""}`}
         >
             <div
                 className="relative rounded-xl overflow-hidden shadow-2xl bg-black"
@@ -170,7 +170,7 @@ const CustomPodcastVideo = ({ videoSrc, posterSrc, videoRef, title, user }: Cust
             >
                 <video
                     ref={videoRef}
-                    className={` w-full  ${isFullscreen ? "h-screen" : "h-[480px]"} rounded-xl m-auto`}
+                    className={` w-full ease-in-out duration-300 ${isFullscreen ? "h-screen" : "h-[480px]"} rounded-xl m-auto`}
                     poster={posterSrc}
                     src={videoSrc}
                     autoPlay={true}
