@@ -119,12 +119,9 @@ const MainConversation = () => {
     if (object) {
       const newMessage: Message = object;
       setMessages((prev) => [newMessage, ...prev]);
-      if (id)
-        conversationService.readMsg(id.toString())
-      setClick(!click)
-      // scroll to the bottom
-      // gửi thông báo đến server người dùng đã đọc tin nhắn
-      // conversationService.sendMessage("", id);
+      // if (id)
+      console.log("Id"+id)
+      conversationService.readMsg(id?.toString() || "")
       window.scrollTo(0, document.body.scrollHeight);
     }
   }, [object]);
@@ -135,19 +132,22 @@ const MainConversation = () => {
   });
   useEffect(() => {
     if (readObject) {
+      console.log("Read object")
+      console.log(readObject)
       const newMessage: shortUser = readObject;
+      console.log("New")
+      console.log(newMessage)
       dispatch(setClick(!click))
-
-      // console.log(newMessage);
+      console.log(newMessage)
       console.log(members)
-      // tìm members.members có members.member.id bằng shortUser.id, cập nhật lại lastMessageId là id của message mới nhất
       setMembers((prevMembers) =>
         prevMembers.map((member) => {
           if (member.members.id === newMessage.id && messages.length > 0) {
+            console.log("Hio")
             return {
               ...member,
               lastReadMessage: {
-                ...member.lastReadMessage,
+                // ...member.lastReadMessage,
                 lastMessageId: messages[0].id,
                 lastReadTime: new Date().toString()
               },
@@ -156,15 +156,7 @@ const MainConversation = () => {
           return member;
         })
       );
-
       console.log(members)
-      // if (memberInfor) {
-      //   // Cập nhật lastMessageId
-      //   memberInfor.lastMessageId = newMessage.messageId;
-      // }      // tìm kiếm 
-      // scroll to the bottom
-      // gửi thông báo đến server người dùng đã đọc tin nhắn
-      // conversationService.sendMessage("", id);
       window.scrollTo(0, document.body.scrollHeight);
     }
   }
@@ -200,7 +192,6 @@ const MainConversation = () => {
   }, [pageNumber]);
 
   useEffect(() => {
-    // infinite scroll
     const handleScroll = () => {
       if (
         document.documentElement.scrollTop > 5
@@ -220,7 +211,6 @@ const MainConversation = () => {
     <div className="w-full min-h-full bg-gray-100 dark:bg-gray-800 relative flex">
       <div className="flex-1">
         <div className="flex items-center justify-between w-full px-4 py-2 bg-white border-b dark:bg-gray-900 dark:border-gray-700 sticky top-[65px] z-10">
-          {/* image */}
           <div className="flex items-center gap-2">
             <img
               src={chatDetail.imageUrl ? chatDetail.imageUrl : "https://img.freepik.com/free-photo/people-office-work-day_23-2150690162.jpg"}
@@ -238,8 +228,6 @@ const MainConversation = () => {
             </button>
           </div>
         </div>
-
-        {/* Chat container */}
         <div
           id="chat-container"
           className="flex flex-col gap-2 p-4 min-h-screen overflow-y-auto">
@@ -262,15 +250,12 @@ const MainConversation = () => {
             </div>
           }
         </div>
-        {/* isFetching */}
         {isFeching && pageNumber > 1 && pageNumber <= totalPage &&
           <div className="flex justify-center flex-col items-center fixed z-10 top-20 left-0 right-0">
             <VscLoading className="animate-spin" color="gray" />
             <p className="text-gray-500">Đang tải thêm...</p>
           </div>
         }
-
-        {/* Input */}
         <div className="sticky bottom-0 left-0 w-full bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 p-2 shadow-md">
           <div className="flex items-center gap-2">
             <textarea
@@ -288,27 +273,7 @@ const MainConversation = () => {
           </div>
         </div>
       </div>
-
-      {/* Chat Information Sidebar */}
-      {/* {showInfo && (
-        <div className="w-80 bg-white dark:bg-gray-900 border-l border-gray-200 dark:border-gray-700 p-4 sticky top-[66px] right-0 h-[calc(100vh-66px)] overflow-y-auto overflow-x-hidden">
-          <div className="flex flex-col gap-4 h-[100000px]">
-            <h2 className="text-xl font-semibold mb-4">Chat Information</h2>
-
-            <div className="space-y-4">
-              <div className="flex flex-row gap-2">
-                <h3 className="text-sm text-gray-500 font-semibold">Created At:</h3>
-                <p className="text-gray-200">{new Date(chatDetail.createdAt).toLocaleDateString()}</p>
-              </div>
-
-              <div>
-                <h3 className="text-sm text-gray-500">Members ({chatDetail.memberSize})</h3>
-              </div>
-            </div>
-          </div>
-        </div>
-      )} */}
-      <ChatSettingSidebar isShow={showInfo} chatDetail={chatDetail} memberList={members} setChatDetail={setChatDetail} setMemberList={setMembers}/>
+      <ChatSettingSidebar isShow={showInfo} chatDetail={chatDetail} memberList={members} setChatDetail={setChatDetail} setMemberList={setMembers} />
     </div>
   );
 };

@@ -3,7 +3,6 @@ import { BiLeftArrow, BiPause, BiPlay, BiRightArrow } from "react-icons/bi";
 import { MdOutlineZoomInMap, MdOutlineZoomOutMap } from "react-icons/md";
 import { BsVolumeMute, BsVolumeUp } from "react-icons/bs";
 import Tooltip from "../custom/Tooltip";
-import logo from "../../../assets/images/logo.png";
 import { useNavigate } from "react-router-dom";
 interface CustomPodcastVideoProps {
     videoSrc: string;
@@ -163,7 +162,7 @@ const CustomPodcastVideo = ({ videoSrc, posterSrc, videoRef, title, user }: Cust
     return (
         <div
             ref={containerRef}
-            className={`container mx-auto p-4 relative group ${isFullscreen ? "fullscreen" : ""}`}
+            className={`container mx-auto p-4 relative  group ${isFullscreen ? "fullscreen" : ""}`}
         >
             <div
                 className="relative rounded-xl overflow-hidden shadow-2xl bg-black"
@@ -171,7 +170,7 @@ const CustomPodcastVideo = ({ videoSrc, posterSrc, videoRef, title, user }: Cust
             >
                 <video
                     ref={videoRef}
-                    className="w-full h-full rounded-xl m-auto"
+                    className={` w-full ease-in-out duration-300 ${isFullscreen ? "h-screen" : "h-[480px]"} rounded-xl m-auto`}
                     poster={posterSrc}
                     src={videoSrc}
                     autoPlay={true}
@@ -185,11 +184,6 @@ const CustomPodcastVideo = ({ videoSrc, posterSrc, videoRef, title, user }: Cust
                     onClick={handlePlayPause}
                     className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"
                 />
-
-                {/* logo of page, in left top */}
-                <div className="absolute top-0 left-0">
-                    <img src={logo} alt="logo" className="w-12 h-12" />
-                </div>
                 {/* user's avatar */}
                 {user?.avatarUrl && title && (
                     <div className={`px-3 absolute right-0 duration-300 ease-in-out flex items-center space-x-4 ${showControls ? "bottom-32" : "bottom-5"}`}>
