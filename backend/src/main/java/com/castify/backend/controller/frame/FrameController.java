@@ -87,4 +87,28 @@ public class FrameController {
         }
     }
 
+    // Update frame by user (name and price)
+    @PutMapping("/update/{frameId}")
+    public ResponseEntity<?> updateFrame(
+            @PathVariable String frameId,
+            @RequestParam("name") String name,
+            @RequestParam("price") Integer price) {
+        try {
+            FrameModel updatedFrame = frameService.updateFrameByUser(frameId, name, price);
+            return new ResponseEntity<>(updatedFrame, HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<>(new ErrorResponse(e.getMessage()), HttpStatus.BAD_REQUEST);
+        }
+    }
+
+    // Delete frame
+    @DeleteMapping("/delete/{frameId}")
+    public ResponseEntity<?> deleteFrame(@PathVariable String frameId) {
+        try {
+            frameService.deleteFrame(frameId);
+            return new ResponseEntity<>("Frame deleted successfully", HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<>(new ErrorResponse(e.getMessage()), HttpStatus.BAD_REQUEST);
+        }
+    }
 }

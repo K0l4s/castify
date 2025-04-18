@@ -85,7 +85,7 @@ const BlankShop = () => {
     return (
         <div className="container mx-auto px-4 py-8">
             <div className="flex justify-between items-center mb-6">
-                <h1 className="text-2xl font-bold dark:text-white">Frame Shop</h1>
+                <h1 className="text-2xl font-bold text-black dark:text-white">Frame Shop</h1>
                 <div className="flex gap-4">
                     <button 
                         onClick={() => navigate('/purchased-frames')}
@@ -97,10 +97,10 @@ const BlankShop = () => {
             </div>
             
             <div className="text-center mb-8">
-                <p className="text-gray-500 dark:text-gray-400">
+                <p className="text-black dark:text-gray-400">
                     Browse our collection of beautiful frames
                 </p>
-                <p className="text-xl font-semibold mt-2 mb-4">
+                <p className="text-xl font-semibold mt-2 mb-4 text-black dark:text-white">
                     Your current balance: {user?.coin} <img src={coin} alt="coin" className="w-5 h-5 inline-block" />
                 </p>
             </div>
@@ -118,7 +118,7 @@ const BlankShop = () => {
                             <div className="absolute inset-0 bg-black bg-opacity-0 hover:bg-opacity-50 transition-opacity flex items-center justify-center opacity-0 hover:opacity-100">
                                 <button 
                                     onClick={() => handlePreview(frame)}
-                                    className="px-4 py-2 bg-white text-black rounded-lg"
+                                    className="px-4 py-2 bg-white dark:bg-gray-800 text-black dark:text-white rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
                                 >
                                     Preview
                                 </button>
@@ -127,7 +127,7 @@ const BlankShop = () => {
                         
                         <div className="p-4 border-t dark:border-gray-700">
                             <div className="flex justify-between items-start mb-2">
-                                <h2 className="text-lg font-semibold dark:text-white">{frame.name}</h2>
+                                <h2 className="text-lg font-semibold text-black dark:text-white">{frame.name}</h2>
                                 <div className="text-blue-600 dark:text-blue-400 text-xl flex gap-1 items-center font-bold">
                                     {frame.price}
                                     <div className="w-5 h-5">
@@ -156,7 +156,7 @@ const BlankShop = () => {
             </div>
 
             {frames.length === 0 && (
-                <div className="text-center text-gray-500 dark:text-gray-400 mt-8">
+                <div className="text-center text-black dark:text-gray-400 mt-8">
                     No frames available at the moment.
                 </div>
             )}
