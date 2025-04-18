@@ -62,8 +62,8 @@ public class FrameController {
 
     // For MyShop
     // Upload
-    @PostMapping (value="/upload",
-            consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PostMapping (value="/upload")
+//            consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<?> uploadFrame(@RequestParam("name") String name,
                                          @RequestParam("price") Integer price,
                                          @RequestParam("image") MultipartFile image) {
