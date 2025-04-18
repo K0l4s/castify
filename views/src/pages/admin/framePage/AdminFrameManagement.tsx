@@ -1,11 +1,20 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { useToast } from '../../../context/ToastProvider';
 import { Frame } from '../../../models/FrameModel';
-import { getAllFrames, updateFrame } from '../../../services/FrameService';
+import { getAllFrames } from '../../../services/FrameService';
+import { axiosInstanceAuth } from '../../../utils/axiosInstance';
+import FramePreviewModal from '../../main/blankShop/FramePreviewModal';
+
+type FrameStatus = 'ACCEPTED' | 'PROCESSING' | 'REJECTED';
 
 const AdminFramePage = () => {
   const [frames, setFrames] = useState<Frame[]>([]);
   const [loading, setLoading] = useState(true);
+  const [selectedFrame, setSelectedFrame] = useState<Frame | null>(null);
+  const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
+  const [actionType, setActionType] = useState<'accept' | 'reject' | null>(null);
+  const [frameToAction, setFrameToAction] = useState<Frame | null>(null);
+  const confirmModalRef = useRef<HTMLDivElement | null>(null);
   const toast = useToast();
 
   useEffect(() => {
@@ -23,14 +32,36 @@ const AdminFramePage = () => {
     }
   };
 
-  const handleStatusChange = async (frameId: string, newStatus: 'ACCEPTED' | 'REJECTED') => {
+  const handleStatusChange = async (frameId: string, newStatus: FrameStatus) => {
     try {
-      await updateFrame(frameId, { status: newStatus });
+      await axiosInstanceAuth.put(`/api/admin/v1/frame/approve/${frameId}?status=${newStatus}`);
       toast.success(`Frame ${newStatus.toLowerCase()} successfully`);
       fetchAllFrames(); // Refresh the list
-    } catch (error) {
-      toast.error('Failed to update frame status');
+    } catch (error: any) {
+      toast.error(error.response?.data?.message || 'Failed to update frame status');
     }
+  };
+
+  const handleActionClick = (frame: Frame, action: 'accept' | 'reject') => {
+    setFrameToAction(frame);
+    setActionType(action);
+    setIsConfirmModalOpen(true);
+  };
+
+  const handleConfirmAction = () => {
+    if (!frameToAction || !actionType) return;
+
+    const newStatus = actionType === 'accept' ? 'ACCEPTED' : 'REJECTED';
+    handleStatusChange(frameToAction.id, newStatus);
+    setIsConfirmModalOpen(false);
+    setFrameToAction(null);
+    setActionType(null);
+  };
+
+  const handleCancelAction = () => {
+    setIsConfirmModalOpen(false);
+    setFrameToAction(null);
+    setActionType(null);
   };
 
   const getStatusBadge = (status: string) => {
@@ -55,6 +86,10 @@ const AdminFramePage = () => {
         {config.text}
       </span>
     );
+  };
+
+  const handlePreview = (frame: Frame) => {
+    setSelectedFrame(frame);
   };
 
   if (loading) {
@@ -82,7 +117,10 @@ const AdminFramePage = () => {
               />
               {/* Preview overlay */}
               <div className="absolute inset-0 bg-black bg-opacity-0 hover:bg-opacity-50 transition-opacity flex items-center justify-center opacity-0 hover:opacity-100">
-                <button className="px-4 py-2 bg-white text-black rounded-lg">
+                <button 
+                  onClick={() => handlePreview(frame)}
+                  className="px-4 py-2 bg-white dark:bg-gray-800 text-black dark:text-white rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+                >
                   Preview
                 </button>
               </div>
@@ -105,14 +143,14 @@ const AdminFramePage = () => {
               {frame.status === 'PROCESSING' && (
                 <>
                   <button 
-                    onClick={() => handleStatusChange(frame.id, 'ACCEPTED')}
-                    className="text-green-500 hover:text-green-600"
+                    onClick={() => handleActionClick(frame, 'accept')}
+                    className="text-green-500 hover:text-green-600 dark:text-green-400 dark:hover:text-green-300"
                   >
                     Accept
                   </button>
                   <button 
-                    onClick={() => handleStatusChange(frame.id, 'REJECTED')}
-                    className="text-red-500 hover:text-red-600"
+                    onClick={() => handleActionClick(frame, 'reject')}
+                    className="text-red-500 hover:text-red-600 dark:text-red-400 dark:hover:text-red-300"
                   >
                     Reject
                   </button>
@@ -126,6 +164,45 @@ const AdminFramePage = () => {
       {frames.length === 0 && (
         <div className="text-center text-gray-500 dark:text-gray-400 mt-8">
           No frames available at the moment.
+        </div>
+      )}
+
+      {/* Frame Preview Modal */}
+      <FramePreviewModal
+        isOpen={!!selectedFrame}
+        onClose={() => setSelectedFrame(null)}
+        frameImage={selectedFrame?.imageURL || ''}
+        frameName={selectedFrame?.name || ''}
+      />
+
+      {/* Confirmation Modal */}
+      {isConfirmModalOpen && (
+        <div ref={confirmModalRef} className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
+          <div className="bg-white dark:bg-gray-800 p-6 rounded-lg w-96">
+            <h3 className="text-xl font-semibold mb-4 text-center text-black dark:text-white">
+              {actionType === 'accept' 
+                ? 'Bạn có chắc chắn chấp nhận frame này không?' 
+                : 'Bạn có chắc chắn từ chối frame này không?'}
+            </h3>
+            <div className="flex justify-between">
+              <button
+                onClick={handleCancelAction}
+                className="px-4 py-2 bg-gray-300 text-black rounded-lg hover:bg-gray-400 dark:bg-gray-600 dark:text-white dark:hover:bg-gray-700"
+              >
+                Hủy
+              </button>
+              <button
+                onClick={handleConfirmAction}
+                className={`px-4 py-2 text-white rounded-lg ${
+                  actionType === 'accept' 
+                    ? 'bg-green-500 hover:bg-green-600' 
+                    : 'bg-red-500 hover:bg-red-600'
+                }`}
+              >
+                {actionType === 'accept' ? 'Chấp nhận' : 'Từ chối'}
+              </button>
+            </div>
+          </div>
         </div>
       )}
     </div>

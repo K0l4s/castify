@@ -159,4 +159,72 @@ public class FrameServiceImpl implements IFrameService{
                 .collect(Collectors.toList());
     }
 
+    @Override
+    public FrameModel updateFrameByUser(String frameId, String name, Integer price) throws Exception {
+        UserEntity currentUser = userService.getUserByAuthentication();
+        
+        FrameEntity frame = frameRepository.findById(frameId)
+                .orElseThrow(() -> new Exception("Frame not found"));
+
+        // Check if the current user owns this frame
+        if (!frame.getUser().getId().equals(currentUser.getId())) {
+            throw new Exception("You don't have permission to update this frame");
+        }
+
+        // Update frame details
+        frame.setName(name);
+        frame.setPrice(price);
+        // Set status back to PROCESSING for admin review
+        frame.setStatus(FrameStatus.PROCESSING);
+        frame.setLastEditedAt(LocalDateTime.now());
+
+        frame = frameRepository.save(frame);
+        return modelMapper.map(frame, FrameModel.class);
+    }
+
+    @Override
+    public FrameModel updateFrameStatus(String frameId, FrameStatus status) throws Exception {
+        FrameEntity frame = frameRepository.findById(frameId)
+                .orElseThrow(() -> new Exception("Frame not found"));
+
+        // Only allow updating from PROCESSING to ACCEPTED or REJECTED
+        if (frame.getStatus() != FrameStatus.PROCESSING) {
+            throw new Exception("Can only update status for frames in PROCESSING state");
+        }
+
+        if (status != FrameStatus.ACCEPTED && status != FrameStatus.REJECTED) {
+            throw new Exception("Invalid status update. Can only update to ACCEPTED or REJECTED");
+        }
+
+        frame.setStatus(status);
+        frame.setLastEditedAt(LocalDateTime.now());
+
+        frame = frameRepository.save(frame);
+        return modelMapper.map(frame, FrameModel.class);
+    }
+
+    @Override
+    public void deleteFrame(String frameId) throws Exception {
+        UserEntity currentUser = userService.getUserByAuthentication();
+        
+        FrameEntity frame = frameRepository.findById(frameId)
+                .orElseThrow(() -> new Exception("Frame not found"));
+
+        // Check if the current user owns this frame
+        if (!frame.getUser().getId().equals(currentUser.getId())) {
+            throw new Exception("You don't have permission to delete this frame");
+        }
+
+        // Check if the frame has been purchased by anyone
+        List<UserFrameEntity> purchasedFrames = userFrameRepository.findByFrameId(frameId);
+        if (purchasedFrames.size() > 1 || (purchasedFrames.size() == 1 && !purchasedFrames.get(0).getUser().getId().equals(currentUser.getId()))) {
+            throw new Exception("Cannot delete frame that has been purchased by other users");
+        }
+
+        // Delete the user-frame relationship first
+        userFrameRepository.deleteByUserIdAndFrameId(currentUser.getId(), frameId);
+        
+        // Then delete the frame
+        frameRepository.delete(frame);
+    }
 }

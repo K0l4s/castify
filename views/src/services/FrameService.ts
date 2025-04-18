@@ -70,12 +70,13 @@ export const getAllFrames = async () => {
 };
 
 // Update frame (including status)
-export const updateFrame = async (id: string, 
-  frameData: any//Partial<FrameCreateUpdate>
-
-) => {
+export const updateFrame = async (id: string, name: string, price: number) => {
   try {
-    const response = await axiosInstanceAuth.put(`/api/v1/frame/update/${id}`, frameData);
+    const params = new URLSearchParams();
+    params.append('name', name);
+    params.append('price', price.toString());
+    
+    const response = await axiosInstanceAuth.put(`/api/v1/frame/update/${id}?${params.toString()}`);
     return response.data;
   } catch (error) {
     throw error;
