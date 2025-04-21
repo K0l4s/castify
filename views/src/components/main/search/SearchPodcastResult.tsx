@@ -42,8 +42,9 @@ const SearchPodcastResult = () => {
             id={podcast.id}
             title={podcast.title}
             user={{
-              avatar: podcast.user.avatarUrl,
+              avatarUrl: podcast.user.avatarUrl,
               username: podcast.user.username,
+              usedFrame: podcast.user.usedFrame,
             }}
             thumbnailUrl={podcast.thumbnailUrl || "/TEST.png"}
             views={podcast.views}

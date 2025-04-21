@@ -88,7 +88,7 @@ const PodcastTag: React.FC<PodcastTagProps> = ({ podcast, onReport, onSave, onSh
               alt={author}
               className="w-12 h-12 rounded-full object-cover ring-2 ring-gray-200 dark:ring-gray-700"
             /> */}
-            <Avatar src={podcast.user.avatarUrl || default_avatar} width="12" height="12" alt={author} />
+            <Avatar avatarUrl={podcast.user.avatarUrl || default_avatar} width="w-12" height="h-12" alt={author} usedFrame={podcast.user.usedFrame} />
           </Link>
           <div className="flex-grow">
             <Link to={`/watch?pid=${podcast.id}`}>

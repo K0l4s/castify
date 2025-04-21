@@ -6,10 +6,11 @@ interface AvatarProps {
     usedFrame?:UserFrame
     width?: string
     height?: string
+    onClick?: () => void
 }
-const Avatar: React.FC<AvatarProps> = ({ avatarUrl,alt, width, height, usedFrame}) => {
+const Avatar: React.FC<AvatarProps> = ({ avatarUrl,alt, width, height, usedFrame,onClick}) => {
     return (
-        <div className="relative">
+        <div className="relative" onClick={onClick}>
             <img 
                 src={avatarUrl} 
                 alt={alt ? alt : "avatar"}
