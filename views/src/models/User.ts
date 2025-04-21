@@ -12,7 +12,7 @@ export interface User {
     middleName: string,
     lastName: string,
     avatarUrl: string,
-    usedFrame: UserFrame,
+    usedFrame?: UserFrame,
     coverUrl: string,
     email: string,
     password: string,
@@ -47,7 +47,7 @@ export interface userDetail{
     fullname: string,
     username: string,
     avatarUrl: string,
-    usedFrame: UserFrame,
+    usedFrame?: UserFrame,
     coverUrl: string,
     birthday: Date,
     address: string,
@@ -104,7 +104,7 @@ export interface userCard {
     fullname:string;
     username: string;
     avatarUrl: string;
-    usedFrame: UserFrame,
+    usedFrame?: UserFrame,
     follow:boolean;
     totalFollower:number;
     totalFollowing:number;
@@ -170,7 +170,7 @@ export interface UserSimple {
     fullname: string;
     username: string;
     avatarUrl: string;
-    usedFrame: UserFrame;
+    usedFrame?: UserFrame;
     totalFollower: number;
     follow: boolean;
 }
@@ -180,7 +180,7 @@ export interface BasicUser {
     fullname: string;
     username: string;
     avatarUrl: string;
-    usedFrame: UserFrame,
+    usedFrame?: UserFrame,
     coverUrl: string;
     birthday: Date;
     address: string;
@@ -200,6 +200,6 @@ export interface shortUser {
     id:string;
     fullname:string;
     avatarUrl:string;
-    usedFrame: UserFrame,
+    usedFrame?: UserFrame,
     username:string;
 }
