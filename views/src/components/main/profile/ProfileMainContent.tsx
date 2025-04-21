@@ -14,6 +14,7 @@ import { ReportType } from '../../../models/Report';
 import defaultAvatar from "../../../assets/images/default_avatar.jpg";
 import FollowersModal from '../../modals/user/FollowersModal';
 import FollowingsModal from '../../modals/user/FollowingsModal';
+import Avatar from '../../UI/user/Avatar';
 
 interface ProfileMainContentProps {
 
@@ -33,8 +34,14 @@ const defaultUser = {
     id: "",
     fullname: "",
     username: "",
-    avatarUrl: "",
-    coverUrl: "",
+    avatarUrl: defaultAvatar,
+    usedFrame: {
+        id: "",
+        name: "",
+        imageURL: defaultAvatar,
+        price:0
+    },
+    coverUrl: "https://png.pngtree.com/thumb_back/fw800/background/20231005/pngtree-3d-illustration-captivating-podcast-experience-image_13529585.png",
     birthday: new Date(),
     address: "",
     location: {
@@ -57,6 +64,7 @@ const defaultUser = {
     totalFollower: 0,
     totalFollowing: 0,
     totalPost: 0
+    // [key: string]: any;
 };
 const ProfileMainContent: React.FC<ProfileMainContentProps> = ({
 }) => {
@@ -172,29 +180,22 @@ const ProfileMainContent: React.FC<ProfileMainContentProps> = ({
                         {/* Profile Picture with Custom Frame */}
                         <div className="absolute -top-16 sm:-top-20 left-4 sm:left-6 md:left-8">
                             <div className="relative group">
-                                {/* Animated Border Frame */}
-                                <div className={`absolute -inset-1 rounded-full animate-spin-slow opacity-75 blur-sm group-hover:opacity-100 transition duration-500`}></div>
-                                <div className={`w-28 h-28 sm:w-32 sm:h-32 md:w-36 md:h-36 rounded-full dark:border-gray-700 overflow-hidden relative transform transition-transform duration-300 group-hover:scale-105 bg-white dark:bg-gray-800`}>
                                     {isLoading ? (
                                         <div className="w-full h-full bg-gray-300 dark:bg-gray-700 animate-pulse"></div>
                                     ) : (
-                                        <img
-                                            className="w-full h-full object-cover object-center transform transition-transform duration-500"
-                                            src={
-                                                isOwner
-                                                    ? currentUser?.avatarUrl || defaultAvatar
-                                                    : user.avatarUrl ||
-                                                    defaultAvatar
-                                            }
-                                            alt="Profile Picture"
+                                        <Avatar
+                                            avatarUrl={isOwner ? currentUser?.avatarUrl || defaultAvatar : user.avatarUrl || defaultAvatar}
+                                            usedFrame={isOwner ? currentUser?.usedFrame : user.usedFrame}
                                             onError={(e) => {
                                                 const target = e.target as HTMLImageElement;
                                                 target.onerror = null;
                                                 target.src = defaultAvatar;
                                             }}
+                                            width="w-32 sm:w-36 md:w-40"
+                                            height="h-32 sm:h-36 md:h-40"
+                                            alt="Profile Picture"
                                         />
                                     )}
-                                </div>
                             </div>
                         </div>
 
