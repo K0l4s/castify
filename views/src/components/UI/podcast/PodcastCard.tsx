@@ -12,7 +12,7 @@ interface PodcastCardProps {
   user: {
     avatarUrl: string;
     username: string;
-    usedFrame: UserFrame;
+    usedFrame?: UserFrame;
   };
   thumbnailUrl: string;
   views: number;
