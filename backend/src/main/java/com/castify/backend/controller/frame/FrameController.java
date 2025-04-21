@@ -62,8 +62,8 @@ public class FrameController {
 
     // For MyShop
     // Upload
-    @PostMapping (value="/upload",
-            consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PostMapping (value="/upload")
+//            consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<?> uploadFrame(@RequestParam("name") String name,
                                          @RequestParam("price") Integer price,
                                          @RequestParam("image") MultipartFile image) {
@@ -107,6 +107,16 @@ public class FrameController {
         try {
             frameService.deleteFrame(frameId);
             return new ResponseEntity<>("Frame deleted successfully", HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<>(new ErrorResponse(e.getMessage()), HttpStatus.BAD_REQUEST);
+        }
+    }
+
+    @PutMapping("/apply/{frameId}")
+    public ResponseEntity<?> applyFrame(@PathVariable String frameId) {
+        try {
+            frameService.applyFrame(frameId);
+            return new ResponseEntity<>("Frame applied successfully", HttpStatus.OK);
         } catch (Exception e) {
             return new ResponseEntity<>(new ErrorResponse(e.getMessage()), HttpStatus.BAD_REQUEST);
         }

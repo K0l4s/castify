@@ -4,6 +4,7 @@ import ConfirmBox from "../../UI/dialogBox/ConfirmBox";
 import { userService } from "../../../services/UserService";
 import { Role } from "../../../constants/Role";
 import defaultAvatar from "../../../assets/images/default_avatar.jpg";
+import Avatar from "../../UI/user/Avatar";
 
 interface UserCardProps {
     user: BasicUser;
@@ -46,11 +47,12 @@ const UserCard: React.FC<UserCardProps> = ({ user }) => {
             </span>
             <div className="p-4">
                 <div className="flex items-center gap-4">
-                    <img
+                    {/* <img
                         src={user.avatarUrl || defaultAvatar}
                         alt="avatar"
                         className="w-16 h-16 rounded-full object-cover border-2 border-gray-200"
-                    />
+                    /> */}
+                    <Avatar width="w-16" height="h-16" avatarUrl={user.avatarUrl || defaultAvatar} usedFrame={user.usedFrame} alt="avatar" />
                     <div>
                         <h2 className="text-xl font-semibold">{user.fullname}</h2>
                         <p className="text-gray-500">@{user.username}</p>

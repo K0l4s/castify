@@ -20,6 +20,7 @@ import coin from "../../assets/images/coin.png";
 import { BsCart3, BsShop } from "react-icons/bs";
 import MessageIcon from "./MessageIcon";
 import NotificationIcon from "./NotificationIcon";
+import Avatar from "../UI/user/Avatar";
 
 const Authentication = () => {
   const { language, changeLanguage } = useLanguage();
@@ -71,7 +72,7 @@ const Authentication = () => {
     dropdown?.classList.toggle("hidden");
   };
   const user = useSelector((state: RootState) => state.auth.user);
-  
+  console.log(user);
   return (
     <div>
       <div className="relative">
@@ -132,13 +133,15 @@ const Authentication = () => {
               {isLoading ? (
                 <div className="w-10 h-10 bg-gray-300 dark:bg-gray-700 rounded-full animate-pulse"></div>
               ) : (
-                <img
-                  className="w-10 h-10 rounded-full object-cover border-2 border-transparent hover:border-blue-500 transition-colors duration-200"
-                  src={
-                    user?.avatarUrl || defaultAvatar
-                  }
-                  alt="User avatar"
-                />
+                // <img
+                //   className="w-10 h-10 rounded-full object-cover border-2 border-transparent hover:border-blue-500 transition-colors duration-200"
+                //   src={
+                //     user?.avatarUrl || defaultAvatar
+                //   }
+                //   alt="User avatar"
+                // />
+                <Avatar width="w-10" height="h-10" avatarUrl={user?.avatarUrl || defaultAvatar} usedFrame={user?.usedFrame} alt="avatar" />
+
               )}
             </button>
 

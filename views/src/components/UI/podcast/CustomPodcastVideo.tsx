@@ -4,6 +4,7 @@ import { MdOutlineZoomInMap, MdOutlineZoomOutMap } from "react-icons/md";
 import { BsVolumeMute, BsVolumeUp } from "react-icons/bs";
 import Tooltip from "../custom/Tooltip";
 import { useNavigate } from "react-router-dom";
+import Avatar from "../user/Avatar";
 interface CustomPodcastVideoProps {
     videoSrc: string;
     posterSrc: string;
@@ -188,12 +189,13 @@ const CustomPodcastVideo = ({ videoSrc, posterSrc, videoRef, title, user }: Cust
                 {user?.avatarUrl && title && (
                     <div className={`px-3 absolute right-0 duration-300 ease-in-out flex items-center space-x-4 ${showControls ? "bottom-32" : "bottom-5"}`}>
                         {/* Avatar */}
-                        <img
+                        {/* <img
                             src={user.avatarUrl} // user's avatar
                             alt="user"
                             className="w-10 h-10 rounded-full"
                             onClick={() => navigate(`/profile/${user.username}`)}
-                        />
+                        /> */}
+                        <Avatar width="w-10" height="h-10" avatarUrl={user.avatarUrl} usedFrame={user.usedFrame} alt="avatar" onClick={() => navigate(`/profile/${user.username}`)} />
                     </div>
                 )}
                 {/* Controls container */}

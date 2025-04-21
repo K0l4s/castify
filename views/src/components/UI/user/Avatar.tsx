@@ -1,43 +1,24 @@
+import { UserFrame } from "../../../models/User"
+
 interface AvatarProps {
-    src: string
-    width: string
-    height: string
+    avatarUrl: string
     alt?: string
-    frameSrc?: string
-    avatarScale?: number
+    usedFrame?:UserFrame
+    width?: string
+    height?: string
+    onClick?: () => void
 }
-const Avatar: React.FC<AvatarProps> = ({ src, width, height, alt, frameSrc, avatarScale = 1 }) => {
+const Avatar: React.FC<AvatarProps> = ({ avatarUrl,alt, width, height, usedFrame,onClick}) => {
     return (
-        <div className="relative">
+        <div className="relative" onClick={onClick}>
             <img 
-                src={src} 
+                src={avatarUrl} 
                 alt={alt ? alt : "avatar"}
-                className={`rounded-full ring-2 ring-gray-200 dark:ring-gray-700 w-${width} h-${height} object-cover`}
-                style={{ transform: `scale(${avatarScale})` }}
+                className={`rounded-full ring-2 ring-gray-200 dark:ring-gray-700 ${width} ${height} object-cover`}
             />
-            {frameSrc && <img src={frameSrc} alt="frame" className="absolute inset-0 w-full h-full object-contain" />}
+            {usedFrame && <img src={usedFrame.imageURL} alt={usedFrame.name} className="absolute inset-0 w-full h-full object-contain" />}
         </div>
     )
 }
 
 export default Avatar
-
-// interface AvatarProps {
-//     src: string
-//     width: string
-//     height: string
-//     alt?: string
-//     frameSrc?: string
-// }
-// const Avatar: React.FC<AvatarProps> = ({ src, width, height, alt, frameSrc }) => {
-//     return (
-//         <div className="relative">
-//             <img src={src} alt={
-//                 alt ? alt : "avatar"
-//             } className={`rounded-full ring-2 ring-gray-200 dark:ring-gray-700 w-${width} h-${height} object-cover`} />
-//             {frameSrc && <img src={frameSrc} alt="frame" className="absolute -inset-4 w-[calc(100%+2rem)] h-[calc(100%+2rem)] object-contain" />}
-//         </div>
-//     )
-// }
-
-// export default Avatar

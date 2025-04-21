@@ -16,4 +16,6 @@ public interface IFrameService {
     FrameModel updateFrameByUser(String frameId, String name, Integer price) throws Exception;
     FrameModel updateFrameStatus(String frameId, FrameStatus status) throws Exception;
     void deleteFrame(String frameId) throws Exception;
+
+    void applyFrame(String frameId) throws Exception;
 }

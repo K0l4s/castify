@@ -1,6 +1,7 @@
 package com.castify.backend.models.user;
 
 import com.castify.backend.entity.location.WardEntity;
+import com.castify.backend.models.frame.UserFrameModel;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -19,6 +20,7 @@ public class UserDetailModel {
     private String fullname;
     private String username;
     private String avatarUrl;
+    private UserFrameModel usedFrame;
     private String coverUrl;
     private LocalDateTime birthday;
     private String address;

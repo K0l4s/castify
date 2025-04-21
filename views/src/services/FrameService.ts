@@ -92,3 +92,12 @@ export const deleteFrame = async (id: string) => {
     throw error;
   }
 };
+
+export const applyFrame = async (id: string) => {
+  try {
+    const response = await axiosInstanceAuth.put(`/api/v1/frame/apply/${id}`);
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};

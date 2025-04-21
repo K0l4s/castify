@@ -72,5 +72,7 @@ public interface UserRepository extends MongoRepository<UserEntity, String> {
 
 //    UserEntity findUserEntityByUsername(String username,int pageNumber, int pageSize);
     Page<UserEntity> findByIdIn(List<String> userIds,Pageable pageable);
+
+    List<UserEntity> findByUsedFrameId(String frameId);
 //    boolean existsByUsername(String username);
 }
