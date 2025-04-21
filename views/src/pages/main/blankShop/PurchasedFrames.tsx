@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useToast } from '../../../context/ToastProvider';
 import { Frame } from '../../../models/FrameModel';
-import { getPurchasedFrames } from '../../../services/FrameService';
+import { applyFrame, getPurchasedFrames } from '../../../services/FrameService';
 
 const PurchasedFrames = () => {
   const [frames, setFrames] = useState<Frame[]>([]);
@@ -22,7 +22,15 @@ const PurchasedFrames = () => {
       setLoading(false);
     }
   };
-
+  const handleAppyFrame = async (frameId: string) => {
+    try {
+      // Call the API to apply the frame
+      await applyFrame(frameId);
+      toast.success('Frame applied successfully!');
+    } catch (error) {
+      toast.error('Failed to apply frame');
+    }
+  }
   if (loading) {
     return (
       <div className="flex justify-center items-center min-h-screen">
@@ -71,7 +79,7 @@ const PurchasedFrames = () => {
 
             <div className="p-4 bg-gray-50 dark:bg-gray-900/50 flex justify-center">
               <button 
-                onClick={() => {/* Implement use frame */}}
+                onClick={() => handleAppyFrame(frame.id)}
                 className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 dark:bg-blue-600 dark:hover:bg-blue-700 transition-colors"
               >
                 Use Frame

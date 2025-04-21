@@ -15,7 +15,6 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.awt.*;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -223,8 +222,33 @@ public class FrameServiceImpl implements IFrameService{
 
         // Delete the user-frame relationship first
         userFrameRepository.deleteByUserIdAndFrameId(currentUser.getId(), frameId);
-        
+
+        //Delete the usedFrame relation first
+        List<UserEntity> usersUsingFrame = userRepository.findByUsedFrameId(frameId);
+        if (!usersUsingFrame.isEmpty()) {
+            for (UserEntity user : usersUsingFrame) {
+                user.setUsedFrame(null);
+            }
+            userRepository.saveAll(usersUsingFrame);
+        }
+
         // Then delete the frame
         frameRepository.delete(frame);
     }
+    @Override
+    public void applyFrame(String frameId) throws Exception {
+        UserEntity currentUser = userService.getUserByAuthentication();
+
+        FrameEntity frame = frameRepository.findById(frameId)
+                .orElseThrow(() -> new Exception("Frame not found"));
+
+        FrameEntity usedFrame = currentUser.getUsedFrame();
+        if (usedFrame != null && usedFrame.getId().equals(frameId)) {
+            throw new Exception("You already apply this frame!");
+        }
+
+        currentUser.setUsedFrame(frame);
+        userRepository.save(currentUser);
+    }
+
 }

@@ -111,4 +111,14 @@ public class FrameController {
             return new ResponseEntity<>(new ErrorResponse(e.getMessage()), HttpStatus.BAD_REQUEST);
         }
     }
+
+    @PutMapping("/apply/{frameId}")
+    public ResponseEntity<?> applyFrame(@PathVariable String frameId) {
+        try {
+            frameService.applyFrame(frameId);
+            return new ResponseEntity<>("Frame applied successfully", HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<>(new ErrorResponse(e.getMessage()), HttpStatus.BAD_REQUEST);
+        }
+    }
 }

@@ -7,6 +7,7 @@ import { FaKey } from "react-icons/fa";
 import { FiMoreVertical } from "react-icons/fi";
 import AddMembersModal from "../../modals/msg/AddMembersModal";
 import { FcDeleteRow } from "react-icons/fc";
+import Avatar from "../../UI/user/Avatar";
 
 interface ChatSettingProps {
     chatDetail: ConversationDetail;
@@ -180,8 +181,8 @@ const ChatSettingSidebar = (props: ChatSettingProps) => {
                         {/* add button */}
                         <div className="flex gap-2 mt-2">
                             <CustomButton
-                            onClick={() => setIsOpenAddMembers(true)}
-                            className="text-sm text-blue-500 font-semibold"
+                                onClick={() => setIsOpenAddMembers(true)}
+                                className="text-sm text-blue-500 font-semibold"
                             >
                                 Add
                             </CustomButton>
@@ -189,11 +190,13 @@ const ChatSettingSidebar = (props: ChatSettingProps) => {
                     </div>
                     {props.memberList.map((member) => (
                         <div key={member.members.id} className="flex items-center gap-3 p-2 hover:bg-gray-700 rounded-md cursor-pointer">
-                            <img
+                            {/* <img
                                 src={member.members.avatarUrl ? member.members.avatarUrl : "https://cdn-icons-png.flaticon.com/512/149/149071.png"}
                                 alt={member.members.fullname}
                                 className="w-10 h-10 rounded-full object-cover"
-                            />
+                            /> */}
+                            <Avatar width="w-10" height="h-10" avatarUrl={member.members.avatarUrl ? member.members.avatarUrl : "https://cdn-icons-png.flaticon.com/512/149/149071.png"} usedFrame={member.members?.usedFrame} alt={member.members.fullname} />
+
                             <div className={`flex flex-col flex-1 ${member.role === "LEADER" ? "text-yellow-500" :
                                 member.role === "DEPUTY" ? "text-blue-500" : "text-white"
                                 }`}>
@@ -211,10 +214,10 @@ const ChatSettingSidebar = (props: ChatSettingProps) => {
             </div>
             <AddMembersModal
                 isOpen={isOpenAddMembers}
-                onClose={()=>setIsOpenAddMembers(false)}
+                onClose={() => setIsOpenAddMembers(false)}
                 members={props.memberList}
                 setMembers={props.setMemberList}
-                />
+            />
         </div>
     );
 };
