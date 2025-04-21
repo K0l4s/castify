@@ -23,6 +23,7 @@ import ShareModal from "../../modals/podcast/ShareModal";
 import { formatViewsWithSeparators } from "../../../utils/formatViews";
 import { MdLockPerson } from "react-icons/md";
 import CustomPodcastVideo from "./CustomPodcastVideo";
+import Avatar from "../user/Avatar";
 
 const PodcastViewport: React.FC = () => {
   const location = useLocation();
@@ -227,10 +228,17 @@ const PodcastViewport: React.FC = () => {
         {/* Info */}
         <div className="flex items-center justify-between mt-2 my-4 gap-3">
           <div className="flex items-center gap-3">
-            <img 
+            {/* <img 
               src={podcast.user.avatarUrl || defaultAvatar} 
               alt="avatar" 
               className="w-10 h-10 rounded-full cursor-pointer" 
+              onClick={() => navigate(`/profile/${podcast.username}`)}
+            /> */}
+            <Avatar 
+              width='w-10'
+              height='h-10'
+              avatarUrl={podcast.user.avatarUrl || defaultAvatar}
+              usedFrame={podcast.user.usedFrame}
               onClick={() => navigate(`/profile/${podcast.username}`)}
             />
             <div className="flex flex-col">

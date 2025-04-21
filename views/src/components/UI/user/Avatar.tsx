@@ -7,16 +7,18 @@ interface AvatarProps {
     width?: string
     height?: string
     onClick?: () => void
+    onError?: (e:any) => void
 }
-const Avatar: React.FC<AvatarProps> = ({ avatarUrl,alt, width, height, usedFrame,onClick}) => {
+const Avatar: React.FC<AvatarProps> = ({ avatarUrl,alt, width, height, usedFrame,onClick,onError}) => {
     return (
         <div className="relative" onClick={onClick}>
             <img 
                 src={avatarUrl} 
                 alt={alt ? alt : "avatar"}
+                onError={onError}
                 className={`rounded-full ring-2 ring-gray-200 dark:ring-gray-700 ${width} ${height} object-cover`}
             />
-            {usedFrame && <img src={usedFrame.imageURL} alt={usedFrame.name} className="absolute inset-0 w-full h-full object-contain" />}
+            {usedFrame && <img src={usedFrame.imageURL} alt={usedFrame.name} className={`absolute inset-0 object-contain`} />}
         </div>
     )
 }

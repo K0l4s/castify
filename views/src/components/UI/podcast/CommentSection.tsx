@@ -19,6 +19,7 @@ import { AiOutlineLoading3Quarters } from "react-icons/ai";
 import ReportModal from "../../modals/report/ReportModal";
 import { ReportType } from "../../../models/Report";
 import ConfirmModal from "../../modals/utils/ConfirmDelete";
+import Avatar from "../user/Avatar";
 
 interface CommentSectionProps {
   podcastId: string;
@@ -369,10 +370,17 @@ const CommentSection: React.FC<CommentSectionProps> = ({ podcastId, totalComment
       {/* Add comment Input Div */}
       {isAuthenticated ? (
         <div className="flex mb-4 gap-2">
-          <img 
+          {/* <img 
             src={userRedux?.avatarUrl || defaultAvatar} 
             alt="avatar" 
             className="w-10 h-10 rounded-full mr-2 cursor-pointer" 
+            onClick={() => navigate(`/profile/${userRedux?.username}`)}
+          /> */}
+          <Avatar
+            width='w-10'
+            height='h-10'
+            avatarUrl={userRedux?.avatarUrl || defaultAvatar}
+            usedFrame={userRedux?.usedFrame}
             onClick={() => navigate(`/profile/${userRedux?.username}`)}
           />
           <div className="flex flex-col w-full items-end gap-2">
@@ -437,10 +445,17 @@ const CommentSection: React.FC<CommentSectionProps> = ({ podcastId, totalComment
       {comments.map(comment => (
         <div key={comment.id} className="mb-4 p-4 border rounded-lg bg-gray-200 dark:bg-gray-800 border-gray-300 dark:border-gray-700">
           <div className="relative flex items-center mb-2">
-            <img 
+            {/* <img 
               src={comment.user.avatarUrl || defaultAvatar} 
               alt="avatar" 
               className="w-8 h-8 rounded-full mr-2 cursor-pointer" 
+              onClick={() => navigate(`/profile/${comment.user.username}`)}
+            /> */}
+            <Avatar
+              width='w-8'
+              height='h-8'
+              avatarUrl={comment.user.avatarUrl || defaultAvatar}
+              usedFrame={comment.user.usedFrame}
               onClick={() => navigate(`/profile/${comment.user.username}`)}
             />
             <span 
@@ -529,10 +544,17 @@ const CommentSection: React.FC<CommentSectionProps> = ({ podcastId, totalComment
           {expandedReplies[comment.id] && comment.replies && comment.replies.map(reply => (
             <div key={reply.id} className="ml-8 mt-4 p-4 border rounded-lg bg-gray-200 dark:bg-gray-800 border-gray-300 dark:border-gray-700">
               <div className="relative flex items-center mb-2">
-                <img 
+                {/* <img 
                   src={reply.user.avatarUrl || defaultAvatar} 
                   alt="avatar" 
                   className="w-8 h-8 rounded-full mr-2 cursor-pointer" 
+                  onClick={() => navigate(`/profile/${reply.user.username}`)}
+                /> */}
+                <Avatar
+                  width='w-8'
+                  height='h-8'
+                  avatarUrl={reply.user.avatarUrl || defaultAvatar}
+                  usedFrame={reply.user.usedFrame}
                   onClick={() => navigate(`/profile/${reply.user.username}`)}
                 />
                 <span 
@@ -604,7 +626,14 @@ const CommentSection: React.FC<CommentSectionProps> = ({ podcastId, totalComment
               {/* Reply to a reply Input Div*/}
               {(replyingTo === reply.id && isAuthenticated) && (
                 <div className="flex mt-4 ml-4 gap-2">
-                  <img src={userRedux?.avatarUrl || defaultAvatar} alt="avatar" className="w-10 h-10 rounded-full mr-2" />
+                  {/* <img src={userRedux?.avatarUrl || defaultAvatar} alt="avatar" className="w-10 h-10 rounded-full mr-2" /> */}
+                  <Avatar
+                    width='w-10'
+                    height='h-10'
+                    avatarUrl={userRedux?.avatarUrl || defaultAvatar}
+                    usedFrame={userRedux?.usedFrame}
+                    onClick={() => navigate(`/profile/${userRedux?.username}`)}
+                  />
                   <div className="flex flex-col items-end w-full gap-3">
                     <div
                       ref={(el) => {
@@ -666,7 +695,14 @@ const CommentSection: React.FC<CommentSectionProps> = ({ podcastId, totalComment
           {/* Reply a comment Input Div */}
           {(replyingTo === comment.id && isAuthenticated) && (
             <div className="flex mt-4 ml-4 gap-2" ref={(el) => (replyDivRef.current[comment.id] = el)}>
-              <img src={userRedux?.avatarUrl || defaultAvatar} alt="avatar" className="w-10 h-10 rounded-full mr-2" />
+              {/* <img src={userRedux?.avatarUrl || defaultAvatar} alt="avatar" className="w-10 h-10 rounded-full mr-2" /> */}
+              <Avatar
+                width='w-10'
+                height='h-10'
+                avatarUrl={userRedux?.avatarUrl || defaultAvatar}
+                usedFrame={userRedux?.usedFrame}
+                onClick={() => navigate(`/profile/${userRedux?.username}`)}
+              />
               <div className="flex flex-col items-end w-full gap-3">
                 <div
                   ref={(el) => {

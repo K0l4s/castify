@@ -2,6 +2,7 @@ import React from 'react'
 import { FullMemberInfor, Message } from '../../../models/Conversation'
 import { formatDistanceToNow } from "date-fns";
 import { User } from '../../../models/User';
+import Avatar from '../../UI/user/Avatar';
 
 interface MessageItemProps {
     msg: Message;
@@ -13,7 +14,7 @@ const MessageItem: React.FC<MessageItemProps> = ({ msg, currentUser, members }) 
     // Lấy danh sách những người đã đọc
     // console.log(msg.sender.id);
     const readers = members.filter(member =>
-        member.lastReadMessage?.lastMessageId === msg.id 
+        member.lastReadMessage?.lastMessageId === msg.id
         && member.members.id !== currentUser?.id
     );
     // console.log(readers);
@@ -24,10 +25,16 @@ const MessageItem: React.FC<MessageItemProps> = ({ msg, currentUser, members }) 
         >
             <div className={`flex gap-2 ${msg.sender.id === currentUser?.id ? "justify-end" : ""}`}>
                 {msg.sender.id !== currentUser?.id && (
-                    <img
-                        src={msg.sender?.avatarUrl ? msg.sender.avatarUrl : "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ-uwAPsc9m6frK85uQog_CeCpOwlfgpsjZKA&s"}
-                        alt={msg.sender.fullname}
-                        className="w-10 h-10 rounded-full"
+                    // <img
+                    //     src={msg.sender?.avatarUrl ? msg.sender.avatarUrl : "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ-uwAPsc9m6frK85uQog_CeCpOwlfgpsjZKA&s"}
+                    //     alt={msg.sender.fullname}
+                    //     className="w-10 h-10 rounded-full"
+                    // />
+                    <Avatar
+                        width='w-10'
+                        height='h-10'
+                        avatarUrl={msg.sender?.avatarUrl ? msg.sender.avatarUrl : "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ-uwAPsc9m6frK85uQog_CeCpOwlfgpsjZKA&s"}
+                        usedFrame={msg.sender?.usedFrame}
                     />
                 )}
                 <div className={`flex flex-col ${msg.sender.id === currentUser?.id ? "items-end" : "items-start"}`}>
@@ -48,11 +55,18 @@ const MessageItem: React.FC<MessageItemProps> = ({ msg, currentUser, members }) 
             {readers.length > 0 && (
                 <div className="flex gap-1 mt-1 px-20">
                     {readers.map(reader => (
-                        <img
+                        // <img
+                        //     key={reader.members.id}
+                        //     src={reader.members.avatarUrl}
+                        //     alt={reader.members.fullname}
+                        //     className="w-5 h-5 rounded-full border-2 border-white dark:border-gray-800"
+                        // />
+                        <Avatar
                             key={reader.members.id}
-                            src={reader.members.avatarUrl}
-                            alt={reader.members.fullname}
-                            className="w-5 h-5 rounded-full border-2 border-white dark:border-gray-800"
+                            width='w-5'
+                            height='h-5'
+                            avatarUrl={reader.members.avatarUrl}
+                            usedFrame={reader.members.usedFrame}
                         />
                     ))}
                 </div>
