@@ -27,6 +27,7 @@ const PurchasedFrames = () => {
       // Call the API to apply the frame
       await applyFrame(frameId);
       toast.success('Frame applied successfully!');
+      window.location.reload(); 
     } catch (error) {
       toast.error('Failed to apply frame');
     }
