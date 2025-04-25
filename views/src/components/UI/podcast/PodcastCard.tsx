@@ -4,12 +4,15 @@ import { Link } from 'react-router-dom';
 import { formatViewsToShortly } from '../../../utils/formatViews';
 import { formatTimeDuration } from './video';
 import defaultAvatar from '../../../assets/images/default_avatar.jpg';
+import Avatar from '../user/Avatar';
+import { UserFrame } from '../../../models/User';
 interface PodcastCardProps {
   id: string;
   title: string;
   user: {
-    avatar: string;
+    avatarUrl: string;
     username: string;
+    usedFrame?: UserFrame;
   };
   thumbnailUrl: string;
   views: number;
@@ -57,7 +60,8 @@ const PodcastCard: React.FC<PodcastCardProps> = ({
         </Link>
         <div className="flex justify-between">
           <div className=' flex items-center'>
-            <img src={user.avatar || defaultAvatar} alt={user.username} className='w-5 h-5 rounded-full mr-1' />
+            {/* <img src={user.avatar || defaultAvatar} alt={user.username} className='w-5 h-5 rounded-full mr-1' /> */}
+            <Avatar width="w-16" height="h-16" avatarUrl={user.avatarUrl || defaultAvatar} usedFrame={user.usedFrame} alt="avatar" />
             <span className='line-clamp-1 text-md text-gray-500 dark:text-gray-400'>{user.username}</span>
           </div>
           <span>{formatViewsToShortly(views)} views</span>

@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useToast } from '../../../context/ToastProvider';
 import { Frame } from '../../../models/FrameModel';
-import { getPurchasedFrames } from '../../../services/FrameService';
+import { applyFrame, getPurchasedFrames } from '../../../services/FrameService';
 
 const PurchasedFrames = () => {
   const [frames, setFrames] = useState<Frame[]>([]);
@@ -22,7 +22,16 @@ const PurchasedFrames = () => {
       setLoading(false);
     }
   };
-
+  const handleAppyFrame = async (frameId: string) => {
+    try {
+      // Call the API to apply the frame
+      await applyFrame(frameId);
+      toast.success('Frame applied successfully!');
+      window.location.reload(); 
+    } catch (error) {
+      toast.error('Failed to apply frame');
+    }
+  }
   if (loading) {
     return (
       <div className="flex justify-center items-center min-h-screen">
@@ -34,7 +43,7 @@ const PurchasedFrames = () => {
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold dark:text-white">My Purchased Frames</h1>
+        <h1 className="text-2xl font-bold text-black dark:text-white">My Purchased Frames</h1>
       </div>
       
       <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6">
@@ -48,7 +57,7 @@ const PurchasedFrames = () => {
               />
               {/* Preview overlay */}
               <div className="absolute inset-0 bg-black bg-opacity-0 hover:bg-opacity-50 transition-opacity flex items-center justify-center opacity-0 hover:opacity-100">
-                <button className="px-4 py-2 bg-white text-black rounded-lg">
+                <button className="px-4 py-2 bg-white dark:bg-gray-800 text-black dark:text-white rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
                   Preview
                 </button>
               </div>
@@ -56,14 +65,14 @@ const PurchasedFrames = () => {
             
             <div className="p-4 border-t dark:border-gray-700">
               <div className="flex justify-between items-start mb-2">
-                <h2 className="text-lg font-semibold dark:text-white">{frame.name}</h2>
-                <span className="px-3 py-1 rounded-full text-sm font-medium text-green-600 bg-green-100 dark:bg-green-900/30">
+                <h2 className="text-lg font-semibold text-black dark:text-white">{frame.name}</h2>
+                <span className="px-3 py-1 rounded-full text-sm font-medium text-green-600 bg-green-100 dark:bg-green-900/30 dark:text-green-400">
                   Purchased
                 </span>
               </div>
               
               <div className="flex justify-between items-center">
-                <span className="text-sm text-gray-500 dark:text-gray-400">
+                <span className="text-sm text-black dark:text-gray-300">
                   Purchased on: {new Date(frame.createdAt).toLocaleDateString()}
                 </span>
               </div>
@@ -71,8 +80,8 @@ const PurchasedFrames = () => {
 
             <div className="p-4 bg-gray-50 dark:bg-gray-900/50 flex justify-center">
               <button 
-                onClick={() => {/* Implement use frame */}}
-                className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
+                onClick={() => handleAppyFrame(frame.id)}
+                className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 dark:bg-blue-600 dark:hover:bg-blue-700 transition-colors"
               >
                 Use Frame
               </button>
@@ -82,7 +91,7 @@ const PurchasedFrames = () => {
       </div>
 
       {frames.length === 0 && (
-        <div className="text-center text-gray-500 dark:text-gray-400 mt-8">
+        <div className="text-center text-black dark:text-gray-300 mt-8">
           You haven't purchased any frames yet.
         </div>
       )}

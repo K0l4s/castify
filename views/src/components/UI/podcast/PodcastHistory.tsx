@@ -10,6 +10,7 @@ import defaultAvatar from "../../../assets/images/default_avatar.jpg";
 import ReportModal from "../../modals/report/ReportModal";
 import { ReportType } from "../../../models/Report";
 import { useToast } from "../../../context/ToastProvider";
+import Avatar from "../user/Avatar";
 
 interface PodcastHistoryProps {
   podcast: Podcast;
@@ -59,10 +60,17 @@ const PodcastHistory: React.FC<PodcastHistoryProps> = ({
             to={`/profile/${podcast.user.username}`}
             className="flex items-center"
           >
-            <img
+            {/* <img
               src={podcast.user.avatarUrl || defaultAvatar}
               alt={author}
               className="w-6 sm:w-8 h-6 sm:h-8 object-cover rounded-full mr-2"
+            /> */}
+            <Avatar
+              width="w-6 sm:w-8"
+              height="h-6 sm:h-8"
+              avatarUrl={podcast.user.avatarUrl || defaultAvatar}
+              usedFrame={podcast.user.usedFrame}
+              alt="avatar"
             />
             <p className="text-sm sm:text-base text-black dark:text-white font-medium">{author}</p>
           </Link>

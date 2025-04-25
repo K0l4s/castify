@@ -1,6 +1,7 @@
 package com.castify.backend.entity;
 
 import com.castify.backend.entity.location.WardEntity;
+import com.castify.backend.enums.FrameStatus;
 import com.castify.backend.enums.Role;
 import com.castify.backend.models.user.FollowInfo;
 import jakarta.validation.constraints.NotNull;
@@ -67,7 +68,14 @@ public class UserEntity implements UserDetails {
     private Role role;
     private List<FollowInfo> following = new ArrayList<>();
     private long coin;
+    @DBRef
+    private FrameEntity usedFrame;
 
+//    public FrameEntity getUsedFrame(){
+//        if(usedFrame.getStatus().equals(FrameStatus.ACCEPTED))
+//            return usedFrame;
+//        return null;
+//    }
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return role.getAuthorities();
