@@ -1,5 +1,6 @@
 package com.castify.backend.models.authentication;
 
+import com.castify.backend.enums.AppType;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -30,5 +31,5 @@ public class RegisterRequest {
     private String wardId;
     private String phone;
 
-    private boolean isMobile;
+    private AppType appType;
 }
