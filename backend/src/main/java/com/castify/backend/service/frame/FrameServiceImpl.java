@@ -235,6 +235,7 @@ public class FrameServiceImpl implements IFrameService{
         // Then delete the frame
         frameRepository.delete(frame);
     }
+
     @Override
     public void applyFrame(String frameId) throws Exception {
         UserEntity currentUser = userService.getUserByAuthentication();

@@ -5,5 +5,6 @@ public enum NotiType {
     COMMENT,
     FOLLOW,
     PAYMENT,
-    UPLOAD
+    UPLOAD,
+    WARNING
 }

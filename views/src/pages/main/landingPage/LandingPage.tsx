@@ -7,6 +7,8 @@ import TabNavigation from "./TabNavigation";
 import GenresPodcast from "./GenresPodcast";
 import { useLocation, useNavigate } from "react-router-dom";
 import PopularPodcast from "./PopularPodcast";
+import FancyCard from "../../../components/UI/custom/FancyCard";
+import { FaGlobe } from "react-icons/fa";
 
 const LandingPage = () => {
   const [selectedTab, setSelectedTab] = useState('Popular');
@@ -39,7 +41,7 @@ const LandingPage = () => {
     setSelectedTab(tab);
     navigate(`?tab=${encodeURIComponent(tab)}`);
   };
-  
+
   const renderContent = () => {
     switch (selectedTab) {
       case 'Popular':
@@ -53,12 +55,20 @@ const LandingPage = () => {
   };
   return (
     <div className="px-8 py-4">
+      
       {/* Tab Navigation */}
       <TabNavigation selectedTab={selectedTab} onSelectTab={handleTabSelect} genres={genres} />
       {/* Content */}
       <div className="m-auto">
         {renderContent()}
       </div>
+      <FancyCard
+        title="WEB DESIGNING"
+        icon={<FaGlobe />}
+        number={1963}
+        cornorColor="bg-red-900"
+        color="bg-gradient-to-t from-red-700 to-red-500" // Change to your desired color
+      />
     </div>
   )
 }
