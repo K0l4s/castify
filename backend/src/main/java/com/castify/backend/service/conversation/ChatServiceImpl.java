@@ -5,12 +5,14 @@ import com.castify.backend.entity.ChatEntity;
 import com.castify.backend.entity.MessageEntity;
 import com.castify.backend.entity.UserEntity;
 import com.castify.backend.enums.MemberRole;
+import com.castify.backend.enums.NotiType;
 import com.castify.backend.models.conversation.*;
 import com.castify.backend.models.paginated.PaginatedResponse;
 import com.castify.backend.models.user.ShortUser;
 import com.castify.backend.repository.ChatRepository;
 import com.castify.backend.repository.MessageRepository;
 import com.castify.backend.repository.UserRepository;
+import com.castify.backend.service.notification.INotificationService;
 import com.castify.backend.service.uploadFile.IUploadFileService;
 import com.castify.backend.service.user.IUserService;
 import com.castify.backend.service.user.UserServiceImpl;
@@ -50,6 +52,8 @@ public class ChatServiceImpl implements IChatService {
     private SimpMessagingTemplate messagingTemplate;
     @Autowired
     private IUploadFileService uploadFileService;
+    @Autowired
+    private INotificationService notificationService;
     @Override
     public ShortConversationModel createConversation(CreateChatRequest request) throws Exception {
         ChatEntity chatEntity = modelMapper.map(request, ChatEntity.class);
@@ -217,6 +221,7 @@ public class ChatServiceImpl implements IChatService {
     @Override
     public MessageResponse sendMessage(String message, String groupId) throws Exception {
         UserEntity user = userService.getUserByAuthentication();
+        notificationService.saveNotification(user.getId(), NotiType.WARNING,"CẢNH BÁO VI PHẠM!","Tin nhắn của bạn có chứa từ khóa cấm, hãy thử lại sau!","");
         checkValidMessage(groupId, user.getId());
         MessageEntity msg = new MessageEntity();
         msg.setSender(user);

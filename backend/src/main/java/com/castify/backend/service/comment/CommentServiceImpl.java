@@ -6,6 +6,7 @@ import com.castify.backend.models.PageDTO;
 import com.castify.backend.models.comment.CommentModel;
 import com.castify.backend.models.comment.CommentRequestDTO;
 import com.castify.backend.repository.*;
+import com.castify.backend.service.blacklist.IBlacklistService;
 import com.castify.backend.service.notification.INotificationService;
 import com.castify.backend.service.notification.NotificationServiceImpl;
 import com.castify.backend.service.user.IUserService;
@@ -43,11 +44,19 @@ public class CommentServiceImpl implements ICommentService {
 
     @Autowired
     private INotificationService notificationService = new NotificationServiceImpl();
-
+    @Autowired
+    private IBlacklistService blacklistService;
     @Override
     public CommentModel addComment(CommentRequestDTO commentRequestDTO) {
         try {
+
             UserEntity userEntity = userService.getUserByAuthentication();
+            if(blacklistService.calculateViolationScore(commentRequestDTO.getContent())>=1)
+            {
+//                String receiverId, NotiType type, String title, String content, String url
+                notificationService.saveNotification(userEntity.getId(),NotiType.WARNING,"CẢNH BÁO VI PHẠM!","Comment của bạn có chứa từ khóa cấm, hãy thử lại sau!","");
+                throw new Exception("Comment content is unavailable!");
+            }
             PodcastEntity podcastEntity = podcastRepository.findById(commentRequestDTO.getPodcastId())
                     .orElseThrow(() -> new RuntimeException("Podcast not found"));
 
