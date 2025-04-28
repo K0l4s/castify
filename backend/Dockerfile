@@ -1,17 +1,17 @@
-# Sử dụng Eclipse Temurin 21 JDK trên Alpine
+# Use the Eclipse Temurin 21 JDK with Alpine
 FROM eclipse-temurin:21-jdk-alpine
 
-# Tạo thư mục /app và set làm thư mục làm việc
+# Create and set the app directory
 WORKDIR /app
 
-# Copy toàn bộ source code vào container
+# Copy all files into container
 COPY . .
 
-# Cấp quyền thực thi cho file mvnw
+# Add permission to execute mvnw
 RUN chmod +x mvnw
 
-# Build ứng dụng (skip test để nhanh hơn)
+# Build the app
 RUN ./mvnw -B -DskipTests clean install
 
-# Chạy ứng dụng bằng file JAR vừa build
+# Run the app
 CMD ["sh", "-c", "java -jar target/*.jar"]
