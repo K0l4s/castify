@@ -1,14 +1,15 @@
-# Sử dụng base image Java
-FROM openjdk:17-jdk-slim
+# Use the Eclipse alpine official image
+# https://hub.docker.com/_/eclipse-temurin
+FROM eclipse-temurin:21-jdk-alpine
 
-# Tạo thư mục ứng dụng trong container
+# Create and change to the app directory.
 WORKDIR /app
 
-# Copy file WAR từ máy chủ vào container
-COPY target/myapp.war /app/myapp.war
+# Copy files to the container image
+COPY . ./
 
-# Expose cổng ứng dụng
-EXPOSE 8080
+# Build the app.
+RUN ./mvnw -DoutputFile=target/mvn-dependency-list.log -B -DskipTests clean dependency:list install
 
-# Chạy ứng dụng Spring Boot với WAR
-ENTRYPOINT ["java", "-jar", "/app/myapp.war"]
+# Run the app by dynamically finding the JAR file in the target directory
+CMD ["sh", "-c", "java -jar target/*.jar"]
