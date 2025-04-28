@@ -1,15 +1,17 @@
-# Use the Eclipse alpine official image
-# https://hub.docker.com/_/eclipse-temurin
+# Sử dụng Eclipse Temurin 21 JDK trên Alpine
 FROM eclipse-temurin:21-jdk-alpine
 
-# Create and change to the app directory.
+# Tạo thư mục /app và set làm thư mục làm việc
 WORKDIR /app
 
-# Copy files to the container image
-COPY . ./
+# Copy toàn bộ source code vào container
+COPY . .
 
-# Build the app.
-RUN ./mvnw -DoutputFile=target/mvn-dependency-list.log -B -DskipTests clean dependency:list install
+# Cấp quyền thực thi cho file mvnw
+RUN chmod +x mvnw
 
-# Run the app by dynamically finding the JAR file in the target directory
+# Build ứng dụng (skip test để nhanh hơn)
+RUN ./mvnw -B -DskipTests clean install
+
+# Chạy ứng dụng bằng file JAR vừa build
 CMD ["sh", "-c", "java -jar target/*.jar"]
