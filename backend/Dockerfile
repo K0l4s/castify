@@ -1,14 +1,12 @@
-# Sử dụng base image Java
+# Dùng OpenJDK image làm base
 FROM openjdk:17-jdk-slim
 
-# Tạo thư mục ứng dụng trong container
+# Copy file JAR vào container
+COPY target/backend-0.0.1-SNAPSHOT.jar /app/myapp.jar
+COPY .env /app/.env
 WORKDIR /app
+# Expose cổng 8080 (hoặc cổng ứng dụng của mày)
+EXPOSE 9090
 
-# Copy file WAR từ máy chủ vào container
-COPY target/myapp.war /app/myapp.war
-
-# Expose cổng ứng dụng
-EXPOSE 8080
-
-# Chạy ứng dụng Spring Boot với WAR
-ENTRYPOINT ["java", "-jar", "/app/myapp.war"]
+# Lệnh để chạy ứng dụng Spring Boot
+ENTRYPOINT ["java", "-jar", "/app/myapp.jar"]

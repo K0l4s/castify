@@ -1,0 +1,8 @@
+{
+    "name": "location-importer",
+    "version": "1.0.0",
+    "dependencies": {
+        "axios": "^1.6.0",
+        "mongoose": "^8.0.0"
+    }
+}
