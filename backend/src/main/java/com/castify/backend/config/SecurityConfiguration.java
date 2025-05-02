@@ -133,7 +133,8 @@ public class SecurityConfiguration {
         patterns.add("https://castifyapp.vercel.app/");
         CorsConfiguration configuration = new CorsConfiguration();
 //        configuration.addAllowedOriginPattern("http://localhost:3000");
-        configuration.setAllowedOriginPatterns(patterns);
+//        configuration.setAllowedOriginPatterns(patterns);
+        configuration.addAllowedOriginPattern("*");
         configuration.addAllowedMethod("*");
         configuration.addAllowedHeader("*");
         configuration.setAllowCredentials(true);

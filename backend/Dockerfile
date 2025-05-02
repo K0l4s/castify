@@ -1,17 +1,12 @@
-# Use the Eclipse Temurin 21 JDK with Alpine
-FROM eclipse-temurin:21-jdk-alpine
+# Dùng OpenJDK image làm base
+FROM openjdk:17-jdk-slim
 
-# Create and set the app directory
+# Copy file JAR vào container
+COPY target/backend-0.0.1-SNAPSHOT.jar /app/myapp.jar
+COPY .env /app/.env
 WORKDIR /app
+# Expose cổng 8080 (hoặc cổng ứng dụng của mày)
+EXPOSE 9090
 
-# Copy all files into container
-COPY . .
-
-# Add permission to execute mvnw
-RUN chmod +x mvnw
-
-# Build the app
-RUN ./mvnw -B -DskipTests clean install
-
-# Run the app
-CMD ["sh", "-c", "java -jar target/*.jar"]
+# Lệnh để chạy ứng dụng Spring Boot
+ENTRYPOINT ["java", "-jar", "/app/myapp.jar"]

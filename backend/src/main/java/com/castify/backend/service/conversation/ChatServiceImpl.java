@@ -1,6 +1,5 @@
 package com.castify.backend.service.conversation;
 
-import com.castify.backend.controller.ConversationController;
 import com.castify.backend.entity.ChatEntity;
 import com.castify.backend.entity.MessageEntity;
 import com.castify.backend.entity.UserEntity;
@@ -47,7 +46,7 @@ public class ChatServiceImpl implements IChatService {
     private IUserService userService = new UserServiceImpl();
     @Autowired
     private UserRepository userRepository;
-    private static final Logger logger = Logger.getLogger(ConversationController.class.getName());
+    private static final Logger logger = Logger.getLogger(ChatServiceImpl.class.getName());
     @Autowired
     private SimpMessagingTemplate messagingTemplate;
     @Autowired
