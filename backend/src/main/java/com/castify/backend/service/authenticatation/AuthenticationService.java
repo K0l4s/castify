@@ -97,10 +97,9 @@ public class AuthenticationService implements IAuthenticationService {
     }
     @Override
     public RegisterResponse register(RegisterRequest request) throws Exception {
-        System.out.println("Raw request: " + request);
         checkRegisterValid(request);
 //        String code = this.getRandom();
-        System.out.println("IsMobile: " + request.isMobile());
+        System.out.println("appType: " + request.getAppType());
         WardEntity selectedWard = wardRepository.findWardEntityById(request.getWardId());
         var user = UserEntity.builder()
 //                .fullname(request.getFullname())
@@ -116,7 +115,7 @@ public class AuthenticationService implements IAuthenticationService {
         var savedUser = repository.save(user);
         String validToken = jwtService.generateValidToken(request.getUsername());
         saveUserToken(savedUser, validToken, TokenType.VALID);
-        emailService.sendVerificationMail(user.getEmail(), validToken, request.isMobile());
+        emailService.sendVerificationMail(user.getEmail(), validToken, request.getAppType());
         return RegisterResponse.builder().firstName(savedUser.getFirstName()).lastName(savedUser.getLastName()).middleName(savedUser.getMiddleName()).email(savedUser.getEmail()).build();
     }
 

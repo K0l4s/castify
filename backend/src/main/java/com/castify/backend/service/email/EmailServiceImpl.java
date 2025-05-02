@@ -1,5 +1,6 @@
 package com.castify.backend.service.email;
 
+import com.castify.backend.enums.AppType;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -45,14 +46,16 @@ public class EmailServiceImpl implements IEmailService {
     }
 
     @Override
-    public void sendVerificationMail(String email,String tokenValid, boolean isMobile) {
+    public void sendVerificationMail(String email,String tokenValid, AppType appType) {
         String subject = "Blankcil Verification";
 
         // use the Frontend domain when click on button in email body
 //        String verificationUrl = "http://localhost:5000" + "/verify?token=" + tokenValid;
-        String verificationUrl = !isMobile
-                ? "https://castify-link.vercel.app?token=" + tokenValid
-                : "http://localhost:5000/verify?token=" + tokenValid; // Mặc định là Web
+        String verificationUrl = switch (appType) {
+            case CASTIFY -> "https://castify-link.vercel.app?app=castify&token=" + tokenValid;
+            case CASTIFY_STUDIO -> "https://castify-link.vercel.app?app=castify_studio&token=" + tokenValid; // Mặc định là Web
+            default -> "http://localhost:5000/verify?token=" + tokenValid;
+        };
 
         System.out.println(verificationUrl);
         Context context = new Context();
