@@ -50,9 +50,9 @@ public class EmailServiceImpl implements IEmailService {
 
         // use the Frontend domain when click on button in email body
 //        String verificationUrl = "http://localhost:5000" + "/verify?token=" + tokenValid;
-        String verificationUrl = !isMobile
+        String verificationUrl = isMobile
                 ? "https://castify-link.vercel.app?token=" + tokenValid
-                : "http://localhost:5000/verify?token=" + tokenValid; // Mặc định là Web
+                : "http://www.kolas.id.vn/verify?token=" + tokenValid; // Mặc định là Web
 
         System.out.println(verificationUrl);
         Context context = new Context();

@@ -50,7 +50,7 @@ const Router = () => {
                 <Route path='/register' element={<LandingPage />} />
                 <Route path='/forgot-password' element={<LandingPage />} />
                 <Route path='/reset-password' element={<LandingPage />} />
-                <Route path='/vertify' element={<VertifyPage />} />
+                <Route path='/verify' element={<VertifyPage />} />
                 <Route path='/terms' element={<TermsPage />} />
                 <Route path='/privacy' element={<PrivacyPolicy />} />
                 <Route path='/payment-success' element={<PaymentSuccess />} />

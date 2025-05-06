@@ -11,6 +11,10 @@ export default defineConfig({
       protocol: 'ws', // Chuyển từ wss sang ws
     }
   },
+  build: {
+    outDir: 'dist', // Thay đổi thư mục đầu ra nếu cần thiết
+  },
+  base: "/",
   resolve: {
     alias: {
       'sockjs-client': 'sockjs-client/dist/sockjs.js',

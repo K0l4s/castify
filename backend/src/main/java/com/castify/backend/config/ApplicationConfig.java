@@ -3,6 +3,9 @@ package com.castify.backend.config;
 import com.castify.backend.auditing.ApplicationAuditAware;
 import com.castify.backend.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.apache.catalina.connector.Connector;
+import org.springframework.boot.web.embedded.tomcat.TomcatServletWebServerFactory;
+import org.springframework.boot.web.servlet.server.ServletWebServerFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.domain.AuditorAware;
@@ -49,5 +52,19 @@ public class ApplicationConfig {
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
+    @Bean
+    public ServletWebServerFactory servletContainer() {
+        TomcatServletWebServerFactory tomcat = new TomcatServletWebServerFactory();
+        tomcat.addAdditionalTomcatConnectors(httpToHttpsRedirectConnector());
+        return tomcat;
+    }
 
+    private Connector httpToHttpsRedirectConnector() {
+        Connector connector = new Connector(TomcatServletWebServerFactory.DEFAULT_PROTOCOL);
+        connector.setScheme("http");
+        connector.setPort(8080); // HTTP
+        connector.setSecure(false);
+        connector.setRedirectPort(9091); // Tự động chuyển sang HTTPS
+        return connector;
+    }
 }

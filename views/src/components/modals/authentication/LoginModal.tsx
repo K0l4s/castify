@@ -53,13 +53,13 @@ const LoginModal = ({ trigger, isOpen, onClose }: DefaultModalProps) => {
       // Set token and refresh token in cookies with secure flags
       Cookies.set('token', res.data.access_token, { 
         expires: 1,
-        secure: true,
+        // secure: true,
         sameSite: 'strict',
         path: '/'
       });
       Cookies.set('refreshToken', res.data.refresh_token, { 
         expires: 7,
-        secure: true,
+        // secure: true,
         sameSite: 'strict',
         path: '/'
       });

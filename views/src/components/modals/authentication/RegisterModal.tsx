@@ -60,6 +60,7 @@ const RegisterModal = (props: DefaultModalProps) => {
     repeatEmail: '',
     username: '',
     password: '',
+    isMobile:false,
     confirmPassword: '',
     birthday: new Date(),
     addressElements: '',
