@@ -1,2 +1,7 @@
-package com.castify.backend.enums;public class AppType {
+package com.castify.backend.enums;
+
+public enum AppType {
+    WEB,
+    CASTIFY,
+    CASTIFY_STUDIO
 }

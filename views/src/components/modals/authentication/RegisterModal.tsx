@@ -60,7 +60,8 @@ const RegisterModal = (props: DefaultModalProps) => {
     repeatEmail: '',
     username: '',
     password: '',
-    isMobile:false,
+    // isMobile:false,
+    appType: 'WEB',
     confirmPassword: '',
     birthday: new Date(),
     addressElements: '',
@@ -162,7 +163,7 @@ const RegisterModal = (props: DefaultModalProps) => {
 
 
   const inputClasses = "mt-1 block w-full px-3 py-2 bg-gray-800/30 border border-gray-700 rounded-md " +
-    "focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 text-white placeholder-gray-500";
+    "focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 dark:text-white placeholder-gray-500 text-black";
 
   const labelClasses = "text-sm font-medium text-gray-300";
 
@@ -356,7 +357,8 @@ const RegisterModal = (props: DefaultModalProps) => {
                     name="provinces"
                     onChange={handleProvincesChange}
                     // value={selectedProvince?.name ? selectedProvince.name : ""}
-                    className={inputClasses}
+                    // className={inputClasses}
+                    className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
                     required
                   >
                     <option value="">Select Provinces</option>
@@ -381,7 +383,7 @@ const RegisterModal = (props: DefaultModalProps) => {
                     name="district"
                     onChange={handleDistrictsChange}
                     // value={selectedDistrict?.name ? selectedDistrict.name : ""}
-                    className={inputClasses}
+                    className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
                     required
                   >
                     <option value="">Select District</option>
@@ -406,7 +408,7 @@ const RegisterModal = (props: DefaultModalProps) => {
                     name="ward"
                     // value={selectedDistrict?.name ? selectedDistrict.name : ""}
                     // onChange={handleSelectChange}
-                    className={inputClasses}
+                    className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
                     required
                   >
                     <option value="">Select Ward</option>
@@ -492,7 +494,7 @@ const RegisterModal = (props: DefaultModalProps) => {
               <div className="w-full border-t border-gray-700"></div>
             </div>
             <div className="relative flex justify-center text-sm">
-              <span className="px-2 bg-white dark:bg-gray-900 text-gray-500">or</span>
+              <span className="px-2 -mt-1 bg-transparent text-gray-500">or</span>
             </div>
           </div>
 
@@ -521,14 +523,14 @@ const RegisterModal = (props: DefaultModalProps) => {
             <button
               type="button"
               onClick={props.trigger}
-              className="hover:text-gray-300"
+              className="font-medium text-indigo-600 hover:text-indigo-500 dark:text-indigo-400"
             >
               Sign in instead
             </button>
             <span>•</span>
             <button
               type="button"
-              className="hover:text-gray-300"
+              className="font-medium text-indigo-600 hover:text-indigo-500 dark:text-indigo-400"
             >
               Forgot password?
             </button>

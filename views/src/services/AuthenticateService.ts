@@ -29,6 +29,9 @@ export const authenticateApi = {
                 }
             }
         );
+    },
+    loginWithGoogle: async (token: string) => {
+        return axiosInstance.post(`/api/v1/auth/google`, { token });
     }
     
 };

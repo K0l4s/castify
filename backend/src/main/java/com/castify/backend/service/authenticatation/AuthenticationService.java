@@ -67,8 +67,8 @@ public class AuthenticationService implements IAuthenticationService {
         saveUserToken(user, jwtToken, TokenType.BEARER);
         return AuthenticationResponse.builder().accessToken(jwtToken).refreshToken(refreshToken).build();
     }
-
-    private void revokeAllUserTokens(UserEntity userEntity) {
+    @Override
+    public void revokeAllUserTokens(UserEntity userEntity) {
         var validUserTokens = tokenRepository.findAllValidTokenByUser(userEntity.getId());
         if (validUserTokens.isEmpty()) return;
         validUserTokens.forEach(token -> {
@@ -77,8 +77,8 @@ public class AuthenticationService implements IAuthenticationService {
         });
         tokenRepository.saveAll(validUserTokens);
     }
-
-    private void saveUserToken(UserEntity userEntity, String jwtToken, TokenType type) {
+    @Override
+    public void saveUserToken(UserEntity userEntity, String jwtToken, TokenType type) {
         if (type == null) {
             type = TokenType.BEARER; // Set default TokenType if not provided
         }
@@ -100,7 +100,7 @@ public class AuthenticationService implements IAuthenticationService {
         System.out.println("Raw request: " + request);
         checkRegisterValid(request);
 //        String code = this.getRandom();
-        System.out.println("IsMobile: " + request.isMobile());
+//        System.out.println("IsMobile: " + request.isMobile());
         WardEntity selectedWard = wardRepository.findWardEntityById(request.getWardId());
         var user = UserEntity.builder()
 //                .fullname(request.getFullname())
@@ -116,7 +116,7 @@ public class AuthenticationService implements IAuthenticationService {
         var savedUser = repository.save(user);
         String validToken = jwtService.generateValidToken(request.getUsername());
         saveUserToken(savedUser, validToken, TokenType.VALID);
-        emailService.sendVerificationMail(user.getEmail(), validToken, request.isMobile());
+        emailService.sendVerificationMail(user.getEmail(), validToken, request.getAppType());
         return RegisterResponse.builder().firstName(savedUser.getFirstName()).lastName(savedUser.getLastName()).middleName(savedUser.getMiddleName()).email(savedUser.getEmail()).build();
     }
 

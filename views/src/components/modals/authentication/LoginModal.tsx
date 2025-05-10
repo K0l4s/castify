@@ -10,6 +10,7 @@ import { RootState } from "../../../redux/store";
 import { LoginInput } from "../../../models/Authentication";
 import { FaGoogle, FaFacebook } from "react-icons/fa";
 import { useToast } from "../../../context/ToastProvider";
+import { GoogleLogin } from "@react-oauth/google";
 
 
 interface DefaultModalProps {
@@ -51,13 +52,13 @@ const LoginModal = ({ trigger, isOpen, onClose }: DefaultModalProps) => {
       }
 
       // Set token and refresh token in cookies with secure flags
-      Cookies.set('token', res.data.access_token, { 
+      Cookies.set('token', res.data.access_token, {
         expires: 1,
         // secure: true,
         sameSite: 'strict',
         path: '/'
       });
-      Cookies.set('refreshToken', res.data.refresh_token, { 
+      Cookies.set('refreshToken', res.data.refresh_token, {
         expires: 7,
         // secure: true,
         sameSite: 'strict',
@@ -67,7 +68,7 @@ const LoginModal = ({ trigger, isOpen, onClose }: DefaultModalProps) => {
       // Fetch user information
       const userRes = await userService.getUserByToken(res.data.access_token);
       const user: User = userRes.data;
-      
+
       dispatch(login());
       dispatch(setUser(user));
       // toast.success('Login successful!');
@@ -75,7 +76,7 @@ const LoginModal = ({ trigger, isOpen, onClose }: DefaultModalProps) => {
       window.location.reload();
       toast.clearAllToasts();
       toast.success('Login successful!');
-      
+
     } catch (err: any) {
       console.error("Login error:", {
         message: err.message,
@@ -90,7 +91,7 @@ const LoginModal = ({ trigger, isOpen, onClose }: DefaultModalProps) => {
 
       toast.clearAllToasts();
       toast.error(err.response?.data?.message || 'Login failed. Please try again.');
-      
+
     } finally {
       setIsLoading(false);
     }
@@ -106,7 +107,54 @@ const LoginModal = ({ trigger, isOpen, onClose }: DefaultModalProps) => {
       onClose();
     }
   }, [user, onClose]);
+  const handleGoogleLogin = async (credentialResponse: any) => {
+    setIsLoading(true);
+    try {
+      toast.loading('Logging in with Google...');
+      const res = await authenticateApi.loginWithGoogle(credentialResponse.credential);
 
+      if (!res.data) {
+        throw new Error('Authentication failed');
+      }
+
+      // Set token and refresh token in cookies with secure flags
+      Cookies.set('token', res.data.access_token, {
+        expires: 1,
+        // secure: true,
+        sameSite: 'strict',
+      });
+      Cookies.set('refreshToken', res.data.refresh_token, {
+        expires: 7,
+        // secure: true,
+        sameSite: 'strict',
+      });
+      // Fetch user information
+      const userRes = await userService.getUserByToken(res.data.access_token);
+      const user: User = userRes.data;
+      dispatch(login());
+      dispatch(setUser(user));
+      // refresh page
+      window.location.reload();
+      toast.clearAllToasts();
+      toast.success('Login successful!');
+    }
+    catch (err: any) {
+      console.error("Login error:", {
+        message: err.message,
+        code: err.code,
+        status: err.response?.status,
+        url: err.config?.url
+      });
+      console.log(err.response.data);
+      if (err.response.data === "Error: User is disabled") {
+        setIsBanError("Your account has been disabled. Please contact the administrator.");
+      }
+      toast.clearAllToasts();
+      toast.error(err.response?.data?.message || 'Login failed. Please try again.');
+    } finally {
+      setIsLoading(false);
+    }
+  }
   return (
     <CustomModal animation="zoom" title="Welcome Back" isOpen={isOpen} onClose={onClose}>
       <div className="p-6">
@@ -115,32 +163,32 @@ const LoginModal = ({ trigger, isOpen, onClose }: DefaultModalProps) => {
             <label htmlFor="email" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
               Email Or Username
             </label>
-            <input 
+            <input
               // type="email" 
-              id="email" 
+              id="email"
               name="email"
               value={formData.email}
               onChange={handleInputChange}
-              required 
-              className="bg-white text-black mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm dark:bg-gray-700 dark:border-gray-600 dark:text-white" 
+              required
+              className="bg-white text-black mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm dark:bg-gray-700 dark:border-gray-600 dark:text-white"
             />
           </div>
           <div>
             <label htmlFor="password" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
               Password
             </label>
-            <input 
-              type="password" 
-              id="password" 
+            <input
+              type="password"
+              id="password"
               name="password"
               value={formData.password}
               onChange={handleInputChange}
-              required 
-              className="bg-white text-black mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm dark:bg-gray-700 dark:border-gray-600 dark:text-white" 
+              required
+              className="bg-white text-black mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm dark:bg-gray-700 dark:border-gray-600 dark:text-white"
             />
           </div>
-          <button 
-            type="submit" 
+          <button
+            type="submit"
             disabled={isLoading}
             className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed"
           >
@@ -160,12 +208,17 @@ const LoginModal = ({ trigger, isOpen, onClose }: DefaultModalProps) => {
           </div>
 
           <div className="mt-6 grid grid-cols-2 gap-3">
-            <button
+            {/* <button
               onClick={() => handleSocialLogin('google')}
               className="w-full inline-flex justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-600"
             >
               <FaGoogle className="w-5 h-5 text-red-600" />
-            </button>
+            </button> */}
+            <GoogleLogin
+              onSuccess={handleGoogleLogin}
+              onError={() => console.log("Login Failed")}
+              useOneTap
+            />
             <button
               onClick={() => handleSocialLogin('facebook')}
               className="w-full inline-flex justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-600"
