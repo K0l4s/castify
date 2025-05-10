@@ -174,10 +174,10 @@ public class PodcastController {
     public ResponseEntity<Resource> getVideo(@RequestParam String path, HttpServletRequest request, @RequestHeader(value = "Referer", required = false) String referer, @RequestHeader(value = "X-Mobile-App", required = false) String mobileApp) {
         try {
             // Kiểm tra nguồn gốc yêu cầu
-            if ((referer == null || (!referer.startsWith("http://localhost:5000") && !referer.startsWith("https://castifyapp.vercel.app/"))) && mobileApp == null) {
-                logger.warning("Invalid referer: " + referer);
-                return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
-            }
+//            if ((referer == null || (!referer.startsWith("http://localhost:5000") && !referer.startsWith("https://castifyapp.vercel.app/")&& !referer.startsWith("http://14.225.198.232")&& !referer.startsWith("https://14.225.198.232"))) && mobileApp == null ) {
+//                logger.warning("Invalid referer: " + referer);
+//                return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+//            }
 
             Path filePath = Paths.get(videoBasePath).resolve(path).normalize();
             Resource resource = new UrlResource(filePath.toUri());

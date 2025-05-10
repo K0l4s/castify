@@ -137,6 +137,8 @@ export interface userRegister {
     password:string,
     confirmPassword:string,
     birthday:Date,
+    // isMobile:boolean,
+    appType: string,
     // address:string,
     wardId:string,
     addressElements: string,

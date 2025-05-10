@@ -2,8 +2,10 @@ package com.castify.backend.controller;
 
 import com.castify.backend.models.authentication.*;
 import com.castify.backend.service.authenticatation.AuthenticationService;
+import com.castify.backend.service.authenticatation.GoogleVerifierService;
 import com.castify.backend.service.authenticatation.IAuthenticationService;
 import com.castify.backend.service.authenticatation.jwt.IJwtService;
+import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken;
 import io.jsonwebtoken.MalformedJwtException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -21,7 +23,8 @@ import static com.cloudinary.AccessControlRule.AccessType.token;
 @RequestMapping("/api/v1/auth")
 @RequiredArgsConstructor
 public class AuthController {
-
+    @Autowired
+    private GoogleVerifierService googleVerifierService;
     //    private final AuthenticationService service;
     @Autowired
     private IAuthenticationService service = new AuthenticationService();
@@ -140,4 +143,27 @@ public class AuthController {
         boolean isValid = jwtService.isTokenValid(token);
         return ResponseEntity.ok(Map.of("valid", isValid));
     }
+
+
+
+    @PostMapping("/google")
+    public ResponseEntity<?> googleLogin(@RequestBody Map<String, String> payload) {
+        String token = payload.get("token");
+        GoogleIdToken.Payload userInfo = googleVerifierService.verify(token);
+        if (userInfo == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid token");
+        }
+        return ResponseEntity.ok(googleVerifierService.authWithGoogle(userInfo));
+//
+//        String email = userInfo.getEmail();
+//        String name = (String) userInfo.get("name");
+//        String picture = (String) userInfo.get("picture");
+//
+//        // TODO: Lookup user in DB, or create if not exist
+//        // Return your own JWT
+////        String appToken = generateAppJwt(email);
+//
+//        return ResponseEntity.ok(Map.of("accessToken", appToken));
+    }
+
 }

@@ -49,8 +49,6 @@ public class EmailServiceImpl implements IEmailService {
     public void sendVerificationMail(String email,String tokenValid, AppType appType) {
         String subject = "Blankcil Verification";
 
-        // use the Frontend domain when click on button in email body
-//        String verificationUrl = "http://localhost:5000" + "/verify?token=" + tokenValid;
         String verificationUrl = switch (appType) {
             case CASTIFY -> "https://castify-link.vercel.app?app=castify&token=" + tokenValid;
             case CASTIFY_STUDIO -> "https://castify-link.vercel.app?app=castify_studio&token=" + tokenValid; // Mặc định là Web
