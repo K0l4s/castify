@@ -8,7 +8,7 @@ import { login, setUser } from "../../../redux/slice/authSlice";
 import { useEffect, useState } from "react";
 import { RootState } from "../../../redux/store";
 import { LoginInput } from "../../../models/Authentication";
-import { FaGoogle, FaFacebook } from "react-icons/fa";
+import { FaFacebook } from "react-icons/fa";
 import { useToast } from "../../../context/ToastProvider";
 import { GoogleLogin } from "@react-oauth/google";
 
@@ -112,31 +112,36 @@ const LoginModal = ({ trigger, isOpen, onClose }: DefaultModalProps) => {
     try {
       toast.loading('Logging in with Google...');
       const res = await authenticateApi.loginWithGoogle(credentialResponse.credential);
-
       if (!res.data) {
         throw new Error('Authentication failed');
       }
-
+      console.log(res)
       // Set token and refresh token in cookies with secure flags
       Cookies.set('token', res.data.access_token, {
         expires: 1,
         // secure: true,
         sameSite: 'strict',
+        path: '/'
       });
       Cookies.set('refreshToken', res.data.refresh_token, {
         expires: 7,
         // secure: true,
         sameSite: 'strict',
+        path: '/'
       });
+
       // Fetch user information
-      const userRes = await userService.getUserByToken(res.data.access_token);
-      const user: User = userRes.data;
-      dispatch(login());
-      dispatch(setUser(user));
+      // const userRes = await userService.getUserByToken(res.data.access_token);
+      // const user: User = userRes.data;
+
+      // dispatch(login());
+      // dispatch(setUser(user));
+      // toast.success('Login successful!');
       // refresh page
       window.location.reload();
       toast.clearAllToasts();
       toast.success('Login successful!');
+
     }
     catch (err: any) {
       console.error("Login error:", {
@@ -207,7 +212,7 @@ const LoginModal = ({ trigger, isOpen, onClose }: DefaultModalProps) => {
             </div>
           </div>
 
-          <div className="mt-6 grid grid-cols-2 gap-3">
+          <div className="mt-6">
             {/* <button
               onClick={() => handleSocialLogin('google')}
               className="w-full inline-flex justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-600"
@@ -219,12 +224,12 @@ const LoginModal = ({ trigger, isOpen, onClose }: DefaultModalProps) => {
               onError={() => console.log("Login Failed")}
               useOneTap
             />
-            <button
+            {/* <button
               onClick={() => handleSocialLogin('facebook')}
               className="w-full inline-flex justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-600"
             >
               <FaFacebook className="w-5 h-5 text-blue-600" />
-            </button>
+            </button> */}
           </div>
         </div>
 
