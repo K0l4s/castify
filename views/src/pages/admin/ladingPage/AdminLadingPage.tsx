@@ -3,7 +3,6 @@ import { DashboardModel } from "../../../models/DashboardModel";
 import { DashboardService } from "../../../services/DashboardService";
 import { Podcast } from "../../../models/PodcastModel";
 import { BasicUser } from "../../../models/User";
-import CustomButton from "../../../components/UI/custom/CustomButton";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "../../../context/ToastProvider";
 import { BsPeopleFill } from "react-icons/bs";
@@ -37,86 +36,92 @@ const AdminLadingPage = () => {
     totalReportsAwait: 0,
     totalAccess: 0
   });
+
+  const [type, setType] = useState('day');
+  const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
+  const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth() + 1);
+  const [selectedDay, setSelectedDay] = useState(new Date().getDate());
+
   const formatLocalDateTime = (date: string): string => {
     const localDate = new Date(date);
-    const offset = localDate.getTimezoneOffset() * 60000; // Chuyển đổi offset từ phút sang milliseconds
+    const offset = localDate.getTimezoneOffset() * 60000;
     const localISOTime = new Date(localDate.getTime() - offset)
       .toISOString()
-      .slice(0, 19); // Chỉ lấy phần `yyyy-MM-ddTHH:mm:ss`
+      .slice(0, 19);
     return localISOTime;
   };
+
   const fetchDashboard = async (startDate: string, endDate: string) => {
     try {
       const response = await DashboardService.getDashboardInformation(formatLocalDateTime(startDate), formatLocalDateTime(endDate));
-
       setDashboard(response.data);
     } catch (error) {
       console.error("Failed to fetch dashboard information", error);
       toast.error("Failed to fetch dashboard information");
     }
   };
+
   const fetchPrevDashboard = async (startDate: string, endDate: string) => {
     try {
       const response = await DashboardService.getDashboardInformation(formatLocalDateTime(startDate), formatLocalDateTime(endDate));
       setPrevDashboard(response.data);
-      console.log(response.data);
     } catch (error) {
       console.error("Failed to fetch dashboard information", error);
     }
   };
 
+  const resetToToday = () => {
+    const today = new Date();
+    setSelectedYear(today.getFullYear());
+    setSelectedMonth(today.getMonth() + 1);
+    setSelectedDay(today.getDate());
+  };
 
-  const [type, setType] = useState('day');
   useEffect(() => {
     const startDate = new Date();
     const endDate = new Date();
     const prevStartDate = new Date();
     const prevEndDate = new Date();
 
+    // Set dates based on selected values
     if (type === 'day') {
+      startDate.setFullYear(selectedYear, selectedMonth - 1, selectedDay);
       startDate.setHours(0, 0, 0, 0);
+      endDate.setFullYear(selectedYear, selectedMonth - 1, selectedDay);
       endDate.setHours(23, 59, 59, 999);
 
-      prevStartDate.setDate(prevStartDate.getDate() - 1);
+      prevStartDate.setFullYear(selectedYear, selectedMonth - 1, selectedDay - 1);
       prevStartDate.setHours(0, 0, 0, 0);
-      prevEndDate.setDate(prevEndDate.getDate() - 1);
+      prevEndDate.setFullYear(selectedYear, selectedMonth - 1, selectedDay - 1);
       prevEndDate.setHours(23, 59, 59, 999);
 
     } else if (type === 'month') {
-      startDate.setDate(1);
+      startDate.setFullYear(selectedYear, selectedMonth - 1, 1);
       startDate.setHours(0, 0, 0, 0);
-      endDate.setMonth(endDate.getMonth() + 1);
-      endDate.setDate(0);
+      endDate.setFullYear(selectedYear, selectedMonth, 0);
       endDate.setHours(23, 59, 59, 999);
 
-      prevStartDate.setMonth(prevStartDate.getMonth() - 1);
-      prevStartDate.setDate(1);
+      prevStartDate.setFullYear(selectedYear, selectedMonth - 2, 1);
       prevStartDate.setHours(0, 0, 0, 0);
-      prevEndDate.setMonth(prevEndDate.getMonth());
-      prevEndDate.setDate(0);
+      prevEndDate.setFullYear(selectedYear, selectedMonth - 1, 0);
       prevEndDate.setHours(23, 59, 59, 999);
 
     } else {
-      startDate.setMonth(0);
-      startDate.setDate(1);
+      startDate.setFullYear(selectedYear, 0, 1);
       startDate.setHours(0, 0, 0, 0);
-      endDate.setMonth(11);
-      endDate.setDate(31);
+      endDate.setFullYear(selectedYear, 11, 31);
       endDate.setHours(23, 59, 59, 999);
 
-      prevStartDate.setFullYear(prevStartDate.getFullYear() - 1);
-      prevStartDate.setMonth(0);
-      prevStartDate.setDate(1);
+      prevStartDate.setFullYear(selectedYear - 1, 0, 1);
       prevStartDate.setHours(0, 0, 0, 0);
-      prevEndDate.setFullYear(prevEndDate.getFullYear() - 1);
-      prevEndDate.setMonth(11);
-      prevEndDate.setDate(31);
+      prevEndDate.setFullYear(selectedYear - 1, 11, 31);
       prevEndDate.setHours(23, 59, 59, 999);
     }
 
     fetchDashboard(startDate.toISOString(), endDate.toISOString());
     fetchPrevDashboard(prevStartDate.toISOString(), prevEndDate.toISOString());
-  }, [type]);
+  }, [type, selectedYear, selectedMonth, selectedDay]);
+
   return (
     <div className="p-8 text-black dark:text-white min-h-screen">
       <div className="max-w-7xl mx-auto">
@@ -125,16 +130,67 @@ const AdminLadingPage = () => {
           <h1 className="text-4xl font-extrabold ">
             Blankcil Overview
           </h1>
-          <div className="flex items-center gap-2 bg-white dark:bg-gray-800 p-1 rounded-xl shadow-md">
-            <CustomButton onClick={() => setType('year')} variant="ghost" className={` border-red-500 px-6 duration-300 ease-in-out ${type == 'year' ? "border-b-4 " : ""}`} >
-              Year
-            </CustomButton>
-            <CustomButton onClick={() => setType('month')} variant="ghost" className={` px-6 border-red-500 duration-300 ease-in-out ${type == 'month' ? "border-b-4 " : ""}`}>
-              Month
-            </CustomButton>
-            <CustomButton onClick={() => setType('day')} variant="ghost" className={` px-6 border-red-500 duration-300 ease-in-out ${type == 'day' ? "border-b-4 " : ""}`}>
-              Day
-            </CustomButton>
+          <div className="flex items-center gap-2 p-1 shadow-md">
+
+            <select
+              value={type}
+              onChange={(e) => setType(e.target.value)}
+              className=" px-4 py-2 rounded-md bg-white dark:bg-gray-800 text-gray-900 dark:text-white duration-300 ease-in-out outline-none"
+            >
+              <option value="year">Year</option>
+              <option value="month">Month</option>
+              <option value="day">Day</option>
+            </select>
+            <select
+              value={selectedYear}
+              onChange={(e) => setSelectedYear(parseInt(e.target.value))}
+              className=" px-4 py-2 rounded-md bg-white dark:bg-gray-800 text-gray-900 dark:text-white duration-300 ease-in-out outline-none"
+            >
+              {Array.from({ length: 50 }, (_, i) => {
+                const year = new Date().getFullYear() - i;
+                return (
+                  <option key={year} value={year}>
+                    {year}
+                  </option>
+                );
+              })}
+            </select>
+            {/* tháng */}
+            <select
+              value={selectedMonth}
+              onChange={(e) => setSelectedMonth(parseInt(e.target.value))}
+              className={`px-4 py-2 rounded-md bg-white dark:bg-gray-800 text-gray-900 dark:text-white duration-300 ease-in-out outline-none ${type === 'year' ? 'hidden' : ''}`}
+            >
+              {Array.from({ length: 12 }, (_, i) => {
+                const month = i + 1;
+                return (
+                  <option key={month} value={month}>
+                    {month}
+                  </option>
+                );
+              })}
+            </select>
+            {/* ngày */}
+            <select
+              value={selectedDay}
+              onChange={(e) => setSelectedDay(parseInt(e.target.value))}
+              className={`px-4 py-2 rounded-md bg-white dark:bg-gray-800 text-gray-900 dark:text-white duration-300 ease-in-out outline-none ${type !== 'day' ? 'hidden' : ''}`}
+            >
+              {Array.from({ length: 31 }, (_, i) => {
+                const day = i + 1;
+                return (
+                  <option key={day} value={day}>
+                    {day}
+                  </option>
+                );
+              })}
+            </select>
+            <button
+              onClick={resetToToday}
+              className="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-md transition-colors duration-300 ease-in-out"
+            >
+              Today
+            </button>
           </div>
         </div>
 
@@ -238,7 +294,7 @@ const AdminLadingPage = () => {
                   >
                     <div className="relative">
                       <img
-                        src={user.avatarUrl? user.avatarUrl : "https://via.placeholder.com/150"}
+                        src={user.avatarUrl ? user.avatarUrl : "https://via.placeholder.com/150"}
                         alt={user.fullname}
                         className="w-12 h-12 rounded-full object-cover shadow-md ring-2 ring-offset-2 ring-blue-500/50 hover:ring-blue-500"
                       />

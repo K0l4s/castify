@@ -6,7 +6,6 @@ import { PodcastProvider } from './context/PodcastContext'
 // import { ThemeProvider } from './context/ThemeContext'
 import Router from './routers/Router'
 export const clientId = import.meta.env.VITE_GOOGLE_OAUTH2_CLIENT_ID;
-
 function App() {
   console.log('clientId', clientId);
   return (

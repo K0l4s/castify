@@ -52,19 +52,19 @@ public class ApplicationConfig {
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
-    @Bean
-    public ServletWebServerFactory servletContainer() {
-        TomcatServletWebServerFactory tomcat = new TomcatServletWebServerFactory();
-        tomcat.addAdditionalTomcatConnectors(httpToHttpsRedirectConnector());
-        return tomcat;
-    }
-
-    private Connector httpToHttpsRedirectConnector() {
-        Connector connector = new Connector(TomcatServletWebServerFactory.DEFAULT_PROTOCOL);
-        connector.setScheme("http");
-        connector.setPort(8080); // HTTP
-        connector.setSecure(false);
-        connector.setRedirectPort(9091); // Tự động chuyển sang HTTPS
-        return connector;
-    }
+//    @Bean
+//    public ServletWebServerFactory servletContainer() {
+//        TomcatServletWebServerFactory tomcat = new TomcatServletWebServerFactory();
+//        tomcat.addAdditionalTomcatConnectors(httpToHttpsRedirectConnector());
+//        return tomcat;
+//    }
+//
+//    private Connector httpToHttpsRedirectConnector() {
+//        Connector connector = new Connector(TomcatServletWebServerFactory.DEFAULT_PROTOCOL);
+//        connector.setScheme("http");
+//        connector.setPort(8080); // HTTP
+//        connector.setSecure(false);
+//        connector.setRedirectPort(9091); // Tự động chuyển sang HTTPS
+//        return connector;
+//    }
 }
