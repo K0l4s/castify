@@ -8,7 +8,7 @@ import { login, setUser } from "../../../redux/slice/authSlice";
 import { useEffect, useState } from "react";
 import { RootState } from "../../../redux/store";
 import { LoginInput } from "../../../models/Authentication";
-import { FaFacebook } from "react-icons/fa";
+// import { FaFacebook } from "react-icons/fa";
 import { useToast } from "../../../context/ToastProvider";
 import { GoogleLogin } from "@react-oauth/google";
 
@@ -97,10 +97,10 @@ const LoginModal = ({ trigger, isOpen, onClose }: DefaultModalProps) => {
     }
   };
 
-  const handleSocialLogin = (provider: 'google' | 'facebook') => {
-    // Implement social login logic here
-    toast.info(`${provider} login coming soon!`);
-  };
+  // const handleSocialLogin = (provider: 'google' | 'facebook') => {
+  //   // Implement social login logic here
+  //   toast.info(`${provider} login coming soon!`);
+  // };
 
   useEffect(() => {
     if (user) {

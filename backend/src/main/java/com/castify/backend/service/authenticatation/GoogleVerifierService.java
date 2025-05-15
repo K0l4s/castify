@@ -12,6 +12,7 @@ import com.castify.backend.utils.RandomUtil;
 import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken;
 import com.google.api.client.googleapis.auth.oauth2.GoogleIdTokenVerifier;
 import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport;
+import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -27,7 +28,7 @@ import java.util.logging.Logger;
 public class GoogleVerifierService implements IGoogleVertifier{
     @Value("${GOOGLE_OAUTH2_CLIENT_ID}")
     private String CLIENT_ID;
-    private static final Logger logger = Logger.getLogger(GoogleVerifierService.class.getName());
+//    private static final Logger logger = Logger.getLogger(GoogleVerifierService.class.getName());
 
     @Autowired
     private IUserService userService;
@@ -39,14 +40,25 @@ public class GoogleVerifierService implements IGoogleVertifier{
     private IJwtService jwtService;
     @Autowired
     private PasswordEncoder passwordEncoder;
+    private GoogleIdTokenVerifier verifier;
+
+    @PostConstruct
+    public void initVerifier() {
+        try {
+            this.verifier = new GoogleIdTokenVerifier.Builder(
+                    GoogleNetHttpTransport.newTrustedTransport(),
+                    JacksonFactory.getDefaultInstance()
+            )
+                    .setAudience(Collections.singletonList(CLIENT_ID))
+                    .build();
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to initialize GoogleIdTokenVerifier", e);
+        }
+    }
+
     @Override
     public GoogleIdToken.Payload verify(String idTokenString) {
         try {
-            GoogleIdTokenVerifier verifier = new GoogleIdTokenVerifier
-                    .Builder(GoogleNetHttpTransport.newTrustedTransport(), JacksonFactory.getDefaultInstance())
-                    .setAudience(Collections.singletonList(CLIENT_ID))
-                    .build();
-
             GoogleIdToken idToken = verifier.verify(idTokenString);
             if (idToken != null) {
                 return idToken.getPayload();
@@ -77,7 +89,7 @@ public class GoogleVerifierService implements IGoogleVertifier{
             userRepository.save(userEntity);
         }
         var newUser = userRepository.findByEmailOrUsername(email).orElseThrow();
-        logger.info(newUser.getEmail());
+//        logger.info(newUser.getEmail());
         var jwtToken = jwtService.generateToken(newUser);
         var refreshToken = jwtService.generateRefreshToken(newUser);
         authenticationService.revokeAllUserTokens(newUser);
