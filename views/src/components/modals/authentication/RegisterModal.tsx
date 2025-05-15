@@ -165,7 +165,7 @@ const RegisterModal = (props: DefaultModalProps) => {
   const inputClasses = "mt-1 block w-full px-3 py-2 bg-gray-800/30 border border-gray-700 rounded-md " +
     "focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 dark:text-white placeholder-gray-500 text-black";
 
-  const labelClasses = "text-sm font-medium text-gray-300";
+  const labelClasses = "text-sm font-medium text-gray-900 dark:text-gray-300 mb-1";
 
   const buttonClasses = "w-full flex justify-center py-2 px-4 border border-transparent rounded-md " +
     "text-sm font-medium text-white focus:outline-none focus:ring-2 focus:ring-offset-2 " +
@@ -183,6 +183,9 @@ const RegisterModal = (props: DefaultModalProps) => {
         <form className="space-y-4" onSubmit={handleSubmit}>
           {step === 1 ? (
             <>
+              <div>
+                <p className="font-bold text-md">Register your Account</p>
+              </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label htmlFor="email" className={labelClasses}>Email</label>
@@ -489,16 +492,16 @@ const RegisterModal = (props: DefaultModalProps) => {
             </>
           )}
 
-          <div className="relative my-4">
+          {/* <div className="relative my-4">
             <div className="absolute inset-0 flex items-center">
               <div className="w-full border-t border-gray-700"></div>
             </div>
             <div className="relative flex justify-center text-sm">
               <span className="px-2 -mt-1 bg-transparent text-gray-500">or</span>
             </div>
-          </div>
+          </div> */}
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+          {/* <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
             <button
               type="button"
               className={`${buttonClasses} bg-red-600 hover:bg-red-700`}
@@ -508,6 +511,7 @@ const RegisterModal = (props: DefaultModalProps) => {
               </svg>
               Google
             </button>
+            
             <button
               type="button"
               className={`${buttonClasses} bg-blue-600 hover:bg-blue-700`}
@@ -517,7 +521,7 @@ const RegisterModal = (props: DefaultModalProps) => {
               </svg>
               Facebook
             </button>
-          </div>
+          </div> */}
 
           <div className="flex justify-center space-x-4 text-sm text-gray-500">
             <button
