@@ -1,6 +1,6 @@
 package com.castify.backend.models.playlist;
 
-import com.castify.backend.models.podcast.PodcastModel;
+import com.castify.backend.entity.PlaylistItem;
 import com.castify.backend.models.user.UserModel;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.AllArgsConstructor;
@@ -26,5 +26,5 @@ public class PlaylistModel {
     private LocalDateTime lastUpdated;
 
     private UserModel owner;
-    private List<PodcastModel> podcasts;
+    private List<PlaylistItem> items;
 }

@@ -13,4 +13,5 @@ public interface IPlaylistService {
     PlaylistModel removePodcastFromPlaylist(String playlistId, String podcastId);
     List<PlaylistModel> getCurrentUserPlaylists();
     List<PlaylistModel> getUserPublicPlaylists(String userId);
+    PlaylistModel reorder(String playlistId, List<String> newOrderPodcastIds);
 }

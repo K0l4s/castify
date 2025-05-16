@@ -27,6 +27,5 @@ public class PlaylistEntity {
     @DBRef
     private UserEntity owner;
 
-    @DBRef
-    private List<PodcastEntity> podcasts;
+    private List<PlaylistItem> items;
 }

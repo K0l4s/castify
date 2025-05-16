@@ -2,6 +2,7 @@ package com.castify.backend.controller;
 
 import com.castify.backend.models.playlist.CreatePlaylistDTO;
 import com.castify.backend.models.playlist.PlaylistModel;
+import com.castify.backend.models.playlist.ReorderPlaylistDTO;
 import com.castify.backend.service.playlist.IPlaylistService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -57,4 +58,9 @@ public class PlaylistController {
         return ResponseEntity.ok(playlistService.getUserPublicPlaylists(userId));
     }
 
+    @PostMapping("/reorder")
+    public ResponseEntity<PlaylistModel> reorder(@RequestBody ReorderPlaylistDTO dto) {
+        PlaylistModel updated = playlistService.reorder(dto.getPlaylistId(), dto.getPodcastIds());
+        return ResponseEntity.ok(updated);
+    }
 }
