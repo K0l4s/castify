@@ -76,15 +76,15 @@ public class GoogleVerifierService implements IGoogleVertifier{
             UserEntity userEntity = new UserEntity();
             userEntity.setEmail(user.getEmail());
             userEntity.setPassword(passwordEncoder.encode(RandomUtil.generateRandomString()));
-            userEntity.setFirstName("Name");
-            userEntity.setLastName("User");
-            userEntity.setLastName("Castify");
+//            userEntity.setFirstName("Name");
+//            userEntity.setLastName("User");
+//            userEntity.setLastName("Castify");
             userEntity.setAvatarUrl("https://img.freepik.com/free-vector/blue-circle-with-white-user_78370-4707.jpg?semt=ais_hybrid&w=740");
             userEntity.setRole(Role.USER);
             userEntity.setActive(true);
             userEntity.setNonBanned(true);
             userEntity.setNonLocked(true);
-            userEntity.setUsername(user.getEmail());
+            userEntity.setUsername(RandomUtil.generateRandomString()+user.getEmail());
             userEntity.setCreatedDay(LocalDateTime.now());
             userRepository.save(userEntity);
         }
