@@ -6,15 +6,16 @@ import { getUserPodcasts } from "../../../services/PodcastService";
 import { FiLoader } from "react-icons/fi";
 import { useLocation, useNavigate } from "react-router-dom";
 import PodcastTag from "../../../components/UI/podcast/PodcastTag";
-import { useToast } from "../../../context/ToastProvider";
+// import { useToast } from "../../../context/ToastProvider";
 import ShareModal from "../../../components/modals/podcast/ShareModal";
 import ReportModal from "../../../components/modals/report/ReportModal";
 import { ReportType } from "../../../models/Report";
+import AddToPlaylistModal from "../playlistPage/AddToPlaylistModal";
 
 const ProfilePage: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const toast = useToast();
+  // const toast = useToast();
   const queryParams = new URLSearchParams(location.search);
   const initialSortBy = queryParams.get("sortBy") as 'newest' | 'views' | 'oldest' || 'newest';
 
@@ -25,6 +26,7 @@ const ProfilePage: React.FC = () => {
   const [totalPages, setTotalPages] = useState<number>(0);
   const [sortBy, setSortBy] = useState<'newest' | 'views' | 'oldest'>(initialSortBy);
 
+  const [isPlaylistModalOpen, setIsPlaylistModalOpen] = useState(false);
   const [isShareModalOpen, setIsShareModalOpen] = useState(false);
   const [isReportModalOpen, setIsReportModalOpen] = useState(false);
   const [selectedPodcastId, setSelectedPodcastId] = useState<string | null>(null);
@@ -80,9 +82,10 @@ const ProfilePage: React.FC = () => {
     }
   };
 
-  const handleSave = () => {
-    toast.info("Save feature is coming soon");
-  }
+  const toggleAddToPlaylistModal = (podcastId: string) => {
+    setSelectedPodcastId(podcastId);
+    setIsPlaylistModalOpen(!isPlaylistModalOpen);
+  };
 
   const toggleReportModal = (podcastId: string) => {
     setSelectedPodcastId(podcastId);
@@ -137,7 +140,7 @@ const ProfilePage: React.FC = () => {
                 key={podcast.id}
                 podcast={podcast}
                 onReport={() => toggleReportModal(podcast.id)}
-                onSave={handleSave}
+                onAddToPlaylist={() => toggleAddToPlaylistModal(podcast.id)}
                 onShare={() => toggleShareModal(podcast.id)}
                 onToggleOptionMenu={toggleOptionMenu}
                 isOptionMenuOpen={openOptionMenuId === podcast.id}
@@ -152,6 +155,16 @@ const ProfilePage: React.FC = () => {
               </CustomButton>
             </div>
           )}
+
+          {/* Add to Playlist Modal */}
+          {selectedPodcastId && (
+            <AddToPlaylistModal
+              isOpen={isPlaylistModalOpen}
+              onClose={() => setIsPlaylistModalOpen(false)}
+              podcastId={selectedPodcastId}
+            />
+          )}
+
           {/* Share Modal */}
           {selectedPodcastId && (
             <ShareModal

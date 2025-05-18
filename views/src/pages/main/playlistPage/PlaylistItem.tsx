@@ -4,6 +4,7 @@ import { FaPlay } from "react-icons/fa";
 import { IoEllipsisVerticalSharp } from "react-icons/io5";
 import { useClickOutside } from "../../../hooks/useClickOutside";
 import { formatDateTime, formatLastUpdatedFromNow } from "../../../utils/DateUtils";
+import no_img_available from "../../../assets/images/no_img_available.jpg";
 
 interface PlaylistItemProps {
   playlist: PlaylistModel;
@@ -36,7 +37,7 @@ const PlaylistItem: React.FC<PlaylistItemProps> = ({ playlist, onEdit, onDelete 
 
         {/* Thumbnail image on top */}
         <img
-          src={playlist.thumbnail || undefined}
+          src={playlist.thumbnail || no_img_available}
           alt={playlist.name}
           className="w-full h-full object-cover rounded-xl relative z-10"
         />
@@ -85,13 +86,13 @@ const PlaylistItem: React.FC<PlaylistItemProps> = ({ playlist, onEdit, onDelete 
                 onClick={handleEdit}
                 className="w-full text-left px-4 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-700 text-black dark:text-white"
               >
-                Chỉnh sửa
+                Edit
               </button>
               <button
                 onClick={handleDelete}
                 className="w-full text-left px-4 py-2 text-sm text-red-500 hover:bg-gray-100 dark:hover:bg-gray-700"
               >
-                Xoá
+                Delete
               </button>
             </div>
           )}

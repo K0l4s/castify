@@ -1,3 +1,12 @@
+import { User } from "./User";
+
+export interface PlaylistItem {
+  podcastId: string;
+  thumbnail: string;
+  duration: number;
+  order: number;
+}
+
 export interface PlaylistModel {
   id: string;
   name: string;
@@ -7,4 +16,12 @@ export interface PlaylistModel {
   publish: boolean;
   lastUpdated: string;
   createdAt: string;
+  owner: User;
+  items: PlaylistItem[];
+}
+
+export interface CreatePlaylistDTO {
+  name: string;
+  description: string;
+  publish: boolean;
 }

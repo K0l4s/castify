@@ -3,7 +3,7 @@ import { Podcast } from '../../../models/PodcastModel';
 import { formatDistanceToNow } from 'date-fns';
 import default_avatar from '../../../assets/images/default_avatar.jpg';
 import { Link } from 'react-router-dom';
-import { FaBookmark, FaClock, FaEdit, FaFlag, FaPlay, FaShareAlt } from 'react-icons/fa';
+import { FaClock, FaEdit, FaFlag, FaPlay, FaShareAlt } from 'react-icons/fa';
 import { formatViewsToShortly } from '../../../utils/formatViews';
 import { formatTimeDuration } from './video';
 import { HiDotsVertical } from 'react-icons/hi';
@@ -12,17 +12,18 @@ import { RootState } from '../../../redux/store';
 import Avatar from '../user/Avatar';
 import { CgEyeAlt } from 'react-icons/cg';
 import { BsClock } from 'react-icons/bs';
+import { RiAddBoxLine } from 'react-icons/ri';
 
 interface PodcastTagProps {
   podcast: Podcast;
   onReport: () => void;
-  onSave: () => void;
+  onAddToPlaylist: () => void;
   onShare: () => void;
   onToggleOptionMenu: (podcastId: string) => void;
   isOptionMenuOpen: boolean;
 }
 
-const PodcastTag: React.FC<PodcastTagProps> = ({ podcast, onReport, onSave, onShare, onToggleOptionMenu, isOptionMenuOpen }) => {
+const PodcastTag: React.FC<PodcastTagProps> = ({ podcast, onReport, onAddToPlaylist, onShare, onToggleOptionMenu, isOptionMenuOpen }) => {
   const author = podcast.user.fullname;
   console.log(podcast);
 
@@ -132,6 +133,10 @@ const PodcastTag: React.FC<PodcastTagProps> = ({ podcast, onReport, onSave, onSh
                     Edit podcast
                   </li>
                 </Link>
+                <li className="px-4 py-3 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer transition-colors" onClick={onAddToPlaylist}>
+                  <RiAddBoxLine className="inline-block mr-3 mb-1" />
+                  Add to playlist
+                </li>
                 <li className="px-4 py-3 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer transition-colors" onClick={onReport}>
                   <FaFlag className="inline-block mr-3" />
                   Report issue
@@ -143,9 +148,9 @@ const PodcastTag: React.FC<PodcastTagProps> = ({ podcast, onReport, onSave, onSh
                   <FaFlag className="inline-block mr-3" />
                   Report content
                 </li>
-                <li className="px-4 py-3 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer transition-colors" onClick={onSave}>
-                  <FaBookmark className="inline-block mr-3" />
-                  Save to playlist
+                <li className="px-4 py-3 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer transition-colors" onClick={onAddToPlaylist}>
+                  <RiAddBoxLine className="inline-block mr-3 mb-1" />
+                  Add to playlist
                 </li>
                 <li className="px-4 py-3 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer transition-colors" onClick={onShare}>
                   <FaShareAlt className="inline-block mr-3" />
