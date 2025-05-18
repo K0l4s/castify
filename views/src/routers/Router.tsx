@@ -37,14 +37,35 @@ import PaymentFailure from '../pages/main/blankShop/PaymentFailure'
 import Payment from '../pages/main/blankShop/Payment'
 import ConversationLayout from '../pages/main/conversation/ConversationLayout'
 import PlaylistPage from '../pages/main/playlistPage/PlaylistPage'
+import SettingModals from '../components/modals/user/SettingModal'
+import { useEffect, useState } from 'react'
+import { useToast } from '../context/ToastProvider'
 // import Test from '../components/main/conversation/Test'
 // import Test from '../pages/main/blankShop/Test'
 // import NotificationComponent from '../components/main/conversation/NotificationComponent'
 
 const Router = () => {
     const isAdmin = useSelector((state: RootState) => state.auth.user?.role === Role.A);
+    const user = useSelector((state: RootState) => state.auth.user);
+    const isLogin = useSelector((state: RootState) => state.auth.isAuthenticated);
+    const toast = useToast();
+    // const isUpdateInformation = isLogin && (!user?.lastName || !user?.firstName || !user?.middleName || !user?.birthday);
+    const [isUpdateInformation, setIsUpdateInformation] = useState(false);
+    console.log("C"+(isLogin && (user?.lastName == null || user?.firstName == null || !user?.middleName == null || !user?.birthday == null )))
+    useEffect(() => {
+        if (isLogin && (user?.lastName == null || user?.firstName == null || !user?.middleName == null || !user?.birthday == null )) {
+            setIsUpdateInformation(true);
+            toast.info('Please update your information to use all features of the app');
+        } else {
+            setIsUpdateInformation(false);
+        }
+    }, [isLogin, user]);
+
+    console.log('isUpdateInformation', isUpdateInformation);
     return (
         <div className='bg-gray-200 dark:bg-gray-900'>
+            {isUpdateInformation && <SettingModals isOpen={isUpdateInformation} onClose={() => setIsUpdateInformation(false)} />}
+            {/* <SettingModals isOpen={true} onClose={() => null} /> */}
             <Routes>
                 {/* <Route> */}
                 <Route path='/login' element={<LandingPage />} />
