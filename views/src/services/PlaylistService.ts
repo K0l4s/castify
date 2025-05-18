@@ -20,6 +20,7 @@ export default class PlaylistService {
       totalItems: playlist.items?.length ?? 0,
       publish: playlist.publish,
       lastUpdated: playlist.lastUpdated,
+      createdAt: playlist.createdAt,
     }));
 
     return mappedData;

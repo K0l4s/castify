@@ -3,6 +3,7 @@ import { PlaylistModel } from "../../../models/PlaylistModel";
 import { FaPlay } from "react-icons/fa";
 import { IoEllipsisVerticalSharp } from "react-icons/io5";
 import { useClickOutside } from "../../../hooks/useClickOutside";
+import { formatDateTime, formatLastUpdatedFromNow } from "../../../utils/DateUtils";
 
 interface PlaylistItemProps {
   playlist: PlaylistModel;
@@ -64,7 +65,10 @@ const PlaylistItem: React.FC<PlaylistItemProps> = ({ playlist, onEdit, onDelete 
             {playlist.publish ? "Public" : "Private"}
           </p>
           <p className="text-sm text-gray-800 dark:text-gray-200 mt-1">
-            Last updated: {new Date(playlist.lastUpdated).toLocaleString()}
+            Last updated: {formatLastUpdatedFromNow(playlist.lastUpdated)}
+          </p>
+          <p className="text-sm text-gray-800 dark:text-gray-200 mt-1">
+            Created day: {formatDateTime(playlist.createdAt)}
           </p>
         </div>
         <div className="p-2 z-30" ref={menuRef}>

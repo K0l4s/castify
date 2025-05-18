@@ -6,4 +6,5 @@ export interface PlaylistModel {
   totalItems: number;
   publish: boolean;
   lastUpdated: string;
+  createdAt: string;
 }
