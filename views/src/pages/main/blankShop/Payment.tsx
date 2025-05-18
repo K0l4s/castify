@@ -106,6 +106,14 @@ const Payment = () => {
                 >
                     Xác nhận thanh toán
                 </button>
+                {/* quay lại trang trước */}
+                <button
+                    onClick={() => window.history.back()}
+                    className="w-full mt-4 py-2 bg-gray-300 text-black rounded-lg hover:bg-gray-400"
+                >
+                    Quay lại
+                </button>
+                
                 {paymentStatus && (
                     <div className="mt-4 text-lg text-center">
                         {paymentStatus == 'SUCCESS' && <span className="text-green-500">✅ Thành công</span>}

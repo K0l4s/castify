@@ -93,6 +93,13 @@ const BlankShop = () => {
                     >
                         My Purchased Frames
                     </button>
+                    {/* nạp tiền */}
+                    <button 
+                        onClick={() => navigate('/payment')}
+                        className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
+                    >
+                        Add Coins
+                    </button>
                 </div>
             </div>
             
