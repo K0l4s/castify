@@ -36,6 +36,7 @@ import PaymentSuccess from '../pages/main/blankShop/PaymentSuccess'
 import PaymentFailure from '../pages/main/blankShop/PaymentFailure'
 import Payment from '../pages/main/blankShop/Payment'
 import ConversationLayout from '../pages/main/conversation/ConversationLayout'
+import PlaylistPage from '../pages/main/playlistPage/PlaylistPage'
 // import Test from '../components/main/conversation/Test'
 // import Test from '../pages/main/blankShop/Test'
 // import NotificationComponent from '../components/main/conversation/NotificationComponent'
@@ -87,6 +88,7 @@ const Router = () => {
                     <Route path='/feed/follow' element={<RequireAuth><FollowingPage /></RequireAuth>} />
                     <Route path='/feed/trend' element={<LandingPage />} />
                     <Route path='/feed/history' element={<RequireAuth><HistoryPage /></RequireAuth>} />
+                    <Route path='/playlist' element={<RequireAuth><PlaylistPage /></RequireAuth>} />
                     <Route path='/watch' element={<PodcastViewport />} />
                     <Route path='/search' element={<SearchPage />} />
                     <Route path='/profile' element={<ProfilePage />} />
