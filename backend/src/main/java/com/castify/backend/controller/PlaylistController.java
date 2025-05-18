@@ -52,7 +52,7 @@ public class PlaylistController {
     @GetMapping("/user")
     public ResponseEntity<List<PlaylistModel>> getUserPlaylists(
             @RequestParam(defaultValue = "updatedAt") String sortBy,
-            @RequestParam(defaultValue = "des   c") String order,
+            @RequestParam(defaultValue = "desc") String order,
             Sort sort) {
         return ResponseEntity.ok(playlistService.getCurrentUserPlaylists(sortBy, order));
     }

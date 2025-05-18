@@ -34,19 +34,21 @@ public class PlaylistServiceImpl implements IPlaylistService {
     @Override
     public PlaylistModel createPlaylist(CreatePlaylistDTO dto) {
         UserEntity auth = SecurityUtils.getCurrentUser();
-
-        List<PodcastEntity> podcasts = podcastRepository.findAllById(dto.getPodcastId());
-
         List<PlaylistItem> items = new ArrayList<>();
-        for (int i = 0; i < podcasts.size(); i++) {
-            PodcastEntity podcast = podcasts.get(i);
-            PlaylistItem item = new PlaylistItem(
-                    podcast.getId(),
-                    podcast.getThumbnailUrl(),
-                    podcast.getDuration(),
-                    i // thứ tự
-            );
-            items.add(item);
+
+        if (dto.getPodcastId() != null && !dto.getPodcastId().isEmpty()) {
+            List<PodcastEntity> podcasts = podcastRepository.findAllById(dto.getPodcastId());
+
+            for (int i = 0; i < podcasts.size(); i++) {
+                PodcastEntity podcast = podcasts.get(i);
+                PlaylistItem item = new PlaylistItem(
+                        podcast.getId(),
+                        podcast.getThumbnailUrl(),
+                        podcast.getDuration(),
+                        i // thứ tự
+                );
+                items.add(item);
+            }
         }
 
         PlaylistEntity playlistEntity = new PlaylistEntity();
