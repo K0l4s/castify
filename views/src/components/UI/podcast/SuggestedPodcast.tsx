@@ -7,10 +7,11 @@ import PodcastTag from "./PodcastTag";
 import { getGenresByList } from "../../../services/GenreService";
 import { IoChevronBackOutline, IoChevronForwardOutline } from "react-icons/io5";
 import { useNavigate } from "react-router-dom";
-import { useToast } from "../../../context/ToastProvider";
+// import { useToast } from "../../../context/ToastProvider";
 import ShareModal from "../../modals/podcast/ShareModal";
 import ReportModal from "../../modals/report/ReportModal";
 import { ReportType } from "../../../models/Report";
+import AddToPlaylistModal from "../../../pages/main/playlistPage/AddToPlaylistModal";
 
 interface SuggestedPodcastProps {
   genreIds: string[];
@@ -24,11 +25,12 @@ const SuggestedPodcast: React.FC<SuggestedPodcastProps> = ({ genreIds, currentPo
   const [hasMore, setHasMore] = useState(true);
   const [loading, setLoading] = useState(false);
   const genreContainerRef = useRef<HTMLDivElement>(null);
+  const [isPlaylistModalOpen, setIsPlaylistModalOpen] = useState(false);
   const [isShareModalOpen, setIsShareModalOpen] = useState(false);
   const [isReportModalOpen, setIsReportModalOpen] = useState(false);
   const [selectedPodcastId, setSelectedPodcastId] = useState<string | null>(null);
   const [openOptionMenuId, setOpenOptionMenuId] = useState<string | null>(null);
-  const toast = useToast();
+  // const toast = useToast();
 
   const navigate = useNavigate();
 
@@ -90,9 +92,10 @@ const SuggestedPodcast: React.FC<SuggestedPodcastProps> = ({ genreIds, currentPo
     navigate(`/?tab=${encodeURIComponent(genreName)}`);
   };
 
-  const handleSave = () => {
-    toast.info("Save feature is coming soon");
-  }
+  const toggleAddToPlaylistModal = (podcastId: string) => {
+    setSelectedPodcastId(podcastId);
+    setIsPlaylistModalOpen(!isPlaylistModalOpen);
+  };
 
   const toggleReportModal = (podcastId: string) => {
     setSelectedPodcastId(podcastId);
@@ -147,7 +150,7 @@ const SuggestedPodcast: React.FC<SuggestedPodcastProps> = ({ genreIds, currentPo
           key={suggested.id}
           podcast={suggested}
           onReport={() => toggleReportModal(suggested.id)}
-          onSave={handleSave}
+          onAddToPlaylist={() => toggleAddToPlaylistModal(suggested.id)}
           onShare={() => toggleShareModal(suggested.id)}
           onToggleOptionMenu={toggleOptionMenu}
           isOptionMenuOpen={openOptionMenuId === suggested.id}
@@ -162,6 +165,15 @@ const SuggestedPodcast: React.FC<SuggestedPodcastProps> = ({ genreIds, currentPo
         <div className="text-center my-4">
           <CustomButton text="Load More" onClick={handleLoadMore} />
         </div>
+      )}
+
+      {/* Add to Playlist Modal */}
+      {selectedPodcastId && (
+        <AddToPlaylistModal
+          isOpen={isPlaylistModalOpen}
+          onClose={() => setIsPlaylistModalOpen(false)}
+          podcastId={selectedPodcastId}
+        />
       )}
 
       {/* Share Modal */}

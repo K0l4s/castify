@@ -99,6 +99,18 @@ const MainSidebar = () => {
               </Link>
             </li>
 
+            <li>
+              <Link to="/playlist" className={getLinkClass("/playlist")} onClick={handleClick}>
+                <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor"
+                  className={`w-[24px] h-[24px] ${isOpenSideBar ? 'mr-4' : 'mx-auto'}`}
+                  viewBox="0 0 24 24">
+                  <path d="M3 5.25A.75.75 0 0 1 3.75 4.5h16.5a.75.75 0 0 1 0 1.5H3.75A.75.75 0 0 1 3 5.25Zm0 4A.75.75 0 0 1 3.75 8.5h16.5a.75.75 0 0 1 0 1.5H3.75A.75.75 0 0 1 3 9.25Zm0 4a.75.75 0 0 1 .75-.75h10.5a.75.75 0 0 1 0 1.5H3.75a.75.75 0 0 1-.75-.75Zm0 4a.75.75 0 0 1 .75-.75h10.5a.75.75 0 0 1 0 1.5H3.75a.75.75 0 0 1-.75-.75Z"/>
+                  <path d="M16.5 13.5v5.379l2.25-1.43 2.25-1.43-2.25-1.43-2.25-1.43z"/>
+                </svg>
+                {isOpenSideBar && <span>{language.sidebar.playlist}</span>}
+              </Link>
+            </li>
+
             <div className="h-[1px] w-full bg-black dark:bg-gray-200 my-4"></div>
 
             <li>

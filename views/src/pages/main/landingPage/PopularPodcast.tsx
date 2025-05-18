@@ -3,23 +3,25 @@ import { getPodcastPopular } from '../../../services/PodcastService';
 import { Podcast } from '../../../models/PodcastModel';
 import PodcastTag from '../../../components/UI/podcast/PodcastTag';
 import { FiLoader } from 'react-icons/fi';
-import { useToast } from '../../../context/ToastProvider';
+// import { useToast } from '../../../context/ToastProvider';
 import ShareModal from '../../../components/modals/podcast/ShareModal';
 import ReportModal from '../../../components/modals/report/ReportModal';
 import { ReportType } from '../../../models/Report';
 import CustomButton from '../../../components/UI/custom/CustomButton';
+import AddToPlaylistModal from '../playlistPage/AddToPlaylistModal';
 
 const PopularPodcast: React.FC = () => {
   const [podcasts, setPodcasts] = useState<Podcast[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [isShareModalOpen, setIsShareModalOpen] = useState(false);
+  const [isPlaylistModalOpen, setIsPlaylistModalOpen] = useState(false);
   const [isReportModalOpen, setIsReportModalOpen] = useState(false);
   const [selectedPodcastId, setSelectedPodcastId] = useState<string | null>(null);
   const [openOptionMenuId, setOpenOptionMenuId] = useState<string | null>(null);
   const [currentPage, setCurrentPage] = useState<number>(0);
   const [totalPages, setTotalPages] = useState<number>(0);
-  const toast = useToast();
+  // const toast = useToast();
 
   const fetchPopularPodcasts = async (page: number) => {
     try {
@@ -37,10 +39,11 @@ const PopularPodcast: React.FC = () => {
     fetchPopularPodcasts(0);
   }, []);
 
-  const handleSave = () => {
-    toast.info("Save feature is coming soon");
-  }
-
+  const toggleAddToPlaylistModal = (podcastId: string) => {
+    setSelectedPodcastId(podcastId);
+    setIsPlaylistModalOpen(!isPlaylistModalOpen);
+  };
+  
   const toggleReportModal = (podcastId: string) => {
     setSelectedPodcastId(podcastId);
     setIsReportModalOpen(!isReportModalOpen);
@@ -84,7 +87,7 @@ const PopularPodcast: React.FC = () => {
             key={podcast.id}
             podcast={podcast}
             onReport={() => toggleReportModal(podcast.id)}
-            onSave={handleSave}
+            onAddToPlaylist={() => toggleAddToPlaylistModal(podcast.id)}
             onShare={() => toggleShareModal(podcast.id)}
             onToggleOptionMenu={toggleOptionMenu}
             isOptionMenuOpen={openOptionMenuId === podcast.id}
@@ -98,6 +101,15 @@ const PopularPodcast: React.FC = () => {
             Load More
           </CustomButton>
         </div>
+      )}
+      
+      {/* Add to Playlist Modal */}
+      {selectedPodcastId && (
+        <AddToPlaylistModal
+          isOpen={isPlaylistModalOpen}
+          onClose={() => setIsPlaylistModalOpen(false)}
+          podcastId={selectedPodcastId}
+        />
       )}
 
       {/* Share Modal */}

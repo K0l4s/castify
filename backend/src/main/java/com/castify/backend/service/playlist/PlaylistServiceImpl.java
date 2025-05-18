@@ -19,6 +19,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -33,19 +34,21 @@ public class PlaylistServiceImpl implements IPlaylistService {
     @Override
     public PlaylistModel createPlaylist(CreatePlaylistDTO dto) {
         UserEntity auth = SecurityUtils.getCurrentUser();
-
-        List<PodcastEntity> podcasts = podcastRepository.findAllById(dto.getPodcastId());
-
         List<PlaylistItem> items = new ArrayList<>();
-        for (int i = 0; i < podcasts.size(); i++) {
-            PodcastEntity podcast = podcasts.get(i);
-            PlaylistItem item = new PlaylistItem(
-                    podcast.getId(),
-                    podcast.getThumbnailUrl(),
-                    podcast.getDuration(),
-                    i // thứ tự
-            );
-            items.add(item);
+
+        if (dto.getPodcastId() != null && !dto.getPodcastId().isEmpty()) {
+            List<PodcastEntity> podcasts = podcastRepository.findAllById(dto.getPodcastId());
+
+            for (int i = 0; i < podcasts.size(); i++) {
+                PodcastEntity podcast = podcasts.get(i);
+                PlaylistItem item = new PlaylistItem(
+                        podcast.getId(),
+                        podcast.getThumbnailUrl(),
+                        podcast.getDuration(),
+                        i // thứ tự
+                );
+                items.add(item);
+            }
         }
 
         PlaylistEntity playlistEntity = new PlaylistEntity();
@@ -149,11 +152,28 @@ public class PlaylistServiceImpl implements IPlaylistService {
     }
 
     @Override
-    public List<PlaylistModel> getCurrentUserPlaylists() {
+    public List<PlaylistModel> getCurrentUserPlaylists(String sortBy, String order) {
         UserEntity auth = SecurityUtils.getCurrentUser();
+
+        Comparator<PlaylistEntity> comparator;
+
+        switch (sortBy) {
+            case "createdAt":
+                comparator = Comparator.comparing(PlaylistEntity::getCreatedAt);
+                break;
+            case "updatedAt":
+            default:
+                comparator = Comparator.comparing(PlaylistEntity::getLastUpdated);
+                break;
+        }
+
+        if ("desc".equalsIgnoreCase(order)) {
+            comparator = comparator.reversed();
+        }
 
         return playlistRepository.findAll().stream()
                 .filter(p -> p.getOwner().getId().equals(auth.getId()))
+                .sorted(comparator)
                 .map(p -> modelMapper.map(p, PlaylistModel.class))
                 .toList();
     }

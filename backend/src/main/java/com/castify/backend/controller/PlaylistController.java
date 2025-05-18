@@ -6,6 +6,7 @@ import com.castify.backend.models.playlist.ReorderPlaylistDTO;
 import com.castify.backend.service.playlist.IPlaylistService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -49,8 +50,11 @@ public class PlaylistController {
     }
 
     @GetMapping("/user")
-    public ResponseEntity<List<PlaylistModel>> getUserPlaylists() {
-        return ResponseEntity.ok(playlistService.getCurrentUserPlaylists());
+    public ResponseEntity<List<PlaylistModel>> getUserPlaylists(
+            @RequestParam(defaultValue = "updatedAt") String sortBy,
+            @RequestParam(defaultValue = "desc") String order,
+            Sort sort) {
+        return ResponseEntity.ok(playlistService.getCurrentUserPlaylists(sortBy, order));
     }
 
     @GetMapping("/public/{userId}")

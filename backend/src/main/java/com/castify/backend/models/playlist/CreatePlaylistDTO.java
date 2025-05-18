@@ -17,7 +17,6 @@ public class CreatePlaylistDTO {
 
     private String description;
 
-    @NotEmpty(message = "At least one podcast must be selected")
     private List<String> podcastId;
 
     private boolean publish;
