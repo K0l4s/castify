@@ -25,6 +25,7 @@ import { MdLockPerson } from "react-icons/md";
 import CustomPodcastVideo from "./CustomPodcastVideo";
 import Avatar from "../user/Avatar";
 import PlaylistSidebar from "../../../pages/main/playlistPage/PlaylistSidebar";
+import { useDocumentTitle } from "../../../hooks/useDocumentTitle";
 
 const PodcastViewport: React.FC = () => {
   const location = useLocation();
@@ -56,6 +57,9 @@ const PodcastViewport: React.FC = () => {
   const toast = useToast();
   const navigate = useNavigate();
 
+  useDocumentTitle(
+    podcast? `${podcast?.title} - ${podcast?.user.fullname} | Castify` : null,
+  )
   useEffect(() => {
     const fetchPodcast = async () => {
       try {
