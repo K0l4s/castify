@@ -18,6 +18,11 @@ import java.util.List;
 public class PlaylistController {
     private final IPlaylistService playlistService;
 
+    @GetMapping("/{id}")
+    public ResponseEntity<PlaylistModel> getPlaylistById(@PathVariable String id) {
+        return ResponseEntity.ok(playlistService.getPlaylistById(id));
+    }
+
     @PostMapping
     public ResponseEntity<PlaylistModel> createPlaylist(@Valid @RequestBody CreatePlaylistDTO dto) {
         return ResponseEntity.ok(playlistService.createPlaylist(dto));

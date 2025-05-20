@@ -4,6 +4,9 @@ export interface PlaylistItem {
   podcastId: string;
   thumbnail: string;
   duration: number;
+  title: string;
+  description: string;
+  owner: string;
   order: number;
 }
 

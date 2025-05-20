@@ -32,6 +32,9 @@ export default class PlaylistService {
         podcastId: item.podcastId,
         thumbnail: item.thumbnail,
         duration: item.duration,
+        title: item.title,
+        description: item.description,
+        owner: item.owner,
         order: item.order ?? index,
       })) ?? [],
     }));
@@ -115,6 +118,34 @@ export default class PlaylistService {
         podcastId: item.podcastId,
         thumbnail: item.thumbnail,
         duration: item.duration,
+        order: item.order ?? index,
+      })) ?? [],
+    };
+  }
+
+  static async getPlaylistById(id: string): Promise<PlaylistModel> {
+    const response = await axiosInstanceAuth.get(`/api/v1/playlist/${id}`);
+    
+    const playlist = response.data;
+  
+    // Map the response
+    return {
+      id: playlist.id,
+      name: playlist.name,
+      description: playlist.description,
+      publish: playlist.publish,
+      createdAt: playlist.createdAt,
+      lastUpdated: playlist.lastUpdated,
+      owner: playlist.owner,
+      thumbnail: playlist.items?.[0]?.thumbnail ?? null,
+      totalItems: playlist.items?.length ?? 0,
+      items: playlist.items?.map((item: any, index: number) => ({
+        podcastId: item.podcastId,
+        thumbnail: item.thumbnail,
+        duration: item.duration,
+        title: item.title,
+        description: item.description,
+        owner: item.owner,
         order: item.order ?? index,
       })) ?? [],
     };

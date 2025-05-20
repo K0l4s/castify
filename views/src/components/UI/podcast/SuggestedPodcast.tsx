@@ -112,7 +112,7 @@ const SuggestedPodcast: React.FC<SuggestedPodcastProps> = ({ genreIds, currentPo
   }
 
   return (
-    <div className="w-full lg:w-1/4 mt-8 lg:mt-0">
+    <div className="w-full mt-8 lg:mt-0">
       <h2 className="text-xl font-semibold mb-4">Suggested for you</h2>
       <div className="relative mb-4">
         <button
