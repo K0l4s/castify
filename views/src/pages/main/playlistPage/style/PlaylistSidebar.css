@@ -21,3 +21,24 @@
   opacity: 0;
   transition: all 300ms ease-in-out;
 }
+
+.dragging {
+  background-color: rgba(59, 130, 246, 0.1);
+  border: 2px dashed #3b82f6;
+  border-radius: 8px;
+}
+
+/* Animated transition for reordering */
+.playlist-item-move {
+  transition: transform 0.5s;
+}
+
+/* Grip icon hover effect */
+.grip-icon {
+  opacity: 0.5;
+  transition: opacity 0.2s;
+}
+
+.grip-icon:hover {
+  opacity: 1;
+}

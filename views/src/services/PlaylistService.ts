@@ -150,4 +150,39 @@ export default class PlaylistService {
       })) ?? [],
     };
   }
+
+  // Add this method to your PlaylistService class
+  static async reorderPlaylistItems(
+    playlistId: string,
+    podcastIds: string[]
+  ): Promise<PlaylistModel> {
+    const response = await axiosInstanceAuth.post(`/api/v1/playlist/reorder`, {
+      playlistId,
+      podcastIds
+    });
+    
+    const playlist = response.data;
+
+    // Map the response
+    return {
+      id: playlist.id,
+      name: playlist.name,
+      description: playlist.description,
+      publish: playlist.publish,
+      createdAt: playlist.createdAt,
+      lastUpdated: playlist.lastUpdated,
+      owner: playlist.owner,
+      thumbnail: playlist.items?.[0]?.thumbnail ?? null,
+      totalItems: playlist.items?.length ?? 0,
+      items: playlist.items?.map((item: any, index: number) => ({
+        podcastId: item.podcastId,
+        thumbnail: item.thumbnail,
+        duration: item.duration,
+        title: item.title,
+        description: item.description,
+        owner: item.owner,
+        order: item.order ?? index,
+      })) ?? [],
+    };
+  }
 }

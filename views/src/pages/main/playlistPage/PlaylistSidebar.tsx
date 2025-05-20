@@ -3,13 +3,14 @@ import React, { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { PlaylistModel } from '../../../models/PlaylistModel';
 import PlaylistService from '../../../services/PlaylistService';
-import { FaBookmark, FaChevronDown, FaChevronUp, FaPlay, FaTrashAlt } from 'react-icons/fa';
+import { FaBookmark, FaChevronDown, FaChevronUp, FaGripLines, FaPlay, FaTrashAlt } from 'react-icons/fa';
 import { FiLoader } from 'react-icons/fi';
 import { formatTimeDuration } from '../../../components/UI/podcast/video';
 import './style/PlaylistSidebar.css';
 import { CSSTransition } from 'react-transition-group';
 import { useToast } from '../../../context/ToastProvider';
 import { HiDotsVertical } from 'react-icons/hi';
+import { DragDropContext, Droppable, Draggable, DropResult, DroppableProvided, DraggableProvided, DraggableStateSnapshot } from 'react-beautiful-dnd';
 
 interface PlaylistSidebarProps {
   playlistId: string;
@@ -23,9 +24,10 @@ const PlaylistSidebar: React.FC<PlaylistSidebarProps> = ({ playlistId, currentPo
   const [error, setError] = useState<string | null>(null);
   const [isCollapsed, setIsCollapsed] = useState<boolean>(false);
   const [activeMenuId, setActiveMenuId] = useState<string | null>(null);
+  const [reordering, setReordering] = useState<boolean>(false);
   const navigate = useNavigate();
   const menuRefs = useRef<{ [key: string]: HTMLDivElement | null }>({});
-  const transitionRef = useRef(null);
+  const transitionRef = useRef<HTMLDivElement | null>(null);
   const toast = useToast();
 
   useEffect(() => {
@@ -147,6 +149,53 @@ const PlaylistSidebar: React.FC<PlaylistSidebarProps> = ({ playlistId, currentPo
     }
   };
 
+  const handleDragEnd = async (result: DropResult) => {
+    const { destination, source } = result;
+    
+    // Return if dropped outside the list or at the same position
+    if (!destination || 
+        (destination.droppableId === source.droppableId && 
+         destination.index === source.index)) {
+      return;
+    }
+    
+    if (!playlist) return;
+    
+    // Reorder the items locally
+    const items = Array.from(playlist.items);
+    const [reorderedItem] = items.splice(source.index, 1);
+    items.splice(destination.index, 0, reorderedItem);
+    
+    // Update the local state immediately for responsive UI
+    setPlaylist({
+      ...playlist,
+      items
+    });
+    
+    // Extract podcast IDs in the new order
+    const podcastIds = items.map(item => item.podcastId);
+    
+    // Save the new order to the server
+    try {
+      setReordering(true);
+      await PlaylistService.reorderPlaylistItems(playlistId, podcastIds);
+      toast.success('Playlist order updated');
+    } catch (error) {
+      console.error('Failed to update playlist order:', error);
+      toast.error('Failed to update playlist order');
+      
+      // Fetch the original playlist if the API call fails
+      try {
+        const refreshedPlaylist = await PlaylistService.getPlaylistById(playlistId);
+        setPlaylist(refreshedPlaylist);
+      } catch (refreshError) {
+        console.error('Failed to refresh playlist data:', refreshError);
+      }
+    } finally {
+      setReordering(false);
+    }
+  };
+
   const getCurrentIndexInfo = () => {
     if (!playlist) return null;
     const currentIndex = playlist.items.findIndex(item => item.podcastId === currentPodcastId);
@@ -186,15 +235,21 @@ const PlaylistSidebar: React.FC<PlaylistSidebarProps> = ({ playlistId, currentPo
             {indexInfo ? `${indexInfo.current}/${indexInfo.total} videos` : `${playlist.totalItems} videos`}
           </p>
         </div>
-        <button 
-          onClick={toggleCollapse}
-          className="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
-        >
-          {isCollapsed ? 
-            <FaChevronDown className="text-gray-700 dark:text-gray-300" size={20} /> : 
-            <FaChevronUp className="text-gray-700 dark:text-gray-300" size={20} />
-          }
-        </button>
+        <div className="flex items-center space-x-2">
+          {reordering && (
+            <span className="text-sm text-blue-500 animate-pulse">Saving...</span>
+          )}
+          <button 
+            onClick={toggleCollapse}
+            className="p-2 rounded-full bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 transition-colors"
+            aria-label={isCollapsed ? "Expand playlist" : "Collapse playlist"}
+          >
+            {isCollapsed ? 
+              <FaChevronDown className="text-gray-700 dark:text-gray-300" size={20} /> : 
+              <FaChevronUp className="text-gray-700 dark:text-gray-300" size={20} />
+            }
+          </button>
+        </div>
       </div>
 
       {/* Content - animated with height transition */}
@@ -205,85 +260,118 @@ const PlaylistSidebar: React.FC<PlaylistSidebarProps> = ({ playlistId, currentPo
         unmountOnExit
         nodeRef={transitionRef}
       >
-        <div ref={transitionRef} className="divide-y divide-gray-200 dark:divide-gray-700 overflow-y-auto max-h-[540px]">
-          {playlist.items.map((item, index) => (
-            <div 
-              key={item.podcastId}
-              className={`flex p-4 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer transition-colors duration-200 ${
-                item.podcastId === currentPodcastId ? 'bg-blue-100 dark:bg-blue-900' : ''
-              } relative`}
-            >
+        <DragDropContext onDragEnd={handleDragEnd}>
+          <Droppable droppableId="playlist-items">
+            {(provided: DroppableProvided) => (
               <div 
-                className="flex-1 flex items-start"
-                onClick={() => navigate(`/watch?pid=${item.podcastId}&playlist=${playlistId}`)}
+                ref={(el) => {
+                  // Assign both the transitionRef and the provided ref
+                  transitionRef.current = el;
+                  provided.innerRef(el);
+                }}
+                {...provided.droppableProps}
+                className="divide-y divide-gray-200 dark:divide-gray-700 overflow-y-auto max-h-[540px]"
               >
-                <div className="w-8 text-gray-500 dark:text-gray-400 flex items-center justify-center mr-3">
-                  {item.podcastId === currentPodcastId ? (
-                    <FaPlay className="text-blue-500" />
-                  ) : (
-                    <span>{index + 1}</span>
-                  )}
-                </div>
-                <div className="flex-1">
-                  <div className="relative w-30 h-16 mr-3 float-left">
-                    <img
-                      src={item.thumbnail || "https://via.placeholder.com/120x80"}
-                      alt="Video thumbnail"
-                      className="w-full h-full object-cover rounded"
-                    />
-                    {item.duration && (
-                      <span className="absolute bottom-1 right-1 bg-black bg-opacity-70 text-white text-sm px-1 py-0.5 rounded">
-                        {formatTimeDuration(item.duration)}
-                      </span>
+                {playlist.items.map((item, index) => (
+                  <Draggable key={item.podcastId} draggableId={item.podcastId} index={index}>
+                    {(provided: DraggableProvided, snapshot: DraggableStateSnapshot) => (
+                      <div 
+                        ref={provided.innerRef}
+                        {...provided.draggableProps}
+                        className={`flex p-4 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer transition-colors duration-200 ${
+                          item.podcastId === currentPodcastId ? 'bg-blue-100 dark:bg-blue-900' : ''
+                        } ${snapshot.isDragging ? 'opacity-70 shadow-lg' : ''} relative`}
+                      >
+                        {/* Drag Handle */}
+                        <div className="flex items-center">
+                          <div 
+                            {...provided.dragHandleProps}
+                            className="px-2 py-1 cursor-grab active:cursor-grabbing"
+                          >
+                            <FaGripLines className="text-gray-400" />
+                          </div>
+                        </div>
+
+                        <div 
+                          className="flex-1 flex items-start"
+                          onClick={() => navigate(`/watch?pid=${item.podcastId}&playlist=${playlistId}`)}
+                        >
+                          <div className="w-8 text-gray-500 dark:text-gray-400 flex items-center justify-center mr-3 mt-5">
+                            {item.podcastId === currentPodcastId ? (
+                              <FaPlay className="text-blue-500 mt-1" />
+                            ) : (
+                              <span>{index + 1}</span>
+                            )}
+                          </div>
+                          <div className="flex-1">
+                            <div className="relative w-30 h-16 mr-3 float-left">
+                              <img
+                                src={item.thumbnail || "https://via.placeholder.com/120x80"}
+                                alt="Video thumbnail"
+                                className="w-full h-full object-cover rounded"
+                              />
+                              {item.duration && (
+                                <span className="absolute bottom-1 right-1 bg-black bg-opacity-70 text-white text-sm px-1 py-0.5 rounded">
+                                  {formatTimeDuration(item.duration)}
+                                </span>
+                              )}
+                            </div>
+                            <div className="overflow-hidden">
+                              <p className="text-sm font-medium line-clamp-2 text-black dark:text-white mb-1">
+                                {item.title}
+                              </p>
+                              <p className="text-sm line-clamp-1 text-gray-600 dark:text-gray-400">
+                                {item.owner || "Unknown"}
+                              </p>
+                            </div>
+                          </div>
+                        </div>
+                        
+                        
+                        
+                        {/* Vertical Menu Button */}
+                        <div className="relative flex items-start">
+                          <button
+                            className="p-1 rounded-full hover:bg-gray-200 dark:hover:bg-gray-600"
+                            onClick={() => toggleMenu(item.podcastId)}
+                          >
+                            <HiDotsVertical size={16} className="text-gray-600 dark:text-gray-400" />
+                          </button>
+                          
+                          {/* Menu Options */}
+                          {activeMenuId === item.podcastId && (
+                            <div 
+                              ref={(el) => (menuRefs.current[item.podcastId] = el)}
+                              className="absolute right-8 -top-2 w-48 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg z-50"
+                            >
+                              <ul className="py-1">
+                                <li 
+                                  className="px-4 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer flex items-center text-gray-700 dark:text-gray-300 transition ease-in-out duration-200"
+                                  onClick={() => handleSavePodcast(item.podcastId)}
+                                >
+                                  <FaBookmark className="mr-2" />
+                                  Save podcast
+                                </li>
+                                <li 
+                                  className="px-4 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer flex items-center text-red-500 transition ease-in-out duration-200"
+                                  onClick={() => handleRemoveFromPlaylist(item.podcastId)}
+                                >
+                                  <FaTrashAlt className="mr-2" />
+                                  Remove from playlist
+                                </li>
+                              </ul>
+                            </div>
+                          )}
+                        </div>
+                      </div>
                     )}
-                  </div>
-                  <div className="overflow-hidden">
-                    <p className="text-sm font-medium line-clamp-2 text-black dark:text-white mb-1">
-                      {item.title}
-                    </p>
-                    <p className="text-sm line-clamp-1 text-gray-600 dark:text-gray-400">
-                      {item.owner || "Unknown"}
-                    </p>
-                  </div>
-                </div>
+                  </Draggable>
+                ))}
+                {provided.placeholder}
               </div>
-              {/* Vertical Menu Button */}
-              <div className="relative flex items-start ml-2">
-                <button
-                  className="p-1 rounded-full hover:bg-gray-200 dark:hover:bg-gray-600"
-                  onClick={() => toggleMenu(item.podcastId)}
-                >
-                  <HiDotsVertical size={16} className="text-gray-600 dark:text-gray-400" />
-                </button>
-                
-                {/* Menu Options */}
-                {activeMenuId === item.podcastId && (
-                  <div 
-                    ref={(el) => (menuRefs.current[item.podcastId] = el)}
-                    className="absolute right-8 -top-2 w-48 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg z-50"
-                  >
-                    <ul className="py-1">
-                      <li 
-                        className="px-4 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer flex items-center text-gray-700 dark:text-gray-300 transision ease-in-out duration-200"
-                        onClick={() => handleSavePodcast(item.podcastId)}
-                      >
-                        <FaBookmark className="mr-2" />
-                        Save podcast
-                      </li>
-                      <li 
-                        className="px-4 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer flex items-center text-red-500 transision ease-in-out duration-200"
-                        onClick={() => handleRemoveFromPlaylist(item.podcastId)}
-                      >
-                        <FaTrashAlt className="mr-2" />
-                        Remove from playlist
-                      </li>
-                    </ul>
-                  </div>
-                )}
-              </div>
-            </div>
-          ))}
-        </div>
+            )}
+          </Droppable>
+        </DragDropContext>
       </CSSTransition>
     </div>
   );
