@@ -5,6 +5,7 @@ import { IoEllipsisVerticalSharp } from "react-icons/io5";
 import { useClickOutside } from "../../../hooks/useClickOutside";
 import { formatDateTime, formatLastUpdatedFromNow } from "../../../utils/DateUtils";
 import no_img_available from "../../../assets/images/no_img_available.jpg";
+import { useNavigate } from "react-router-dom";
 
 interface PlaylistItemProps {
   playlist: PlaylistModel;
@@ -15,6 +16,7 @@ interface PlaylistItemProps {
 const PlaylistItem: React.FC<PlaylistItemProps> = ({ playlist, onEdit, onDelete }) => {
   const [menuOpen, setMenuOpen] = useState(false);
   const menuRef = useRef(null);
+  const navigate = useNavigate();
 
   const handleEdit = () => {
     setMenuOpen(false);
@@ -24,6 +26,13 @@ const PlaylistItem: React.FC<PlaylistItemProps> = ({ playlist, onEdit, onDelete 
   const handleDelete = () => {
     setMenuOpen(false);
     onDelete?.(playlist.id);
+  };
+
+  const handlePlayAll = () => {
+    // If the playlist has items, navigate to the first podcast with playlist parameter
+    if (playlist.items && playlist.items.length > 0) {
+      navigate(`/watch?pid=${playlist.items[0].podcastId}&playlist=${playlist.id}`);
+    }
   };
 
   useClickOutside(menuRef, () => setMenuOpen(false));
@@ -49,6 +58,7 @@ const PlaylistItem: React.FC<PlaylistItemProps> = ({ playlist, onEdit, onDelete 
         {/* Play All Button - on top of image */}
         <button
           className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-40 text-white font-semibold opacity-0 group-hover:opacity-100 transition-opacity z-20"
+          onClick={handlePlayAll}
         >
           <FaPlay className="mr-2 mb-1" />
           Play all

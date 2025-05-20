@@ -6,6 +6,7 @@ import com.castify.backend.models.playlist.PlaylistModel;
 import java.util.List;
 
 public interface IPlaylistService {
+    PlaylistModel getPlaylistById(String id);
     PlaylistModel createPlaylist(CreatePlaylistDTO createPlaylistDTO);
     PlaylistModel updatePlaylist(String id, String name, String description, boolean publish);
     void deletePlaylist(String id);

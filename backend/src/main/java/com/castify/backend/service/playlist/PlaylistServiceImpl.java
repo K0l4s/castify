@@ -13,8 +13,7 @@ import com.castify.backend.repository.PodcastRepository;
 import com.castify.backend.utils.SecurityUtils;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.data.rest.webmvc.ResourceNotFoundException;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -32,6 +31,20 @@ public class PlaylistServiceImpl implements IPlaylistService {
     private final PodcastRepository podcastRepository;
 
     @Override
+    public PlaylistModel getPlaylistById(String id) {
+        UserEntity auth = SecurityUtils.getCurrentUser();
+
+        PlaylistEntity playlistEntity = playlistRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Playlist not found"));
+
+        if (!playlistEntity.isPublish() && !playlistEntity.getOwner().getId().equals(auth.getId())) {
+            throw new PermissionDeniedException("You do not have permission to view this playlist");
+        }
+
+        return modelMapper.map(playlistEntity, PlaylistModel.class);
+    }
+
+    @Override
     public PlaylistModel createPlaylist(CreatePlaylistDTO dto) {
         UserEntity auth = SecurityUtils.getCurrentUser();
         List<PlaylistItem> items = new ArrayList<>();
@@ -45,6 +58,9 @@ public class PlaylistServiceImpl implements IPlaylistService {
                         podcast.getId(),
                         podcast.getThumbnailUrl(),
                         podcast.getDuration(),
+                        podcast.getTitle(),
+                        podcast.getContent(),
+                        podcast.getUser().getLastName() + " " + podcast.getUser().getMiddleName() + " " + podcast.getUser().getFirstName(),
                         i // thứ tự
                 );
                 items.add(item);
@@ -119,6 +135,9 @@ public class PlaylistServiceImpl implements IPlaylistService {
                 podcast.getId(),
                 podcast.getThumbnailUrl(),
                 podcast.getDuration(),
+                podcast.getTitle(),
+                podcast.getContent(),
+                podcast.getUser().getLastName() + podcast.getUser().getMiddleName() + podcast.getUser().getFirstName(),
                 playlist.getItems().size() // thêm cuối danh sách
         );
 

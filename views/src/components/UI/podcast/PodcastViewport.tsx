@@ -24,11 +24,14 @@ import { formatViewsWithSeparators } from "../../../utils/formatViews";
 import { MdLockPerson } from "react-icons/md";
 import CustomPodcastVideo from "./CustomPodcastVideo";
 import Avatar from "../user/Avatar";
+import PlaylistSidebar from "../../../pages/main/playlistPage/PlaylistSidebar";
+import { useDocumentTitle } from "../../../hooks/useDocumentTitle";
 
 const PodcastViewport: React.FC = () => {
   const location = useLocation();
   const queryParams = new URLSearchParams(location.search);
   const id = queryParams.get("pid");
+  const playlistId = queryParams.get("playlist");
 
   const [podcast, setPodcast] = useState<Podcast | null>(null);
   const [isDescriptionExpanded, setIsDescriptionExpanded] = useState(false);
@@ -54,6 +57,9 @@ const PodcastViewport: React.FC = () => {
   const toast = useToast();
   const navigate = useNavigate();
 
+  useDocumentTitle(
+    podcast? `${podcast?.title} - ${podcast?.user.fullname} | Castify` : null,
+  )
   useEffect(() => {
     const fetchPodcast = async () => {
       try {
@@ -206,9 +212,16 @@ const PodcastViewport: React.FC = () => {
   
   // const userInfo = podcast?.user.lastName + " " + podcast?.user.middleName + " " +podcast?.user.firstName;
   const userInfo = podcast?.user.fullname;
+
+  // Handle the next podcast navigation in playlist
+  const handleNextPodcast = (nextPodcastId: string) => {
+    // Navigate to the next podcast while maintaining the playlist parameter
+    navigate(`/watch?pid=${nextPodcastId}&playlist=${playlistId}`);
+  };
+
   return (
     <div className="flex flex-col lg:flex-row p-4 lg:p-8 bg-white text-black dark:bg-gray-900 dark:text-white">
-      <div className="flex-1 lg:mr-8">
+      <div className="flex-1 lg:max-w-[70%] lg:mr-8">
         {/* <video ref={videoRef} autoPlay className="w-full mb-4 rounded-lg" controls poster={podcast.thumbnailUrl || "/TEST.png"}>
           <source src={podcast.videoUrl} type="video/mp4" />
           Your browser does not support the video tag.
@@ -226,7 +239,7 @@ const PodcastViewport: React.FC = () => {
         <h1 className="text-2xl font-bold my-2">{podcast.title}</h1>
 
         {/* Info */}
-        <div className="flex items-center justify-between mt-2 my-4 gap-3">
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between mt-2 my-4 gap-3">
           <div className="flex items-center gap-3">
             {/* <img 
               src={podcast.user.avatarUrl || defaultAvatar} 
@@ -270,7 +283,7 @@ const PodcastViewport: React.FC = () => {
           </div>
           <div className="flex items-center gap-3">
             <CustomButton
-              text={formatViewsWithSeparators(views) + " views"}
+              text={formatViewsWithSeparators(views)}
               icon={<FaEye size={22} />}
               variant="primary"
               rounded="full"
@@ -341,15 +354,24 @@ const PodcastViewport: React.FC = () => {
         {/* Comments */}
         <CommentSection podcastId={id!} totalComments={podcast.totalComments} currentUserId={userRedux?.id!}/>
       </div>
+      <div className="lg:w-[30%] mt-6 lg:mt-0">
+        {playlistId && (
+          <div className="mb-8">
+            <PlaylistSidebar 
+              playlistId={playlistId} 
+              currentPodcastId={id!}
+              onNextPodcast={handleNextPodcast} />
+          </div>
+        )}
 
-      {podcast?.genres && 
-        <SuggestedPodcast 
-          // genreIds={podcast.genres.map((genre) => genre.id)} 
-          genreIds={memoizedGenreIds}
-          currentPodcastId={podcast.id}
-        />
-      }
-
+        {podcast?.genres && 
+          <SuggestedPodcast 
+            // genreIds={podcast.genres.map((genre) => genre.id)} 
+            genreIds={memoizedGenreIds}
+            currentPodcastId={podcast.id}
+          />
+        }
+      </div>
       {/* Report Modal */}
       <ReportModal
         isOpen={isReportModalOpen}
