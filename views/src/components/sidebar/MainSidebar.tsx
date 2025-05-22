@@ -56,6 +56,16 @@ const MainSidebar = () => {
             </li>
 
             <li>
+              <Link to="/feed/trend" className={getLinkClass("/feed/trend")}>
+                <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" className={`w-[24px] h-[24px] ${isOpenSideBar ? 'mr-4' : 'mx-auto'}`}
+                  viewBox="0 0 24 24">
+                  <path d="M16 6l2.29 2.29-4.88 4.88-4-4L2 16.59 3.41 18l6-6 4 4 6.3-6.29L22 12V6z" />
+                </svg>
+                {isOpenSideBar && <span>{language.sidebar.trend}</span>}
+              </Link>
+            </li>
+
+            <li>
               <Link to="/feed/follow" className={getLinkClass("/feed/follow")} onClick={handleClick}>
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -66,16 +76,6 @@ const MainSidebar = () => {
                   <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" />
                 </svg>
                 {isOpenSideBar && <span>{language.sidebar.follow}</span>}
-              </Link>
-            </li>
-
-            <li>
-              <Link to="/feed/trend" className={getLinkClass("/feed/trend")}>
-                <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" className={`w-[24px] h-[24px] ${isOpenSideBar ? 'mr-4' : 'mx-auto'}`}
-                  viewBox="0 0 24 24">
-                  <path d="M16 6l2.29 2.29-4.88 4.88-4-4L2 16.59 3.41 18l6-6 4 4 6.3-6.29L22 12V6z" />
-                </svg>
-                {isOpenSideBar && <span>{language.sidebar.trend}</span>}
               </Link>
             </li>
 
