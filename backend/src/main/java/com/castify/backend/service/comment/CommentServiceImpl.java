@@ -2,6 +2,7 @@ package com.castify.backend.service.comment;
 
 import com.castify.backend.entity.*;
 import com.castify.backend.enums.NotiType;
+import com.castify.backend.exception.PermissionDeniedException;
 import com.castify.backend.models.PageDTO;
 import com.castify.backend.models.comment.CommentModel;
 import com.castify.backend.models.comment.CommentRequestDTO;
@@ -10,6 +11,7 @@ import com.castify.backend.service.blacklist.IBlacklistService;
 import com.castify.backend.service.notification.INotificationService;
 import com.castify.backend.service.notification.NotificationServiceImpl;
 import com.castify.backend.service.user.IUserService;
+import com.castify.backend.utils.SecurityUtils;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -65,7 +67,11 @@ public class CommentServiceImpl implements ICommentService {
             commentEntity.setPodcast(podcastEntity);
             commentEntity.setParentId(commentRequestDTO.getParentId());
             commentEntity.setUser(userEntity);
-            commentEntity.setContent(commentEntity.getContent());
+            if (commentEntity.getMentionedUser() != null) {
+                commentEntity.setContent("@" + commentEntity.getMentionedUser() + " " + commentEntity.getContent());
+            } else {
+                commentEntity.setContent(commentEntity.getContent());
+            }
             commentEntity.setTimestamp(LocalDateTime.now());
             CommentEntity savedComment = new CommentEntity();
             // Nếu có parentId, tìm comment cha và thêm vào replies
@@ -298,6 +304,24 @@ public class CommentServiceImpl implements ICommentService {
             // Xóa bản thân comment
             commentRepository.delete(comment);
         }
+    }
+
+    @Override
+    public CommentModel editComment(String id, String content) {
+        UserEntity auth = SecurityUtils.getCurrentUser();
+        CommentEntity comment = commentRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Comment not found with id: " + id));
+        if (!comment.getUser().getId().equals(auth.getId())) {
+            throw new PermissionDeniedException("You do not have permission.");
+        }
+
+        if (content != null && !content.isEmpty()) {
+            comment.setContent(content);
+            comment.setLastModified(LocalDateTime.now());
+        }
+
+        commentRepository.save(comment);
+        return modelMapper.map(comment, CommentModel.class);
     }
 
 }

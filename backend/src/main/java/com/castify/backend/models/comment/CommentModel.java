@@ -21,6 +21,9 @@ public class CommentModel {
     @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS")
     private LocalDateTime timestamp;
 
+    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS")
+    private LocalDateTime lastModified;
+
     private boolean isLiked;
     private UserSimple user;
 }

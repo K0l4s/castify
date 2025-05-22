@@ -1,0 +1,17 @@
+/* Add these to your comment.css file */
+.comment-input {
+  min-height: 43px;
+  transition: all 0.2s ease;
+}
+
+.comment-input:empty:before {
+  content: attr(data-placeholder);
+  color: #888;
+  opacity: 0.7;
+  cursor: text;
+}
+
+.comment-input:focus {
+  outline: none;
+  border-color: #4f46e5;
+}

@@ -102,4 +102,11 @@ public class CommentController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
         }
     }
+
+    @PutMapping("{id}/edit")
+    public ResponseEntity<?> updateComment(@PathVariable String id,
+                                           @RequestParam("content") String content) {
+        CommentModel commentModel = commentService.editComment(id, content);
+        return ResponseEntity.ok(commentModel);
+    }
 }

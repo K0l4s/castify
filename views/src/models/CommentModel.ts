@@ -8,6 +8,7 @@ export interface Comment {
   totalLikes: number;
   totalReplies: number;
   timestamp: string;
+  lastModified: string;
   user: UserSimple;
   liked: boolean;
   replies?: Comment[];
