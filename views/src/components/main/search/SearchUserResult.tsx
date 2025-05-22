@@ -32,18 +32,18 @@ const SearchUserResult = () => {
     };
 
     return (
-        <div className="flex flex-col bg-white dark:bg-gray-700 p-2 rounded-xl min-h-screen">
-            <h1 className="text-2xl font-bold dark:text-white text-black text-center">User</h1>
-            {users.length > 0 ? (
-                users.map((user, index) => (
-                    <div key={index} className="flex">
-                        <UserInforCard {...user} />
-                    </div>
-                ))
-            ) : (
-                <div className="text-center">No user found</div>
-            )}
-
+        <div className="flex flex-col item-centers bg-white dark:bg-gray-700 p-2 rounded-xl">
+            <div className="flex flex-wrap items-center justify-content">
+                {users.length > 0 ? (
+                    users.map((user, index) => (
+                        <div key={index} className="flex">
+                            <UserInforCard {...user} />
+                        </div>
+                    ))
+                ) : (
+                    <div className="text-center">No user found</div>
+                )}
+            </div>
             {pageNumber < totalPages && ( // Hiển thị nút Load More nếu còn trang
                 <p
                     onClick={handleLoadMore}

@@ -1,6 +1,6 @@
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../../../redux/store";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import CreateConversationModal from "../../modals/msg/CreateConversationModal";
 import { shortConversation } from "../../../models/Conversation";
 import { conversationService } from "../../../services/ConversationService";
@@ -53,13 +53,17 @@ const ConversationSidebar = () => {
         }
     };
     const dispatch = useDispatch();
-    useEffect(() => {
-        console.log(conversation);
-        if (conversation) {
-            setConversations((prevConversations) => {
-                const updatedConversations = prevConversations.filter((c) => c.id != conversation.id);
-                const newConversation = { ...conversation };
+    const handledConversationId = useRef<string | null>(null);
 
+    useEffect(() => {
+        if (conversation && conversation.id !== handledConversationId.current) {
+            handledConversationId.current = conversation.id;
+
+            setConversations((prevConversations) => {
+                const exists = prevConversations.some((c) => c.id === conversation.id);
+                if (exists) return prevConversations;
+
+                const newConversation = { ...conversation };
                 if (id === conversation.id && conversation.lastMessage?.id) {
                     newConversation.lastMessage = {
                         ...conversation.lastMessage,
@@ -67,12 +71,14 @@ const ConversationSidebar = () => {
                     };
                 }
 
-                return [newConversation, ...updatedConversations] as shortConversation[];
+                return [newConversation, ...prevConversations];
             });
 
             dispatch(resetNewConversation());
         }
     }, [conversation]);
+
+
     const click = useSelector((state: RootState) => state.message.isClick);
     const handleClickConversation = (converId: string) => {
         setConversations((prevConversations) =>
