@@ -35,6 +35,8 @@ public class CommentEntity {
 
     private LocalDateTime timestamp;
 
+    private LocalDateTime lastModified;
+
     @DBRef(lazy = true)
     private PodcastEntity podcast;
 
