@@ -27,6 +27,7 @@ import Avatar from "../user/Avatar";
 import PlaylistSidebar from "../../../pages/main/playlistPage/PlaylistSidebar";
 import { useDocumentTitle } from "../../../hooks/useDocumentTitle";
 import CounterAnimation from "../custom/animations/CounterAnimation";
+import AddToPlaylistModal from "../../../pages/main/playlistPage/AddToPlaylistModal";
 
 const PodcastViewport: React.FC = () => {
   const location = useLocation();
@@ -40,6 +41,7 @@ const PodcastViewport: React.FC = () => {
   const [showOptions, setShowOptions] = useState(false);
   const [errorRes, setErrorRes] = useState<string | null>(null);
   const [isReportModalOpen, setIsReportModalOpen] = useState(false);
+  const [isPlaylistModalOpen, setIsPlaylistModalOpen] = useState(false);
   const [isShareModalOpen, setIsShareModalOpen] = useState(false);
 
   const [views, setViews] = useState<number>(0);
@@ -52,6 +54,8 @@ const PodcastViewport: React.FC = () => {
   const videoRef = useRef<HTMLVideoElement>(null);
   const podcastLink = `${window.location.origin}/watch?pid=${id}`;
   
+  const [selectedPodcastId, setSelectedPodcastId] = useState<string | null>(null);
+
   const userRedux = useSelector((state: RootState) => state.auth.user);
   const isAuthenticated = useSelector((state: RootState) => state.auth.isAuthenticated);
 
@@ -266,6 +270,11 @@ const PodcastViewport: React.FC = () => {
     toast.info("Save feature is coming soon");
   };
   
+  const toggleAddToPlaylistModal = (podcastId: string) => {
+    setSelectedPodcastId(podcastId);
+    setIsPlaylistModalOpen(!isPlaylistModalOpen);
+  };
+
   // const userInfo = podcast?.user.lastName + " " + podcast?.user.middleName + " " +podcast?.user.firstName;
   const userInfo = podcast?.user.fullname;
 
@@ -391,6 +400,10 @@ const PodcastViewport: React.FC = () => {
                     <FaBookmark className="inline-block mb-1 mr-2" />
                     Save
                   </li>
+                  <li className="px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer" onClick={() => toggleAddToPlaylistModal(podcast.id)}>
+                    <FaBookmark className="inline-block mb-1 mr-2" />
+                    Add to playlist
+                  </li>
                 </ul>
               </div>
             )}
@@ -450,6 +463,15 @@ const PodcastViewport: React.FC = () => {
         onClose={toggleShareModal}
         podcastLink={podcastLink}
       />
+
+      {/* Add to Playlist Modal */}
+      {selectedPodcastId && (
+        <AddToPlaylistModal
+          isOpen={isPlaylistModalOpen}
+          onClose={() => setIsPlaylistModalOpen(false)}
+          podcastId={selectedPodcastId}
+        />
+      )}
     </div>
   );
 };
