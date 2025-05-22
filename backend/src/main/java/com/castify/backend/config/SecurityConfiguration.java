@@ -47,6 +47,7 @@ public class SecurityConfiguration {
             "/api/v1/locations/**",
             "/api/v1/payment/**",
             "/api/v1/podcast/all",
+            "/api/v1/podcast/trending",
             "/api/v1/podcast/recent",
             "/api/v1/podcast/popular",
             "/api/v1/podcast/by-genre",

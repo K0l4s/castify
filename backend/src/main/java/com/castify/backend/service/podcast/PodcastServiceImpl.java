@@ -702,9 +702,12 @@ public class PodcastServiceImpl implements IPodcastService {
 
     private PodcastModel mapToModel(PodcastEntity podcast) {
         UserSimple userSimple = modelMapper.map(podcast.getUser(), UserSimple.class);
-        UserEntity auth = SecurityUtils.getCurrentUser();
+        boolean isLiked = false;
 
-        boolean isLiked = podcastLikeRepository.existsByUserEntityIdAndPodcastEntityId(auth.getId(), podcast.getId());
+        if (SecurityUtils.isAuthenticated()) {
+            UserEntity auth = SecurityUtils.getCurrentUser();
+            isLiked = podcastLikeRepository.existsByUserEntityIdAndPodcastEntityId(auth.getId(), podcast.getId());
+        }
 
         return new PodcastModel(
                 podcast.getId(),
