@@ -1,7 +1,8 @@
 export const setupVideoViewTracking = (
   videoElement: HTMLVideoElement,
   incrementPodcastViews: (id: string) => Promise<any>,
-  id: string
+  id: string,
+  onViewIncremented?: () => void // Callback function to be called when view is incremented
 ) => {
   let watchTime = 0; // Tổng thời gian đã xem
   let lastUpdateTime = 0; // Thời gian cập nhật gần nhất
@@ -31,6 +32,10 @@ export const setupVideoViewTracking = (
 
     // Kiểm tra nếu đủ điều kiện tăng view
     if (watchTime >= continuousThreshold && !viewIncremented) {
+      if (onViewIncremented) {
+        onViewIncremented();
+      }
+      
       incrementPodcastViews(id!)
         .then((response) => {
           console.log("Views incremented:", response);

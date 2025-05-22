@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { getPodcastByAnonymous, getPodcastById, incrementPodcastViews, likePodcast } from "../../../services/PodcastService";
 import { Podcast } from "../../../models/PodcastModel";
@@ -26,6 +26,7 @@ import CustomPodcastVideo from "./CustomPodcastVideo";
 import Avatar from "../user/Avatar";
 import PlaylistSidebar from "../../../pages/main/playlistPage/PlaylistSidebar";
 import { useDocumentTitle } from "../../../hooks/useDocumentTitle";
+import CounterAnimation from "../custom/animations/CounterAnimation";
 
 const PodcastViewport: React.FC = () => {
   const location = useLocation();
@@ -59,7 +60,36 @@ const PodcastViewport: React.FC = () => {
 
   useDocumentTitle(
     podcast? `${podcast?.title} - ${podcast?.user.fullname} | Castify` : null,
-  )
+  );
+
+  const refreshIntervalRef = useRef<NodeJS.Timeout | null>(null);
+
+  const fetchPodcastData = useCallback(async () => {
+    try {
+      if (id) {
+        let podcastData;
+        if (isAuthenticated) {
+          podcastData = await getPodcastById(id);
+        } else {
+          podcastData = await getPodcastByAnonymous(id);
+        }
+        setPodcast(podcastData);
+        setViews(podcastData.views);
+        setTotalLikes(podcastData.totalLikes);
+        setLiked(podcastData.liked);
+        setFollow(podcastData.user.follow);
+        setTotalFollower(podcastData.user.totalFollower);
+      }
+    } catch (error) {
+      if ((error as any).response?.data === "Error: Podcast not found") {
+        setErrorRes("Podcast not found");
+      } else {
+        console.error("Error fetching podcast:", error);
+        setErrorRes("An error occurred while fetching the podcast");
+      }
+    }
+  }, [id, isAuthenticated]);
+
   useEffect(() => {
     const fetchPodcast = async () => {
       try {
@@ -95,10 +125,36 @@ const PodcastViewport: React.FC = () => {
   // increment podcast views
   useEffect(() => {
     if (videoRef.current) {
-      const cleanup = setupVideoViewTracking(videoRef.current, incrementPodcastViews, id!);
+      const cleanup = setupVideoViewTracking(
+        videoRef.current, 
+        incrementPodcastViews, 
+        id!, 
+        handleViewIncrement
+      );
       return cleanup;
     }
   }, [id, isAuthenticated, podcast]);
+  
+  const handleViewIncrement = () => {
+    // Immediately update the UI by incrementing views
+    setViews(prevViews => prevViews + 1);
+  };
+
+  // Add the "cronjob" to refresh data every 30 seconds
+  useEffect(() => {
+    // Start the refresh interval
+    refreshIntervalRef.current = setInterval(() => {
+      fetchPodcastData();
+      console.log("Refreshing podcast data..."); // For debugging
+    }, 30000); // 30 seconds
+    
+    // Clean up on component unmount
+    return () => {
+      if (refreshIntervalRef.current) {
+        clearInterval(refreshIntervalRef.current);
+      }
+    };
+  }, [fetchPodcastData]);
 
   useEffect(() => {
     if (videoRef.current) {
@@ -260,7 +316,9 @@ const PodcastViewport: React.FC = () => {
                 onClick={() => navigate(`/profile/${podcast.username}`)}>
                 {userInfo}
               </span>
-              <span className="text-sm text-gray-700 dark:text-gray-300">{totalFollower} follower</span>
+              <span className="text-sm text-gray-700 dark:text-gray-300">
+                <CounterAnimation value={totalFollower} /> follower
+              </span>
             </div>
             {podcast.user.id !== userRedux?.id ? (
               <CustomButton
@@ -283,7 +341,13 @@ const PodcastViewport: React.FC = () => {
           </div>
           <div className="flex items-center gap-3">
             <CustomButton
-              text={formatViewsWithSeparators(views)}
+              children={
+                <CounterAnimation 
+                  value={views} 
+                  formatter={formatViewsWithSeparators}
+                  className="animate-pulse-once" 
+                />
+              }
               icon={<FaEye size={22} />}
               variant="primary"
               rounded="full"
