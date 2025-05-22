@@ -22,7 +22,7 @@ const UserInforCard = (user: userCard) => {
       ;
   }
   return (
-    <div className=" flex flex-col items-center w-full p-4">
+    <div className=" flex flex-col items-center w-96 p-4">
       <div className="w-full max-w-sm bg-gray-800 rounded-lg shadow-lg p-6">
         <div className="flex flex-col items-center">
           <img

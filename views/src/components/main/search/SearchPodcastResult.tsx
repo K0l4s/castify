@@ -34,7 +34,6 @@ const SearchPodcastResult = () => {
 
   return (
     <div className="flex flex-col bg-white dark:bg-gray-700 p-4 rounded-xl min-h-screen">
-      <h1 className="text-2xl font-bold dark:text-white text-black mb-5 text-center">Podcast</h1>
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 ">
         {podcasts?.map((podcast) => (
           <PodcastCard
