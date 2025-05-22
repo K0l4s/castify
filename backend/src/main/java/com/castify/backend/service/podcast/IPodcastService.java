@@ -31,4 +31,5 @@ public interface IPodcastService {
     void togglePodcastDisplayMode(List<String> podcastIds) throws Exception;
     PodcastModel updatePodcast(String podcastId, EditPodcastDTO editPodcastDTO);
     void deletePodcastsByIds(List<String> podcastIds, boolean isAdmin) throws Exception;
+    PageDTO<PodcastModel> getTrendingPodcasts(int page, int size);
 }

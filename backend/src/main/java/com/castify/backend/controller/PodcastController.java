@@ -388,6 +388,13 @@ public class PodcastController {
         }
     }
 
+    @GetMapping("/trending")
+    public ResponseEntity<PageDTO<PodcastModel>> getTrendingPodcasts(@RequestParam(value = "page", defaultValue = "0") int page,
+                                                                     @RequestParam(value = "size", defaultValue = "10") int size) {
+        PageDTO<PodcastModel> trending = podcastService.getTrendingPodcasts(page, size);
+        return ResponseEntity.ok(trending);
+    }
+
     private void validateCreatePodcastInfo(List<String> genreIds, MultipartFile videoFile) {
         // Kiểm tra số lượng genre
         if (genreIds.size() > 5) {
