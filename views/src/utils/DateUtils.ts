@@ -1,5 +1,5 @@
 import { format, toZonedTime } from "date-fns-tz";
-import { differenceInDays, parseISO } from "date-fns";
+import { differenceInDays, differenceInHours, differenceInMinutes, parseISO } from "date-fns";
 
 const timeZone = 'Asia/Bangkok';
 
@@ -31,13 +31,25 @@ export const formatLastUpdatedFromNow = (dateTime: string): string => {
     return "More than 30 days ago";
   }
 
-  if (daysAgo === 0) {
-    return "Today";
+  if (daysAgo > 0) {
+    if (daysAgo === 1) {
+      return "Yesterday";
+    }
+    return `${daysAgo} days ago`;
   }
 
-  if (daysAgo === 1) {
-    return "Yesterday";
+  const hoursAgo = differenceInHours(today, updatedDate);
+  
+  if (hoursAgo > 0) {
+    return `${hoursAgo} hour${hoursAgo === 1 ? '' : 's'} ago`;
   }
-
-  return `${daysAgo} days ago`;
+  
+  // Less than 1 hour ago
+  const minutesAgo = differenceInMinutes(today, updatedDate);
+  
+  if (minutesAgo > 0) {
+    return `${minutesAgo} minute${minutesAgo === 1 ? '' : 's'} ago`;
+  }
+  
+  return "Just now";
 };

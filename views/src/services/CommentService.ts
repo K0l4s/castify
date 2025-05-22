@@ -61,3 +61,15 @@ export const deleteComment = async (commentIds: string[]) => {
     throw error;
   }
 };
+
+export const editComment = async (commentId: string, content: string) => {
+  try {
+    const response = await axiosInstanceAuth.put(`/api/v1/comment/${commentId}/edit`, null, {
+      params: { content }
+    });
+    return response.data;
+  } catch (error) {
+    console.error("Error editing comment: ", error);
+    throw error;
+  }
+};

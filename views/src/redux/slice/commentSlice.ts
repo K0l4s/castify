@@ -1,6 +1,6 @@
 import { createSlice, PayloadAction, createAsyncThunk } from '@reduxjs/toolkit';
 import { Comment } from '../../models/CommentModel';
-import { addComment, deleteComment, getCommentReplies, getPodcastComments, likeComment } from '../../services/CommentService';
+import { addComment, deleteComment, editComment, getCommentReplies, getPodcastComments, likeComment } from '../../services/CommentService';
 
 interface CommentsState {
   comments: Comment[];
@@ -56,6 +56,14 @@ export const deleteCommentAction = createAsyncThunk(
   }
 );
 
+export const editCommentAction = createAsyncThunk(
+  'comments/editComment',
+  async ({ commentId, content }: { commentId: string; content: string }) => {
+    const response = await editComment(commentId, content);
+    return response;
+  }
+);
+
 const commentsSlice = createSlice({
   name: 'comments',
   initialState,
@@ -99,6 +107,7 @@ const commentsSlice = createSlice({
               parentComment.replies = [];
             }
             parentComment.replies = [...parentComment.replies, action.payload];
+            parentComment.totalReplies = (parentComment.totalReplies || 0) + 1;
             // console.log("Updated parent comment:", parentComment); // Log to check updates
           }
         } else {
@@ -130,6 +139,33 @@ const commentsSlice = createSlice({
             comment.replies = comment.replies.filter(reply => !commentIds.includes(reply.id));
           }
         });
+      })
+      .addCase(editCommentAction.fulfilled, (state, action) => {
+        const editedComment = action.payload;
+        
+        // Find and update the comment in the main comments list
+        const commentIndex = state.comments.findIndex(c => c.id === editedComment.id);
+        if (commentIndex !== -1) {
+          state.comments[commentIndex] = {
+            ...state.comments[commentIndex],
+            content: editedComment.content,
+            lastModified: editedComment.lastModified
+          };
+        } else {
+          // If not found in main list, check all replies
+          state.comments.forEach(comment => {
+            if (comment.replies) {
+              const replyIndex = comment.replies.findIndex(r => r.id === editedComment.id);
+              if (replyIndex !== -1) {
+                comment.replies[replyIndex] = {
+                  ...comment.replies[replyIndex],
+                  content: editedComment.content,
+                  lastModified: editedComment.lastModified
+                };
+              }
+            }
+          });
+        }
       });
   },
 });

@@ -1,8 +1,7 @@
 import React, { useState, useRef, useEffect } from "react";
-import { IoFilter, IoSend } from "react-icons/io5";
+import { IoFilter, IoInformationCircleOutline } from "react-icons/io5";
 import { MdEdit, MdMoreVert } from "react-icons/md";
-import { RxReset } from "react-icons/rx";
-import { formatDateTime } from "../../../utils/DateUtils";
+import { formatLastUpdatedFromNow } from "../../../utils/DateUtils";
 import { HeartIcon } from "../custom/SVG_Icon";
 import CustomButton from "../custom/CustomButton";
 import defaultAvatar from "../../../assets/images/default_avatar.jpg";
@@ -14,12 +13,15 @@ import { AppDispatch, RootState } from "../../../redux/store";
 import { FaAngleDown, FaAngleUp, FaFlag } from "react-icons/fa";
 import { useToast } from "../../../context/ToastProvider";
 import { useNavigate } from "react-router-dom";
-import { addNewComment, deleteCommentAction, fetchCommentReplies, fetchComments, likeCommentAction, resetComments } from "../../../redux/slice/commentSlice";
+import { addNewComment, deleteCommentAction, editCommentAction, fetchCommentReplies, fetchComments, likeCommentAction, resetComments } from "../../../redux/slice/commentSlice";
 import { AiOutlineLoading3Quarters } from "react-icons/ai";
 import ReportModal from "../../modals/report/ReportModal";
 import { ReportType } from "../../../models/Report";
 import ConfirmModal from "../../modals/utils/ConfirmDelete";
 import Avatar from "../user/Avatar";
+import "./comment.css";
+import CustomCommentInput from "../custom/CustomCommentInput";
+import EditCommentModal from "./EditCommentModal";
 
 interface CommentSectionProps {
   podcastId: string;
@@ -28,7 +30,6 @@ interface CommentSectionProps {
 }
 
 const CommentSection: React.FC<CommentSectionProps> = ({ podcastId, totalComments, currentUserId }) => {
-  const [commentContent, setCommentContent] = useState("");
   const [replyContent, setReplyContent] = useState<{ [key: string]: string }>({});
   const [replyingTo, setReplyingTo] = useState<string | null>(null);
   const [expandedComments, setExpandedComments] = useState<{ [key: string]: boolean }>({});
@@ -38,17 +39,18 @@ const CommentSection: React.FC<CommentSectionProps> = ({ podcastId, totalComment
   const [filter, setFilter] = useState("latest");
   const [filterLoading, setFilterLoading] = useState(false);
   const [loadMoreLoading, setLoadMoreLoading] = useState(false);
-  const [commentError, setCommentError] = useState<string | null>(null);
   const [isOpenCommentReportModal, setIsOpenCommentReportModal] = useState(false);
   const [targetId, setTargetId] = useState<string | null>(null);
 
-  const commentDivRef = useRef<HTMLDivElement>(null);
   const replyDivRef = useRef<{ [key: string]: HTMLDivElement | null }>({});
 
   const replyInputRefs = useRef<{ [key: string]: HTMLDivElement | null }>({});
   const [expandedReplies, setExpandedReplies] = useState<{ [key: string]: boolean }>({});
 
   const [mentionedUser, setMentionedUser] = useState<{ [key: string]: string | null }>({});
+
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [commentToEdit, setCommentToEdit] = useState<{ id: string; content: string } | null>(null);
 
   const dispatch = useDispatch<AppDispatch>();
   const { comments, loading, hasMore, page } = useSelector((state: RootState) => state.comments);
@@ -77,39 +79,10 @@ const CommentSection: React.FC<CommentSectionProps> = ({ podcastId, totalComment
     }
   };
 
-  const handleCommentSubmit = async () => {
-    if (commentContent.trim() === "") return;
-
-    if (commentContent.length > 2000) {
-      setCommentError("Comment cannot exceed 2000 characters");
-      return;
-    }
-    
-    try {
-      const formattedContent = commentContent
-        .replace(/<div><br><\/div>/g, "\n")
-        .replace(/<br>/g, "\n")
-        .replace(/<div>/g, "\n")
-        .replace(/<\/div>/g, "");
-      await dispatch(addNewComment({ podcastId, content: formattedContent }));
-      setCommentContent(""); // Clear the input field
-      if (commentDivRef.current) {
-        commentDivRef.current.innerText = ""; // Clear the content of the div
-      }
-    } catch (error) {
-      console.error("Error adding comment:", error);
-    }
-  };
-
-  const handleReplySubmit = async (commentId: string) => {
-    if (replyContent[commentId]?.trim() === "") return;
+  const handleReplySubmit = async (commentId: string, content: string) => {
+    if (!content.trim()) return;
 
     try {
-      const replyText = replyContent[commentId]
-        .replace(/<div><br><\/div>/g, "\n")
-        .replace(/<br>/g, "\n")
-        .replace(/<div>/g, "\n")
-        .replace(/<\/div>/g, "");
       let parentCommentId = commentId;
 
       // Tìm comment cha (comment cấp cao nhất)
@@ -119,20 +92,24 @@ const CommentSection: React.FC<CommentSectionProps> = ({ podcastId, totalComment
       );
 
       if (parentComment) {
-        console.log("Parent comment:", parentComment);
+        // console.log("Parent comment:", parentComment);
         parentCommentId = parentComment.id;
       }
 
-      const mentionedUserString = mentionedUser[commentId] ? mentionedUser[commentId] : undefined;
+      const mentionedUserName = mentionedUser[commentId];
+
+      // const mentionedUserString = mentionedUser[commentId] ? mentionedUser[commentId] : undefined;
 
       await dispatch(addNewComment({
         podcastId,
-        content: replyText,
+        content,
         parentId: parentCommentId,
-        mentionedUser: mentionedUserString
+        mentionedUser: mentionedUserName || undefined
       }));
 
-      setReplyContent({ ...replyContent, [commentId]: "" }); // Clear the input field
+      setExpandedReplies(prev => ({ ...prev, [parentCommentId]: true }));
+
+      // setReplyContent({ ...replyContent, [commentId]: "" }); // Clear the input field
       setReplyingTo(null); // Close the reply input
       setMentionedUser({ ...mentionedUser, [commentId]: null });
     } catch (error) {
@@ -157,47 +134,22 @@ const CommentSection: React.FC<CommentSectionProps> = ({ podcastId, totalComment
     }
 
     setReplyingTo(commentId);
-    const replyText = username === userRedux?.username ? "" : `@${username} `;
-    setReplyContent({ ...replyContent, [commentId]: replyText });
+    setMentionedUser({ ...mentionedUser, [commentId]: username === userRedux?.username ? null : username });
+    // const replyText = username === userRedux?.username ? "" : `@${username} `;
+    setReplyContent({ ...replyContent, [commentId]: "" });
     if (replyDivRef.current[commentId]) {
       replyDivRef.current[commentId]!.scrollIntoView({ behavior: "smooth", block: "center" });
-      replyDivRef.current[commentId]!.focus();
+      setTimeout(() => {
+        const inputEl = replyInputRefs.current[commentId];
+        if (inputEl) {
+          inputEl.focus();
+        }
+      }, 100);
     }
   };
   
-  const handleReplyCancel = () => {
-    setReplyingTo(null);
-  };
-
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
-    if (e.key === "Enter" && e.ctrlKey) {
-      e.preventDefault();
-      handleCommentSubmit();
-    }
-  };
-
-  const handleInput = (e: React.FormEvent<HTMLDivElement>) => {
-    const content = e.currentTarget.innerText || "";
-    if (content.length <= 2000) {
-      setCommentContent(content);
-      setCommentError("");
-    } else {
-      setCommentError("Comment cannot exceed 2000 characters");
-      e.currentTarget.innerText = content.substring(0, 2000); // Giới hạn số ký tự
-      const range = document.createRange();
-      const sel = window.getSelection();
-      range.setStart(e.currentTarget.childNodes[0], 2000);
-      range.collapse(true);
-      sel?.removeAllRanges();
-      sel?.addRange(range);
-      }
-  };
-
-  const handeResetInput = () => {
-    setCommentContent("");
-    if (commentDivRef.current) {
-      commentDivRef.current.innerText = ""; // Clear the content of the div
-    }
+  const handleRemoveMention = (commentId: string) => {
+    setMentionedUser({ ...mentionedUser, [commentId]: null });
   };
 
   const toggleCommentExpansion = (commentId: string) => {
@@ -257,9 +209,17 @@ const CommentSection: React.FC<CommentSectionProps> = ({ podcastId, totalComment
     }
   };
 
-  const handleEdit = (commentId: string) => {
-    console.log("Edit comment:", commentId);
-    toast.info("Edit comment feature is coming soon");
+  const handleEdit = (commentId: string, content: string) => {
+    if (!isAuthenticated) {
+      toast.warning("Please login to do this action");
+      return;
+    }
+    
+    setCommentToEdit({ id: commentId, content });
+    setIsEditModalOpen(true);
+    
+    // Close options menu
+    setShowCommentOptions({});
   };
 
   const handleLike = (commentId: string) => {
@@ -270,6 +230,31 @@ const CommentSection: React.FC<CommentSectionProps> = ({ podcastId, totalComment
     dispatch(likeCommentAction({ commentId }));
   };
 
+  const handleSaveEdit = async (commentId: string, newContent: string) => {
+    try {
+      await dispatch(editCommentAction({ commentId, content: newContent }));
+      toast.success('Comment updated successfully');
+      // Reset edit state
+      setIsEditModalOpen(false);
+      setCommentToEdit(null);
+    } catch (error) {
+      console.error('Failed to update comment:', error);
+      toast.error('Failed to update comment');
+    }
+  };
+
+  useEffect(() => {
+    // Check if any comments have just received their first reply
+    comments.forEach(comment => {
+      if (comment.totalReplies === 1 && !expandedReplies[comment.id]) {
+        // Automatically expand and fetch replies for comments that just got their first reply
+        setExpandedReplies(prev => ({ ...prev, [comment.id]: true }));
+        dispatch(fetchCommentReplies({ commentId: comment.id, isAuthenticated }));
+      }
+    });
+  }, [comments]);
+
+  
   useEffect(() => {
     comments.forEach(comment => {
       const commentRef = document.getElementById(`comment-${comment.id}`);
@@ -319,24 +304,6 @@ const CommentSection: React.FC<CommentSectionProps> = ({ podcastId, totalComment
     };
   }, []);
 
-  const handleRemoveMentionedUser = (commentId: string) => {
-    setMentionedUser({ ...mentionedUser, [commentId]: null });
-  };
-  
-  const handleKeyDownReply = (e: React.KeyboardEvent<HTMLDivElement>, commentId: string) => {
-    if (e.key === "Enter") {
-      e.preventDefault();
-      // Breakline
-    }
-
-    if (e.key === "Enter" && e.ctrlKey) {
-      e.preventDefault();
-      handleReplySubmit(commentId);
-    } else if (e.key === "Delete" && mentionedUser[commentId]) {
-      handleRemoveMentionedUser(commentId);
-    }
-  };
-
   return (
     <div className="mt-4 min-h-screen">
       <div className="flex items-center gap-4 my-2">
@@ -365,6 +332,9 @@ const CommentSection: React.FC<CommentSectionProps> = ({ podcastId, totalComment
             </div>
           )}
         </div>
+        <div className="mb-2 text-black dark:text-white ml-auto">
+          <IoInformationCircleOutline size={24} />
+        </div>
       </div>
       
       {/* Add comment Input Div */}
@@ -383,47 +353,13 @@ const CommentSection: React.FC<CommentSectionProps> = ({ podcastId, totalComment
             usedFrame={userRedux?.usedFrame}
             onClick={() => navigate(`/profile/${userRedux?.username}`)}
           />
-          <div className="flex flex-col w-full items-end gap-2">
-            <div
-              ref={commentDivRef}
-              contentEditable
-              onInput={handleInput}
-              onKeyDown={handleKeyDown}
-              className={`comment-input flex-1 p-2 w-full border rounded-lg bg-gray-200 dark:bg-gray-700 dark:text-white resize-none h-auto max-h-48 overflow-auto ${
-                commentContent.length > 2000 ? "text-red-500" : ""
-              }`}
-              style={{ whiteSpace: "pre-wrap", wordBreak: "break-word" }}
-              data-placeholder="Add a comment..."
-            />
-            <div className="flex justify-between w-full">
-              {commentError && (
-                <div className="text-sm text-red-500">{commentError}</div>
-              )}
-              <div className="text-right text-xs text-gray-500 dark:text-gray-400">
-                {commentContent.length} / 2000
-              </div>
-            </div>
-            <div className="flex gap-3">
-              <Tooltip text="Undo">
-                <CustomButton
-                  icon={<RxReset size={20} />}
-                  onClick={handeResetInput}
-                  variant="ghost"
-                  className="py-3"
-                />
-              </Tooltip>
-
-              <Tooltip text="Send">
-                <CustomButton
-                  icon={<IoSend size={20} />}
-                  onClick={handleCommentSubmit}
-                  variant="primary"
-                  className="bg-gray-600 hover:bg-gray-500 dark:bg-gray-600 hover:dark:bg-gray-500 py-3"
-                />
-              </Tooltip>
-              
-            </div>
-          </div>
+          <CustomCommentInput
+            onSubmit={(content) => {
+              dispatch(addNewComment({ podcastId, content }));
+            }}
+            placeholder="Add a comment..."
+            maxLength={2000}
+          />
         </div>
       ) : (
         <div className="mx-auto my-2 text-center">
@@ -464,7 +400,11 @@ const CommentSection: React.FC<CommentSectionProps> = ({ podcastId, totalComment
             >
               @{comment.user.username}
             </span>
-            <span className="ml-auto">{formatDateTime(comment.timestamp)}</span>
+            {comment.lastModified ? (
+              <span className="ml-auto">Edited {formatLastUpdatedFromNow(comment.lastModified)}</span>
+            ) : (
+              <span className="ml-auto">{formatLastUpdatedFromNow(comment.timestamp)}</span>
+            )}
             <CustomButton
               icon={<MdMoreVert size={20}/>}
               variant="ghost"
@@ -479,7 +419,7 @@ const CommentSection: React.FC<CommentSectionProps> = ({ podcastId, totalComment
                   {comment.user.id === currentUserId ? (
                     <>
                       <li className="px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer" 
-                        onClick={() => handleEdit(comment.id)}>
+                        onClick={() => handleEdit(comment.id, comment.content)}>
                           <MdEdit className="inline-block mb-1 mr-2" />
                           Edit
                       </li>
@@ -563,7 +503,11 @@ const CommentSection: React.FC<CommentSectionProps> = ({ podcastId, totalComment
                 >
                   @{reply.user.username}
                 </span>
-                <span className="ml-auto">{formatDateTime(reply.timestamp)}</span>
+                {reply.lastModified ? (
+                  <span className="ml-auto">Edited {formatLastUpdatedFromNow(reply.lastModified)}</span>
+                ) : (
+                  <span className="ml-auto">{formatLastUpdatedFromNow(reply.timestamp)}</span>
+                )}
 
                 <CustomButton
                   icon={<MdMoreVert size={20}/>}
@@ -579,7 +523,7 @@ const CommentSection: React.FC<CommentSectionProps> = ({ podcastId, totalComment
                       {reply.user.id === userRedux?.id ? (
                         <>
                           <li className="px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer" 
-                            onClick={() => handleEdit(reply.id)}>
+                            onClick={() => handleEdit(reply.id, reply.content)}>
                               <MdEdit className="inline-block mb-1 mr-2" />
                               Edit
                           </li>
@@ -634,58 +578,16 @@ const CommentSection: React.FC<CommentSectionProps> = ({ podcastId, totalComment
                     usedFrame={userRedux?.usedFrame}
                     onClick={() => navigate(`/profile/${userRedux?.username}`)}
                   />
-                  <div className="flex flex-col items-end w-full gap-3">
-                    <div
-                      ref={(el) => {
-                        replyInputRefs.current[reply.id] = el;
-                        if (el && replyContent[reply.id]) {
-                          el.textContent = replyContent[reply.id];
-                        }
-                      }}
-                      contentEditable
-                      className="comment-input flex-1 p-2 w-full border rounded-lg bg-gray-300 dark:bg-gray-700 dark:text-white resize-none h-auto min-h-[43px] overflow-auto"
-                      style={{ whiteSpace: "pre-wrap", wordBreak: "break-word" }}
-                      data-placeholder="Add a reply..."
-                      onInput={(e) => {
-                        const target = e.target as HTMLDivElement;
-                        let content = target.innerHTML;
-
-                        // Loại bỏ thẻ <br/> nếu nó là nội dung duy nhất
-                        if (content === "<br>") {
-                          content = "";
-                          target.innerHTML = "";
-                        }
-
-                        setReplyContent({ ...replyContent, [reply.id]: content });
-                      }}
-                      onKeyDown={(e) => {
-                        if (e.key === "Enter" && e.ctrlKey) {
-                          e.preventDefault();
-                          handleReplySubmit(reply.id);
-                        } else if (e.key === "Enter") {
-                          e.preventDefault();
-                        }
-                      }}
-                    />
-                    <div className="flex gap-3">
-                      <Tooltip text="Cancel">
-                        <CustomButton
-                          icon={<RxReset size={20} />}
-                          onClick={handleReplyCancel}
-                          variant="ghost"
-                          className="py-3 dark:hover:bg-gray-900"
-                        />
-                      </Tooltip>
-                      <Tooltip text="Send">
-                        <CustomButton
-                          icon={<IoSend size={20} />}
-                          onClick={() => handleReplySubmit(reply.id)}
-                          variant="primary"
-                          className="bg-gray-600 hover:bg-gray-500 dark:bg-gray-600 hover:dark:bg-gray-500 py-3"
-                        />
-                      </Tooltip>
-                    </div>
-                  </div>
+                  <CustomCommentInput
+                    onSubmit={(content) => {
+                      handleReplySubmit(reply.id, content);
+                    }}
+                    placeholder="Add a reply..."
+                    maxLength={2000}
+                    mentionedUser={mentionedUser[reply.id]}
+                    onRemoveMention={() => handleRemoveMention(reply.id)}
+                    autoFocus
+                  />
                 </div>
               )}
 
@@ -703,46 +605,16 @@ const CommentSection: React.FC<CommentSectionProps> = ({ podcastId, totalComment
                 usedFrame={userRedux?.usedFrame}
                 onClick={() => navigate(`/profile/${userRedux?.username}`)}
               />
-              <div className="flex flex-col items-end w-full gap-3">
-                <div
-                  ref={(el) => {
-                    replyInputRefs.current[comment.id] = el;
-                    if (el && replyContent[comment.id]) {
-                      el.textContent = replyContent[comment.id];
-                    }
-                  }}
-                  contentEditable
-                  className="comment-input flex-1 p-2 w-full border rounded-lg bg-gray-300 dark:bg-gray-700 dark:text-white resize-none h-auto min-h-[43px] overflow-auto"
-                  style={{ whiteSpace: "pre-wrap", wordBreak: "break-word" }}
-                  data-placeholder="Add a reply..."
-                  onInput={(e) => {
-                    const target = e.target as HTMLDivElement;
-                    const content = target.innerHTML.replace(/<br>/g, "\n");
-                    
-                    setReplyContent({ ...replyContent, [comment.id]: content });
-                    
-                  }}
-                  onKeyDown={(e) => handleKeyDownReply(e, comment.id)}
-                />
-                <div className="flex gap-3">
-                  <Tooltip text="Cancel">
-                    <CustomButton
-                      icon={<RxReset size={20} />}
-                      onClick={handleReplyCancel}
-                      variant="ghost"
-                      className="py-3 dark:hover:bg-gray-900"
-                    />
-                  </Tooltip>
-                  <Tooltip text="Send">
-                    <CustomButton
-                      icon={<IoSend size={20} />}
-                      onClick={() => handleReplySubmit(comment.id)}
-                      variant="primary"
-                      className="bg-gray-600 hover:bg-gray-500 dark:bg-gray-600 hover:dark:bg-gray-500 py-3"
-                    />
-                  </Tooltip>
-                </div>
-              </div>
+              <CustomCommentInput
+                onSubmit={(content) => {
+                  handleReplySubmit(comment.id, content);
+                }}
+                placeholder="Add a reply..."
+                maxLength={2000}
+                mentionedUser={mentionedUser[comment.id]}
+                onRemoveMention={() => handleRemoveMention(comment.id)}
+                autoFocus
+              />
             </div>
           )}
 
@@ -778,6 +650,15 @@ const CommentSection: React.FC<CommentSectionProps> = ({ podcastId, totalComment
         title="Are you sure to delete?"
         onConfirm={confirmDelete}
       />
+      {commentToEdit && (
+        <EditCommentModal
+          isOpen={isEditModalOpen}
+          onClose={() => setIsEditModalOpen(false)}
+          commentId={commentToEdit.id}
+          initialContent={commentToEdit.content}
+          onSave={handleSaveEdit}
+        />
+      )}
     </div>
   );
 };
