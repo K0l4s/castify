@@ -460,9 +460,9 @@ const CommentSection: React.FC<CommentSectionProps> = ({ podcastId, totalComment
               @{comment.user.username}
             </span>
             {comment.lastModified ? (
-              <span className="ml-auto">Edited {formatLastUpdatedFromNow(comment.lastModified)}</span>
+              <span className="ml-auto text-black dark:text-white">Edited {formatLastUpdatedFromNow(comment.lastModified)}</span>
             ) : (
-              <span className="ml-auto">{formatLastUpdatedFromNow(comment.timestamp)}</span>
+              <span className="ml-auto text-black dark:text-white">{formatLastUpdatedFromNow(comment.timestamp)}</span>
             )}
             <CustomButton
               icon={<MdMoreVert size={20}/>}
@@ -567,9 +567,9 @@ const CommentSection: React.FC<CommentSectionProps> = ({ podcastId, totalComment
                   @{reply.user.username}
                 </span>
                 {reply.lastModified ? (
-                  <span className="ml-auto">Edited {formatLastUpdatedFromNow(reply.lastModified)}</span>
+                  <span className="ml-auto text-black dark:text-white">Edited {formatLastUpdatedFromNow(reply.lastModified)}</span>
                 ) : (
-                  <span className="ml-auto">{formatLastUpdatedFromNow(reply.timestamp)}</span>
+                  <span className="ml-auto text-black dark:text-white">{formatLastUpdatedFromNow(reply.timestamp)}</span>
                 )}
 
                 <CustomButton

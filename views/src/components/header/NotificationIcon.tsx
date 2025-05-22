@@ -52,7 +52,7 @@ const NotificationIcon = () => {
                 </button>
             </Tooltip>
             {/* {isOpen && ( */}
-                <NotificationPopup newMessage={newMessage} isOpen={isOpen} />
+                <NotificationPopup newMessage={newMessage} isOpen={isOpen} onClose={() => setIsOpen(false)}/>
             {/* )} */}
         </div>
     );

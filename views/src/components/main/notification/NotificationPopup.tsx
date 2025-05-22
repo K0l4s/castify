@@ -8,10 +8,12 @@ import { IoMdDoneAll } from 'react-icons/io';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '../../../redux/store';
 import { setTotalUnRead } from '../../../redux/slice/notificationSlice';
+import { useClickOutside } from '../../../hooks/useClickOutside';
 
 interface Props {
     newMessage?: NotiModel;
     isOpen: boolean;
+    onClose: () => void;
 }
 
 const NotificationPopup = (props: Props) => {
@@ -24,7 +26,14 @@ const NotificationPopup = (props: Props) => {
     const [loading, setLoading] = useState(false);
 
     const containerRef = useRef<HTMLDivElement>(null);
+    const popupRef = useRef<HTMLDivElement>(null);
     const totalUnRead = useSelector((state: RootState) => state.Notification.totalUnRead);
+
+    useClickOutside(popupRef, () => {
+        if (props.isOpen) {
+            props.onClose();
+        }
+    });
 
     const formatTimeCalculation = (time: string) => {
         const date = new Date(time);
@@ -107,7 +116,7 @@ const NotificationPopup = (props: Props) => {
     if (!props.isOpen) return null;
 
     return (
-        <div className="absolute top-5 right-0 mt-2 w-96 bg-white dark:bg-gray-800 shadow-lg rounded-lg z-10">
+        <div ref={popupRef} className="absolute top-5 right-0 mt-2 w-96 bg-white dark:bg-gray-800 shadow-lg rounded-lg z-10">
             <div className="p-4 max-h-96 overflow-y-auto" onScroll={handleScroll} ref={containerRef}>
                 <h3 className="text-lg font-semibold text-gray-700 dark:text-gray-200 absolute top-0 p-2 right-3 left-0 flex justify-between px-12 pt-5 text-center rounded-lg bg-white dark:bg-gray-800 z-10">
                     <p>Thông báo</p>
@@ -121,7 +130,7 @@ const NotificationPopup = (props: Props) => {
                     </div>
                 </h3>
 
-                <ul className="mt-2 space-y-2 mt-12 overflow-auto">
+                <ul className="mt-12 space-y-2 mt-12 overflow-auto">
                     {notifications.map((noti) => (
                         <li
                             key={noti.id}

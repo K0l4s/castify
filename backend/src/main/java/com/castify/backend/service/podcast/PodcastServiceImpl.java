@@ -4,6 +4,7 @@ import com.castify.backend.entity.*;
 import com.castify.backend.enums.ActivityType;
 import com.castify.backend.enums.NotiType;
 import com.castify.backend.models.PageDTO;
+import com.castify.backend.models.genre.GenreSimple;
 import com.castify.backend.models.podcast.CreatePodcastModel;
 import com.castify.backend.models.podcast.EditPodcastDTO;
 import com.castify.backend.models.podcast.PodcastModel;
@@ -15,6 +16,7 @@ import com.castify.backend.service.notification.INotificationService;
 import com.castify.backend.service.uploadFile.UploadFileServiceImpl;
 import com.castify.backend.service.user.IUserService;
 import com.castify.backend.service.userActivity.UserActivityServiceImpl;
+import com.castify.backend.utils.SecurityUtils;
 import org.bson.types.ObjectId;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -639,6 +641,45 @@ public class PodcastServiceImpl implements IPodcastService {
         }
     }
 
+    @Override
+    public PageDTO<PodcastModel> getTrendingPodcasts(int page, int size) {
+        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime last24Hours = now.minusHours(24);
+
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Order.desc("views")));
+
+        Page<PodcastEntity> podcastPage = podcastRepository.findAllByIsActiveTrue(pageable);
+
+        List<Map.Entry<PodcastEntity, Double>> scored = podcastPage.getContent().stream().map(podcast -> {
+                    long views = podcast.getViews();
+                    long likes24h = podcast.getLikes() == null ? 0 :
+                            podcast.getLikes().stream()
+                                    .filter(like -> like.getTimestamp().isAfter(last24Hours))
+                                    .count();
+
+                    long comments24h = podcast.getComments() == null ? 0 :
+                            podcast.getComments().stream()
+                                    .filter(comment -> comment.getTimestamp().isAfter(last24Hours))
+                                    .count();
+
+                    double score = views * 1.0 + likes24h * 2.0 + comments24h * 3.0;
+
+                    return new AbstractMap.SimpleEntry<>(podcast, score);
+                }).sorted((a, b) -> Double.compare(b.getValue(), a.getValue()))
+                .collect(Collectors.toList());
+
+        List<PodcastModel> models = scored.stream()
+                .map(entry -> mapToModel(entry.getKey()))
+                .collect(Collectors.toList());
+
+        return new PageDTO<>(
+                models,
+                page,
+                podcastPage.getTotalPages(),
+                (int) podcastPage.getTotalElements()
+        );
+    }
+
     private PageDTO<PodcastModel> convertPodcastEntitiesToPageDTO(Page<PodcastEntity> podcastEntities) {
         List<PodcastModel> podcastModels = podcastEntities.getContent().stream()
                 .map(podcast -> {
@@ -657,5 +698,36 @@ public class PodcastServiceImpl implements IPodcastService {
         pageDTO.setTotalElements((int) podcastEntities.getTotalElements());
 
         return pageDTO;
+    }
+
+    private PodcastModel mapToModel(PodcastEntity podcast) {
+        UserSimple userSimple = modelMapper.map(podcast.getUser(), UserSimple.class);
+        boolean isLiked = false;
+
+        if (SecurityUtils.isAuthenticated()) {
+            UserEntity auth = SecurityUtils.getCurrentUser();
+            isLiked = podcastLikeRepository.existsByUserEntityIdAndPodcastEntityId(auth.getId(), podcast.getId());
+        }
+
+        return new PodcastModel(
+                podcast.getId(),
+                podcast.getTitle(),
+                podcast.getContent(),
+                podcast.getThumbnailUrl(),
+                podcast.getVideoUrl(),
+                podcast.getGenres() != null ? podcast.getGenres().stream()
+                        .map(g -> new GenreSimple(g.getId(), g.getName()))
+                        .collect(Collectors.toList()) : new ArrayList<>(),
+                podcast.getViews(),
+                podcast.getDuration(),
+                podcast.getTotalLikes(),
+                podcast.getTotalComments(),
+                podcast.getUser() != null ? podcast.getUser().getUsername() : null,
+                podcast.getCreatedDay(),
+                podcast.getLastEdited(),
+                podcast.isActive(),
+                isLiked,
+                podcast.getUser() != null ? userSimple : null
+        );
     }
 }
