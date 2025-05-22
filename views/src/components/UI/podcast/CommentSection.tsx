@@ -304,6 +304,51 @@ const CommentSection: React.FC<CommentSectionProps> = ({ podcastId, totalComment
     };
   }, []);
 
+  // Helper function to parse content and highlight mentions
+  const renderContentWithMentions = (content: string) => {
+    // Regex to match @username patterns at the beginning of a line
+    const mentionRegex = /^@([a-zA-Z0-9_]+)/;
+    
+    // Split content by newlines to preserve formatting
+    const lines = content.split('\n');
+    
+    return lines.map((line, lineIndex) => {
+      // Check if the line starts with @username
+      const mentionMatch = line.match(mentionRegex);
+      
+      if (mentionMatch && mentionMatch[1]) {
+        const username = mentionMatch[1];
+        const restOfLine = line.substring(mentionMatch[0].length);
+        
+        return (
+          <React.Fragment key={lineIndex}>
+            <span>
+              <span 
+                className="text-blue-600 dark:text-blue-400 cursor-pointer hover:underline"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  window.open(`/profile/${username}`, '_blank');
+                }}
+              >
+                @{username}
+              </span>
+              {restOfLine}
+            </span>
+            {lineIndex < lines.length - 1 && <br />}
+          </React.Fragment>
+        );
+      }
+      
+      // Regular line without mention
+      return (
+        <React.Fragment key={lineIndex}>
+          {line}
+          {lineIndex < lines.length - 1 && <br />}
+        </React.Fragment>
+      );
+    });
+  };
+
   return (
     <div className="mt-4 min-h-screen">
       <div className="flex items-center gap-4 my-2">
@@ -332,8 +377,22 @@ const CommentSection: React.FC<CommentSectionProps> = ({ podcastId, totalComment
             </div>
           )}
         </div>
-        <div className="mb-2 text-black dark:text-white ml-auto">
-          <IoInformationCircleOutline size={24} />
+        {/* How to use*/}
+        <div className="mb-2 text-black dark:text-white ml-auto hover:text-blue-600 dark:hover:text-blue-600">
+          <Tooltip 
+            text="Press Shift+Enter to break a line"
+            position="left"
+            maxWidth="220px"
+            backgroundColor="#374151"
+            textColor="white"
+            fontSize="0.875rem"
+            delay={200}
+            showArrow={true}
+          >
+            <div className="cursor-help">
+              <IoInformationCircleOutline size={24} />
+            </div>
+          </Tooltip>
         </div>
       </div>
       
@@ -441,8 +500,12 @@ const CommentSection: React.FC<CommentSectionProps> = ({ podcastId, totalComment
               </div>
             )}
           </div>
-          <pre id={`comment-${comment.id}`} className={`text-base text-gray-800 dark:text-gray-200 whitespace-pre-wrap ${expandedComments[comment.id] ? '' : 'line-clamp-5'}`} style={{ fontFamily: 'inherit', fontSize: 'inherit' }}>
-            {comment.content}
+          <pre 
+            id={`comment-${comment.id}`} 
+            className={`text-base text-gray-800 dark:text-gray-200 whitespace-pre-wrap ${expandedComments[comment.id] ? '' : 'line-clamp-5'}`} 
+            style={{ fontFamily: 'inherit', fontSize: 'inherit' }}
+          >
+            {renderContentWithMentions(comment.content)}
           </pre>
           {showCommentToggle[comment.id] && (
             <button onClick={() => toggleCommentExpansion(comment.id)} className="text-blue-600 dark:text-blue-300 font-medium mt-2">
@@ -544,8 +607,11 @@ const CommentSection: React.FC<CommentSectionProps> = ({ podcastId, totalComment
                   </div>
                 )}
               </div>
-              <pre className="text-base text-gray-800 dark:text-gray-200 whitespace-pre-wrap" style={{ fontFamily: 'inherit', fontSize: 'inherit' }}>
-                {reply.content}
+              <pre 
+                className="text-base text-gray-800 dark:text-gray-200 whitespace-pre-wrap" 
+                style={{ fontFamily: 'inherit', fontSize: 'inherit' }}
+              >
+                {renderContentWithMentions(reply.content)}
               </pre>
               <div className="flex items-center text-gray-600 dark:text-gray-400 mt-2">
                 <Tooltip text="Reaction">

@@ -11,6 +11,7 @@ import ShareModal from "../../../components/modals/podcast/ShareModal";
 import ReportModal from "../../../components/modals/report/ReportModal";
 import { ReportType } from "../../../models/Report";
 import AddToPlaylistModal from "../playlistPage/AddToPlaylistModal";
+import not_found_404 from "../../../assets/images/not_found_404.png";
 
 const ProfilePage: React.FC = () => {
   const navigate = useNavigate();
@@ -46,7 +47,7 @@ const ProfilePage: React.FC = () => {
       setTotalPages(response.totalPages);
       setLoading(false);
     } catch (error) {
-      setError("Failed to fetch users");
+      setError("User not found :(");
       setLoading(false);
     }
   };
@@ -113,9 +114,10 @@ const ProfilePage: React.FC = () => {
 
   if (error) {
     return (
-      <div className="min-h-screen">
-        <div className="mx-auto flex justify-center ">
-          {error}
+      <div className="max-h-screen">
+        <div className="mx-auto flex flex-col items-center">
+          <span className="text-black dark:text-white text-lg font-semibold">{error}</span>
+          <img src={not_found_404} alt="not_found_error" className="lg:w-[50%] w-full"/>
         </div>
       </div>
     );
