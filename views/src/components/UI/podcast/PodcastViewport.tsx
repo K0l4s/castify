@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { getPodcastByAnonymous, getPodcastById, incrementPodcastViews, likePodcast } from "../../../services/PodcastService";
 import { Podcast } from "../../../models/PodcastModel";
@@ -26,6 +26,8 @@ import CustomPodcastVideo from "./CustomPodcastVideo";
 import Avatar from "../user/Avatar";
 import PlaylistSidebar from "../../../pages/main/playlistPage/PlaylistSidebar";
 import { useDocumentTitle } from "../../../hooks/useDocumentTitle";
+import CounterAnimation from "../custom/animations/CounterAnimation";
+import AddToPlaylistModal from "../../../pages/main/playlistPage/AddToPlaylistModal";
 
 const PodcastViewport: React.FC = () => {
   const location = useLocation();
@@ -39,6 +41,7 @@ const PodcastViewport: React.FC = () => {
   const [showOptions, setShowOptions] = useState(false);
   const [errorRes, setErrorRes] = useState<string | null>(null);
   const [isReportModalOpen, setIsReportModalOpen] = useState(false);
+  const [isPlaylistModalOpen, setIsPlaylistModalOpen] = useState(false);
   const [isShareModalOpen, setIsShareModalOpen] = useState(false);
 
   const [views, setViews] = useState<number>(0);
@@ -51,6 +54,8 @@ const PodcastViewport: React.FC = () => {
   const videoRef = useRef<HTMLVideoElement>(null);
   const podcastLink = `${window.location.origin}/watch?pid=${id}`;
   
+  const [selectedPodcastId, setSelectedPodcastId] = useState<string | null>(null);
+
   const userRedux = useSelector((state: RootState) => state.auth.user);
   const isAuthenticated = useSelector((state: RootState) => state.auth.isAuthenticated);
 
@@ -59,7 +64,36 @@ const PodcastViewport: React.FC = () => {
 
   useDocumentTitle(
     podcast? `${podcast?.title} - ${podcast?.user.fullname} | Castify` : null,
-  )
+  );
+
+  const refreshIntervalRef = useRef<NodeJS.Timeout | null>(null);
+
+  const fetchPodcastData = useCallback(async () => {
+    try {
+      if (id) {
+        let podcastData;
+        if (isAuthenticated) {
+          podcastData = await getPodcastById(id);
+        } else {
+          podcastData = await getPodcastByAnonymous(id);
+        }
+        setPodcast(podcastData);
+        setViews(podcastData.views);
+        setTotalLikes(podcastData.totalLikes);
+        setLiked(podcastData.liked);
+        setFollow(podcastData.user.follow);
+        setTotalFollower(podcastData.user.totalFollower);
+      }
+    } catch (error) {
+      if ((error as any).response?.data === "Error: Podcast not found") {
+        setErrorRes("Podcast not found");
+      } else {
+        console.error("Error fetching podcast:", error);
+        setErrorRes("An error occurred while fetching the podcast");
+      }
+    }
+  }, [id, isAuthenticated]);
+
   useEffect(() => {
     const fetchPodcast = async () => {
       try {
@@ -95,10 +129,36 @@ const PodcastViewport: React.FC = () => {
   // increment podcast views
   useEffect(() => {
     if (videoRef.current) {
-      const cleanup = setupVideoViewTracking(videoRef.current, incrementPodcastViews, id!);
+      const cleanup = setupVideoViewTracking(
+        videoRef.current, 
+        incrementPodcastViews, 
+        id!, 
+        handleViewIncrement
+      );
       return cleanup;
     }
   }, [id, isAuthenticated, podcast]);
+  
+  const handleViewIncrement = () => {
+    // Immediately update the UI by incrementing views
+    setViews(prevViews => prevViews + 1);
+  };
+
+  // Add the "cronjob" to refresh data every 30 seconds
+  useEffect(() => {
+    // Start the refresh interval
+    refreshIntervalRef.current = setInterval(() => {
+      fetchPodcastData();
+      console.log("Refreshing podcast data..."); // For debugging
+    }, 30000); // 30 seconds
+    
+    // Clean up on component unmount
+    return () => {
+      if (refreshIntervalRef.current) {
+        clearInterval(refreshIntervalRef.current);
+      }
+    };
+  }, [fetchPodcastData]);
 
   useEffect(() => {
     if (videoRef.current) {
@@ -210,6 +270,11 @@ const PodcastViewport: React.FC = () => {
     toast.info("Save feature is coming soon");
   };
   
+  const toggleAddToPlaylistModal = (podcastId: string) => {
+    setSelectedPodcastId(podcastId);
+    setIsPlaylistModalOpen(!isPlaylistModalOpen);
+  };
+
   // const userInfo = podcast?.user.lastName + " " + podcast?.user.middleName + " " +podcast?.user.firstName;
   const userInfo = podcast?.user.fullname;
 
@@ -229,7 +294,7 @@ const PodcastViewport: React.FC = () => {
         <CustomPodcastVideo user={podcast.user} title={podcast.title} videoRef={videoRef} videoSrc={podcast.videoUrl} posterSrc={podcast.thumbnailUrl || "/TEST.png"}/>
  
         {!podcast.active && (
-          <div>
+          <div className="mt-4">
             <span className="font-medium py-2 px-4 rounded-full bg-gray-800 dark:bg-gray-700 text-white">
               <MdLockPerson className="mb-1 mr-1 inline-block" />
               Private
@@ -260,7 +325,9 @@ const PodcastViewport: React.FC = () => {
                 onClick={() => navigate(`/profile/${podcast.username}`)}>
                 {userInfo}
               </span>
-              <span className="text-sm text-gray-700 dark:text-gray-300">{totalFollower} follower</span>
+              <span className="text-sm text-gray-700 dark:text-gray-300">
+                <CounterAnimation value={totalFollower} /> follower
+              </span>
             </div>
             {podcast.user.id !== userRedux?.id ? (
               <CustomButton
@@ -283,7 +350,13 @@ const PodcastViewport: React.FC = () => {
           </div>
           <div className="flex items-center gap-3">
             <CustomButton
-              text={formatViewsWithSeparators(views)}
+              children={
+                <CounterAnimation 
+                  value={views} 
+                  formatter={formatViewsWithSeparators}
+                  className="animate-pulse-once" 
+                />
+              }
               icon={<FaEye size={22} />}
               variant="primary"
               rounded="full"
@@ -326,6 +399,10 @@ const PodcastViewport: React.FC = () => {
                   <li className="px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer" onClick={handleSave}>
                     <FaBookmark className="inline-block mb-1 mr-2" />
                     Save
+                  </li>
+                  <li className="px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer" onClick={() => toggleAddToPlaylistModal(podcast.id)}>
+                    <FaBookmark className="inline-block mb-1 mr-2" />
+                    Add to playlist
                   </li>
                 </ul>
               </div>
@@ -386,6 +463,15 @@ const PodcastViewport: React.FC = () => {
         onClose={toggleShareModal}
         podcastLink={podcastLink}
       />
+
+      {/* Add to Playlist Modal */}
+      {selectedPodcastId && (
+        <AddToPlaylistModal
+          isOpen={isPlaylistModalOpen}
+          onClose={() => setIsPlaylistModalOpen(false)}
+          podcastId={selectedPodcastId}
+        />
+      )}
     </div>
   );
 };

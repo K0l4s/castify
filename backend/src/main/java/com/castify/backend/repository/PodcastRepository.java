@@ -19,6 +19,7 @@ import java.util.Optional;
 public interface PodcastRepository extends MongoRepository<PodcastEntity, String> {
     Optional<List<PodcastEntity>> findAllByUserId(String userId);
     Optional<PodcastEntity> findByIdAndIsActiveTrue(String id);
+    Page<PodcastEntity> findAllByIsActiveTrue(Pageable pageable);
     @Query("{ 'user.id': ?0, 'views': { $gte: ?1 } }")
     Page<PodcastEntity> findByFilters(String userId, int minViews, Pageable pageable);
 

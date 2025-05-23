@@ -15,4 +15,11 @@ public class SecurityUtils {
 
         return (UserEntity) authentication.getPrincipal();
     }
+
+    public static boolean isAuthenticated() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        return authentication != null
+                && authentication.isAuthenticated()
+                && !"anonymousUser".equals(authentication.getPrincipal());
+    }
 }

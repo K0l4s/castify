@@ -81,7 +81,7 @@ const PodcastTag: React.FC<PodcastTagProps> = ({ podcast, onReport, onAddToPlayl
         </div>
       </Link>
 
-      <div className="p-4 flex flex-col gap-2 items-center">
+      <div className="p-4 flex flex-col gap-2">
         <div className="flex gap-3">
           <Link to={`/profile/${podcast.user.username}`} className="flex-shrink-0">
             {/* <img

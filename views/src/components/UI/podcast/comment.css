@@ -1,0 +1,25 @@
+/* Add this to your style.css file */
+.mentioned-user-tag {
+  display: inline-flex;
+  align-items: center;
+  background-color: rgba(59, 130, 246, 0.2);
+  border-radius: 9999px;
+  padding: 0.25rem 0.75rem;
+  margin-right: 0.5rem;
+  margin-bottom: 0.5rem;
+  font-size: 0.875rem;
+}
+
+.dark .mentioned-user-tag {
+  background-color: rgba(59, 130, 246, 0.3);
+}
+
+.mentioned-user-tag button {
+  margin-left: 0.5rem;
+  color: rgba(59, 130, 246, 0.8);
+  transition: color 0.2s;
+}
+
+.mentioned-user-tag button:hover {
+  color: rgba(59, 130, 246, 1);
+}
