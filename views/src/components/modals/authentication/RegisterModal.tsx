@@ -7,6 +7,7 @@ import { useEffect, useState } from "react";
 // import CustomInput from "../../UI/custom/CustomInput";
 import { locationService } from "../../../services/LocationService";
 import CustomInput from "../../UI/custom/CustomInput";
+import { useLanguage } from "../../../context/LanguageContext";
 
 interface DefaultModalProps {
   trigger: () => void;
@@ -170,11 +171,11 @@ const RegisterModal = (props: DefaultModalProps) => {
   const buttonClasses = "w-full flex justify-center py-2 px-4 border border-transparent rounded-md " +
     "text-sm font-medium text-white focus:outline-none focus:ring-2 focus:ring-offset-2 " +
     "focus:ring-offset-gray-800 transition-colors duration-200";
-
+  const {language} = useLanguage();
   return (
     <CustomModal
       animation="zoom"
-      title={step === 1 ? "Create Account - Step 1" : "Create Account - Step 2"}
+      title={language.register.title + " - "+language.register.step +" " + step}
       isOpen={props.isOpen}
       onClose={props.onClose}
       size="lg"
@@ -184,11 +185,11 @@ const RegisterModal = (props: DefaultModalProps) => {
           {step === 1 ? (
             <>
               <div>
-                <p className="font-bold text-md">Register your Account</p>
+                <p className="font-bold text-xl">{language.register.description}</p>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <label htmlFor="email" className={labelClasses}>Email</label>
+                  <label htmlFor="email" className={labelClasses}>{language.register.email}</label>
                   <CustomInput
                     type="email"
                     id="email"
@@ -200,7 +201,7 @@ const RegisterModal = (props: DefaultModalProps) => {
                   />
                 </div>
                 <div>
-                  <label htmlFor="repeatEmail" className={labelClasses}>Confirm Email</label>
+                  <label htmlFor="repeatEmail" className={labelClasses}>{language.register.confirmEmail}</label>
                   <CustomInput
                     type="email"
                     id="repeatEmail"
@@ -215,7 +216,7 @@ const RegisterModal = (props: DefaultModalProps) => {
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <label htmlFor="password" className={labelClasses}>Password</label>
+                  <label htmlFor="password" className={labelClasses}>{language.register.password}</label>
                   <CustomInput
                     type="password"
                     id="password"
@@ -228,7 +229,7 @@ const RegisterModal = (props: DefaultModalProps) => {
                   />
                 </div>
                 <div>
-                  <label htmlFor="confirmPassword" className={labelClasses}>Confirm Password</label>
+                  <label htmlFor="confirmPassword" className={labelClasses}>{language.register.confirmPassword}</label>
                   <CustomInput
                     type="password"
                     id="confirmPassword"
@@ -246,18 +247,18 @@ const RegisterModal = (props: DefaultModalProps) => {
                 onClick={handleNext}
                 className={`${buttonClasses} bg-indigo-600 hover:bg-indigo-700`}
               >
-                Next
+                {language.register.next}
               </button>
             </>
           ) : (
             <>
               <div>
-                <p className="font-bold text-md">Register for {formData.email} (*)</p>
+                <p className="font-bold text-md">{language.register.registerFor} {formData.email} (*)</p>
               </div>
               {/* Step 2 Fields */}
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div>
-                  <label htmlFor="firstName" className={labelClasses}>First Name</label>
+                  <label htmlFor="firstName" className={labelClasses}>{language.register.firstName}</label>
                   <CustomInput
                     type="text"
                     id="firstName"
@@ -269,7 +270,7 @@ const RegisterModal = (props: DefaultModalProps) => {
                   />
                 </div>
                 <div>
-                  <label htmlFor="middleName" className={labelClasses}>Middle Name</label>
+                  <label htmlFor="middleName" className={labelClasses}>{language.register.middleName}</label>
                   <CustomInput
                     type="text"
                     id="middleName"
@@ -280,7 +281,7 @@ const RegisterModal = (props: DefaultModalProps) => {
                   />
                 </div>
                 <div>
-                  <label htmlFor="lastName" className={labelClasses}>Last Name</label>
+                  <label htmlFor="lastName" className={labelClasses}>{language.register.lastName}</label>
                   <CustomInput
                     type="text"
                     id="lastName"
@@ -295,7 +296,7 @@ const RegisterModal = (props: DefaultModalProps) => {
 
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div>
-                  <label htmlFor="birthday" className={labelClasses}>Birthday</label>
+                  <label htmlFor="birthday" className={labelClasses}>{language.register.birthday}</label>
                   <CustomInput
                     type="date"
                     id="birthday"
@@ -307,7 +308,7 @@ const RegisterModal = (props: DefaultModalProps) => {
                   />
                 </div>
                 <div>
-                  <label htmlFor="phone" className={labelClasses}>Phone</label>
+                  <label htmlFor="phone" className={labelClasses}>{language.register.phone}</label>
                   <CustomInput
                     type="tel"
                     id="phone"
@@ -319,7 +320,7 @@ const RegisterModal = (props: DefaultModalProps) => {
                   />
                 </div>
                 <div>
-                  <label htmlFor="nickName" className={labelClasses}>Nickname</label>
+                  <label htmlFor="nickName" className={labelClasses}>{language.register.nickname}</label>
                   <CustomInput
                     type="text"
                     id="nickName"
@@ -331,7 +332,7 @@ const RegisterModal = (props: DefaultModalProps) => {
                 </div>
               </div>
               <div>
-                <label htmlFor="addressElements" className={labelClasses}>Hamlet</label>
+                <label htmlFor="addressElements" className={labelClasses}>{language.register.hamlet}</label>
                 <CustomInput
                   type="text"
                   id="addressElements"
@@ -345,7 +346,7 @@ const RegisterModal = (props: DefaultModalProps) => {
               {/* <div className="grid grid-cols-1 md:grid-cols-3 gap-4"> */}
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div>
-                  <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">Provinces</label>
+                  <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">{language.register.province}</label>
                   {/* <CustomInput
                       type="text"
                       name="provinces"
@@ -364,14 +365,14 @@ const RegisterModal = (props: DefaultModalProps) => {
                     className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
                     required
                   >
-                    <option value="">Select Provinces</option>
+                    <option value="">{language.register.select} {language.register.province}</option>
                     {provincesList.map(province => (
                       <option key={province.id} value={province.id}>{province.name}</option>
                     ))}
                   </select>
                 </div>
                 <div>
-                  <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">District</label>
+                  <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">{language.register.district}</label>
                   {/* <CustomInput
                       type="text"
                       name="district"
@@ -389,14 +390,14 @@ const RegisterModal = (props: DefaultModalProps) => {
                     className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
                     required
                   >
-                    <option value="">Select District</option>
+                    <option value="">{language.register.select} {language.register.district}</option>
                     {districtsList.map(district => (
                       <option key={district.id} value={district.id}>{district.name}</option>
                     ))}
                   </select>
                 </div>
                 <div>
-                  <label className="block text-sm font-semibold text-gray-700 dark:text-gray -300 mb-1">Ward</label>
+                  <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">{language.register.ward}</label>
                   {/* <CustomInput
                       type="text"
                       name="ward"
@@ -414,7 +415,7 @@ const RegisterModal = (props: DefaultModalProps) => {
                     className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
                     required
                   >
-                    <option value="">Select Ward</option>
+                    <option value="">{language.register.select} {language.register.ward}</option>
                     {wardsList.map(ward => (
                       <option key={ward.id} value={ward.id}>{ward.name}</option>
                     ))}
@@ -470,7 +471,7 @@ const RegisterModal = (props: DefaultModalProps) => {
                 </div> */}
               </div>
               <p className="text-sm text-gray-500 dark:text-gray-400 text-center">
-                By creating an account, you agree to our <Link to="/terms" target="_blank" rel="noopener noreferrer" className="text-red-500 dark:text-red-500">Terms of Service</Link> and <Link to="/privacy" target="_blank" rel="noopener noreferrer" className="text-red-500 dark:text-red-500">Privacy Policy</Link>.
+                {language.register.accept} <Link to="/terms" target="_blank" rel="noopener noreferrer" className="text-red-500 dark:text-red-500">{language.register.terms}</Link> {language.register.and} <Link to="/privacy" target="_blank" rel="noopener noreferrer" className="text-red-500 dark:text-red-500">{language.register.privacy}</Link>.
               </p>
               <div className="flex gap-4">
                 {/* <button
@@ -486,7 +487,7 @@ const RegisterModal = (props: DefaultModalProps) => {
                   className={`${buttonClasses} bg-indigo-600 hover:bg-indigo-700 ${isRequest && 'cursor-not-allowed bg-gray-600'}`}
                   {...isRequest && { disabled: true }}
                 >
-                  {isRequest ? 'Loading...' : 'Create Account'}
+                  {isRequest ? 'Loading...' : language.register.button}
                 </button>
               </div>
             </>
@@ -529,14 +530,14 @@ const RegisterModal = (props: DefaultModalProps) => {
               onClick={props.trigger}
               className="font-medium text-indigo-600 hover:text-indigo-500 dark:text-indigo-400"
             >
-              Sign in instead
+              {language.register.signIn}
             </button>
             <span>•</span>
             <button
               type="button"
               className="font-medium text-indigo-600 hover:text-indigo-500 dark:text-indigo-400"
             >
-              Forgot password?
+              {language.register.forgotPassword}
             </button>
           </div>
         </form>

@@ -1,7 +1,8 @@
 import React, { useRef } from 'react';
 import { IoChevronBackOutline, IoChevronForwardOutline } from 'react-icons/io5';
 import Tooltip from '../../../components/UI/custom/Tooltip';
-
+import { useLanguage } from '../../../context/LanguageContext';
+import en from '../../../locales/en.json';
 interface TabNavigationProps {
   selectedTab: string;
   onSelectTab: (tab: string) => void;
@@ -10,7 +11,8 @@ interface TabNavigationProps {
 
 const TabNavigation: React.FC<TabNavigationProps> = ({ selectedTab, onSelectTab, genres }) => {
   // const tabs = ['Popular', 'Recent', ...genres.map((genre) => genre.name)];
-  const tabs = ['Popular', 'Recent', ...(Array.isArray(genres) ? genres.map((genre) => genre.name) : [])];
+  const {language} = useLanguage();
+  const tabs = [language.tabNav.popular, language.tabNav.recent, ...(Array.isArray(genres) ? genres.map((genre) => genre.name) : [])];
 
   console.log('Genres:', genres);
 
@@ -46,7 +48,7 @@ const TabNavigation: React.FC<TabNavigationProps> = ({ selectedTab, onSelectTab,
         {tabs.map((tab) => (
           <button
             key={tab}
-            className={`px-5 py-3 text-sm font-medium rounded-2xl whitespace-nowrap transform transition-all duration-300 ${selectedTab === tab
+            className={`px-5 py-3 text-sm font-medium rounded-2xl whitespace-nowrap transform transition-all duration-300 ${selectedTab === tab || (selectedTab === en.tabNav.popular && tab === language.tabNav.popular ) || (selectedTab === en.tabNav.recent && tab === language.tabNav.recent )
                 ? 'bg-blue-600 text-white shadow-xl hover:bg-blue-700 border border-white/10'
                 : 'bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700 text-gray-800 dark:text-gray-200 hover:text-gray-900 dark:hover:text-white shadow-lg border border-gray-200/30 dark:border-gray-700/30'
               }`}

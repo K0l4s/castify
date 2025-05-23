@@ -11,6 +11,7 @@ import com.castify.backend.models.user.ShortUser;
 import com.castify.backend.repository.ChatRepository;
 import com.castify.backend.repository.MessageRepository;
 import com.castify.backend.repository.UserRepository;
+import com.castify.backend.service.blacklist.IBlacklistService;
 import com.castify.backend.service.notification.INotificationService;
 import com.castify.backend.service.uploadFile.IUploadFileService;
 import com.castify.backend.service.user.IUserService;
@@ -53,6 +54,8 @@ public class ChatServiceImpl implements IChatService {
     private IUploadFileService uploadFileService;
     @Autowired
     private INotificationService notificationService;
+    @Autowired
+    private IBlacklistService blacklistService;
     @Override
     public ShortConversationModel createConversation(CreateChatRequest request) throws Exception {
         ChatEntity chatEntity = modelMapper.map(request, ChatEntity.class);
@@ -220,7 +223,12 @@ public class ChatServiceImpl implements IChatService {
     @Override
     public MessageResponse sendMessage(String message, String groupId) throws Exception {
         UserEntity user = userService.getUserByAuthentication();
-        notificationService.saveNotification(user.getId(), NotiType.WARNING,"CẢNH BÁO VI PHẠM!","Tin nhắn của bạn có chứa từ khóa cấm, hãy thử lại sau!","");
+        if(blacklistService.calculateViolationScore(message)>=1)
+        {
+//                String receiverId, NotiType type, String title, String content, String url
+            notificationService.saveNotification(user.getId(), NotiType.WARNING,"CẢNH BÁO VI PHẠM!","Tin nhắn của bạn có chứa từ khóa cấm, hãy thử lại sau!","");
+            throw new Exception("Comment content is unavailable!");
+        }
         checkValidMessage(groupId, user.getId());
         MessageEntity msg = new MessageEntity();
         msg.setSender(user);

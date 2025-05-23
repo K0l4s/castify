@@ -12,6 +12,8 @@ import ReportModal from "../../../components/modals/report/ReportModal";
 import { ReportType } from "../../../models/Report";
 import AddToPlaylistModal from "../playlistPage/AddToPlaylistModal";
 
+import { useLanguage } from "../../../context/LanguageContext";
+
 const ProfilePage: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
@@ -120,17 +122,18 @@ const ProfilePage: React.FC = () => {
       </div>
     );
   }
-
+  const { language } = useLanguage();
   return (
     <div className="min-h-screen">
+     
       <div className="container mx-auto px-4 py-8">
         <div className="mx-auto">
           <ProfileMainContent />
           {/* selection */}
           <div className="flex justify-center gap-4 mb-8 p-2 bg-white dark:bg-gray-800 backdrop-blur-sm rounded-3xl shadow-xl mt-5">
-            <CustomButton variant={sortBy === 'newest' ? 'primary' : 'secondary'} onClick={() => handleSortChange('newest')}>Newest</CustomButton>
-            <CustomButton variant={sortBy === 'views' ? 'primary' : 'secondary'} onClick={() => handleSortChange('views')}>Views</CustomButton>
-            <CustomButton variant={sortBy === 'oldest' ? 'primary' : 'secondary'} onClick={() => handleSortChange('oldest')}>Oldest</CustomButton>
+            <CustomButton variant={sortBy === 'newest' ? 'primary' : 'secondary'} onClick={() => handleSortChange('newest')}>{language.profile.newest}</CustomButton>
+            <CustomButton variant={sortBy === 'views' ? 'primary' : 'secondary'} onClick={() => handleSortChange('views')}>{language.profile.view}</CustomButton>
+            <CustomButton variant={sortBy === 'oldest' ? 'primary' : 'secondary'} onClick={() => handleSortChange('oldest')}>{language.profile.oldest}</CustomButton>
           </div>
           <div className="min-h-[80vh]">
           <div className="flex flex-wrap

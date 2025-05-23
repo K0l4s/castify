@@ -8,7 +8,7 @@
         "playlist": "Danh sách phát",
         "studio": "Studio"
     },
-    "navbar":{
+    "navbar": {
         "search": "Tìm kiếm podcast, tập phim, nhà sáng tạo...",
         "profile": "Trang cá nhân",
         "upload": "Tải lên",
@@ -19,10 +19,13 @@
         "logout": "Đăng xuất",
         "language": "Ngôn ngữ"
     },
-    "profile":{
+    "profile": {
         "followers": "Người theo dõi",
         "following": "Đang theo dõi",
         "posts": "Bài viết",
+        "newest": "Mới nhất",
+        "view": "Phổ biến",
+        "oldest": "Cũ nhất",
         "reactions": "Tương tác",
         "studio": "Studio",
         "edit": "Chỉnh sửa",
@@ -35,5 +38,68 @@
         "changePhone": "Thay đổi số điện thoại",
         "changeName": "Thay đổi tên",
         "changeGender": "Thay đổi giới tính"
+    },
+    "tabNav": {
+        "popular": "Phổ biến",
+        "recent": "Truy cập gần đây"
+    },
+    "login": {
+        "welcome": "Chào mừng bạn trở lại!",
+        "description": "Vui lòng nhập thông tin xác thực của bạn để truy cập tài khoản của bạn.",
+        "login": "Đăng nhập",
+        "register": "Đăng ký",
+        "email": "Email hoặc Tên người dùng",
+        "password": "Mật khẩu",
+        "dontHaveAccount": "Bạn chưa có tài khoản?",
+        "registerHere": "Đăng ký tại đây",
+        "forgotPassword": "Quên mật khẩu?",
+        "or": "hoặc tiếp tục với",
+        "loginWithGoogle": "Đăng nhập bằng Google"
+    },
+    "register": {
+        "button": "Đăng ký",
+        "step": "Bước",
+        "title": "Tạo tài khoản của bạn",
+        "description": "Vui lòng nhập thông tin của bạn để tạo tài khoản.",
+        "email": "Email",
+        "confirmEmail": "Nhập lại email",
+        "password": "Mật khẩu",
+        "confirmPassword": "Nhập lại mật khẩu",
+        "next": "Buớc tiếp theo",
+        "signIn": "Đăng nhập",
+        "forgotPassword": "Quên mật khẩu?",
+        "registerFor": "Đăng ký cho",
+        "terms": "Điều khoản dịch vụ",
+        "privacy": "Chính sách bảo mật",
+        "and": "và",
+        "accept": "Bằng cách tạo tài khoản, bạn đồng ý với",
+        "firstName": "Tên",
+        "middleName": "Tên Lót",
+        "lastName": "Họ",
+        "phone": "Số điện thoại",
+        "birthday": "Ngày sinh",
+        "nickname": "Username",
+        "hamlet": "Địa chỉ",
+        "district": "Quận/Huyện",
+        "province": "Tỉnh/Thành phố",
+        "ward": "Phường/Xã",
+        "select": "Chọn"
+    },
+    "global": {
+        "dashboard": "Bảng điều khiển",
+        "myPodcast": "Podcast cá nhân",
+        "backToHome": "Trở về trang chủ"
+    },
+    "creator": {
+        "overview": "Tổng quan kênh",
+        "likes": "Lượt thích",
+        "comments": "Bình luận",
+        "views": "Lượt xem",
+        "top10vid": "10 Podcast phổ biến nhất"
+    },
+    "day": {
+        "y": "Năm",
+        "m": "Tháng",
+        "d": "Ngày"
     }
 }

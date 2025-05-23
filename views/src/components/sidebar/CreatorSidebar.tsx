@@ -2,12 +2,13 @@ import { BiSolidVideos } from "react-icons/bi";
 import { HiMiniUserGroup } from "react-icons/hi2";
 import {  MdOutlineDashboard } from "react-icons/md";
 import { Link, useLocation, useNavigate } from "react-router-dom";
+import { useLanguage } from "../../context/LanguageContext";
 
 const CreatorSidebar = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const currentPath = location.pathname;
-
+  const {language} = useLanguage();
   return (
     <>
       <aside
@@ -27,7 +28,7 @@ const CreatorSidebar = () => {
                 }`}
               >
                 <MdOutlineDashboard size={24} />
-                <span className="ms-3">Dashboard</span>
+                <span className="ms-3">{language.global.dashboard}</span>
               </Link>
             </li>
             {/* <li>
@@ -58,7 +59,7 @@ const CreatorSidebar = () => {
               >
                 <BiSolidVideos size={24} />
                 <span className="flex-1 ms-3 whitespace-nowrap">
-                  My Podcasts
+                  {language.global.myPodcast}
                 </span>
               </Link>
             </li>
@@ -72,7 +73,7 @@ const CreatorSidebar = () => {
                 }`}
               >
                 <HiMiniUserGroup size={24} />
-                <span className="flex-1 ms-3 whitespace-nowrap">Followers</span>
+                <span className="flex-1 ms-3 whitespace-nowrap">{language.profile.followers}</span>
               </Link>
             </li>
           </ul>
@@ -82,7 +83,7 @@ const CreatorSidebar = () => {
           text-black dark:text-white hover:bg-gray-400 rounded-md font-medium transition-colors
           hover:dark:bg-gray-700"
           onClick={() => {navigate("/")}}>
-          Back to Blankcil
+          {language.global.backToHome}
         </button>
       </aside>
     </>

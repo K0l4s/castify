@@ -1,4 +1,4 @@
-import { Route, Routes } from 'react-router-dom'
+import { Route, Routes, useLocation } from 'react-router-dom'
 import AdminLayout from './layouts/AdminLayout'
 import CreatorLayout from './layouts/CreatorLayout'
 import MainLayout from './layouts/MainLayout'
@@ -40,11 +40,22 @@ import PlaylistPage from '../pages/main/playlistPage/PlaylistPage'
 import SettingModals from '../components/modals/user/SettingModal'
 import { useEffect, useState } from 'react'
 import { useToast } from '../context/ToastProvider'
+import { useLanguage } from '../context/LanguageContext'
 // import Test from '../components/main/conversation/Test'
 // import Test from '../pages/main/blankShop/Test'
 // import NotificationComponent from '../components/main/conversation/NotificationComponent'
 
 const Router = () => {
+      const { changeLanguage } = useLanguage();
+  
+  const location = useLocation();
+    const queryParams = new URLSearchParams(location.search);
+      const lang = queryParams.get("lang");
+      console.log("lang", lang);
+      if (lang) {
+        changeLanguage(lang as 'en' | 'vi');
+        localStorage.setItem("lang", lang);
+      }
     const isAdmin = useSelector((state: RootState) => state.auth.user?.role === Role.A);
     const user = useSelector((state: RootState) => state.auth.user);
     const isLogin = useSelector((state: RootState) => state.auth.isAuthenticated);

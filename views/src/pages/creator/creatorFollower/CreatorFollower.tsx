@@ -5,6 +5,7 @@ import { useToast } from "../../../context/ToastProvider";
 import { useNavigate } from "react-router-dom";
 import defaultAvatar from "../../../assets/images/default_avatar.jpg";
 import { BsArrowLeft, BsArrowRight } from "react-icons/bs";
+import { useLanguage } from "../../../context/LanguageContext";
 
 const CreatorFollower = () => {
     const [followers, setFollowers] = useState<userCard[]>([]);
@@ -45,10 +46,10 @@ const CreatorFollower = () => {
             setPageNumber(newPage);
         }
     };
-
+    const { language } = useLanguage();
     return (
         <div className="p-5 max-w-full min-h-screen rounded-xl">
-            <h1 className="text-2xl font-semibold mb-4 dark:text-gray-300">Followers</h1>
+            <h1 className="text-2xl font-semibold mb-4 dark:text-gray-300">{language.profile.followers}</h1>
             {followers.length > 0 ? (
                 <div className="grid grid-cols-1 sm:grid-cols-1 xl:grid-cols-2 lg:grid-cols-1 gap-4">
                     {followers.map((user) => (

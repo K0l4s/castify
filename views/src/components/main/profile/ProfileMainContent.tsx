@@ -15,6 +15,8 @@ import defaultAvatar from "../../../assets/images/default_avatar.jpg";
 import FollowersModal from '../../modals/user/FollowersModal';
 import FollowingsModal from '../../modals/user/FollowingsModal';
 import Avatar from '../../UI/user/Avatar';
+import SEO from '../../../context/SEO';
+import { useLanguage } from '../../../context/LanguageContext';
 
 interface ProfileMainContentProps {
 
@@ -39,7 +41,7 @@ const defaultUser = {
         id: "",
         name: "",
         imageURL: defaultAvatar,
-        price:0
+        price: 0
     },
     coverUrl: "https://png.pngtree.com/thumb_back/fw800/background/20231005/pngtree-3d-illustration-captivating-podcast-experience-image_13529585.png",
     birthday: new Date(),
@@ -68,6 +70,8 @@ const defaultUser = {
 };
 const ProfileMainContent: React.FC<ProfileMainContentProps> = ({
 }) => {
+    const { language } = useLanguage();
+
     const username = useParams().username;
     const [isLoading, setIsLoading] = useState(true);
     const isAuthenticated = useSelector((state: RootState) => state.auth.isAuthenticated);
@@ -139,8 +143,35 @@ const ProfileMainContent: React.FC<ProfileMainContentProps> = ({
         // setIsFollow(!isFollow);
 
     }
+    const url = window.location.href;
+    console.log(url);
     return (
         <div className="w-full">
+            <SEO
+                title={user.fullname || "User Profile"}
+                description={user.address || "User address"}
+                robots='index, follow'
+                keywords={"podcast, user profile, social media, " + user.fullname}
+                canonical={url}
+                image={user.avatarUrl || defaultAvatar}
+                jsonLd={{
+                    "@context": "https://schema.org",
+                    "@type": "User Profile",
+                    name: user.fullname || "User Profile",
+                    description: user.address || "User address",
+                    url: url,
+                }}
+            // alternateHrefs={[
+            //     {
+            //         href: "https://example.com/en/podcast/communication-skills",
+            //         hrefLang: "en",
+            //     },
+            //     {
+            //         href: "https://example.com/vi/podcast/ky-nang-giao-tiep",
+            //         hrefLang: "vi",
+            //     },
+            // ]}
+            />
             {/* Profile Header Section */}
             <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-2xl overflow-hidden transform transition-all duration-300 backdrop-blur-lg">
                 <div className="relative">
@@ -180,22 +211,22 @@ const ProfileMainContent: React.FC<ProfileMainContentProps> = ({
                         {/* Profile Picture with Custom Frame */}
                         <div className="absolute -top-16 sm:-top-20 left-4 sm:left-6 md:left-8">
                             <div className="relative group">
-                                    {isLoading ? (
-                                        <div className="w-full h-full bg-gray-300 dark:bg-gray-700 animate-pulse"></div>
-                                    ) : (
-                                        <Avatar
-                                            avatarUrl={isOwner ? currentUser?.avatarUrl || defaultAvatar : user.avatarUrl || defaultAvatar}
-                                            usedFrame={isOwner ? currentUser?.usedFrame : user.usedFrame}
-                                            onError={(e) => {
-                                                const target = e.target as HTMLImageElement;
-                                                target.onerror = null;
-                                                target.src = defaultAvatar;
-                                            }}
-                                            width="w-32 sm:w-36 md:w-40"
-                                            height="h-32 sm:h-36 md:h-40"
-                                            alt="Profile Picture"
-                                        />
-                                    )}
+                                {isLoading ? (
+                                    <div className="w-full h-full bg-gray-300 dark:bg-gray-700 animate-pulse"></div>
+                                ) : (
+                                    <Avatar
+                                        avatarUrl={isOwner ? currentUser?.avatarUrl || defaultAvatar : user.avatarUrl || defaultAvatar}
+                                        usedFrame={isOwner ? currentUser?.usedFrame : user.usedFrame}
+                                        onError={(e) => {
+                                            const target = e.target as HTMLImageElement;
+                                            target.onerror = null;
+                                            target.src = defaultAvatar;
+                                        }}
+                                        width="w-32 sm:w-36 md:w-40"
+                                        height="h-32 sm:h-36 md:h-40"
+                                        alt="Profile Picture"
+                                    />
+                                )}
                             </div>
                         </div>
 
@@ -220,12 +251,12 @@ const ProfileMainContent: React.FC<ProfileMainContentProps> = ({
                                             <span>{address || "No address provided"}</span>
                                             {/* nếu isAuth thì hiển thị nút edit */}
                                             {isOwner && (
-                                            <Tooltip text="Edit Profile">
-                                                <FaEdit
-                                                    onClick={() => setIsOpenEditModel(true)}
-                                                    className="ml-2 cursor-pointer text-gray-500 dark:text-gray-400 hover:text-blue-500 dark:hover:text-blue-400 transition-colors duration-300"
-                                                />
-                                            </Tooltip>
+                                                <Tooltip text="Edit Profile">
+                                                    <FaEdit
+                                                        onClick={() => setIsOpenEditModel(true)}
+                                                        className="ml-2 cursor-pointer text-gray-500 dark:text-gray-400 hover:text-blue-500 dark:hover:text-blue-400 transition-colors duration-300"
+                                                    />
+                                                </Tooltip>
                                             )}
                                         </div>
                                     )}
@@ -271,15 +302,15 @@ const ProfileMainContent: React.FC<ProfileMainContentProps> = ({
                                     <>
                                         <h1 className="text-center relative group cursor-pointer transform transition-transform duration-300" onClick={() => setIsFollowingModal(true)}>
                                             <p className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white group-hover:text-blue-500 dark:group-hover:text-blue-400 transition-colors duration-300">{user.totalFollowing}</p>
-                                            <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400 group-hover:text-gray-700 dark:group-hover:text-gray-300">Following</p>
+                                            <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400 group-hover:text-gray-700 dark:group-hover:text-gray-300">{language.profile.following}</p>
                                         </h1>
                                         <h1 className="text-center relative group cursor-pointer transform  transition-transform duration-300" onClick={() => setIsOpenFollowerModel(true)}>
                                             <p className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white group-hover:text-green-500 dark:group-hover:text-green-400 transition-colors duration-300">{user.totalFollower}</p>
-                                            <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400 group-hover:text-gray-700 dark:group-hover:text-gray-300">Followers</p>
+                                            <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400 group-hover:text-gray-700 dark:group-hover:text-gray-300">{language.profile.followers}</p>
                                         </h1>
                                         <h1 className="text-center relative group cursor-pointer transform transition-transform duration-300">
                                             <p className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white group-hover:text-purple-500 dark:group-hover:text-purple-400 transition-colors duration-300">{user.totalPost}</p>
-                                            <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400 group-hover:text-gray-700 dark:group-hover:text-gray-300">Posts</p>
+                                            <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400 group-hover:text-gray-700 dark:group-hover:text-gray-300">{language.profile.posts}</p>
                                         </h1>
                                     </>
                                 )}
