@@ -7,7 +7,7 @@ import { RootState } from "../../redux/store";
 import Cookies from "js-cookie";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import AuthenticationModal from "../modals/authentication/AuthenticationModal";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import ThemeModeSwitch from "../UI/custom/ThemeModeSwitch";
 import { RiVideoAddFill } from "react-icons/ri";
 import Tooltip from "../UI/custom/Tooltip";
@@ -21,6 +21,7 @@ import { BsCart3, BsShop } from "react-icons/bs";
 import MessageIcon from "./MessageIcon";
 import NotificationIcon from "./NotificationIcon";
 import Avatar from "../UI/user/Avatar";
+import { useClickOutside } from "../../hooks/useClickOutside";
 
 const Authentication = () => {
   const { language, changeLanguage } = useLanguage();
@@ -30,6 +31,8 @@ const Authentication = () => {
   // const [mode, setMode] = useState(localStorage.getItem('theme') || 'light');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isFirstRender, setIsFirstRender] = useState(true);
+
+  const userMenuRef = useRef<HTMLDivElement>(null);
 
   const navigate = useNavigate();
   const location = useLocation();
@@ -62,6 +65,14 @@ const Authentication = () => {
       setIsFirstRender(false);
     }
   }, [isEnable]);
+
+  useClickOutside(userMenuRef, () => {
+    if (isUserMenuOpen) {
+      setIsUserMenuOpen(false);
+      const dropdown = document.getElementById("dropdown-user");
+      dropdown?.classList.add("hidden");
+    }
+  });
 
   const handleOpen = () => setIsOpen(true);
   console.log(isOpen);
@@ -174,6 +185,7 @@ const Authentication = () => {
         )}
 
         <div
+          ref={userMenuRef}
           className={`absolute right-0 top-9 shadow-5xl z-50 ${isUserMenuOpen && isAuth ? "" : "hidden"
             }  mt-2 w-48 bg-white dark:bg-gray-800 rounded-xl drop-shadow-xl ring-1 ring-black ring-opacity-5 divide-y divide-gray-100 dark:divide-gray-700 transform opacity-100 scale-100 transition-all duration-200`}
           id="dropdown-user"
