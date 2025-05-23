@@ -13,6 +13,7 @@ import com.castify.backend.repository.template.UserTemplate;
 import com.castify.backend.service.notification.INotificationService;
 import com.castify.backend.service.notification.NotificationServiceImpl;
 import com.castify.backend.service.uploadFile.IUploadFileService;
+import com.castify.backend.utils.SecurityUtils;
 import org.bson.types.ObjectId;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -520,6 +521,13 @@ public class UserServiceImpl implements IUserService {
                 .toList();
 
         return new PaginatedResponse<>(resultUsers, pageable.getPageSize());
+    }
+
+    @Override
+    public void updateFavoriteGenres(List<String> genreIds) {
+        UserEntity user = SecurityUtils.getCurrentUser();
+        user.setFavoriteGenreIds(genreIds);
+        userRepository.save(user);
     }
 
 }
