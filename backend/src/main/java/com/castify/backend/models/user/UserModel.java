@@ -42,4 +42,5 @@ public class UserModel {
     private Role role;
     private boolean isEnabled;
     private long coin;
+    private List<String> favoriteGenreIds;
 }
