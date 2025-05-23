@@ -25,7 +25,6 @@ interface PodcastTagProps {
 
 const PodcastTag: React.FC<PodcastTagProps> = ({ podcast, onReport, onAddToPlaylist, onShare, onToggleOptionMenu, isOptionMenuOpen }) => {
   const author = podcast.user.fullname;
-  console.log(podcast);
 
   const createdDay = podcast.createdDay
     ? formatDistanceToNow(new Date(podcast.createdDay), { addSuffix: true })

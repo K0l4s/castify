@@ -22,6 +22,7 @@ import MessageIcon from "./MessageIcon";
 import NotificationIcon from "./NotificationIcon";
 import Avatar from "../UI/user/Avatar";
 import { useClickOutside } from "../../hooks/useClickOutside";
+import ChooseGenreModal from "../../pages/main/landingPage/ChooseGenreModal";
 
 const Authentication = () => {
   const { language, changeLanguage } = useLanguage();
@@ -31,6 +32,8 @@ const Authentication = () => {
   // const [mode, setMode] = useState(localStorage.getItem('theme') || 'light');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isFirstRender, setIsFirstRender] = useState(true);
+  const [showGenreModal, setShowGenreModal] = useState(false);
+  const [userDataChecked, setUserDataChecked] = useState(false);
 
   const userMenuRef = useRef<HTMLDivElement>(null);
 
@@ -57,6 +60,29 @@ const Authentication = () => {
   };
   const isAuth = useSelector((state: RootState) => state.auth.isAuthenticated);
   const isEnable = useSelector((state: RootState) => state.auth.user?.enabled);
+  const user = useSelector((state: RootState) => state.auth.user);
+
+  useEffect(() => {
+    console.log("user: ", user);
+  }, [user]);
+
+  useEffect(() => {
+    if (isAuth && user && !userDataChecked) {
+      const shouldShowModal = !user.favoriteGenreIds || 
+                             (Array.isArray(user.favoriteGenreIds) && user.favoriteGenreIds.length === 0);
+      
+      if (shouldShowModal) {
+        setTimeout(() => {
+          setShowGenreModal(true);
+        }, 300);
+      }
+      setUserDataChecked(true);
+    }
+    
+    if (!isAuth || !user) {
+      setUserDataChecked(false);
+    }
+  }, [isAuth, user, userDataChecked]);
 
   useEffect(() => {
     if (!isFirstRender && !isEnable) {
@@ -75,15 +101,13 @@ const Authentication = () => {
   });
 
   const handleOpen = () => setIsOpen(true);
-  console.log(isOpen);
   const handleClose = () => setIsOpen(false);
   const toggleUserMenu = () => {
     setIsUserMenuOpen(!isUserMenuOpen);
     const dropdown = document.getElementById("dropdown-user");
     dropdown?.classList.toggle("hidden");
   };
-  const user = useSelector((state: RootState) => state.auth.user);
-  console.log(user);
+
   return (
     <div>
       <div className="relative">
@@ -254,6 +278,10 @@ const Authentication = () => {
       <PodcastUploadModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
+      />
+      <ChooseGenreModal 
+        isOpen={showGenreModal} 
+        onClose={() => setShowGenreModal(false)} 
       />
     </div>
   );
