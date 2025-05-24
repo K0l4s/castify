@@ -7,6 +7,7 @@ import TabNavigation from "./TabNavigation";
 import GenresPodcast from "./GenresPodcast";
 import { useLocation, useNavigate } from "react-router-dom";
 import PopularPodcast from "./PopularPodcast";
+import TrendingCarousel from "./TrendingCarousel";
 // import FancyCard from "../../../components/UI/custom/FancyCard";
 
 const LandingPage = () => {
@@ -54,7 +55,9 @@ const LandingPage = () => {
   };
   return (
     <div className="px-8 py-4">
-      
+      {/* New Trending Carousel */}
+      <TrendingCarousel />
+
       {/* Tab Navigation */}
       <TabNavigation selectedTab={selectedTab} onSelectTab={handleTabSelect} genres={genres} />
       {/* Content */}
