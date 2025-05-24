@@ -4,6 +4,7 @@ import { RootState } from "../../redux/store";
 import { SiYoutubestudio } from "react-icons/si";
 import { useToast } from "../../context/ToastProvider";
 import { useLanguage } from "../../context/LanguageContext";
+import { BsFire } from "react-icons/bs";
 
 const MainSidebar = () => {
   const location = useLocation();
@@ -57,11 +58,8 @@ const MainSidebar = () => {
 
             <li>
               <Link to="/feed/trend" className={getLinkClass("/feed/trend")}>
-                <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" className={`w-[24px] h-[24px] ${isOpenSideBar ? 'mr-4' : 'mx-auto'}`}
-                  viewBox="0 0 24 24">
-                  <path d="M16 6l2.29 2.29-4.88 4.88-4-4L2 16.59 3.41 18l6-6 4 4 6.3-6.29L22 12V6z" />
-                </svg>
-                {isOpenSideBar && <span>{language.sidebar.trend}</span>}
+                <BsFire size={20} className={`w-[24px] h-[24px] ${isOpenSideBar ? 'mr-4' : 'mx-auto'}`} />
+                {isOpenSideBar && <span>{language.sidebar.trending}</span>}
               </Link>
             </li>
 

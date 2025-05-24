@@ -1,16 +1,26 @@
+// src/pages/main/trendingPage/TrendingPage.tsx
 import React from "react";
-import TrendingPodcast from "./TrendingPodcast";
+import { BsFire } from "react-icons/bs";
+import TrendingList from "./TrendingList";
 
-const TrendingPage : React.FC = () => {
+const TrendingPage: React.FC = () => {
+
   return (
-    <div className="px-8 py-4">
-      {/* Content */}
-      <h1 className="text-2xl font-medium text-black dark:text-white py-2">Trending Podcasts</h1>
-      <div className="m-auto">
-        <TrendingPodcast />
+    <div className="py-4 px-4 md:px-8 max-w-7xl mx-auto">
+      {/* Header */}
+      <div className="mb-8">
+        <h1 className="text-3xl md:text-4xl font-bold text-black dark:text-white flex items-center gap-2">
+          <BsFire className="text-red-500" /> Trending Podcasts
+        </h1>
+        <p className="text-gray-600 dark:text-gray-400 mt-2">
+          Discover what's hot and popular in the podcast world right now
+        </p>
       </div>
+
+      {/* Trending List */}
+      <TrendingList />
     </div>
-  )
-}
+  );
+};
 
 export default TrendingPage;
