@@ -5,9 +5,11 @@ import jakarta.persistence.Id;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.time.LocalDateTime;
+import java.util.Date;
 
 //@Entity
 @Data
@@ -20,4 +22,7 @@ public class VisitorEntity {
     private String userAgent;
     private String url;
     private LocalDateTime accessTime = LocalDateTime.now();
+
+    @Indexed(expireAfterSeconds = 2592000) // 30 days, auto delete
+    private Date createdAt = new Date();
 }

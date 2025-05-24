@@ -70,6 +70,7 @@ public class UserEntity implements UserDetails {
     private long coin;
     @DBRef
     private FrameEntity usedFrame;
+    private List<String> favoriteGenreIds = new ArrayList<>();
 
 //    public FrameEntity getUsedFrame(){
 //        if(usedFrame.getStatus().equals(FrameStatus.ACCEPTED))

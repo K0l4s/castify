@@ -52,7 +52,7 @@ const Router = () => {
     const toast = useToast();
     // const isUpdateInformation = isLogin && (!user?.lastName || !user?.firstName || !user?.middleName || !user?.birthday);
     const [isUpdateInformation, setIsUpdateInformation] = useState(false);
-    console.log("C"+(isLogin && (user?.lastName == null || user?.firstName == null || !user?.middleName == null || !user?.birthday == null )))
+    // console.log("C"+(isLogin && (user?.lastName == null || user?.firstName == null || !user?.middleName == null || !user?.birthday == null )))
     useEffect(() => {
         if (isLogin && (user?.lastName == null || user?.firstName == null || !user?.middleName == null || !user?.birthday == null )) {
             setIsUpdateInformation(true);
@@ -62,7 +62,7 @@ const Router = () => {
         }
     }, [isLogin, user]);
 
-    console.log('isUpdateInformation', isUpdateInformation);
+    // console.log('isUpdateInformation', isUpdateInformation);
     return (
         <div className='bg-gray-200 dark:bg-gray-900'>
             {isUpdateInformation && <SettingModals isOpen={isUpdateInformation} onClose={() => setIsUpdateInformation(false)} />}

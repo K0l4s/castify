@@ -89,5 +89,8 @@ export const userService = {
         if(keyword)
             return await axiosInstanceAuth.get(`/api/v1/user/list/friends?keyword=${keyword}&pageNumber=${pageNumber}&pageSize=${pageSize}`);
         return await axiosInstanceAuth.get(`/api/v1/user/list/friends?pageNumber=${pageNumber}&pageSize=${pageSize}`);
+    },
+    updateGenreFavorites: async (genreIds:string[]) => {
+        return await axiosInstanceAuth.post(`/api/v1/user/favorite-genres`, { genreIds });
     }
 };

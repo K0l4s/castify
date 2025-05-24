@@ -70,4 +70,5 @@ public interface IUserService {
     BasicUserModel mapToBasicUser(UserEntity userEntity);
 
     PaginatedResponse<UserSimple> getFriendList(String keyword,Integer pageNumber, Integer pageSize) throws Exception;
+    void updateFavoriteGenres(List<String> genreIds);
 }

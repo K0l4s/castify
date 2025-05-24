@@ -2,6 +2,7 @@ package com.castify.backend.controller;
 
 import com.castify.backend.enums.Permission;
 import com.castify.backend.enums.Role;
+import com.castify.backend.models.user.GenrePreferenceRequest;
 import com.castify.backend.models.user.UpdateUserModel;
 import com.castify.backend.models.user.UserModel;
 import com.castify.backend.service.uploadFile.IUploadFileService;
@@ -182,6 +183,13 @@ public class UserController {
                     .body("Error"+ex.getMessage());
         }
     }
+
+    @PostMapping("/favorite-genres")
+    public ResponseEntity<?> updateFavoriteGenres(@RequestBody GenrePreferenceRequest request) {
+        userService.updateFavoriteGenres(request.getGenreIds());
+        return ResponseEntity.ok().build();
+    }
+
     @ExceptionHandler(MalformedJwtException.class)
     public ResponseEntity<String> handleMalformedJwtException(MalformedJwtException ex) {
         return new ResponseEntity<>("Invalid JWT token format", HttpStatus.BAD_REQUEST);
