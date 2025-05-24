@@ -674,6 +674,7 @@ public class PodcastServiceImpl implements IPodcastService {
 
         return new PageDTO<>(
                 models,
+                size,
                 page,
                 podcastPage.getTotalPages(),
                 (int) podcastPage.getTotalElements()
