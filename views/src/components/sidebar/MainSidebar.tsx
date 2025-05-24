@@ -5,6 +5,7 @@ import { SiYoutubestudio } from "react-icons/si";
 import { useToast } from "../../context/ToastProvider";
 import { useLanguage } from "../../context/LanguageContext";
 import { BsFire } from "react-icons/bs";
+import FollowingSidebar from "./FollowingSidebar";
 
 const MainSidebar = () => {
   const location = useLocation();
@@ -109,6 +110,14 @@ const MainSidebar = () => {
               </Link>
             </li>
 
+            {/* <div className="h-[1px] w-full bg-black dark:bg-gray-200 my-4"></div> */}
+
+          </ul>
+
+          {/* Add the FollowingSidebar component */}
+          <FollowingSidebar isOpen={isOpenSideBar} />
+          
+          <ul className="space-y-1 px-2 mt-1 flex-1">
             <div className="h-[1px] w-full bg-black dark:bg-gray-200 my-4"></div>
 
             <li>
@@ -117,11 +126,8 @@ const MainSidebar = () => {
                 {isOpenSideBar && <span>{language.sidebar.studio}</span>}
               </Link>
             </li>
-
-            {/* <div className="h-[1px] w-full bg-black dark:bg-gray-200 my-4"></div> */}
-
-            {/* <p className="text-sm text-black dark:text-gray-200 px-2">{isOpenSideBar && 'Followed Users'}</p> */}
           </ul>
+          
         </div>
       </aside>
     </>

@@ -6,6 +6,7 @@
         "history": "History",
         "react": "Reactions",
         "playlist": "Playlist",
+        "following": "Following",
         "studio": "Studio"
     },
     "navbar":{
