@@ -81,8 +81,7 @@ const TrendingPodcast: React.FC = () => {
 
   return (
     <div>
-      <div className="flex flex-wrap
-       gap-6">
+      <div className="flex flex-wrap gap-6">
       {podcasts.map((podcast) => (
           <PodcastTag 
             key={podcast.id}

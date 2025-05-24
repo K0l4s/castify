@@ -72,7 +72,7 @@ const TrendingCarousel: React.FC = () => {
   const activePodcast = podcasts[activeIndex];
 
   return (
-    <div className="relative w-3/5 h-[440px] rounded-xl overflow-hidden mb-10 group">
+    <div className="relative md:w-3/5 w-full h-[440px] rounded-xl overflow-hidden mb-10 group">
       {/* Background image with overlay */}
       <div 
         className="absolute inset-0 bg-cover bg-center transition-all duration-700 ease-in-out transform scale-105 group-hover:scale-110"

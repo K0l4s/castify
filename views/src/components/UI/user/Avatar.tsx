@@ -6,7 +6,7 @@ interface AvatarProps {
     usedFrame?:UserFrame
     width?: string
     height?: string
-    onClick?: () => void
+    onClick?: (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => void
     onError?: (e:any) => void
 }
 const Avatar: React.FC<AvatarProps> = ({ avatarUrl,alt, width, height, usedFrame,onClick,onError}) => {
