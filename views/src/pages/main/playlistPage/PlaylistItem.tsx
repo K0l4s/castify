@@ -6,6 +6,8 @@ import { useClickOutside } from "../../../hooks/useClickOutside";
 import { formatDateTime, formatLastUpdatedFromNow } from "../../../utils/DateUtils";
 import no_img_available from "../../../assets/images/no_img_available.jpg";
 import { useNavigate } from "react-router-dom";
+import { useSelector } from "react-redux";
+import { RootState } from "../../../redux/store";
 
 interface PlaylistItemProps {
   playlist: PlaylistModel;
@@ -17,6 +19,11 @@ const PlaylistItem: React.FC<PlaylistItemProps> = ({ playlist, onEdit, onDelete 
   const [menuOpen, setMenuOpen] = useState(false);
   const menuRef = useRef(null);
   const navigate = useNavigate();
+
+  const isAuthenticated = useSelector((state: RootState) => state.auth.isAuthenticated);
+  const currentUser = useSelector((state: RootState) => state.auth.user);
+  const isOwner = isAuthenticated && currentUser && playlist.owner && 
+                  currentUser.id === playlist.owner.id;
 
   const handleEdit = () => {
     setMenuOpen(false);
@@ -82,31 +89,34 @@ const PlaylistItem: React.FC<PlaylistItemProps> = ({ playlist, onEdit, onDelete 
             Created day: {formatDateTime(playlist.createdAt)}
           </p>
         </div>
-        <div className="p-2 z-30" ref={menuRef}>
-          {/* Menu Button */}
-          <button
-            className="p-1 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700"
-            onClick={() => setMenuOpen(!menuOpen)}
-          >
-            <IoEllipsisVerticalSharp className="w-5 h-5 text-black dark:text-white" />
-          </button>
-          {menuOpen && (
-            <div className="absolute right-0 mt-2 w-36 bg-white dark:bg-gray-900 border rounded shadow-lg z-40">
-              <button
-                onClick={handleEdit}
-                className="w-full text-left px-4 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-700 text-black dark:text-white"
-              >
-                Edit
-              </button>
-              <button
-                onClick={handleDelete}
-                className="w-full text-left px-4 py-2 text-sm text-red-500 hover:bg-gray-100 dark:hover:bg-gray-700"
-              >
-                Delete
-              </button>
-            </div>
-          )}
-        </div>
+        {/* Only show menu button if the current user is the owner */}
+        {isOwner && (
+          <div className="p-2 z-30" ref={menuRef}>
+            {/* Menu Button */}
+            <button
+              className="p-1 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700"
+              onClick={() => setMenuOpen(!menuOpen)}
+            >
+              <IoEllipsisVerticalSharp className="w-5 h-5 text-black dark:text-white" />
+            </button>
+            {menuOpen && (
+              <div className="absolute right-0 mt-2 w-36 bg-white dark:bg-gray-900 border rounded shadow-lg z-40">
+                <button
+                  onClick={handleEdit}
+                  className="w-full text-left px-4 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-700 text-black dark:text-white"
+                >
+                  Edit
+                </button>
+                <button
+                  onClick={handleDelete}
+                  className="w-full text-left px-4 py-2 text-sm text-red-500 hover:bg-gray-100 dark:hover:bg-gray-700"
+                >
+                  Delete
+                </button>
+              </div>
+            )}
+          </div>
+        )}
       </div>
       
     </div>

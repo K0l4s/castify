@@ -1,5 +1,5 @@
 import { CreatePlaylistDTO, PlaylistItem, PlaylistModel } from "../models/PlaylistModel";
-import { axiosInstanceAuth } from "../utils/axiosInstance";
+import { axiosInstance, axiosInstanceAuth } from "../utils/axiosInstance";
 
 export default class PlaylistService {
   static async getAuthUserPlaylist(
@@ -9,6 +9,41 @@ export default class PlaylistService {
     const response = await axiosInstanceAuth.get(`/api/v1/playlist/user`, {
       params: { sortBy, order },
     });
+
+    const rawData = response.data;
+
+    const mappedData: PlaylistModel[] = rawData.map((playlist: any) => ({
+      id: playlist.id,
+      name: playlist.name,
+      description: playlist.description,
+      thumbnail: playlist.items?.[0]?.thumbnail ?? null,
+      totalItems: playlist.items?.length ?? 0,
+      publish: playlist.publish,
+      lastUpdated: playlist.lastUpdated,
+      createdAt: playlist.createdAt,
+      owner: {
+        id: playlist.owner?.id,
+        firstName: playlist.owner?.firstName,
+        middleName: playlist.owner?.middleName,
+        lastName: playlist.owner?.lastName,
+        avatarUrl: playlist.owner?.avatarUrl,
+      },
+      items: playlist.items?.map((item: any, index: number): PlaylistItem => ({
+        podcastId: item.podcastId,
+        thumbnail: item.thumbnail,
+        duration: item.duration,
+        title: item.title,
+        description: item.description,
+        owner: item.owner,
+        order: item.order ?? index,
+      })) ?? [],
+    }));
+
+    return mappedData;
+  }
+
+  static async getPublicPlaylists(userId: string): Promise<PlaylistModel[]> {
+    const response = await axiosInstance.get(`/api/v1/playlist/public/${userId}`);
 
     const rawData = response.data;
 
@@ -123,8 +158,13 @@ export default class PlaylistService {
     };
   }
 
-  static async getPlaylistById(id: string): Promise<PlaylistModel> {
-    const response = await axiosInstanceAuth.get(`/api/v1/playlist/${id}`);
+  static async getPlaylistById(id: string, isAuthenticated: boolean): Promise<PlaylistModel> {
+    let response = null;
+    if (isAuthenticated) {
+      response = await axiosInstanceAuth.get(`/api/v1/playlist/${id}`);
+    } else {
+      response = await axiosInstance.get(`/api/v1/playlist/${id}`);
+    }
     
     const playlist = response.data;
   

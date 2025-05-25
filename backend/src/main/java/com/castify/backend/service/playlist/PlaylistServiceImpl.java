@@ -32,13 +32,21 @@ public class PlaylistServiceImpl implements IPlaylistService {
 
     @Override
     public PlaylistModel getPlaylistById(String id) {
-        UserEntity auth = SecurityUtils.getCurrentUser();
+        UserEntity auth = null;
+        try {
+            auth = SecurityUtils.getCurrentUser();
+        } catch (Exception e) {
+            // skip
+        }
 
         PlaylistEntity playlistEntity = playlistRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Playlist not found"));
 
-        if (!playlistEntity.isPublish() && !playlistEntity.getOwner().getId().equals(auth.getId())) {
-            throw new PermissionDeniedException("You do not have permission to view this playlist");
+        // Nếu playlist là private và user chưa đăng nhập hoặc không phải là chủ sở hữu → cấm truy cập
+        if (!playlistEntity.isPublish()) {
+            if (auth == null || !playlistEntity.getOwner().getId().equals(auth.getId())) {
+                throw new PermissionDeniedException("You do not have permission to view this playlist");
+            }
         }
 
         return modelMapper.map(playlistEntity, PlaylistModel.class);
@@ -198,9 +206,9 @@ public class PlaylistServiceImpl implements IPlaylistService {
     }
 
     @Override
-    public List<PlaylistModel> getUserPublicPlaylists(String userId) {
+    public List<PlaylistModel> getUserPublicPlaylists(String username) {
         return playlistRepository.findAll().stream()
-                .filter(p -> p.getOwner().getId().equals(userId) && p.isPublish())
+                .filter(p -> p.getOwner().getUsername().equals(username) && p.isPublish())
                 .map(p -> modelMapper.map(p, PlaylistModel.class))
                 .toList();
     }
