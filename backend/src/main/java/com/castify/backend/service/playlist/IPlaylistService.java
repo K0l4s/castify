@@ -13,6 +13,6 @@ public interface IPlaylistService {
     PlaylistModel addPodcastToPlaylist(String playlistId, String podcastId);
     PlaylistModel removePodcastFromPlaylist(String playlistId, String podcastId);
     List<PlaylistModel> getCurrentUserPlaylists(String sortBy, String order);
-    List<PlaylistModel> getUserPublicPlaylists(String userId);
+    List<PlaylistModel> getUserPublicPlaylists(String username);
     PlaylistModel reorder(String playlistId, List<String> newOrderPodcastIds);
 }

@@ -62,9 +62,9 @@ public class PlaylistController {
         return ResponseEntity.ok(playlistService.getCurrentUserPlaylists(sortBy, order));
     }
 
-    @GetMapping("/public/{userId}")
-    public ResponseEntity<List<PlaylistModel>> getUserPublicPlaylists(@PathVariable String userId) {
-        return ResponseEntity.ok(playlistService.getUserPublicPlaylists(userId));
+    @GetMapping("/public/{username}")
+    public ResponseEntity<List<PlaylistModel>> getUserPublicPlaylists(@PathVariable String username) {
+        return ResponseEntity.ok(playlistService.getUserPublicPlaylists(username));
     }
 
     @PostMapping("/reorder")
