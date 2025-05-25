@@ -118,7 +118,7 @@ const PodcastListItem: React.FC<PodcastListItemProps> = ({
           {podcast.genres?.map(genre => (
             <span 
               key={genre.id}
-              className="text-sm px-2 py-1 rounded-full bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 shadow-sm"
+              className="text-sm px-2 py-1 rounded-full bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 shadow-md"
             >
               {genre.name}
             </span>
