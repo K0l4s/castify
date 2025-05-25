@@ -32,7 +32,11 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+<<<<<<< HEAD
 import java.io.File;
+=======
+import java.io.IOException;
+>>>>>>> 8d4fc3827cf505eb9201fedb9ed9325492058f39
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -83,6 +87,7 @@ public class PodcastController {
 
             // Tạo thư mục user-specific
             Path userPodcastDir = FileUtils.createUserDirectory(baseUploadDir, userModel.getId(), userModel.getEmail(), "podcast");
+            Path userThumbnailDir = FileUtils.createUserDirectory(baseUploadDir, userModel.getId(), userModel.getEmail(), "thumbnail");
 
             // Format tên file
             String formattedVideoFileName = FileUtils.formatFileName(videoFile.getOriginalFilename());
@@ -95,19 +100,35 @@ public class PodcastController {
             // Xử lý thumbnail
             String thumbnailUrl;
             if (thumbnail != null && !thumbnail.isEmpty()) {
+<<<<<<< HEAD
                 // Upload thumbnail từ người dùng
                 thumbnailUrl = uploadFileService.uploadImage(thumbnail);
             } else {
                 // Tạo thumbnail từ video
                 Path userThumbnailDir = FileUtils.createUserDirectory(baseUploadDir, userModel.getId(), userModel.getEmail(), "thumbnail");
+=======
+                // Resize & Upload thumbnail lên Cloudinary
+                thumbnailUrl = processAndUploadThumbnail(thumbnail, userThumbnailDir);
+            } else if (thumbnail == null || thumbnail.isEmpty()) {
+                // Tạo đường dẫn lưu thumbnail tạm thời
+>>>>>>> 8d4fc3827cf505eb9201fedb9ed9325492058f39
                 String tempThumbnailFileName = "thumb_" + formattedVideoFileName.replace(".mp4", ".jpeg");
                 Path tempThumbnailPath = userThumbnailDir.resolve(tempThumbnailFileName);
 
                 // FFmpeg tạo frame
                 ffmpegService.captureFrameFromVideo(videoPath.toString(), tempThumbnailPath.toString());
 
+<<<<<<< HEAD
                 // Upload frame lên Cloudinary
                 thumbnailUrl = uploadFileService.uploadImageBytes(FileUtils.encodeFileToBase64(tempThumbnailPath.toFile()));
+=======
+                // Resize về đúng tỉ lệ 16:9
+                Path resizedThumbnailPath = userThumbnailDir.resolve("resized_" + tempThumbnailFileName);
+                ffmpegService.resizeImageTo16by9(tempThumbnailPath.toString(), resizedThumbnailPath.toString());
+
+                // Upload frame đã capture lên Cloudinary
+                thumbnailUrl = uploadFileService.uploadImageBytes(FileUtils.encodeFileToBase64(resizedThumbnailPath.toFile()));
+>>>>>>> 8d4fc3827cf505eb9201fedb9ed9325492058f39
             }
 
             long duration = ffmpegService.getVideoDuration(videoPath.toString());
@@ -427,5 +448,18 @@ public class PodcastController {
         if (videoFile.getSize() > 1024L * 1024L * 1024L) { // 1GB size limit
             throw new RuntimeException("File size exceeds limit of 1GB");
         }
+    }
+
+    public String processAndUploadThumbnail(MultipartFile originalThumbnail, Path userDir) throws IOException, InterruptedException {
+        // Save original to temp file
+        Path originalPath = userDir.resolve("original_thumbnail.jpeg");
+        originalThumbnail.transferTo(originalPath.toFile());
+
+        // Resize to 16:9
+        Path resizedPath = userDir.resolve("resized_thumbnail.jpeg");
+        ffmpegService.resizeImageTo16by9(originalPath.toString(), resizedPath.toString());
+
+        // Upload resized image
+        return uploadFileService.uploadImageBytes(FileUtils.encodeFileToBase64(resizedPath.toFile()));
     }
 }

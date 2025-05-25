@@ -104,15 +104,6 @@ const AddToPlaylistModal: React.FC<AddToPlaylistModalProps> = ({ isOpen, onClose
           ) : playlists.length === 0 ? (
             <div className="text-center my-4">
               <p className="text-gray-600 dark:text-gray-400">You don't have any playlists yet</p>
-              <CustomButton 
-                text="Create a Playlist" 
-                variant="primary"
-                className="mt-4"
-                onClick={() => {
-                  // Navigate to create playlist page or open create playlist modal
-                  toast.info("Create playlist feature coming soon");
-                }}
-              />
             </div>
           ) : (
             <>

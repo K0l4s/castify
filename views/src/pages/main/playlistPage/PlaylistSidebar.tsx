@@ -11,6 +11,8 @@ import { CSSTransition } from 'react-transition-group';
 import { useToast } from '../../../context/ToastProvider';
 import { HiDotsVertical } from 'react-icons/hi';
 import { DragDropContext, Droppable, Draggable, DropResult, DroppableProvided, DraggableProvided, DraggableStateSnapshot } from 'react-beautiful-dnd';
+import { useSelector } from 'react-redux';
+import { RootState } from '../../../redux/store';
 
 interface PlaylistSidebarProps {
   playlistId: string;
@@ -29,11 +31,16 @@ const PlaylistSidebar: React.FC<PlaylistSidebarProps> = ({ playlistId, currentPo
   const menuRefs = useRef<{ [key: string]: HTMLDivElement | null }>({});
   const transitionRef = useRef<HTMLDivElement | null>(null);
   const toast = useToast();
+  
+  // Get authentication status from Redux store
+  const isAuthenticated = useSelector((state: RootState) => state.auth.isAuthenticated);
+  const currentUser = useSelector((state: RootState) => state.auth.user);
+  const isOwnPlaylist = isAuthenticated && playlist?.owner.id === currentUser?.id;
 
   useEffect(() => {
     const fetchPlaylist = async () => {
       try {
-        const data = await PlaylistService.getPlaylistById(playlistId);
+        const data = await PlaylistService.getPlaylistById(playlistId, isAuthenticated);
         setPlaylist(data);
       } catch (error) {
         console.error("Error fetching playlist:", error);
@@ -101,10 +108,20 @@ const PlaylistSidebar: React.FC<PlaylistSidebarProps> = ({ playlistId, currentPo
   };
 
   const toggleMenu = (podcastId: string) => {
+    // Only allow opening menu if user is authenticated
+    if (!isAuthenticated) {
+      toast.warning("Please login to access additional options");
+      return;
+    }
     setActiveMenuId(activeMenuId === podcastId ? null : podcastId);
   };
 
   const handleSavePodcast = async (podcastId: string) => {
+    if (!isAuthenticated) {
+      toast.warning("Please login to save podcasts");
+      return;
+    }
+    
     try {
       // Implement save podcast functionality here
       toast.success("Podcast saved successfully: " + podcastId);
@@ -115,6 +132,17 @@ const PlaylistSidebar: React.FC<PlaylistSidebarProps> = ({ playlistId, currentPo
   };
 
   const handleRemoveFromPlaylist = async (podcastId: string) => {
+    if (!isAuthenticated) {
+      toast.warning("Please login to modify playlists");
+      return;
+    }
+    
+    // Check if user owns the playlist
+    if (!isOwnPlaylist) {
+      toast.warning("You can only modify your own playlists");
+      return;
+    }
+    
     try {
       await PlaylistService.removePodcastToPlaylist(playlistId, podcastId);
       
@@ -150,6 +178,17 @@ const PlaylistSidebar: React.FC<PlaylistSidebarProps> = ({ playlistId, currentPo
   };
 
   const handleDragEnd = async (result: DropResult) => {
+    // Only allow reordering if user is authenticated and owns the playlist
+    if (!isAuthenticated) {
+      toast.warning("Please login to reorder playlists");
+      return;
+    }
+    
+    if (!isOwnPlaylist) {
+      toast.warning("You can only reorder your own playlists");
+      return;
+    }
+    
     const { destination, source } = result;
     
     // Return if dropped outside the list or at the same position
@@ -186,7 +225,7 @@ const PlaylistSidebar: React.FC<PlaylistSidebarProps> = ({ playlistId, currentPo
       
       // Fetch the original playlist if the API call fails
       try {
-        const refreshedPlaylist = await PlaylistService.getPlaylistById(playlistId);
+        const refreshedPlaylist = await PlaylistService.getPlaylistById(playlistId, isAuthenticated);
         setPlaylist(refreshedPlaylist);
       } catch (refreshError) {
         console.error('Failed to refresh playlist data:', refreshError);
@@ -225,12 +264,13 @@ const PlaylistSidebar: React.FC<PlaylistSidebarProps> = ({ playlistId, currentPo
   }
 
   return (
-    <div className={`relative bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 overflow-hidden rounded-2xl transition-all duration-300 ease-in-out 
-      ${isCollapsed ? 'max-h-20' : 'max-h-[600px]'}`}>
+    <div className={`relative bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 overflow-hidden rounded-2xl transition-all duration-500 ease-in-out 
+      ${isCollapsed ? 'max-h-40' : 'max-h-[600px]'}`}>
       {/* Header with collapse button */}
-      <div className="sticky top-0 p-4 border-b border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 z-10 flex justify-between items-center">
+      <div className="sticky top-0 p-3 border-b border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 z-10 flex justify-between items-center">
         <div>
           <h3 className="text-lg font-semibold text-black dark:text-white">{playlist.name}</h3>
+          <h3 className="text-sm text-black dark:text-white">{playlist.owner.lastName} {playlist.owner.middleName} {playlist.owner.firstName}</h3>
           <p className="text-sm text-gray-600 dark:text-gray-400">
             {indexInfo ? `${indexInfo.current}/${indexInfo.total} videos` : `${playlist.totalItems} videos`}
           </p>
@@ -261,7 +301,7 @@ const PlaylistSidebar: React.FC<PlaylistSidebarProps> = ({ playlistId, currentPo
         nodeRef={transitionRef}
       >
         <DragDropContext onDragEnd={handleDragEnd}>
-          <Droppable droppableId="playlist-items">
+          <Droppable droppableId="playlist-items" isDropDisabled={!isOwnPlaylist}>
             {(provided: DroppableProvided) => (
               <div 
                 ref={(el) => {
@@ -273,7 +313,12 @@ const PlaylistSidebar: React.FC<PlaylistSidebarProps> = ({ playlistId, currentPo
                 className="divide-y divide-gray-200 dark:divide-gray-700 overflow-y-auto max-h-[540px]"
               >
                 {playlist.items.map((item, index) => (
-                  <Draggable key={item.podcastId} draggableId={item.podcastId} index={index}>
+                  <Draggable 
+                    key={item.podcastId} 
+                    draggableId={item.podcastId} 
+                    index={index}
+                    isDragDisabled={!isOwnPlaylist}
+                  >
                     {(provided: DraggableProvided, snapshot: DraggableStateSnapshot) => (
                       <div 
                         ref={provided.innerRef}
@@ -282,15 +327,17 @@ const PlaylistSidebar: React.FC<PlaylistSidebarProps> = ({ playlistId, currentPo
                           item.podcastId === currentPodcastId ? 'bg-blue-100 dark:bg-blue-900' : ''
                         } ${snapshot.isDragging ? 'opacity-70 shadow-lg' : ''} relative`}
                       >
-                        {/* Drag Handle */}
-                        <div className="flex items-center">
-                          <div 
-                            {...provided.dragHandleProps}
-                            className="px-2 py-1 cursor-grab active:cursor-grabbing"
-                          >
-                            <FaGripLines className="text-gray-400" />
+                        {/* Drag Handle - Only show if user owns playlist */}
+                        {isOwnPlaylist && (
+                          <div className="flex items-center">
+                            <div 
+                              {...provided.dragHandleProps}
+                              className="px-2 py-1 cursor-grab active:cursor-grabbing"
+                            >
+                              <FaGripLines className="text-gray-400" />
+                            </div>
                           </div>
-                        </div>
+                        )}
 
                         <div 
                           className="flex-1 flex items-start"
@@ -327,42 +374,45 @@ const PlaylistSidebar: React.FC<PlaylistSidebarProps> = ({ playlistId, currentPo
                           </div>
                         </div>
                         
-                        
-                        
-                        {/* Vertical Menu Button */}
-                        <div className="relative flex items-start">
-                          <button
-                            className="p-1 rounded-full hover:bg-gray-200 dark:hover:bg-gray-600"
-                            onClick={() => toggleMenu(item.podcastId)}
-                          >
-                            <HiDotsVertical size={16} className="text-gray-600 dark:text-gray-400" />
-                          </button>
-                          
-                          {/* Menu Options */}
-                          {activeMenuId === item.podcastId && (
-                            <div 
-                              ref={(el) => (menuRefs.current[item.podcastId] = el)}
-                              className="absolute right-8 -top-2 w-48 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg z-50"
+                        {/* Only show menu button for authenticated users */}
+                        {isAuthenticated && (
+                          <div className="relative flex items-start">
+                            <button
+                              className="p-1 rounded-full hover:bg-gray-200 dark:hover:bg-gray-600"
+                              onClick={() => toggleMenu(item.podcastId)}
                             >
-                              <ul className="py-1">
-                                <li 
-                                  className="px-4 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer flex items-center text-gray-700 dark:text-gray-300 transition ease-in-out duration-200"
-                                  onClick={() => handleSavePodcast(item.podcastId)}
-                                >
-                                  <FaBookmark className="mr-2" />
-                                  Save podcast
-                                </li>
-                                <li 
-                                  className="px-4 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer flex items-center text-red-500 transition ease-in-out duration-200"
-                                  onClick={() => handleRemoveFromPlaylist(item.podcastId)}
-                                >
-                                  <FaTrashAlt className="mr-2" />
-                                  Remove from playlist
-                                </li>
-                              </ul>
-                            </div>
-                          )}
-                        </div>
+                              <HiDotsVertical size={16} className="text-gray-600 dark:text-gray-400" />
+                            </button>
+                            
+                            {/* Menu Options */}
+                            {activeMenuId === item.podcastId && (
+                              <div 
+                                ref={(el) => (menuRefs.current[item.podcastId] = el)}
+                                className="absolute right-8 -top-2 w-48 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg z-50"
+                              >
+                                <ul className="py-1">
+                                  <li 
+                                    className="px-4 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer flex items-center text-gray-700 dark:text-gray-300 transition ease-in-out duration-200"
+                                    onClick={() => handleSavePodcast(item.podcastId)}
+                                  >
+                                    <FaBookmark className="mr-2" />
+                                    Save podcast
+                                  </li>
+                                  {/* Only show remove option if user owns the playlist */}
+                                  {isOwnPlaylist && (
+                                    <li 
+                                      className="px-4 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer flex items-center text-red-500 transition ease-in-out duration-200"
+                                      onClick={() => handleRemoveFromPlaylist(item.podcastId)}
+                                    >
+                                      <FaTrashAlt className="mr-2" />
+                                      Remove from playlist
+                                    </li>
+                                  )}
+                                </ul>
+                              </div>
+                            )}
+                          </div>
+                        )}
                       </div>
                     )}
                   </Draggable>
