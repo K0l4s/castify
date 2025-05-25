@@ -10,6 +10,7 @@ import com.castify.backend.models.podcast.PodcastModel;
 import com.castify.backend.models.user.UserModel;
 import com.castify.backend.service.ffmpeg.IFFmpegService;
 import com.castify.backend.service.genre.IGenreService;
+import com.castify.backend.service.podcast.TrendingPodcastService;
 import com.castify.backend.service.uploadFile.IUploadFileService;
 import com.castify.backend.service.user.IUserService;
 import com.castify.backend.service.user.UserServiceImpl;
@@ -63,6 +64,9 @@ public class PodcastController {
     private IGenreService genreService;
 
     private static final Logger logger = Logger.getLogger(PodcastController.class.getName());
+
+    @Autowired
+    private TrendingPodcastService trendingPodcastService;
 
     @PostMapping(value = "/create", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<?> createPodcast(
@@ -395,7 +399,7 @@ public class PodcastController {
     @GetMapping("/trending")
     public ResponseEntity<PageDTO<PodcastModel>> getTrendingPodcasts(@RequestParam(value = "page", defaultValue = "0") int page,
                                                                      @RequestParam(value = "size", defaultValue = "10") int size) {
-        PageDTO<PodcastModel> trending = podcastService.getTrendingPodcasts(page, size);
+        PageDTO<PodcastModel> trending = trendingPodcastService.getTrendingPodcasts(page, size);
         return ResponseEntity.ok(trending);
     }
 
