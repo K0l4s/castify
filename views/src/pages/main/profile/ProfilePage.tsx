@@ -16,10 +16,15 @@ import { PlaylistModel } from "../../../models/PlaylistModel";
 import PlaylistItem from "../playlistPage/PlaylistItem";
 import { useSelector } from "react-redux";
 import { RootState } from "../../../redux/store";
+import { useToast } from "../../../context/ToastProvider";
+import CreatePlaylistModal from "../playlistPage/CreatePlaylistModal";
+import ConfirmModal from "../../../components/modals/utils/ConfirmDelete";
+import CustomModal from "../../../components/UI/custom/CustomModal";
 
 const ProfilePage: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
+  const toast = useToast();
   const queryParams = new URLSearchParams(location.search);
   const initialTab = queryParams.get("tab") || "podcasts";
   const initialSortBy = queryParams.get("sortBy") as 'newest' | 'views' | 'oldest' || 'newest';
@@ -40,6 +45,17 @@ const ProfilePage: React.FC = () => {
   const [selectedPodcastId, setSelectedPodcastId] = useState<string | null>(null);
   const [openOptionMenuId, setOpenOptionMenuId] = useState<string | null>(null);
   
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [playlistToDelete, setPlaylistToDelete] = useState<string | null>(null);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [isCreatePlaylistModalOpen, setIsCreatePlaylistModalOpen] = useState(false);
+  const [editingPlaylist, setEditingPlaylist] = useState<PlaylistModel | null>(null);
+  const [editForm, setEditForm] = useState({
+    name: "",
+    description: "",
+    publish: false,
+  });
+
   // Refs for infinite scrolling
   const observerRef = useRef<IntersectionObserver | null>(null);
   const loadMoreRef = useRef<HTMLDivElement>(null);
@@ -226,6 +242,67 @@ const ProfilePage: React.FC = () => {
     setOpenOptionMenuId(openOptionMenuId === podcastId ? null : podcastId);
   }
 
+  // Playlist handlers
+  const handleEditPlaylist = (playlist: PlaylistModel) => {
+    setEditingPlaylist(playlist);
+    setEditForm({
+      name: playlist.name,
+      description: playlist.description || "",
+      publish: playlist.publish || false,
+    });
+    setIsEditModalOpen(true);
+  };
+
+  const handleDeletePlaylist = (playlistId: string) => {
+    setPlaylistToDelete(playlistId);
+    setIsDeleteModalOpen(true);
+  };
+  
+  const confirmDeletePlaylist = async () => {
+    if (playlistToDelete) {
+      try {
+        await PlaylistService.deletePlaylist(playlistToDelete);
+        setPlaylists((prev) => prev.filter((playlist) => playlist.id !== playlistToDelete));
+        setIsDeleteModalOpen(false);
+        toast.success("Playlist deleted successfully");
+      } catch (error) {
+        console.error("Failed to delete playlist:", error);
+        toast.error("Failed to delete playlist");
+      }
+    }
+  };
+  
+  const handleEditFormChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name, value, type, checked } = e.target as HTMLInputElement;
+    setEditForm((prev) => ({
+      ...prev,
+      [name]: type === "checkbox" ? checked : value,
+    }));
+  };
+
+  const handleSavePlaylistChanges = async () => {
+    if (editingPlaylist) {
+      try {
+        const updatedPlaylist = await PlaylistService.updatePlaylist(
+          editingPlaylist.id,
+          editForm.name,
+          editForm.description,
+          editForm.publish
+        );
+        setPlaylists((prev) =>
+          prev.map((playlist) =>
+            playlist.id === editingPlaylist.id ? updatedPlaylist : playlist
+          )
+        );
+        setIsEditModalOpen(false);
+        toast.success("Playlist updated successfully");
+      } catch (error) {
+        console.error("Failed to update playlist:", error);
+        toast.error("Failed to update playlist");
+      }
+    }
+  };
+
   // Error state
   if (error) {
     return (
@@ -358,6 +435,8 @@ const ProfilePage: React.FC = () => {
                     <PlaylistItem 
                       key={playlist.id} 
                       playlist={playlist}
+                      onEdit={handleEditPlaylist}
+                      onDelete={handleDeletePlaylist}
                     />
                   ))}
                 </div>
@@ -389,6 +468,100 @@ const ProfilePage: React.FC = () => {
             />
           </>
         )}
+
+        {/* Playlist Modals */}
+        {/* Edit Playlist Modal */}
+        {isEditModalOpen && (
+          <CustomModal
+            title="Edit Playlist"
+            isOpen={isEditModalOpen}
+            onClose={() => setIsEditModalOpen(false)}
+            size="md"
+          >
+            <div className="flex flex-col gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                  Name
+                </label>
+                <input
+                  type="text"
+                  name="name"
+                  value={editForm.name}
+                  onChange={handleEditFormChange}
+                  className="mt-1 p-2 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm bg-gray-200 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                  Description
+                </label>
+                <textarea
+                  name="description"
+                  value={editForm.description}
+                  onChange={handleEditFormChange}
+                  rows={3}
+                  className="mt-1 p-2 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm bg-gray-200 dark:bg-gray-700 dark:border-gray-600 dark:text-white resize-none"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                  Visibility
+                </label>
+                <div className="flex gap-4 mt-2">
+                  <label className="flex items-center gap-2">
+                    <input
+                      type="radio"
+                      name="publish"
+                      value="true"
+                      checked={editForm.publish === true}
+                      onChange={() => setEditForm((prev) => ({ ...prev, publish: true }))}
+                      className="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600"
+                    />
+                    <span className="text-sm text-gray-700 dark:text-gray-300">Public</span>
+                  </label>
+                  <label className="flex items-center gap-2">
+                    <input
+                      type="radio"
+                      name="publish"
+                      value="false"
+                      checked={editForm.publish === false}
+                      onChange={() => setEditForm((prev) => ({ ...prev, publish: false }))}
+                      className="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600"
+                    />
+                    <span className="text-sm text-gray-700 dark:text-gray-300">Private</span>
+                  </label>
+                </div>
+              </div>
+              <div className="flex justify-end gap-4">
+                <CustomButton
+                  text="Cancel"
+                  variant="ghost"
+                  onClick={() => setIsEditModalOpen(false)}
+                />
+                <CustomButton
+                  text="Save Changes"
+                  variant="primary"
+                  onClick={handleSavePlaylistChanges}
+                />
+              </div>
+            </div>
+          </CustomModal>
+        )}
+        
+        {/* Confirm Delete Modal */}
+        <ConfirmModal
+          isOpen={isDeleteModalOpen}
+          title="Are you sure you want to delete this playlist?"
+          onClose={() => setIsDeleteModalOpen(false)}
+          onConfirm={confirmDeletePlaylist}
+        />
+        
+        {/* Create Playlist Modal */}
+        <CreatePlaylistModal 
+          isOpen={isCreatePlaylistModalOpen} 
+          onClose={() => setIsCreatePlaylistModalOpen(false)}
+          onPlaylistCreated={() => fetchPlaylists(username)}
+        />
       </div>
     </div>
   );
