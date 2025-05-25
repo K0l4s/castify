@@ -90,7 +90,6 @@ const LandingPage = () => {
   />
   return (
     <div className="px-8 py-4">
-
       {/* Tab Navigation */}
       <TabNavigation selectedTab={selectedTab} onSelectTab={handleTabSelect} genres={genres} />
       {/* Content */}
