@@ -399,6 +399,14 @@ public class PodcastController {
         return ResponseEntity.ok(trending);
     }
 
+    @GetMapping("/following/{username}")
+    public ResponseEntity<PageDTO<PodcastModel>> getPodcasts(@PathVariable("username") String username,
+                                                             @RequestParam(value = "page", defaultValue = "0") int page,
+                                                             @RequestParam(value = "size", defaultValue = "10") int size) {
+        PageDTO<PodcastModel> podcasts = podcastService.getFollowingPodcastsByUsername(username, page, size);
+        return ResponseEntity.ok(podcasts);
+    }
+
     private void validateCreatePodcastInfo(List<String> genreIds, MultipartFile videoFile) {
         // Kiểm tra số lượng genre
         if (genreIds.size() > 5) {

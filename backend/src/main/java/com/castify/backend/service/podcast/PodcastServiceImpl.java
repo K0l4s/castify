@@ -3,6 +3,7 @@ package com.castify.backend.service.podcast;
 import com.castify.backend.entity.*;
 import com.castify.backend.enums.ActivityType;
 import com.castify.backend.enums.NotiType;
+import com.castify.backend.exception.PermissionDeniedException;
 import com.castify.backend.models.PageDTO;
 import com.castify.backend.models.genre.GenreSimple;
 import com.castify.backend.models.podcast.CreatePodcastModel;
@@ -678,6 +679,35 @@ public class PodcastServiceImpl implements IPodcastService {
                 page,
                 podcastPage.getTotalPages(),
                 (int) podcastPage.getTotalElements()
+        );
+    }
+
+    @Override
+    public PageDTO<PodcastModel> getFollowingPodcastsByUsername(String username, int page, int size) {
+        UserEntity auth = SecurityUtils.getCurrentUser();
+        UserEntity followingUser = userRepository.findByUsername(username)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        boolean isFollowing = auth.getFollowing().stream()
+                .anyMatch(followInfo -> followInfo.getUserId().equals(followingUser.getId()));
+
+        if (!isFollowing) {
+            throw new PermissionDeniedException("You are not following this user");
+        }
+
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Order.desc("createdDay")));
+        Page<PodcastEntity> podcastPage = podcastRepository.findAllByUserIdAndIsActiveTrue(followingUser.getId(), pageable);
+
+        List<PodcastModel> podcastModels = podcastPage.getContent().stream()
+                .map(podcast -> modelMapper.map(podcast, PodcastModel.class))
+                .collect(Collectors.toList());
+
+        return new PageDTO<>(
+                podcastModels,
+                size,
+                podcastPage.getNumber(),
+                podcastPage.getTotalPages(),
+                podcastPage.getTotalElements()
         );
     }
 
