@@ -10,6 +10,7 @@ import com.castify.backend.models.podcast.PodcastModel;
 import com.castify.backend.models.user.UserModel;
 import com.castify.backend.service.ffmpeg.IFFmpegService;
 import com.castify.backend.service.genre.IGenreService;
+import com.castify.backend.service.podcastLike.IPodcastLikeService;
 import com.castify.backend.service.uploadFile.IUploadFileService;
 import com.castify.backend.service.user.IUserService;
 import com.castify.backend.service.user.UserServiceImpl;
@@ -27,6 +28,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -61,6 +63,9 @@ public class PodcastController {
 
     @Autowired
     private IGenreService genreService;
+
+    @Autowired
+    private IPodcastLikeService podcastLikeService;
 
     private static final Logger logger = Logger.getLogger(PodcastController.class.getName());
 
@@ -276,7 +281,20 @@ public class PodcastController {
         return new ResponseEntity<>("Invalid JWT token format", HttpStatus.BAD_REQUEST);
     }
 
-    
+    @GetMapping("/liked")
+    public ResponseEntity<PageDTO<PodcastModel>> getMyLikedPodcasts(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+
+        try {
+            PageDTO<PodcastModel> likedPodcasts = podcastLikeService.getLikedPodcastsByUser(page, size);
+            return ResponseEntity.ok(likedPodcasts);
+        } catch (BadCredentialsException e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
 
     // Display podcast on home page
     @GetMapping("/recent")
