@@ -11,6 +11,7 @@ import Avatar from "../../../components/UI/user/Avatar";
 import ShareModal from "../../../components/modals/podcast/ShareModal";
 import ReportModal from "../../../components/modals/report/ReportModal";
 import { formatTimeDuration } from "../../../components/UI/podcast/video";
+import AddToPlaylistModal from "../playlistPage/AddToPlaylistModal";
 
 interface PodcastLikedProps {
   podcast: Podcast;
@@ -23,7 +24,9 @@ const PodcastLiked: React.FC<PodcastLikedProps> = ({
 }) => {
   const [isShareModalOpen, setIsShareModalOpen] = useState(false);
   const [isReportModalOpen, setIsReportModalOpen] = useState(false);
-  const [isLiked, setIsLiked] = useState(true); // Start with true since it's coming from liked podcasts
+  const [isPlaylistModalOpen, setIsPlaylistModalOpen] = useState(false);
+
+  const [isLiked, setIsLiked] = useState(true);
 
   const toast = useToast();
   const podcastLink = `${window.location.origin}/watch?pid=${podcast.id}`;
@@ -41,6 +44,10 @@ const PodcastLiked: React.FC<PodcastLikedProps> = ({
     setIsReportModalOpen(!isReportModalOpen);
   }
   
+  const toggleAddToPlaylistModal = () => {
+    setIsPlaylistModalOpen(!isPlaylistModalOpen);
+  };
+
   const handleLikeToggle = () => {
     setIsLiked(!isLiked);
     onUnlike();
@@ -128,7 +135,7 @@ const PodcastLiked: React.FC<PodcastLikedProps> = ({
           buttonContent={<HiDotsVertical className="w-5 h-5 sm:w-6 sm:h-6" />}
           position="bottom"
           trigger="click"
-          size="sm"
+          size="md"
           className="transition-colors rounded-full text-black dark:text-white hover:bg-gray-100 hover:dark:bg-gray-700"
         >
           <ul className="py-1 text-sm">
@@ -139,6 +146,10 @@ const PodcastLiked: React.FC<PodcastLikedProps> = ({
             <li className="px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer" onClick={handleSave}>
               <FaBookmark className="inline-block mr-2" />
               Save
+            </li>
+            <li className="px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer" onClick={toggleAddToPlaylistModal}>
+              <FaBookmark className="inline-block mr-2" />
+              Add to playlist
             </li>
             <li className="px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer" onClick={toggleShareModal}>
               <FaShareAlt className="inline-block mr-2" />
@@ -161,6 +172,12 @@ const PodcastLiked: React.FC<PodcastLikedProps> = ({
         onClose={toggleReportModal}
         targetId={podcast.id}
         reportType={ReportType.P}
+      />
+
+      <AddToPlaylistModal
+        isOpen={isPlaylistModalOpen}
+        onClose={() => setIsPlaylistModalOpen(false)}
+        podcastId={podcast.id}
       />
     </div>
   );
