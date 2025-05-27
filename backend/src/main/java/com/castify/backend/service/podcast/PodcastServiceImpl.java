@@ -747,7 +747,7 @@ public class PodcastServiceImpl implements IPodcastService {
                 podcast.getThumbnailUrl(),
                 podcast.getVideoUrl(),
                 podcast.getGenres() != null ? podcast.getGenres().stream()
-                        .map(g -> new GenreSimple(g.getId(), g.getName()))
+                        .map(g -> new GenreSimple(g.getId(), g.getName(), g.getImageUrl()))
                         .collect(Collectors.toList()) : new ArrayList<>(),
                 podcast.getViews(),
                 podcast.getDuration(),
