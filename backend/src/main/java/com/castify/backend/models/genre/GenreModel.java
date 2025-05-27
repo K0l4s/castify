@@ -12,6 +12,7 @@ import java.time.LocalDateTime;
 public class GenreModel {
     private String id;
     private String name;
+    private String imageUrl;
     private boolean isActive;
     private LocalDateTime lastEdited;
 }
