@@ -5,6 +5,7 @@ import CustomButton from "../../../components/UI/custom/CustomButton";
 import { BsEye, BsPeopleFill } from "react-icons/bs";
 import { FcComments, FcLike } from "react-icons/fc";
 import { useNavigate } from "react-router-dom";
+import { useLanguage } from "../../../context/LanguageContext";
 
 const CreatorLandingPage = () => {
   const navigate = useNavigate();
@@ -98,7 +99,7 @@ const CreatorLandingPage = () => {
     fetchDashboard(startDate, endDate);
     fetchPrevDashboard(prevStartDate, prevEndDate);
   }, [type]);
-
+  const { language } = useLanguage()
   return (
     <div className="p-4 min-h-screen ">
       <div className="flex justify-between items-center mb-8">
@@ -120,7 +121,7 @@ const CreatorLandingPage = () => {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-4 gap-6 mb-12">
         {[
           {
-            title: 'Followers',
+            title: language.profile.followers,
             value: data.totalFollowers,
             prevValue: prevData.totalFollowers,
             color: 'text-blue-500 dark:text-blue-400',
@@ -129,7 +130,7 @@ const CreatorLandingPage = () => {
             link: null,
           },
           {
-            title: 'Likes',
+            title: language.creator.likes,
             value: data.totalLikes,
             prevValue: prevData.totalLikes,
             color: 'text-green-500 dark:text-green-400',
@@ -138,7 +139,7 @@ const CreatorLandingPage = () => {
             link: null,
           },
           {
-            title: 'Comments',
+            title: language.creator.comments,
             value: data.totalComments,
             prevValue: prevData.totalComments,
             color: 'text-red-500 dark:text-red-400',
@@ -147,7 +148,7 @@ const CreatorLandingPage = () => {
             link: null,
           },
           {
-            title: 'Views',
+            title: language.creator.views,
             value: data.totalViews,
             prevValue: prevData.totalViews,
             color: 'text-yellow-500 dark:text-yellow-400',
@@ -187,7 +188,7 @@ const CreatorLandingPage = () => {
         })}
       </div>
       {/* Top Videos */}
-      <h2 className="text-xl font-semibold mb-4 text-black dark:text-gray-300">Top 10 Videos</h2>
+      <h2 className="text-xl font-semibold mb-4 text-black dark:text-gray-300">{language.creator.top10vid}</h2>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-4 ">
         {data.topVideos.map((video: any) => (
           <div key={video.id}
@@ -211,15 +212,15 @@ const CreatorLandingPage = () => {
                 <div className="flex items-center mt-3 text-sm text-gray-600 dark:text-gray-300 space-x-4">
                   <span className="flex items-center bg-gray-100 dark:bg-gray-700 px-3 py-1 rounded-full">
                     <i className="fas fa-eye mr-2 text-green-500"></i>
-                    {video.views.toLocaleString()} views
+                    {video.views.toLocaleString()} {language.creator.views}
                   </span>
                   <span className="flex items-center bg-gray-100 dark:bg-gray-700 px-3 py-1 rounded-full">
                     <i className="fas fa-eye mr-2 text-green-500"></i>
-                    {video.likes.toLocaleString()} likes
+                    {video.likes.toLocaleString()} {language.creator.likes}
                   </span>
                   <span className="flex items-center bg-gray-100 dark:bg-gray-700 px-3 py-1 rounded-full">
                     <i className="fas fa-eye mr-2 text-green-500"></i>
-                    {video.comments.toLocaleString()} comments
+                    {video.comments.toLocaleString()} {language.creator.comments}
                   </span>
                 </div>
               </div>

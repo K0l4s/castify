@@ -25,21 +25,18 @@ const SettingModals = (props: SettingModals) => {
   useEffect(() => {
     const fetchProvinces = async () => {
       const provinces = await locationService.getProvinces();
-      // console.log(provinces.data);
       setProvincesList(provinces.data);
-      console.log(provincesList);
+      // console.log(provincesList);
     };
     fetchProvinces();
   }, []);
   const handleProvincesChange = async (e: React.ChangeEvent<HTMLSelectElement>) => {
     const id = e.target.value;
-    console.log(id === "");
     if (id === "") {
       setDistrictsList([]);
       setWardsList([]);
       return;
     }
-    console.log(id);
     const districts = await locationService.getDistricts(id);
     setDistrictsList(districts.data);
   };
@@ -49,7 +46,6 @@ const SettingModals = (props: SettingModals) => {
       setWardsList([]);
       return;
     }
-    console.log(id);
     const wards = await locationService.getWards(id);
     setWardsList(wards.data);
   }
@@ -62,20 +58,7 @@ const SettingModals = (props: SettingModals) => {
     lastName: '',
     birthday: '',
     addressElements: '',
-    // location: {
-    //   id: '',
-    //   name: '',
-    //   district: {
-    //     id: '',
-    //     name: '',
-    //     city: {
-    //       id: '',
-    //       name: ''
-    //     }
-    //   }
-    // },
     wardId: '',
-    // locality: '',
     ward: '',
     district: '',
     provinces: '',
@@ -96,28 +79,35 @@ const SettingModals = (props: SettingModals) => {
     setIsLoading(true);
     try {
       const userRes = await userService.getUserAuth();
-      // console.log(userRes);
       if (userRes?.data) {
         setUser(userRes.data);
+
+        // Format birthday to yyyy-MM-dd for input[type="date"]
+        let birthdayValue = '';
+        if (userRes.data.birthday) {
+          const date = new Date(userRes.data.birthday);
+          if (!isNaN(date.getTime())) {
+            birthdayValue = date.toISOString().split('T')[0];
+          }
+        }
+
         setEditedUser({
           firstName: userRes.data.firstName,
           middleName: userRes.data.middleName,
           lastName: userRes.data.lastName,
-          birthday: userRes.data.birthday,
+          birthday: birthdayValue,
           addressElements: userRes.data.addressElements,
-          // location: userRes.data.location,
-          // locality: userRes.data.locality,
           wardId: userRes.data.location.id,
           ward: userRes.data.ward,
           district: userRes.data.district,
           provinces: userRes.data.provinces,
           phone: userRes.data.phone
         });
+
         // lấy select provinces và set value
         if (userRes.data.location && userRes.data.location.district && userRes.data.location.district.city) {
           const provincesSelect = document.querySelector('select[name="provinces"]') as HTMLSelectElement;
           if (provincesSelect) {
-            // console.log(userRes.data.location.district.city.id);
             provincesSelect.value = userRes.data.location.district.city.id;
           }
           await fetchDistricts(userRes.data.location.district.city.id);
@@ -132,12 +122,7 @@ const SettingModals = (props: SettingModals) => {
           if (wardSelect) {
             wardSelect.value = userRes.data.location.id;
           }
-          const birthdayInput = document.querySelector('input[type="date"]') as HTMLInputElement;
-          if (birthdayInput) {
-            birthdayInput.value = new Date(userRes.data.birthday).toISOString().split('T')[0];
-          }
         }
-        // console.log(editedUser)
       } else {
         toast.error("Error loading user details");
       }
@@ -148,9 +133,8 @@ const SettingModals = (props: SettingModals) => {
     }
   };
   useEffect(() => {
-
-
     fetchUserDetails();
+    // eslint-disable-next-line
   }, [props.isOpen]);
   const handleWardsChange = async (e: React.ChangeEvent<HTMLSelectElement>) => {
     const { value } = e.target;
@@ -158,26 +142,30 @@ const SettingModals = (props: SettingModals) => {
       ...prev,
       wardId: value
     }));
-    console.log(editedUser);
   };
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
-    // console.log(editedUser);
     try {
       const selectedWard = document.querySelector('select[name="ward"]') as HTMLSelectElement;
-      // set location trong editedUser thành ward
       const location = wardsList.find(ward => ward.id === selectedWard.value);
-      console.log(location);
-      // setEditedUser(prev => ({
-      //   ...prev,
-      //   // location: location
-      //   wardId: location?.id || '',
-      // }));
-      console.log(editedUser);
-      const response = await userService.updateUser(editedUser);
+
+      // Use birthday from editedUser state, not from DOM
+      let birthday = editedUser.birthday;
+      const formattedDate = birthday + 'T00:00:00.000'; // ISO-8601 đầy đủ với mili giây
+
+
+      // Prepare updated user object
+      const updatedUser = {
+        ...editedUser,
+        birthday: formattedDate,
+        location: location,
+        // location: location // if needed
+      };
+
+      const response = await userService.updateUser(updatedUser);
       if (response.data) {
-        setUser(prev => prev ? { ...prev, ...editedUser } : prev);
+        setUser(prev => prev ? { ...prev, ...updatedUser } : prev);
         setIsEdit(false);
         toast.success("Profile updated successfully");
       }
@@ -190,14 +178,11 @@ const SettingModals = (props: SettingModals) => {
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-
     setEditedUser(prev => ({
       ...prev,
       [name]: value
     }));
   };
-
-
 
   const handleCancel = () => {
     fetchUserDetails();
@@ -209,16 +194,14 @@ const SettingModals = (props: SettingModals) => {
     const file = e.target.files?.[0];
     if (file) {
       await userService.changeAvatar(file).then(res => {
-        console.log(res);
         toast.clearAllToasts();
         toast.success("Avatar updated successfully");
         setUser(prev => prev ? { ...prev, avatarUrl: URL.createObjectURL(file) } : prev);
         dispatch(updateAvatar(URL.createObjectURL(file)))
       }
       ).catch(err => {
-        console.log(err);
         toast.clearAllToasts();
-        toast.error("Error update avatar");
+        toast.error("Error update avatar"+err.message);
       });
     }
   };
@@ -228,16 +211,14 @@ const SettingModals = (props: SettingModals) => {
     const file = e.target.files?.[0];
     if (file) {
       await userService.changeCover(file).then(res => {
-        console.log(res);
         toast.clearAllToasts();
         toast.success("Cover updated successfully");
         setUser(prev => prev ? { ...prev, coverUrl: URL.createObjectURL(file) } : prev);
         dispatch(updateCover(URL.createObjectURL(file)))
       }
       ).catch(err => {
-        console.log(err);
         toast.clearAllToasts();
-        toast.error("Error update cover");
+        toast.error("Error update cover" + err.message);
       });
     }
   };
@@ -348,10 +329,8 @@ const SettingModals = (props: SettingModals) => {
               <CustomInput
                 type="date"
                 name="birthday"
-                // value={
-                //   editedUser.birthday
-                // }
-                // onChange={handleInputChange}
+                value={editedUser.birthday}
+                onChange={isEdit ? handleInputChange : undefined}
                 disabled={!isEdit}
               />
             </div>
@@ -371,21 +350,10 @@ const SettingModals = (props: SettingModals) => {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div>
                 <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">Provinces</label>
-                {/* <CustomInput
-                  type="text"
-                  name="provinces"
-                  value={editedUser.location.district.city.name}
-                  onChange={handleInputChange}
-                  disabled={!isEdit}
-                  variant="primary"
-                  className="mt-1 block w-full"
-                /> */}
                 <select
                   id="provinces"
                   name="provinces"
                   onChange={handleProvincesChange}
-                  // value={editedUser.location.district.city.name}
-                  // value={selectedProvince?.name ? selectedProvince.name : ""}
                   disabled={!isEdit}
                   className={inputClasses}
                   required
@@ -398,21 +366,10 @@ const SettingModals = (props: SettingModals) => {
               </div>
               <div>
                 <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">District</label>
-                {/* <CustomInput
-                  type="text"
-                  name="district"
-                  value={editedUser.location.district.name}
-                  onChange={handleInputChange}
-                  disabled={!isEdit}
-                  variant="primary"
-                  className="mt-1 block w-full"
-                /> */}
                 <select
                   id="district"
                   name="district"
                   onChange={handleDistrictsChange}
-                  // value={editedUser.location.district.city.name}
-                  // value={selectedProvince?.name ? selectedProvince.name : ""}
                   disabled={!isEdit}
                   className={inputClasses}
                   required
@@ -425,22 +382,11 @@ const SettingModals = (props: SettingModals) => {
               </div>
               <div>
                 <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">Ward</label>
-                {/* <CustomInput
-                  type="text"
-                  name="ward"
-                  value={editedUser.location.name}
-                  onChange={handleInputChange}
-                  disabled={!isEdit}
-                  variant="primary"
-                  className="mt-1 block w-full"
-                /> */}
                 <select
                   id="ward"
                   name="ward"
                   onChange={handleWardsChange}
                   disabled={!isEdit}
-                  // value={editedUser.location.district.city.name}
-                  // value={selectedProvince?.name ? selectedProvince.name : ""}
                   className={inputClasses}
                   required
                 >
@@ -480,7 +426,6 @@ const SettingModals = (props: SettingModals) => {
         </form>
       </div>
       {isLoading && <Loading />}
-      {/* </div> */}
     </CustomModal>
   );
 };

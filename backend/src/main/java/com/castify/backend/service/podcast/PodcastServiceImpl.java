@@ -76,6 +76,8 @@ public class PodcastServiceImpl implements IPodcastService {
     private UploadFileServiceImpl uploadFileService;
     @Autowired
     private INotificationService notificationService;
+    @Autowired
+    private IVideoTranscribe videoTranscribe;
     @Override
     public PodcastModel createPodcast(CreatePodcastModel createPodcastModel, String userId) {
         PodcastEntity podcastEntity = modelMapper.map(createPodcastModel, PodcastEntity.class);
@@ -98,8 +100,8 @@ public class PodcastServiceImpl implements IPodcastService {
         podcastEntity.setLastEdited(LocalDateTime.now());
         podcastEntity.setActive(true);
 
-        podcastRepository.save(podcastEntity);
-
+        PodcastEntity savedPodcast = podcastRepository.save(podcastEntity);
+//        videoTranscribe.transcribeVideo(podcast.)
         return modelMapper.map(podcastEntity, PodcastModel.class);
     }
 

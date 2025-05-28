@@ -11,6 +11,7 @@ import { LoginInput } from "../../../models/Authentication";
 // import { FaFacebook } from "react-icons/fa";
 import { useToast } from "../../../context/ToastProvider";
 import { GoogleLogin } from "@react-oauth/google";
+import { useLanguage } from "../../../context/LanguageContext";
 
 
 interface DefaultModalProps {
@@ -160,13 +161,14 @@ const LoginModal = ({ trigger, isOpen, onClose }: DefaultModalProps) => {
       setIsLoading(false);
     }
   }
+  const {language} = useLanguage();
   return (
-    <CustomModal animation="zoom" title="Welcome Back" isOpen={isOpen} onClose={onClose}>
+    <CustomModal animation="zoom" title={language.login.welcome} isOpen={isOpen} onClose={onClose}>
       <div className="p-6">
         <form onSubmit={handleLogin} className="space-y-4">
           <div>
             <label htmlFor="email" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-              Email Or Username
+              {language.login.email}
             </label>
             <input
               // type="email" 
@@ -180,7 +182,7 @@ const LoginModal = ({ trigger, isOpen, onClose }: DefaultModalProps) => {
           </div>
           <div>
             <label htmlFor="password" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-              Password
+              {language.login.password}
             </label>
             <input
               type="password"
@@ -197,7 +199,7 @@ const LoginModal = ({ trigger, isOpen, onClose }: DefaultModalProps) => {
             disabled={isLoading}
             className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {isLoading ? 'Logging in...' : 'Login'}
+            {isLoading ? 'Logging in...' : language.login.login}
           </button>
           {isBanError && <p className="text-red-500 text-sm mt-2">{isBanError}</p>}
         </form>
@@ -208,7 +210,7 @@ const LoginModal = ({ trigger, isOpen, onClose }: DefaultModalProps) => {
               <div className="w-full border-t border-gray-300"></div>
             </div>
             <div className="relative flex justify-center text-sm">
-              <span className="px-2 bg-white text-gray-500 dark:bg-gray-800">Or continue with</span>
+              <span className="px-2 bg-white text-gray-500 dark:bg-gray-800">{language.login.or}</span>
             </div>
           </div>
 
@@ -235,14 +237,14 @@ const LoginModal = ({ trigger, isOpen, onClose }: DefaultModalProps) => {
 
         <div className="mt-6 text-center text-sm">
           <p className="text-gray-600 dark:text-gray-400">
-            Don't have an account?{' '}
+            {language.login.dontHaveAccount}{' '}
             <button onClick={trigger} className="font-medium text-indigo-600 hover:text-indigo-500 dark:text-indigo-400">
-              Register here
+              {language.login.registerHere}
             </button>
           </p>
           <p className="mt-2">
             <button className="font-medium text-indigo-600 hover:text-indigo-500 dark:text-indigo-400">
-              Forgot your password?
+              {language.login.forgotPassword}
             </button>
           </p>
         </div>

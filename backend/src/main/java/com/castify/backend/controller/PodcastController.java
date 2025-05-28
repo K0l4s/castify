@@ -10,7 +10,12 @@ import com.castify.backend.models.podcast.PodcastModel;
 import com.castify.backend.models.user.UserModel;
 import com.castify.backend.service.ffmpeg.IFFmpegService;
 import com.castify.backend.service.genre.IGenreService;
+
+import com.castify.backend.service.podcast.IVideoTranscribe;
+import com.castify.backend.service.podcast.VideoTranscribeService;
+
 import com.castify.backend.service.podcastLike.IPodcastLikeService;
+
 import com.castify.backend.service.uploadFile.IUploadFileService;
 import com.castify.backend.service.user.IUserService;
 import com.castify.backend.service.user.UserServiceImpl;
@@ -32,7 +37,11 @@ import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+
+import java.io.File;
+
 import java.io.IOException;
+
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -65,9 +74,16 @@ public class PodcastController {
     private IGenreService genreService;
 
     @Autowired
+    private IVideoTranscribe videoTranscribe;
+
+
+    @Autowired
     private IPodcastLikeService podcastLikeService;
 
+
     private static final Logger logger = Logger.getLogger(PodcastController.class.getName());
+    @Autowired
+    private VideoTranscribeService videoTranscribeService;
 
     @PostMapping(value = "/create", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<?> createPodcast(
@@ -81,30 +97,42 @@ public class PodcastController {
 
             UserModel userModel = userService.getUserByToken();
 
-            // Create user-specific directory
+            // Tạo thư mục user-specific
             Path userPodcastDir = FileUtils.createUserDirectory(baseUploadDir, userModel.getId(), userModel.getEmail(), "podcast");
             Path userThumbnailDir = FileUtils.createUserDirectory(baseUploadDir, userModel.getId(), userModel.getEmail(), "thumbnail");
 
-            // Format fileName
+            // Format tên file
             String formattedVideoFileName = FileUtils.formatFileName(videoFile.getOriginalFilename());
 
-            // Save video temporarily
+            // Lưu video thành file thật
             Path videoPath = userPodcastDir.resolve(formattedVideoFileName);
-            videoFile.transferTo(videoPath.toFile());
+            File realVideoFile = videoPath.toFile();
+            videoFile.transferTo(realVideoFile);
 
-            // For ffmpeg
-            String thumbnailUrl = null;
-
+            // Xử lý thumbnail
+            String thumbnailUrl;
             if (thumbnail != null && !thumbnail.isEmpty()) {
+
+                // Upload thumbnail từ người dùng
+                thumbnailUrl = uploadFileService.uploadImage(thumbnail);
+            } else {
+                // Tạo thumbnail từ video
+                Path userThumbnailDir = FileUtils.createUserDirectory(baseUploadDir, userModel.getId(), userModel.getEmail(), "thumbnail");
+
                 // Resize & Upload thumbnail lên Cloudinary
                 thumbnailUrl = processAndUploadThumbnail(thumbnail, userThumbnailDir);
             } else if (thumbnail == null || thumbnail.isEmpty()) {
                 // Tạo đường dẫn lưu thumbnail tạm thời
+
                 String tempThumbnailFileName = "thumb_" + formattedVideoFileName.replace(".mp4", ".jpeg");
                 Path tempThumbnailPath = userThumbnailDir.resolve(tempThumbnailFileName);
 
-                // Sử dụng FFmpeg để capture frame đầu tiên
+                // FFmpeg tạo frame
                 ffmpegService.captureFrameFromVideo(videoPath.toString(), tempThumbnailPath.toString());
+
+
+                // Upload frame lên Cloudinary
+                thumbnailUrl = uploadFileService.uploadImageBytes(FileUtils.encodeFileToBase64(tempThumbnailPath.toFile()));
 
                 // Resize về đúng tỉ lệ 16:9
                 Path resizedThumbnailPath = userThumbnailDir.resolve("resized_" + tempThumbnailFileName);
@@ -112,20 +140,27 @@ public class PodcastController {
 
                 // Upload frame đã capture lên Cloudinary
                 thumbnailUrl = uploadFileService.uploadImageBytes(FileUtils.encodeFileToBase64(resizedThumbnailPath.toFile()));
+
             }
 
             long duration = ffmpegService.getVideoDuration(videoPath.toString());
 
-            CreatePodcastModel createPodcastModel = new CreatePodcastModel(title, content, videoPath.toString(), thumbnailUrl, genreIds, duration);
+            CreatePodcastModel createPodcastModel = new CreatePodcastModel(
+                    title, content, videoPath.toString(), thumbnailUrl, genreIds, duration
+            );
 
-            // Call service and pass video file path
             PodcastModel podcastModel = podcastService.createPodcast(createPodcastModel, userModel.getId());
+
+            // ✅ Không xài lại MultipartFile nữa. Dùng video đã lưu
+            videoTranscribeService.transcribeVideo(realVideoFile, podcastModel.getId());
 
             return ResponseEntity.ok(podcastModel);
         } catch (Exception e) {
+            e.printStackTrace();
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Error: " + e.getMessage());
         }
     }
+
 
     @PutMapping(value = "/edit/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<PodcastModel> updatePodcast(

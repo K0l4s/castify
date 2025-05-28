@@ -108,6 +108,7 @@ const Authentication = () => {
     dropdown?.classList.toggle("hidden");
   };
 
+  const [lang, setLang] = useState(localStorage.getItem("lang") || "en");
   return (
     <div>
       <div className="relative">
@@ -148,7 +149,7 @@ const Authentication = () => {
                 </button>
               ) : (
                 <Tooltip text="Blank Shop">
-                  <button 
+                  <button
                     onClick={() => navigate('/shop')}
                     className="p-2 text-gray-700 dark:text-gray-200 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500">
                     <BsCart3 className="w-5 h-5" />
@@ -199,8 +200,13 @@ const Authentication = () => {
             <ThemeModeSwitch />
             {/* select option */}
             <select
-              onChange={(e) => changeLanguage(e.target.value as 'en' | 'vi')}
-              className="border-none bg-transparent gap-2 text-green-500"
+              onChange={(e) => {
+                changeLanguage(e.target.value as 'en' | 'vi')
+                localStorage.setItem('lang', e.target.value);
+                setLang(e.target.value as 'en' | 'vi')
+              }}
+              className="px-4 py-2 rounded-md bg-white dark:bg-gray-800 text-gray-900 dark:text-white duration-300 ease-in-out outline-none"
+              value={lang}
             >
               <option value="en">EN</option>
               <option value="vi">VI</option>
@@ -245,12 +251,17 @@ const Authentication = () => {
                 {language.navbar.language}
                 {/* select option */}
                 <select
-                  onChange={(e) => changeLanguage(e.target.value as 'en' | 'vi')}
-                  className="border-none bg-transparent text-blue-500"
+                  onChange={(e) => {
+                    localStorage.setItem('lang', e.target.value);
+                    changeLanguage(e.target.value as 'en' | 'vi')
+                  }
+                  }
+                  className="px-4 py-2 rounded-md bg-white dark:bg-gray-800 text-gray-900 dark:text-white duration-300 ease-in-out outline-none"
                 >
-                  <option value="en">EN</option>
-                  <option value="vi">VI</option>
+                  <option value="en">English</option>
+                  <option value="vi">Tiếng Việt</option>
                 </select>
+
               </div>
             </li>
             <li>

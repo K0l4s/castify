@@ -6,6 +6,8 @@ import { AiFillHeart, AiFillDislike, AiFillFire, AiFillThunderbolt } from 'react
 import { FaAngry } from 'react-icons/fa';
 import './Podcast.css';
 import PodcastCommentBar from './PodcastCommetBar';
+import { useSEO } from '../../../hooks/useSEO';
+import SEO from '../../../context/SEO';
 
 interface PodcastProps {
     videoSrc: string;
@@ -45,7 +47,7 @@ const Podcast: React.FC<PodcastProps> = ({
     const [currentReaction, setCurrentReaction] = useState('none');
     const [showReactionMenu, setShowReactionMenu] = useState(false);
     const reactionTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
-    const [reactionEffects, setReactionEffects] = useState<Array<{id: number, type: string, style: any}>>([]);
+    const [reactionEffects, setReactionEffects] = useState<Array<{ id: number, type: string, style: any }>>([]);
     let effectIdCounter = 0;
 
     // Set initial reaction state based on props
@@ -61,28 +63,28 @@ const Podcast: React.FC<PodcastProps> = ({
             label: 'None',
             effect: 'none'
         },
-        love: { 
-            icon: <AiFillHeart size={30} color="#FF69B4" />, 
+        love: {
+            icon: <AiFillHeart size={30} color="#FF69B4" />,
             label: 'Love',
             effect: 'hearts'
         },
-        dislike: { 
-            icon: <AiFillDislike size={30} color="#FF4500" />, 
+        dislike: {
+            icon: <AiFillDislike size={30} color="#FF4500" />,
             label: 'Dislike',
             effect: 'shake'
         },
-        fire: { 
-            icon: <AiFillFire size={30} color="#FFA500" />, 
+        fire: {
+            icon: <AiFillFire size={30} color="#FFA500" />,
             label: 'Fire',
             effect: 'flames'
         },
-        thunder: { 
-            icon: <AiFillThunderbolt size={30} color="#FFD700" />, 
+        thunder: {
+            icon: <AiFillThunderbolt size={30} color="#FFD700" />,
             label: 'Thunder',
             effect: 'lightning'
         },
-        angry: { 
-            icon: <FaAngry size={30} color="#FF0000" />, 
+        angry: {
+            icon: <FaAngry size={30} color="#FF0000" />,
             label: 'Angry',
             effect: 'flames'
         }
@@ -92,16 +94,16 @@ const Podcast: React.FC<PodcastProps> = ({
         const id = effectIdCounter++;
         let style = {};
 
-        switch(type) {
+        switch (type) {
             case 'hearts':
                 // Create multiple floating hearts with varying sizes and paths
-                for(let i = 0; i < 15; i++) {
+                for (let i = 0; i < 15; i++) {
                     const randomX = Math.random() * 100;
                     const randomDelay = Math.random() * 1;
                     const randomSize = Math.random() * 20 + 20; // Size between 20-40px
                     const randomRotation = Math.random() * 360;
                     const randomPath = Math.random() > 0.5 ? 'cubic-bezier(0.25, 0.1, 0.25, 1)' : 'cubic-bezier(0.42, 0, 0.58, 1)';
-                    
+
                     setReactionEffects(prev => [...prev, {
                         id: effectIdCounter++,
                         type: 'hearts',
@@ -272,7 +274,6 @@ const Podcast: React.FC<PodcastProps> = ({
         const secs = Math.floor(seconds % 60);
         return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
     };
-
     return (
         <div className="flex mx-auto">
             {/* Video Container */}
@@ -372,14 +373,14 @@ const Podcast: React.FC<PodcastProps> = ({
             {/* Interaction Icons */}
             <div className={`flex flex-col space-y-4 p-4 justify-center transition-transform duration-300 ${isCommentOpen ? 'translate-x-full opacity-0' : 'translate-x-0 opacity-100'}`}>
                 <div className="flex flex-col items-center relative">
-                    <div 
+                    <div
                         className="bg-gray-100 hover:bg-gray-200 transition cursor-pointer rounded-full h-12 w-12 flex items-center justify-center"
                         onMouseEnter={handleReactionHover}
                         onMouseLeave={handleReactionLeave}
                         onClick={() => handleReactionClick(currentReaction === 'none' ? 'love' : 'none')}
                     >
                         {reactions[currentReaction as keyof typeof reactions].icon}
-                        
+
                         {/* Reaction Menu */}
                         {showReactionMenu && (
                             <div className="absolute right-full mr-2 bg-white rounded-lg shadow-lg p-2 flex gap-2">
@@ -402,7 +403,7 @@ const Podcast: React.FC<PodcastProps> = ({
                 </div>
 
                 <div className="flex flex-col items-center">
-                    <div 
+                    <div
                         className="bg-gray-100 hover:bg-gray-200 transition cursor-pointer rounded-full h-12 w-12 flex items-center justify-center"
                         onClick={toggleComment}
                     >
