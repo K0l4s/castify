@@ -1,44 +1,37 @@
 import React, { useState } from "react";
 import { Podcast } from "../../../models/PodcastModel";
 import { Link } from "react-router-dom";
-import { FaBookmark, FaEye, FaFlag, FaShareAlt, FaPlay, FaClock } from "react-icons/fa";
-import { IoCloseOutline } from "react-icons/io5";
+import { FaBookmark, FaEye, FaFlag, FaShareAlt, FaHeart, FaRegHeart, FaPlay, FaClock } from "react-icons/fa";
 import { HiDotsVertical } from "react-icons/hi";
-import CustomOptionMenu from "../custom/CustomOptionMenu";
-import ShareModal from "../../modals/podcast/ShareModal";
 import defaultAvatar from "../../../assets/images/default_avatar.jpg";
-import ReportModal from "../../modals/report/ReportModal";
 import { ReportType } from "../../../models/Report";
 import { useToast } from "../../../context/ToastProvider";
-import Avatar from "../user/Avatar";
-import { formatTimeDuration } from "./video";
-import { formatDistanceToNow } from "date-fns";
-import AddToPlaylistModal from "../../../pages/main/playlistPage/AddToPlaylistModal";
+import CustomOptionMenu from "../../../components/UI/custom/CustomOptionMenu";
+import Avatar from "../../../components/UI/user/Avatar";
+import ShareModal from "../../../components/modals/podcast/ShareModal";
+import ReportModal from "../../../components/modals/report/ReportModal";
+import { formatTimeDuration } from "../../../components/UI/podcast/video";
+import AddToPlaylistModal from "../playlistPage/AddToPlaylistModal";
 
-interface PodcastHistoryProps {
+interface PodcastLikedProps {
   podcast: Podcast;
-  onDelete: () => void;
-  timestamp?: string; // For showing when the podcast was viewed
+  onUnlike: () => void;
 }
 
-const PodcastHistory: React.FC<PodcastHistoryProps> = ({
+const PodcastLiked: React.FC<PodcastLikedProps> = ({
   podcast,
-  onDelete,
-  timestamp,
+  onUnlike,
 }) => {
   const [isShareModalOpen, setIsShareModalOpen] = useState(false);
   const [isReportModalOpen, setIsReportModalOpen] = useState(false);
   const [isPlaylistModalOpen, setIsPlaylistModalOpen] = useState(false);
 
+  const [isLiked, setIsLiked] = useState(true);
+
   const toast = useToast();
   const podcastLink = `${window.location.origin}/watch?pid=${podcast.id}`;
   const author = podcast.user.fullname;
   
-  // Format the timestamp if provided
-  const viewedAtFormatted = timestamp 
-    ? formatDistanceToNow(new Date(timestamp), { addSuffix: true })
-    : undefined;
-
   const handleSave = () => {
     toast.info("Save feature is coming soon");
   };
@@ -50,9 +43,14 @@ const PodcastHistory: React.FC<PodcastHistoryProps> = ({
   const toggleReportModal = () => {
     setIsReportModalOpen(!isReportModalOpen);
   }
-
+  
   const toggleAddToPlaylistModal = () => {
     setIsPlaylistModalOpen(!isPlaylistModalOpen);
+  };
+
+  const handleLikeToggle = () => {
+    setIsLiked(!isLiked);
+    onUnlike();
   };
 
   return (
@@ -70,7 +68,8 @@ const PodcastHistory: React.FC<PodcastHistoryProps> = ({
           </div>
         </div>
         {/* Duration indicator */}
-        <div className="absolute bottom-2 right-2 bg-black/70 text-white text-xs px-2 py-1 rounded">
+        <div className="flex absolute bottom-2 right-2 bg-black/70 text-white text-sm px-2 py-1 rounded">
+          <FaClock className="mt-[2px] mr-1" size={14}/>
           {formatTimeDuration(podcast.duration) || "10:00"}
         </div>
       </Link>
@@ -98,12 +97,6 @@ const PodcastHistory: React.FC<PodcastHistoryProps> = ({
             <FaEye className="mr-1" />
             {podcast.views} views
           </p>
-          {viewedAtFormatted && (
-            <p className="text-sm sm:text-base font-medium text-gray-600 dark:text-gray-300 flex items-center">
-              <FaClock className="mr-1" />
-              Viewed {viewedAtFormatted}
-            </p>
-          )}
         </div>
         <p className="text-sm sm:text-base text-gray-800 dark:text-gray-300 mt-2 line-clamp-2">
           {podcast.content}
@@ -123,12 +116,19 @@ const PodcastHistory: React.FC<PodcastHistoryProps> = ({
       </div>
       <div className="flex sm:flex-col items-center sm:items-start mt-3 sm:mt-0 sm:ml-4 gap-2">
         <button
-          onClick={onDelete}
-          className="text-gray-600 dark:text-gray-400 hover:bg-gray-100 hover:dark:bg-gray-700 p-2 rounded-full transition duration-200"
-          aria-label="Remove from history"
-          title="Remove from history"
+          onClick={handleLikeToggle}
+          className={`${isLiked 
+              ? 'text-red-500 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300' 
+              : 'text-gray-400 hover:text-red-500 dark:text-gray-500 dark:hover:text-red-400'
+            } hover:bg-gray-100 hover:dark:bg-gray-700 p-2 rounded-full transition duration-200`}
+          aria-label={isLiked ? "Unlike" : "Like"}
+          title={isLiked ? "Unlike this podcast" : "Like this podcast"}
         >
-          <IoCloseOutline className="w-5 h-5 sm:w-6 sm:h-6" />
+          {isLiked ? (
+            <FaHeart className="w-5 h-5 sm:w-6 sm:h-6" />
+          ) : (
+            <FaRegHeart className="w-5 h-5 sm:w-6 sm:h-6" />
+          )}
         </button>
 
         <CustomOptionMenu
@@ -136,7 +136,7 @@ const PodcastHistory: React.FC<PodcastHistoryProps> = ({
           position="bottom"
           trigger="click"
           size="md"
-          className="transition-colors rounded-full text-gray-600 dark:text-gray-400 hover:bg-gray-100 hover:dark:bg-gray-700"
+          className="transition-colors rounded-full text-black dark:text-white hover:bg-gray-100 hover:dark:bg-gray-700"
         >
           <ul className="py-1 text-sm">
             <li className="px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer" onClick={toggleReportModal}>
@@ -183,4 +183,4 @@ const PodcastHistory: React.FC<PodcastHistoryProps> = ({
   );
 };
 
-export default PodcastHistory;
+export default PodcastLiked;

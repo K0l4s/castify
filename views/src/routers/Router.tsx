@@ -41,6 +41,7 @@ import SettingModals from '../components/modals/user/SettingModal'
 import { useEffect, useState } from 'react'
 import { useToast } from '../context/ToastProvider'
 import TrendingPage from '../pages/main/trendingPage/TrendingPage'
+import LikedPage from '../pages/main/likedPage/LikedPage'
 // import Test from '../components/main/conversation/Test'
 // import Test from '../pages/main/blankShop/Test'
 // import NotificationComponent from '../components/main/conversation/NotificationComponent'
@@ -109,6 +110,7 @@ const Router = () => {
                     <Route path='/feed' element={<LandingPage />} />
                     <Route path='/feed/follow' element={<RequireAuth><FollowingPage /></RequireAuth>} />
                     <Route path='/feed/trend' element={<TrendingPage />} />
+                    <Route path='/feed/liked' element={<RequireAuth><LikedPage /></RequireAuth>} />
                     <Route path='/feed/history' element={<RequireAuth><HistoryPage /></RequireAuth>} />
                     <Route path='/playlist' element={<RequireAuth><PlaylistPage /></RequireAuth>} />
                     <Route path='/watch' element={<PodcastViewport />} />
