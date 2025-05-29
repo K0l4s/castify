@@ -3,7 +3,6 @@ import { getGenres, createGenre, updateGenre, deleteGenre, getTotalActiveGenresC
 import { Genre, genreCreateUpdate } from "../../../models/GenreModel";
 import { MdOutlineModeEdit } from "react-icons/md";
 import { MdDelete } from "react-icons/md";
-import { BsThreeDots } from "react-icons/bs";
 import { RiImageAddLine } from "react-icons/ri";
 import { useToast } from "../../../context/ToastProvider";
 
@@ -189,9 +188,9 @@ const AdminGenrePage = () => {
     setGenres(filteredGenres);
   };
 
-  const handleMenuToggle = (genreId: string) => {
-    setOpenMenuId(openMenuId === genreId ? null : genreId); 
-  };
+  // const handleMenuToggle = (genreId: string) => {
+  //   setOpenMenuId(openMenuId === genreId ? null : genreId); 
+  // };
 
   const handleDeleteClick = (genreId: string) => {
     setIsDeleting(true);
