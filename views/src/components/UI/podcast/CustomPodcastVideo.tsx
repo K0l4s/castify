@@ -3,13 +3,15 @@ import { BiLeftArrow, BiPause, BiPlay, BiRightArrow } from "react-icons/bi";
 import { MdOutlineZoomInMap, MdOutlineZoomOutMap, MdSkipNext } from "react-icons/md";
 import { BsVolumeMute, BsVolumeUp } from "react-icons/bs";
 import Tooltip from "../custom/Tooltip";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import Avatar from "../user/Avatar";
 import { Transcript } from "../../../models/Transcript";
 import { getNext, getTranscipts } from "../../../services/PodcastService";
 import { Podcast } from "../../../models/PodcastModel";
-import { useSelector } from "react-redux";
-import { RootState } from "../../../redux/store";
+import { VideoTracking } from "../../../models/VideoTracking";
+import { trackService } from "../../../services/TrackingService";
+import ConfirmBox from "../dialogBox/ConfirmBox";
+import ConfirmBoxNoOverlay from "../dialogBox/ConfirmBoxNoOverlay";
 
 interface CustomPodcastVideoProps {
     videoSrc: string;
@@ -31,6 +33,7 @@ const CustomPodcastVideo = ({
     user,
 }: CustomPodcastVideoProps) => {
     const containerRef = useRef<HTMLDivElement>(null);
+    const [showConfirmBox, setShowConfirmBox] = useState(false);
     const [currentTime, setCurrentTime] = useState(0);
     const [duration, setDuration] = useState(0);
     const [isPlaying, setIsPlaying] = useState(true);
@@ -43,7 +46,32 @@ const CustomPodcastVideo = ({
     const [transcripts, setTranscripts] = useState<Transcript[]>([]);
     const [showTranscript, setShowTranscript] = useState<boolean>(false);
     const [nextPodcast, setNextPodcast] = useState<Podcast>({} as Podcast);
+    const location = useLocation();
+    const queryParams = new URLSearchParams(location.search);
+    const id = queryParams.get("pid") as string | "";
 
+    const [videoTracking, setVideoTracking] = useState<VideoTracking>();
+    useEffect(() => {
+        const fetchVideoTracking = async () => {
+            try {
+                const response = await trackService.getVideoTracking(id);
+                setVideoTracking(response);
+                console.log("Video tracking data:", response);
+            } catch (error) {
+                console.error("Error fetching video tracking:", error);
+            }
+        };
+        fetchVideoTracking();
+    }, [id]);
+    // Video tracking logic
+    useEffect(() => {
+        if (videoRef.current && videoTracking) {
+            // videoRef.current.currentTime = videoTracking.pauseTime;
+            // setCurrentTime(videoTracking.pauseTime);
+            setShowConfirmBox(true);
+            // setIsPlaying(true);
+        }
+    }, [videoRef, videoTracking]);
     // Countdown state for next video
     const [showNextCountdown, setShowNextCountdown] = useState(false);
     const [countdown, setCountdown] = useState(5);
@@ -281,8 +309,8 @@ const CustomPodcastVideo = ({
                 <div
                     key={t.id}
                     className={`py-1 px-2 rounded cursor-pointer transition-all duration-150 ${currentTime >= t.start && currentTime <= t.end
-                            ? "bg-yellow-400 text-black font-semibold"
-                            : "hover:bg-white/10"
+                        ? "bg-yellow-400 text-black font-semibold"
+                        : "hover:bg-white/10"
                         }`}
                     onClick={() => {
                         if (videoRef.current) {
@@ -360,6 +388,20 @@ const CustomPodcastVideo = ({
     // Responsive: collapse menu bar on small screens
     // We'll use a hamburger menu for <md screens for the control bar
     // The menu bar will be hidden under a button on small screens
+    function formatTimeFromSeconds(seconds?: number): string {
+        if (seconds === undefined) return '';
+
+        const h = Math.floor(seconds / 3600);
+        const m = Math.floor((seconds % 3600) / 60);
+        const s = Math.floor(seconds % 60);
+
+        const parts = [];
+        if (h > 0) parts.push(h.toString().padStart(2, '0'));
+        if (m > 0 || h > 0) parts.push(m.toString().padStart(2, '0'));
+        parts.push(s.toString().padStart(2, '0'));
+
+        return parts.join(':');
+    }
 
     return (
         <div
@@ -380,6 +422,7 @@ const CustomPodcastVideo = ({
                     onTimeUpdate={handleTimeUpdate}
                     onLoadedMetadata={handleLoadedMetadata}
                     onEnded={handleVideoEnded}
+                    id="custom-podcast-video"
                 />
 
                 {/* Overlay gradient */}
@@ -413,7 +456,7 @@ const CustomPodcastVideo = ({
                     </div>
                 )}
 
-               
+
 
                 {/* Countdown overlay when video ends */}
                 {showNextCountdown && nextPodcast && nextPodcast.id && (
@@ -603,7 +646,7 @@ const CustomPodcastVideo = ({
                                     <BiRightArrow className="w-5 h-5" />
                                 </button>
                             </Tooltip>
-                            
+
                             {nextPodcast && nextPodcast.id && (
                                 <Tooltip text="Xem video tiếp theo">
                                     <button
@@ -620,7 +663,7 @@ const CustomPodcastVideo = ({
                                 </Tooltip>
                             )}
 
-                           
+
                             <div className="text-white text-sm font-semibold px-2 select-none flex items-center">
                                 <select
                                     value={playbackRate}
@@ -778,6 +821,29 @@ const CustomPodcastVideo = ({
                     </div>
                 )}
             </div>
+            <ConfirmBoxNoOverlay
+                title="Xem tiếp video?"
+                message={"Chúng tôi nhận thấy bạn đã xem video này đến " + formatTimeFromSeconds(videoTracking?.pauseTime) + ". Bạn có muốn tiếp tục xem không?"}
+                isOpen={showConfirmBox}
+                onConfirm={() => {
+                    setShowConfirmBox(false);
+                    // Continue video
+                    if (videoRef.current && videoTracking) {
+                        videoRef.current.currentTime = videoTracking.pauseTime;
+                        setCurrentTime(videoTracking.pauseTime);
+                        videoRef.current.play();
+                    }
+                    // Handle confirm action here
+                }}
+                onCancel={() => {
+                    setShowConfirmBox(false)
+                    if (videoRef.current)
+                        videoRef.current.currentTime = 0;
+
+                }}
+                confirmText="Yes"
+                cancelText="No"
+            />
         </div>
     );
 };

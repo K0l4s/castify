@@ -101,3 +101,12 @@ export const applyFrame = async (id: string) => {
     throw error;
   }
 };
+
+export const cancelCurrentFrame = async () => {
+  try {
+    const response = await axiosInstanceAuth.delete(`/api/v1/frame/cancel`);
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};

@@ -88,7 +88,8 @@ public class SecurityConfiguration {
             "/api/v1/playlist/public/{userId}",
             "/api/v1/playlist/{id}",
             "/api/v1/podcast/transcript",
-            "/api/v1/podcast/next"
+            "/api/v1/podcast/next",
+            "api/v1/tracking"
     };
     private final JwtAuthenticationFilter jwtAuthFilter;
     private final AuthenticationProvider authenticationProvider;

@@ -121,4 +121,13 @@ public class FrameController {
             return new ResponseEntity<>(new ErrorResponse(e.getMessage()), HttpStatus.BAD_REQUEST);
         }
     }
+    @DeleteMapping("/cancel")
+    public ResponseEntity<?> cancelFrame() {
+        try {
+            frameService.cancelCurrentFrame();
+            return new ResponseEntity<>("Frame applied successfully", HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<>(new ErrorResponse(e.getMessage()), HttpStatus.BAD_REQUEST);
+        }
+    }
 }
