@@ -70,7 +70,8 @@ const PodcastHistory: React.FC<PodcastHistoryProps> = ({
           </div>
         </div>
         {/* Duration indicator */}
-        <div className="absolute bottom-2 right-2 bg-black/70 text-white text-xs px-2 py-1 rounded">
+        <div className="absolute bottom-2 right-2 bg-black/70 text-white text-sm px-2 py-1 rounded">
+          <FaClock className="inline-block mr-1 mb-[2px]" size={14} />
           {formatTimeDuration(podcast.duration) || "10:00"}
         </div>
       </Link>

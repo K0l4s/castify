@@ -15,12 +15,13 @@ export interface PlaylistModel {
   name: string;
   description: string;
   thumbnail: string | null;
-  totalItems: number;
   publish: boolean;
   lastUpdated: string;
   createdAt: string;
   owner: User;
   items: PlaylistItem[];
+  totalItems: number;
+  hiddenCount: number;
 }
 
 export interface CreatePlaylistDTO {
