@@ -8,10 +8,12 @@ import com.castify.backend.models.genre.GenreSimple;
 import com.castify.backend.models.genre.GenreUsageCount;
 import com.castify.backend.repository.GenreRepository;
 import com.castify.backend.repository.PodcastRepository;
+import com.castify.backend.service.uploadFile.IUploadFileService;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.rest.webmvc.ResourceNotFoundException;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDateTime;
 import java.util.HashMap;
@@ -28,6 +30,9 @@ public class GenreServiceImpl implements IGenreService {
 
     @Autowired
     private ModelMapper modelMapper;
+
+    @Autowired
+    private IUploadFileService uploadFileService;
 
     @Override
     public List<GenreSimple> getAllGenreName() {
@@ -46,28 +51,48 @@ public class GenreServiceImpl implements IGenreService {
     }
 
     @Override
-    public GenreModel createGenre(String name) {
+    public GenreModel createGenre(String name, MultipartFile image) {
         GenreEntity genreEntity = new GenreEntity();
-
         genreEntity.setName(name);
         genreEntity.setActive(true);
         genreEntity.setLastEdited(LocalDateTime.now());
+
+        if (image != null && !image.isEmpty()) {
+            try {
+                String imageUrl = uploadFileService.uploadImage(image);
+                genreEntity.setImageUrl(imageUrl);
+            } catch (Exception e) {
+                throw new RuntimeException("Failed to upload image: " + e.getMessage());
+            }
+        }
 
         genreRepository.save(genreEntity);
         return modelMapper.map(genreEntity, GenreModel.class);
     }
 
     @Override
-    public GenreModel updateGenre(String id, String newName){
+    public GenreModel updateGenre(String id, String newName, MultipartFile imageFile) {
         GenreEntity genreEntity = genreRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Genre not found"));
 
-        genreEntity.setName(newName);
-        genreEntity.setLastEdited(LocalDateTime.now());
+        if (newName != null && !newName.isEmpty()) {
+            genreEntity.setName(newName);
+        }
 
+        if (imageFile != null && !imageFile.isEmpty()) {
+            try {
+                String imageUrl = uploadFileService.uploadImage(imageFile);
+                genreEntity.setImageUrl(imageUrl);
+            } catch (Exception e) {
+                throw new RuntimeException("Failed to upload image: " + e.getMessage());
+            }
+        }
+
+        genreEntity.setLastEdited(LocalDateTime.now());
         genreRepository.save(genreEntity);
         return modelMapper.map(genreEntity, GenreModel.class);
     }
+
 
     @Override
     public String deleteGenre(String id) {

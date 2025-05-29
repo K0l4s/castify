@@ -37,6 +37,7 @@ export default class PlaylistService {
         owner: item.owner,
         order: item.order ?? index,
       })) ?? [],
+      hiddenCount: playlist.hiddenCount
     }));
 
     return mappedData;
@@ -106,6 +107,7 @@ export default class PlaylistService {
         duration: item.duration,
         order: item.order ?? index,
       })) ?? [],
+      hiddenCount: playlist.hiddenCount
     };
   }
 
@@ -155,6 +157,7 @@ export default class PlaylistService {
         duration: item.duration,
         order: item.order ?? index,
       })) ?? [],
+      hiddenCount: playlist.hiddenCount
     };
   }
 
@@ -188,6 +191,7 @@ export default class PlaylistService {
         owner: item.owner,
         order: item.order ?? index,
       })) ?? [],
+      hiddenCount: playlist.hiddenCount
     };
   }
 
@@ -223,6 +227,7 @@ export default class PlaylistService {
         owner: item.owner,
         order: item.order ?? index,
       })) ?? [],
+      hiddenCount: playlist.hiddenCount
     };
   }
 }

@@ -1,4 +1,5 @@
 import { axiosInstance, axiosInstanceAuth } from '../utils/axiosInstance';
+import { Genre, genreCreateUpdate } from '../models/GenreModel';
 
 export const getGenres = async () => {
   try {
@@ -27,18 +28,36 @@ export const getAllGenres = async () => {
   }
 };
 
-export const createGenre = async (name: string) => {
+export const createGenre = async (data: genreCreateUpdate) => {
   try {
-    const response = await axiosInstanceAuth.post('/api/v1/genre/create', { name });
+    const formData = new FormData();
+    formData.append('name', data.name);
+    if (data.image) {
+      formData.append('image', data.image);
+    }
+    const response = await axiosInstanceAuth.post('/api/v1/genre/create', formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
     return response.data;
   } catch (error) {
     throw error;
   }
 };
 
-export const updateGenre = async (id: string, name: string) => {
+export const updateGenre = async (id: string, data: genreCreateUpdate) => {
   try {
-    const response = await axiosInstanceAuth.put(`/api/v1/genre/update/${id}`, { name });
+    const formData = new FormData();
+    formData.append('name', data.name);
+    if (data.image) {
+      formData.append('image', data.image);
+    }
+    const response = await axiosInstanceAuth.put(`/api/v1/genre/update/${id}`, formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
     return response.data;
   } catch (error) {
     throw error;

@@ -111,6 +111,37 @@ public class PodcastController {
 
             // Xử lý thumbnail
             String thumbnailUrl;
+//            if (thumbnail != null && !thumbnail.isEmpty()) {
+//
+//                // Upload thumbnail từ người dùng
+//                thumbnailUrl = uploadFileService.uploadImage(thumbnail);
+//            } else {
+//                // Tạo thumbnail từ video
+//                Path userThumbnailDir = FileUtils.createUserDirectory(baseUploadDir, userModel.getId(), userModel.getEmail(), "thumbnail");
+//
+//                // Resize & Upload thumbnail lên Cloudinary
+//                thumbnailUrl = processAndUploadThumbnail(thumbnail, userThumbnailDir);
+//            } else if (thumbnail == null || thumbnail.isEmpty()) {
+//                // Tạo đường dẫn lưu thumbnail tạm thời
+//
+//                String tempThumbnailFileName = "thumb_" + formattedVideoFileName.replace(".mp4", ".jpeg");
+//                Path tempThumbnailPath = userThumbnailDir.resolve(tempThumbnailFileName);
+//
+//                // FFmpeg tạo frame
+//                ffmpegService.captureFrameFromVideo(videoPath.toString(), tempThumbnailPath.toString());
+//
+//
+//                // Upload frame lên Cloudinary
+//                thumbnailUrl = uploadFileService.uploadImageBytes(FileUtils.encodeFileToBase64(tempThumbnailPath.toFile()));
+//
+//                // Resize về đúng tỉ lệ 16:9
+//                Path resizedThumbnailPath = userThumbnailDir.resolve("resized_" + tempThumbnailFileName);
+//                ffmpegService.resizeImageTo16by9(tempThumbnailPath.toString(), resizedThumbnailPath.toString());
+//
+//                // Upload frame đã capture lên Cloudinary
+//                thumbnailUrl = uploadFileService.uploadImageBytes(FileUtils.encodeFileToBase64(resizedThumbnailPath.toFile()));
+//
+//            }
             if (thumbnail != null && !thumbnail.isEmpty()) {
                 // Resize & Upload thumbnail lên Cloudinary
                 thumbnailUrl = processAndUploadThumbnail(thumbnail, userThumbnailDir);
