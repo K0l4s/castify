@@ -4,7 +4,7 @@ import 'swiper/css';
 import 'swiper/css/effect-coverflow';
 import 'swiper/css/pagination';
 import { EffectCoverflow, Pagination } from 'swiper/modules';
-import { useNavigate } from 'react-router-dom';
+// import { useNavigate } from 'react-router-dom';
 import { userService } from '../../../services/UserService';
 import { CgUserList } from 'react-icons/cg';
 import { BsPostcard } from 'react-icons/bs';
