@@ -45,6 +45,7 @@ import TrendingPage from '../pages/main/trendingPage/TrendingPage'
 import { useLanguage } from '../context/LanguageContext'
 
 import LikedPage from '../pages/main/likedPage/LikedPage'
+import DetailPlaylistPage from '../pages/main/playlistPage/DetailPlaylistPage'
 
 // import Test from '../components/main/conversation/Test'
 // import Test from '../pages/main/blankShop/Test'
@@ -127,6 +128,7 @@ const Router = () => {
                     <Route path='/feed/liked' element={<RequireAuth><LikedPage /></RequireAuth>} />
                     <Route path='/feed/history' element={<RequireAuth><HistoryPage /></RequireAuth>} />
                     <Route path='/playlist' element={<RequireAuth><PlaylistPage /></RequireAuth>} />
+                    <Route path="/playlist/:id" element={<RequireAuth><DetailPlaylistPage /></RequireAuth>} />
                     <Route path='/watch' element={<PodcastViewport />} />
                     <Route path='/search' element={<SearchPage />} />
                     <Route path='/profile' element={<ProfilePage />} />
