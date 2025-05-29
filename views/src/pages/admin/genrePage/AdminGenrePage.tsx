@@ -18,7 +18,7 @@ const AdminGenrePage = () => {
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [isDeleting, setIsDeleting] = useState<boolean>(false);
   const [deleteGenreId, setDeleteGenreId] = useState<string | null>(null);
-  const [openMenuId, setOpenMenuId] = useState<string | null>(null);
+  // const [openMenuId, setOpenMenuId] = useState<string | null>(null);
   const [allGenres, setAllGenres] = useState<Genre[]>([]);
 
   const deleteModalRef = useRef<HTMLDivElement | null>(null);
@@ -47,7 +47,7 @@ const AdminGenrePage = () => {
     const handleClickOutside = (event: MouseEvent) => {
       const target = event.target as HTMLElement;
       if (!target.closest('.relative')) {
-        setOpenMenuId(null);
+        // setOpenMenuId(null);
       }
     };
 
@@ -159,7 +159,7 @@ const AdminGenrePage = () => {
   const handleEditGenre = (genre: Genre) => {
     setEditingGenre({ ...genre });
     setEditingGenreImagePreview(genre.imageUrl || '');
-    setOpenMenuId(null);
+    // setOpenMenuId(null);
   };
 
   const handleCancelEdit = () => {
@@ -195,7 +195,7 @@ const AdminGenrePage = () => {
   const handleDeleteClick = (genreId: string) => {
     setIsDeleting(true);
     setDeleteGenreId(genreId);
-    setOpenMenuId(null);
+    // setOpenMenuId(null);
   };
 
   return (
