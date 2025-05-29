@@ -27,4 +27,5 @@ public class PlaylistModel {
 
     private UserModel owner;
     private List<PlaylistItem> items;
+    private int hiddenCount;
 }

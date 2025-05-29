@@ -49,7 +49,21 @@ public class PlaylistServiceImpl implements IPlaylistService {
             }
         }
 
-        return modelMapper.map(playlistEntity, PlaylistModel.class);
+        List<PlaylistItem> allItems = playlistEntity.getItems();
+
+        // Lọc các podcast đang active
+        List<PlaylistItem> filteredItems = allItems.stream()
+                .filter(item -> {
+                    // Kiểm tra xem podcast còn active không
+                    return podcastRepository.findByIdAndIsActiveTrue(item.getPodcastId()).isPresent();
+                })
+                .toList();
+
+
+        PlaylistModel model = modelMapper.map(playlistEntity, PlaylistModel.class);
+        model.setItems(filteredItems);
+        model.setHiddenCount(allItems.size() - filteredItems.size());
+        return model;
     }
 
     @Override
@@ -111,7 +125,17 @@ public class PlaylistServiceImpl implements IPlaylistService {
         playlist.setPublish(publish);
         playlist.setLastUpdated(LocalDateTime.now());
         playlist = playlistRepository.save(playlist);
-        return modelMapper.map(playlist, PlaylistModel.class);
+
+        PlaylistModel model = modelMapper.map(playlist, PlaylistModel.class);
+
+        // Lọc ra các items có podcast isActive = true
+        List<PlaylistItem> activeItems = playlist.getItems().stream()
+                .filter(item -> podcastRepository.findByIdAndIsActiveTrue(item.getPodcastId()).isPresent())
+                .toList();
+
+        model.setItems(activeItems);
+
+        return model;
     }
 
     @Override
@@ -201,7 +225,18 @@ public class PlaylistServiceImpl implements IPlaylistService {
         return playlistRepository.findAll().stream()
                 .filter(p -> p.getOwner().getId().equals(auth.getId()))
                 .sorted(comparator)
-                .map(p -> modelMapper.map(p, PlaylistModel.class))
+                .map(p -> {
+                    PlaylistModel model = modelMapper.map(p, PlaylistModel.class);
+
+                    // Lọc ra các item có podcast isActive = true
+                    List<PlaylistItem> visibleItems = p.getItems().stream()
+                            .filter(item -> podcastRepository.findByIdAndIsActiveTrue(item.getPodcastId()).isPresent())
+                            .toList();
+                    model.setItems(visibleItems);
+                    model.setHiddenCount(p.getItems().size() - visibleItems.size());
+
+                    return model;
+                })
                 .toList();
     }
 
@@ -209,7 +244,17 @@ public class PlaylistServiceImpl implements IPlaylistService {
     public List<PlaylistModel> getUserPublicPlaylists(String username) {
         return playlistRepository.findAll().stream()
                 .filter(p -> p.getOwner().getUsername().equals(username) && p.isPublish())
-                .map(p -> modelMapper.map(p, PlaylistModel.class))
+                .map(p -> {
+                    PlaylistModel model = modelMapper.map(p, PlaylistModel.class);
+
+                    List<PlaylistItem> visibleItems = p.getItems().stream()
+                            .filter(item -> podcastRepository.findByIdAndIsActiveTrue(item.getPodcastId()).isPresent())
+                            .toList();
+                    model.setItems(visibleItems);
+                    model.setHiddenCount(p.getItems().size() - visibleItems.size());
+
+                    return model;
+                })
                 .toList();
     }
 
@@ -218,7 +263,9 @@ public class PlaylistServiceImpl implements IPlaylistService {
         PlaylistEntity playlist = playlistRepository.findById(playlistId)
                 .orElseThrow(() -> new RuntimeException("Playlist not found"));
 
-        Map<String, PlaylistItem> itemMap = playlist.getItems().stream()
+        List<PlaylistItem> originalItems = playlist.getItems();
+
+        Map<String, PlaylistItem> itemMap = originalItems.stream()
                 .collect(Collectors.toMap(PlaylistItem::getPodcastId, i -> i));
 
         List<PlaylistItem> reordered = new ArrayList<>();
@@ -231,7 +278,15 @@ public class PlaylistServiceImpl implements IPlaylistService {
             }
         }
 
-        playlist.setItems(reordered);
+        // Giữ lại các item không được reorder (thường là isActive = false)
+        List<PlaylistItem> hiddenItems = originalItems.stream()
+                .filter(item -> !newOrderPodcastIds.contains(item.getPodcastId()))
+                .toList();
+
+        List<PlaylistItem> finalItems = new ArrayList<>(reordered);
+        finalItems.addAll(hiddenItems);
+
+        playlist.setItems(finalItems);
         playlist.setLastUpdated(LocalDateTime.now());
 
         return modelMapper.map(playlistRepository.save(playlist), PlaylistModel.class);
