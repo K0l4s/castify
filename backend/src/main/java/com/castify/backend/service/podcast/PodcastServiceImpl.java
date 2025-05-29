@@ -763,4 +763,67 @@ public class PodcastServiceImpl implements IPodcastService {
                 podcast.getUser() != null ? userSimple : null
         );
     }
+    @Override
+    public PodcastModel getSuggestedPodcasts(String currentPodcastId) {
+        PodcastEntity currentPodcast = podcastRepository.findPodcastEntityById(currentPodcastId);
+//        String currentPodcastId = currentPodcast.getId();
+        String userId = currentPodcast.getUser().getId();
+
+        List<String> genreIds = currentPodcast.getGenres()
+                .stream()
+                .map(genre -> genre.getId())
+                .collect(Collectors.toList());
+
+        Sort sort = Sort.by(Sort.Order.desc("views"), Sort.Order.desc("createdDay"));
+
+        List<PodcastEntity> suggestions = podcastRepository.findSuggestedPodcasts(currentPodcastId, userId, genreIds, sort);
+
+        return suggestions.stream()
+                .limit(2)
+                .map(this::convertToPodcastModel)
+                .collect(Collectors.toList()).get(0);
+    }
+    private PodcastModel convertToPodcastModel(PodcastEntity entity) {
+        PodcastModel model = new PodcastModel();
+        model.setId(entity.getId());
+        model.setTitle(entity.getTitle());
+        model.setContent(entity.getContent());
+        model.setThumbnailUrl(entity.getThumbnailUrl());
+        model.setVideoUrl(entity.getVideoUrl());
+        model.setViews(entity.getViews());
+        model.setDuration(entity.getDuration());
+        model.setTotalLikes(entity.getTotalLikes());
+        model.setTotalComments(entity.getTotalComments());
+        model.setCreatedDay(entity.getCreatedDay());
+        model.setLastEdited(entity.getLastEdited());
+
+        // Nếu có UserEntity → UserSimple
+        if (entity.getUser() != null) {
+            UserSimple userSimple = new UserSimple();
+            userSimple.setId(entity.getUser().getId());
+            userSimple.setUsername(entity.getUser().getUsername());
+            model.setUser(userSimple);
+            model.setUsername(entity.getUser().getUsername());
+        }
+
+        // Genres → GenreSimple
+        if (entity.getGenres() != null) {
+            List<GenreSimple> genreSimples = entity.getGenres()
+                    .stream()
+                    .map(genre -> {
+                        GenreSimple g = new GenreSimple();
+                        g.setId(genre.getId());
+                        g.setName(genre.getName());
+                        return g;
+                    })
+                    .collect(Collectors.toList());
+            model.setGenres(genreSimples);
+        }
+
+        // Mặc định isLiked = false, hoặc xử lý logic nếu có user đang login
+        model.setLiked(false);
+
+        return model;
+    }
+
 }

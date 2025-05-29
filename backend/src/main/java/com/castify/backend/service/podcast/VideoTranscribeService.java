@@ -13,14 +13,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.client.RestTemplate;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
-import java.io.FileOutputStream;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -95,6 +90,10 @@ public ResponseEntity<?> transcribeVideo(File videoFile, String podcastId) {
         // 6. Xoá file tạm
         if (audioFile != null && audioFile.exists()) audioFile.delete();
     }
+}
+@Override
+public List<TranscriptEntity> getTranscripts(String podcastId) {
+    return transcriptRepository.findByPodcastId(podcastId);
 }
 
 

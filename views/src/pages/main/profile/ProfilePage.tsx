@@ -21,7 +21,7 @@ import CreatePlaylistModal from "../playlistPage/CreatePlaylistModal";
 import ConfirmModal from "../../../components/modals/utils/ConfirmDelete";
 import CustomModal from "../../../components/UI/custom/CustomModal";
 
-import { useLanguage } from "../../../context/LanguageContext";
+// import { useLanguage } from "../../../context/LanguageContext";
 
 const ProfilePage: React.FC = () => {
   const navigate = useNavigate();
@@ -319,7 +319,7 @@ const ProfilePage: React.FC = () => {
       </div>
     );
   }
-  const { language } = useLanguage();
+  // const { language } = useLanguage();
   return (
     <div className="min-h-screen">
      

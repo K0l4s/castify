@@ -38,6 +38,8 @@ public interface IUserService {
     List<UserSimple> getRecommendUser() throws Exception;
 
 
+    List<UserSimple> recommendUsers() throws Exception;
+
     PaginatedResponse<BasicUserModel> getAllUser(Integer pageNumber, Integer pageSize) throws Exception;
 
 

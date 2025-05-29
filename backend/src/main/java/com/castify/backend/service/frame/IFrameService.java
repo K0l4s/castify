@@ -18,4 +18,6 @@ public interface IFrameService {
     void deleteFrame(String frameId) throws Exception;
 
     void applyFrame(String frameId) throws Exception;
+
+    void cancelCurrentFrame() throws Exception;
 }
