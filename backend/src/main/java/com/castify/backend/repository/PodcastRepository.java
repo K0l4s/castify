@@ -18,6 +18,7 @@ import java.util.Optional;
 @Repository
 public interface PodcastRepository extends MongoRepository<PodcastEntity, String> {
     Optional<List<PodcastEntity>> findAllByUserId(String userId);
+    @Query("{ '_id': ?0, 'isActive': true }")
     Optional<PodcastEntity> findByIdAndIsActiveTrue(String id);
     Page<PodcastEntity> findAllByIsActiveTrue(Pageable pageable);
     @Query("{ 'user.id': ?0, 'views': { $gte: ?1 } }")

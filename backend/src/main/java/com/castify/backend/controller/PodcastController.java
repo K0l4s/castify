@@ -143,24 +143,21 @@ public class PodcastController {
 //
 //            }
             if (thumbnail != null && !thumbnail.isEmpty()) {
-                // Trường hợp người dùng upload thumbnail
-                thumbnailUrl = uploadFileService.uploadImage(thumbnail);
+                // Resize & Upload thumbnail lên Cloudinary
+                thumbnailUrl = processAndUploadThumbnail(thumbnail, userThumbnailDir);
             } else {
-                // Trường hợp không có thumbnail -> tạo từ video
+                // Tạo đường dẫn lưu thumbnail tạm thời
                 String tempThumbnailFileName = "thumb_" + formattedVideoFileName.replace(".mp4", ".jpeg");
                 Path tempThumbnailPath = userThumbnailDir.resolve(tempThumbnailFileName);
 
-                // FFmpeg tạo frame
+                // Sử dụng FFmpeg để capture frame đầu tiên
                 ffmpegService.captureFrameFromVideo(videoPath.toString(), tempThumbnailPath.toString());
-
-                // Upload frame lên Cloudinary
-                thumbnailUrl = uploadFileService.uploadImageBytes(FileUtils.encodeFileToBase64(tempThumbnailPath.toFile()));
 
                 // Resize về đúng tỉ lệ 16:9
                 Path resizedThumbnailPath = userThumbnailDir.resolve("resized_" + tempThumbnailFileName);
                 ffmpegService.resizeImageTo16by9(tempThumbnailPath.toString(), resizedThumbnailPath.toString());
 
-                // Upload frame đã resize lên Cloudinary
+                // Upload frame đã capture lên Cloudinary
                 thumbnailUrl = uploadFileService.uploadImageBytes(FileUtils.encodeFileToBase64(resizedThumbnailPath.toFile()));
             }
 
