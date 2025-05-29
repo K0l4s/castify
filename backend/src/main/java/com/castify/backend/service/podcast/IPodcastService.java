@@ -33,6 +33,7 @@ public interface IPodcastService {
     PodcastModel updatePodcast(String podcastId, EditPodcastDTO editPodcastDTO);
     void deletePodcastsByIds(List<String> podcastIds, boolean isAdmin) throws Exception;
     PageDTO<PodcastModel> getTrendingPodcasts(int page, int size);
+    PageDTO<PodcastModel> getFollowingPodcastsByUsername(String username, int page, int size);
 
     PodcastModel getSuggestedPodcasts(String currentPodcastId);
 }

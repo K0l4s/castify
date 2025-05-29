@@ -57,7 +57,7 @@ const ReportModal: React.FC<ReportModalProps> = ({ isOpen, onClose, targetId, re
           <input
             id="report-title"
             type="text"
-            className="w-full px-4 py-2 mt-1 border rounded-md dark:bg-gray-700 dark:text-gray-100"
+            className="w-full px-4 py-2 mt-1 border rounded-md bg-white dark:bg-gray-700 dark:text-gray-100"
             placeholder="Please provide a title for the report"
             value={title}
             onChange={(e) => setTitle(e.target.value)}
@@ -67,7 +67,7 @@ const ReportModal: React.FC<ReportModalProps> = ({ isOpen, onClose, targetId, re
           <label htmlFor="report-detail" className="block text-sm font-semibold text-gray-700 dark:text-gray-300">Content</label>
           <textarea
             id="report-detail"
-            className="w-full px-4 py-2 mt-1 border rounded-md dark:bg-gray-700 dark:text-gray-100 h-32"
+            className="w-full px-4 py-2 mt-1 border rounded-md bg-white dark:bg-gray-700 dark:text-gray-100 h-32 resize-none"
             placeholder="Please provide more details about the report"
             value={detail}
             onChange={(e) => setDetail(e.target.value)}

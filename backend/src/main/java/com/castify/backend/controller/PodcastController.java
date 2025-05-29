@@ -10,8 +10,12 @@ import com.castify.backend.models.podcast.PodcastModel;
 import com.castify.backend.models.user.UserModel;
 import com.castify.backend.service.ffmpeg.IFFmpegService;
 import com.castify.backend.service.genre.IGenreService;
+
 import com.castify.backend.service.podcast.IVideoTranscribe;
 import com.castify.backend.service.podcast.VideoTranscribeService;
+
+import com.castify.backend.service.podcastLike.IPodcastLikeService;
+
 import com.castify.backend.service.uploadFile.IUploadFileService;
 import com.castify.backend.service.user.IUserService;
 import com.castify.backend.service.user.UserServiceImpl;
@@ -29,11 +33,15 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+
 import java.io.File;
+
 import java.io.IOException;
+
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -64,8 +72,15 @@ public class PodcastController {
 
     @Autowired
     private IGenreService genreService;
+
     @Autowired
     private IVideoTranscribe videoTranscribe;
+
+
+    @Autowired
+    private IPodcastLikeService podcastLikeService;
+
+
     private static final Logger logger = Logger.getLogger(PodcastController.class.getName());
     @Autowired
     private VideoTranscribeService videoTranscribeService;
@@ -96,19 +111,35 @@ public class PodcastController {
             // Xử lý thumbnail
             String thumbnailUrl;
             if (thumbnail != null && !thumbnail.isEmpty()) {
+
                 // Upload thumbnail từ người dùng
                 thumbnailUrl = uploadFileService.uploadImage(thumbnail);
             } else {
                 // Tạo thumbnail từ video
                 Path userThumbnailDir = FileUtils.createUserDirectory(baseUploadDir, userModel.getId(), userModel.getEmail(), "thumbnail");
+
+                // Resize & Upload thumbnail lên Cloudinary
+                thumbnailUrl = processAndUploadThumbnail(thumbnail, userThumbnailDir);
+            } else if (thumbnail == null || thumbnail.isEmpty()) {
+                // Tạo đường dẫn lưu thumbnail tạm thời
+
                 String tempThumbnailFileName = "thumb_" + formattedVideoFileName.replace(".mp4", ".jpeg");
                 Path tempThumbnailPath = userThumbnailDir.resolve(tempThumbnailFileName);
 
                 // FFmpeg tạo frame
                 ffmpegService.captureFrameFromVideo(videoPath.toString(), tempThumbnailPath.toString());
 
+
                 // Upload frame lên Cloudinary
                 thumbnailUrl = uploadFileService.uploadImageBytes(FileUtils.encodeFileToBase64(tempThumbnailPath.toFile()));
+
+                // Resize về đúng tỉ lệ 16:9
+                Path resizedThumbnailPath = userThumbnailDir.resolve("resized_" + tempThumbnailFileName);
+                ffmpegService.resizeImageTo16by9(tempThumbnailPath.toString(), resizedThumbnailPath.toString());
+
+                // Upload frame đã capture lên Cloudinary
+                thumbnailUrl = uploadFileService.uploadImageBytes(FileUtils.encodeFileToBase64(resizedThumbnailPath.toFile()));
+
             }
 
             long duration = ffmpegService.getVideoDuration(videoPath.toString());
@@ -285,7 +316,20 @@ public class PodcastController {
         return new ResponseEntity<>("Invalid JWT token format", HttpStatus.BAD_REQUEST);
     }
 
-    
+    @GetMapping("/liked")
+    public ResponseEntity<PageDTO<PodcastModel>> getMyLikedPodcasts(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+
+        try {
+            PageDTO<PodcastModel> likedPodcasts = podcastLikeService.getLikedPodcastsByUser(page, size);
+            return ResponseEntity.ok(likedPodcasts);
+        } catch (BadCredentialsException e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
 
     // Display podcast on home page
     @GetMapping("/recent")
@@ -408,7 +452,14 @@ public class PodcastController {
         return ResponseEntity.ok(trending);
     }
 
-    @GetMapping("/transcript")
+    @GetMapping("/following/{username}")
+    public ResponseEntity<PageDTO<PodcastModel>> getPodcasts(@PathVariable("username") String username,
+                                                             @RequestParam(value = "page", defaultValue = "0") int page,
+                                                             @RequestParam(value = "size", defaultValue = "10") int size) {
+        PageDTO<PodcastModel> podcasts = podcastService.getFollowingPodcastsByUsername(username, page, size);
+        return ResponseEntity.ok(podcasts);
+    }
+@GetMapping("/transcript")
     public ResponseEntity<?> getTranscript(@RequestParam(value = "podcastId")String podcastId) {
         return ResponseEntity.ok(videoTranscribe.getTranscripts(podcastId));
     }
