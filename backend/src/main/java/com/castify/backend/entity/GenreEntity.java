@@ -16,6 +16,7 @@ public class GenreEntity {
     @Id
     private String id;
     private String name;
+    private String imageUrl;
 //    private String description;
     private boolean isActive;
     private LocalDateTime lastEdited;

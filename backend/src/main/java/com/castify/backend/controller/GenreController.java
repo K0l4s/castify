@@ -12,6 +12,7 @@ import org.springframework.data.rest.webmvc.ResourceNotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -56,9 +57,9 @@ public class GenreController {
     }
 
     @PostMapping("/create")
-    public ResponseEntity<?> createGenre(@RequestBody CreateGenreDTO createGenreDTO) {
+    public ResponseEntity<?> createGenre(@ModelAttribute CreateGenreDTO createGenreDTO) {
         try {
-            GenreModel genreModel = genreService.createGenre(createGenreDTO.getName());
+            GenreModel genreModel = genreService.createGenre(createGenreDTO.getName(), createGenreDTO.getImage());
             return new ResponseEntity<>(genreModel, HttpStatus.CREATED);
         } catch (Exception e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
@@ -66,9 +67,9 @@ public class GenreController {
     }
 
     @PutMapping("/update/{id}")
-    public ResponseEntity<?> updateGenre(@PathVariable String id, @RequestBody CreateGenreDTO createGenreDTO) {
+    public ResponseEntity<?> updateGenre(@PathVariable String id, @ModelAttribute CreateGenreDTO createGenreDTO) {
         try {
-            GenreModel updateGenre = genreService.updateGenre(id, createGenreDTO.getName());
+            GenreModel updateGenre = genreService.updateGenre(id, createGenreDTO.getName(), createGenreDTO.getImage());
             return new ResponseEntity<>(updateGenre, HttpStatus.OK);
         } catch (ResourceNotFoundException e){
             return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
@@ -76,6 +77,7 @@ public class GenreController {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+
 
     @PutMapping("/delete/{id}")
     public ResponseEntity<?> deleteGenre(@PathVariable String id) {
