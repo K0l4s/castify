@@ -43,4 +43,7 @@ public interface PodcastRepository extends MongoRepository<PodcastEntity, String
     Page<PodcastEntity> findByUserIdInAndIsActiveTrue(List<ObjectId> userIds, Pageable pageable);
     @Query(value = "{ 'genres': { $exists: true } }", fields = "{ 'genres': 1 }")
     List<PodcastEntity> findAllGenresInPodcasts();
+    @Query(value = "{ '_id': { '$ne': ?0 }, 'isActive': true, '$or': [ { 'user.$id': ?1 }, { 'genres._id': { '$in': ?2 } } ] }")
+    List<PodcastEntity> findSuggestedPodcasts(String currentPodcastId, String userId, List<String> genreIds, Sort sort);
+    PodcastEntity findPodcastEntityById(String id);
 }

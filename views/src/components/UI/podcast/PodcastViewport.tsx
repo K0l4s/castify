@@ -28,6 +28,7 @@ import PlaylistSidebar from "../../../pages/main/playlistPage/PlaylistSidebar";
 import { useDocumentTitle } from "../../../hooks/useDocumentTitle";
 import CounterAnimation from "../custom/animations/CounterAnimation";
 import AddToPlaylistModal from "../../../pages/main/playlistPage/AddToPlaylistModal";
+import { useDispatch } from "react-redux";
 
 const PodcastViewport: React.FC = () => {
   const location = useLocation();
@@ -65,7 +66,6 @@ const PodcastViewport: React.FC = () => {
   useDocumentTitle(
     podcast? `${podcast?.title} - ${podcast?.user.fullname} | Castify` : null,
   );
-
   const refreshIntervalRef = useRef<NodeJS.Timeout | null>(null);
 
   const fetchPodcastData = useCallback(async () => {
@@ -291,7 +291,7 @@ const PodcastViewport: React.FC = () => {
           <source src={podcast.videoUrl} type="video/mp4" />
           Your browser does not support the video tag.
         </video> */}
-        <CustomPodcastVideo user={podcast.user} title={podcast.title} videoRef={videoRef} videoSrc={podcast.videoUrl} posterSrc={podcast.thumbnailUrl || "/TEST.png"}/>
+        <CustomPodcastVideo podcastId={podcast.id} user={podcast.user} title={podcast.title} videoRef={videoRef} videoSrc={podcast.videoUrl} posterSrc={podcast.thumbnailUrl || "/TEST.png"}/>
  
         {!podcast.active && (
           <div className="mt-4">

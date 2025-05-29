@@ -297,6 +297,62 @@ public class UserServiceImpl implements IUserService {
         // Trả về danh sách người dùng đã được chuyển đổi
         return resultUsers;
     }
+    @Override
+    public List<UserSimple> recommendUsers() throws Exception {
+        UserEntity currentUser = getUserByAuthentication();
+        List<UserEntity> allUsers = userRepository.findAll();
+
+        Map<String, Integer> scores = new HashMap<>();
+        Map<String, UserEntity> userMap = new HashMap<>();
+
+        Set<String> currentGenres = new HashSet<>(currentUser.getFavoriteGenreIds());
+        Set<String> currentFollowTargets = currentUser.getFollowing().stream()
+                .map(FollowInfo::getUserId)
+                .collect(Collectors.toSet());
+        String currentProvince = currentUser.getProvinces();
+
+        for (UserEntity other : allUsers) {
+            if (other.getId().equals(currentUser.getId())) continue;
+            if (currentUser.isFollow(other.getId())) continue;
+
+            int score = 0;
+
+            // Tính điểm theo địa chỉ
+            if (currentProvince != null && currentProvince.equals(other.getProvinces())) {
+                score += 3;
+            }
+
+            // Tính điểm theo sở thích
+            Set<String> otherGenres = new HashSet<>(other.getFavoriteGenreIds());
+            otherGenres.retainAll(currentGenres);
+            score += otherGenres.size() * 2;
+
+            // Tính điểm theo follow trùng
+            Set<String> otherFollowTargets = other.getFollowing().stream()
+                    .map(FollowInfo::getUserId)
+                    .collect(Collectors.toSet());
+            otherFollowTargets.retainAll(currentFollowTargets);
+            score += otherFollowTargets.size() * 2;
+
+            if (score > 0) {
+                scores.put(other.getId(), score);
+                userMap.put(other.getId(), other);
+            }
+        }
+
+        // Trả kết quả sau khi sắp xếp theo điểm giảm dần
+        List<UserSimple> resultUsers = scores.entrySet().stream()
+                .sorted((a, b) -> b.getValue().compareTo(a.getValue()))
+                .map(entry -> {
+                    UserEntity user = userMap.get(entry.getKey());
+                    return mapToUserSimple(user, currentUser);
+                })
+                .collect(Collectors.toList());
+
+        return resultUsers;
+    }
+
+
 
     @Override
     public PaginatedResponse<BasicUserModel> getAllUser(Integer pageNumber, Integer pageSize) throws Exception {

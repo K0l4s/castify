@@ -1,50 +1,53 @@
-import React, { useState } from 'react';
+import React, { useRef } from 'react';
 import { FaArrowLeft, FaArrowRight } from 'react-icons/fa';
 
-// Define the type for children and itemsPerPage prop
 export interface CustomSwiperProps {
   children: React.ReactNode;
-  itemsPerPage?: number; // Optional prop to specify how many items per slide
-  className?: string
+  className?: string;
 }
 
-const CustomSwiper: React.FC<CustomSwiperProps> = ({ children, itemsPerPage = 4, className }) => {
-  const [currentIndex, setCurrentIndex] = useState(0);
+const CustomSwiper: React.FC<CustomSwiperProps> = ({ children, className }) => {
+  const containerRef = useRef<HTMLDivElement>(null);
 
-  const totalItems = React.Children.count(children); // Get the total number of children
-
-  const goToNext = () => {
-    setCurrentIndex((prevIndex) => Math.min(prevIndex + 1, totalItems - itemsPerPage));
-  };
-
-  const goToPrev = () => {
-    setCurrentIndex((prevIndex) => Math.max(prevIndex - 1, 0));
-  };
-
-  // Render visible items for the current slide
-  const renderItems = () => {
-    const visibleItems = React.Children.toArray(children).slice(currentIndex, currentIndex + itemsPerPage);
-    return visibleItems.map((child, index) => (
-      <div key={index} className="swiper-slide">
-        {child}
-      </div>
-    ));
+  const scrollByAmount = (amount: number) => {
+    if (containerRef.current) {
+      containerRef.current.scrollBy({
+        left: amount,
+        behavior: 'smooth',
+      });
+    }
   };
 
   return (
-    <div className={`max-w-6xl m-auto ${className}`}>
-      <div className="relative">
-        <div className="flex gap-4 overflow-hidden">
-          {renderItems()}
-        </div>
+    <div className={`relative w-full ${className}`}>
+      {/* Navigation buttons */}
+      <button
+        onClick={() => scrollByAmount(-300)}
+        className="absolute left-2 z-20 top-1/2 -translate-y-1/2 bg-white dark:bg-gray-800 p-2 rounded-full shadow-lg hover:scale-110 transition"
+      >
+        <FaArrowLeft className="text-gray-600 dark:text-white" />
+      </button>
+      <button
+        onClick={() => scrollByAmount(300)}
+        className="absolute right-2 z-20 top-1/2 -translate-y-1/2 bg-white dark:bg-gray-800 p-2 rounded-full shadow-lg hover:scale-110 transition"
+      >
+        <FaArrowRight className="text-gray-600 dark:text-white" />
+      </button>
 
-        {/* Navigation buttons */}
-        <button onClick={goToPrev} className="absolute left-0 top-1/2 transform -translate-y-1/2">
-          <FaArrowLeft className="text-xl text-gray-600" />
-        </button>
-        <button onClick={goToNext} className="absolute right-0 top-1/2 transform -translate-y-1/2">
-          <FaArrowRight className="text-xl text-gray-600" />
-        </button>
+      {/* Swiper content */}
+      <div
+        ref={containerRef}
+        className="flex gap-4 overflow-x-auto no-scrollbar scroll-smooth py-8 px-8 snap-x snap-mandatory"
+      >
+        {React.Children.map(children, (child, index) => (
+          <div
+            key={index}
+            className="shrink-0 snap-center transition-transform duration-300 hover:scale-105"
+            style={{ width: '200px', flex: '0 0 auto' }}
+          >
+            {child}
+          </div>
+        ))}
       </div>
     </div>
   );

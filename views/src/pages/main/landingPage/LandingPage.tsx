@@ -5,12 +5,13 @@ import RecentPodcast from "./RecentPodcast";
 import { getGenres } from "../../../services/GenreService";
 import TabNavigation from "./TabNavigation";
 import GenresPodcast from "./GenresPodcast";
-import { useLocation, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import PopularPodcast from "./PopularPodcast";
 import TrendingCarousel from "./TrendingCarousel";
 import SEO from "../../../context/SEO";
 import { useLanguage } from "../../../context/LanguageContext";
 import en from "../../../locales/en.json";
+import { CardItem } from "./CardItem";
 // import FancyCard from "../../../components/UI/custom/FancyCard";
 
 const LandingPage = () => {
@@ -39,7 +40,7 @@ const LandingPage = () => {
       setSelectedTab(decodeURIComponent(tab));
     }
   }, [location.search]);
-  const {language} = useLanguage();
+  const { language } = useLanguage();
   const handleTabSelect = (tab: string) => {
     setSelectedTab(tab);
     if (tab === language.tabNav.popular) {
@@ -92,7 +93,27 @@ const LandingPage = () => {
   return (
     <div className="px-8 py-4">
       {/* New Trending Carousel */}
-      <TrendingCarousel />
+      <div className="flex flex-col md:flex-row items-center justify-between gap-3 mb-4">
+        <TrendingCarousel />
+        <div className="flex flex-col items-center justify-center gap-4 w-full md:w-2/5 mx-auto">
+          <CardItem
+            title="Frame nào"
+            subtitle="Cũng có"
+            label="Blankshop"
+            image="https://cdn-icons-png.flaticon.com/512/3523/3523887.png"
+            linkText="Buy Now"
+            linkTo="/shop"
+          />
+          <CardItem
+            title="Sale Hot"
+            subtitle="Chỉ hôm nay"
+            label="Flash Deal"
+            image="https://cdn-icons-png.flaticon.com/512/3523/3523935.png"
+            linkText="Shop Now"
+            linkTo="/flash-deals"
+          />
+        </div>
+      </div>
 
       {/* Tab Navigation */}
       <TabNavigation selectedTab={selectedTab} onSelectTab={handleTabSelect} genres={genres} />

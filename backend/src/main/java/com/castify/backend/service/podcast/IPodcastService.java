@@ -1,5 +1,6 @@
 package com.castify.backend.service.podcast;
 
+import com.castify.backend.entity.PodcastEntity;
 import com.castify.backend.entity.UserEntity;
 import com.castify.backend.models.PageDTO;
 import com.castify.backend.models.comment.CommentModel;
@@ -32,4 +33,6 @@ public interface IPodcastService {
     PodcastModel updatePodcast(String podcastId, EditPodcastDTO editPodcastDTO);
     void deletePodcastsByIds(List<String> podcastIds, boolean isAdmin) throws Exception;
     PageDTO<PodcastModel> getTrendingPodcasts(int page, int size);
+
+    PodcastModel getSuggestedPodcasts(String currentPodcastId);
 }
