@@ -1,19 +1,21 @@
 import { useState, useEffect, useRef } from 'react';
 import { getGenres, createGenre, updateGenre, deleteGenre, getTotalActiveGenresCount } from "../../../services/GenreService";
-import { Genre } from "../../../models/GenreModel";
+import { Genre, genreCreateUpdate } from "../../../models/GenreModel";
 import { MdOutlineModeEdit } from "react-icons/md";
 import { MdDelete } from "react-icons/md";
 import { BsThreeDots } from "react-icons/bs";
+import { RiImageAddLine } from "react-icons/ri";
 import { useToast } from "../../../context/ToastProvider";
 
 const AdminGenrePage = () => {
   const [genres, setGenres] = useState<Genre[]>([]);
   const [totalGenreCount, setTotalGenreCount] = useState<number>(0);
-  // const [mostUsedGenres, setMostUsedGenres] = useState<Genre[]>([]);
-  // const [genreCountByDate, setGenreCountByDate] = useState<any>({});
   const [loading, setLoading] = useState<boolean>(false);
-  const [newGenreName, setNewGenreName] = useState<string>('');
+  const [newGenre, setNewGenre] = useState<genreCreateUpdate>({ name: '', image: null });
+  const [newGenreImagePreview, setNewGenreImagePreview] = useState<string>('');
   const [editingGenre, setEditingGenre] = useState<Genre | null>(null);
+  const [editingGenreImage, setEditingGenreImage] = useState<File | null>(null);
+  const [editingGenreImagePreview, setEditingGenreImagePreview] = useState<string>('');
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [isDeleting, setIsDeleting] = useState<boolean>(false);
   const [deleteGenreId, setDeleteGenreId] = useState<string | null>(null);
@@ -21,7 +23,6 @@ const AdminGenrePage = () => {
   const [allGenres, setAllGenres] = useState<Genre[]>([]);
 
   const deleteModalRef = useRef<HTMLDivElement | null>(null);
-
   const toast = useToast();
 
   useEffect(() => {
@@ -40,7 +41,6 @@ const AdminGenrePage = () => {
   }, []);
 
   useEffect(() => {
-    // Fetch statistics data when component is mounted
     fetchStatistics();
   }, []);
 
@@ -60,38 +60,48 @@ const AdminGenrePage = () => {
 
   const fetchStatistics = async () => {
     try {
-      // Get total genre count
-      const totalCount = await getTotalActiveGenresCount ();
+      const totalCount = await getTotalActiveGenresCount();
       setTotalGenreCount(totalCount);
-
-      // // Get most used genres
-      // const mostUsed = await getMostUsedGenres();
-      // setMostUsedGenres(mostUsed);
-
-      // // Get genre count by date (daily, weekly, monthly)
-      // const countByDate = await getGenreCountByDate();
-      // setGenreCountByDate(countByDate);
     } catch (error) {
       console.error('Error fetching statistics:', error);
       toast.error('Có lỗi xảy ra khi lấy dữ liệu thống kê');
     }
   };
 
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>, isEditing: boolean = false) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      if (isEditing) {
+        setEditingGenreImage(file);
+        setEditingGenreImagePreview(URL.createObjectURL(file));
+      } else {
+        setNewGenre(prev => ({ ...prev, image: file }));
+        setNewGenreImagePreview(URL.createObjectURL(file));
+      }
+    }
+  };
+
   const handleCreateGenre = async () => {
-    if (!newGenreName.trim()) {
+    if (!newGenre.name.trim()) {
       toast.error('Bạn chưa nhập tên thể loại.');
       return;
     }
 
+    if (!newGenre.image) {
+      toast.error('Bạn chưa chọn ảnh đại diện.');
+      return;
+    }
+
     try {
-      const newGenre = await createGenre(newGenreName);
-      setAllGenres([...allGenres, newGenre]);
-      setGenres([...genres, newGenre]);
-      setNewGenreName('');
+      const createdGenre = await createGenre(newGenre);
+      setAllGenres([...allGenres, createdGenre]);
+      setGenres([...genres, createdGenre]);
+      setNewGenre({ name: '', image: null });
+      setNewGenreImagePreview('');
       toast.success('Thêm thể loại mới thành công!');
     } catch (error) {
       console.error('Error creating genre:', error);
-      toast.error('Có lỗi xảy ra, vui lòng thử lại!.');
+      toast.error('Có lỗi xảy ra, vui lòng thử lại!');
     }
   };
 
@@ -102,13 +112,19 @@ const AdminGenrePage = () => {
     }
 
     try {
-      const updatedGenre = await updateGenre(editingGenre.id, editingGenre.name);
+      const updatedGenre = await updateGenre(editingGenre.id, {
+        name: editingGenre.name,
+        image: editingGenreImage
+      });
+      
       const updateGenres = (list: Genre[]) => 
         list.map((genre) => (genre.id === updatedGenre.id ? updatedGenre : genre));
       
       setAllGenres(updateGenres(allGenres));
       setGenres(updateGenres(genres));
       setEditingGenre(null);
+      setEditingGenreImage(null);
+      setEditingGenreImagePreview('');
       toast.success('Cập nhật thành công!');
     } catch (error) {
       console.error('Error updating genre:', error);
@@ -143,11 +159,14 @@ const AdminGenrePage = () => {
 
   const handleEditGenre = (genre: Genre) => {
     setEditingGenre({ ...genre });
+    setEditingGenreImagePreview(genre.imageUrl || '');
     setOpenMenuId(null);
   };
 
   const handleCancelEdit = () => {
     setEditingGenre(null);
+    setEditingGenreImage(null);
+    setEditingGenreImagePreview('');
   };
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -187,31 +206,21 @@ const AdminGenrePage = () => {
       {loading && <p className="text-blue-500">Loading genres...</p>}
 
       {/* Thống kê */}
-`    <div className="mb-8">
-      <h3 className="text-2xl font-extrabold mb-6 text-black dark:text-white">Thống kê thể loại</h3>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {/* Tổng số thể loại */}
-        <div className="bg-gradient-to-r from-blue-400 to-purple-500 p-6 rounded-2xl shadow-xl text-white hover:shadow-2xl transition-all duration-300">
-          <h4 className="text-xl font-semibold mb-4">Tổng số thể loại</h4>
-          <p className="text-3xl font-bold">{totalGenreCount}</p>
-          <div className="mt-4">
-            <p className="text-sm">Thể loại tổng quan</p>
+      <div className="mb-8">
+        <h3 className="text-2xl font-extrabold mb-6 text-black dark:text-white">Thống kê thể loại</h3>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="bg-gradient-to-r from-blue-400 to-purple-500 p-6 rounded-2xl shadow-xl text-white hover:shadow-2xl transition-all duration-300">
+            <h4 className="text-xl font-semibold mb-4">Tổng số thể loại</h4>
+            <p className="text-3xl font-bold">{totalGenreCount}</p>
+            <div className="mt-4">
+              <p className="text-sm">Thể loại tổng quan</p>
+            </div>
           </div>
         </div>
-
-        {/* Top 5 thể loại được sử dụng nhiều nhất */}
-        {/* <div className="bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300">
-          <h4 className="text-xl font-semibold text-gray-600 dark:text-gray-300 mb-4">TOP 5 thể loại được sử dụng nhiều nhất</h4>
-          <ul className="space-y-2">
-            {mostUsedGenres.map((genre) => (
-              <li key={genre.id} className="text-gray-900 dark:text-white text-lg">{genre.name}</li>
-            ))}
-          </ul>
-        </div> */}
       </div>
-    </div>
-`
-      <div className="mb-6">
+
+      {/* Search */}
+      <div className="mb-8">
         <div className="relative max-w-xl mx-auto">
           <div className="flex items-center px-4 py-2 mb-5 rounded-full border border-gray-300 dark:border-gray-600 hover:border-blue-500 focus-within:border-blue-500 focus-within:ring-2 focus-within:ring-blue-200 dark:focus-within:ring-blue-800 transition-all duration-200 bg-white/5 backdrop-blur-sm">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 192.904 192.904" width="18" className="flex-shrink-0 fill-gray-600 dark:fill-gray-400 mr-3 transition-colors duration-200">
@@ -228,72 +237,101 @@ const AdminGenrePage = () => {
         </div>
       </div>
 
-      <div className="mb-6">
+      {/* Add new genre */}
+      <div className="mb-8">
         <h3 className="text-2xl font-bold mb-4 text-black dark:text-white">Thêm thể loại mới</h3>
-        <div className="flex items-center gap-2">
-          <input
-            type="text"
-            value={newGenreName}
-            onChange={(e) => setNewGenreName(e.target.value)}
-            placeholder="Enter genre name"
-            className="flex-grow px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white/5 dark:bg-gray-800 text-black dark:text-white"
-          />
-          <button
-            onClick={handleCreateGenre}
-            className="px-4 py-2 bg-blue-500 text-white font-medium rounded-lg hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
-          >
-            Create
-          </button>
+        <div className="flex flex-col gap-4">
+          <div className="flex items-center gap-4">
+            <input
+              type="text"
+              value={newGenre.name}
+              onChange={(e) => setNewGenre(prev => ({ ...prev, name: e.target.value }))}
+              placeholder="Enter genre name"
+              className="flex-grow px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white/5 dark:bg-gray-800 text-black dark:text-white"
+            />
+            <button
+              onClick={handleCreateGenre}
+              className="px-4 py-2 bg-blue-500 text-white font-medium rounded-lg hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            >
+              Create
+            </button>
+          </div>
+          
+          {/* Image upload for new genre */}
+          <div className="relative w-40 h-40 border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg overflow-hidden group">
+            {newGenreImagePreview ? (
+              <img
+                src={newGenreImagePreview}
+                alt="Genre preview"
+                className="w-full h-full object-cover"
+              />
+            ) : (
+              <div className="w-full h-full flex items-center justify-center bg-gray-50 dark:bg-gray-800">
+                <RiImageAddLine className="w-12 h-12 text-gray-400" />
+              </div>
+            )}
+            <label className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-50 opacity-0 group-hover:opacity-100 cursor-pointer transition-opacity">
+              <input
+                type="file"
+                accept="image/*"
+                onChange={(e) => handleImageChange(e, false)}
+                className="hidden"
+              />
+              <span className="text-white text-sm">Choose Image</span>
+            </label>
+          </div>
         </div>
       </div>
 
-      <div className="space-y-4">
+      {/* Genre list */}
+      <div>
         <h2 className="text-2xl font-bold mb-4 text-black dark:text-white">Danh sách thể loại</h2>
-
-        <div className="flex flex-wrap gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {genres.map((genre) => (
             <div
               key={genre.id}
-              className="flex-none min-w-[180px] inline-flex items-center justify-between gap-4 p-4 bg-white dark:bg-gray-800 rounded-md shadow-md"
+              className="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden flex"
             >
-              <span className="text-lg font-medium text-gray-600 dark:text-gray-300">{genre.name}</span>
-              <div className="relative">
-                <button
-                  className="inline-flex items-center justify-center font-medium text-gray-600 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-800 px-4 py-2 text-base rounded-md transition-all duration-200"
-                  onClick={() => handleMenuToggle(genre.id)}
-                >
-                  <BsThreeDots />
-                </button>
-
-                {openMenuId === genre.id && (
-                  <div className="absolute right-0 mt-2 bg-white border border-gray-300 dark:bg-gray-800 rounded-lg shadow-md z-10">
-                    <div className="flex flex-col gap-2 p-2">
-                      <button
-                        onClick={() => handleEditGenre(genre)}
-                        className="flex items-center gap-2 px-4 py-2 text-md bg-yellow-500 text-white rounded-lg hover:bg-yellow-600 whitespace-nowrap"
-                      >
-                        <MdOutlineModeEdit />
-                        Chỉnh sửa
-                      </button>
-                      <button
-                        onClick={() => handleDeleteClick(genre.id)}
-                        className="flex items-center gap-2 px-4 py-2 text-md bg-red-500 text-white rounded-lg hover:bg-red-600"
-                      >
-                        <MdDelete />
-                        Xóa
-                      </button>
-                    </div>
+              <div className="relative w-1/3">
+                {genre.imageUrl ? (
+                  <img
+                    src={genre.imageUrl}
+                    alt={genre.name}
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  <div className="w-full h-full flex items-center justify-center bg-gray-100 dark:bg-gray-700">
+                    <RiImageAddLine className="w-12 h-12 text-gray-400" />
                   </div>
                 )}
+              </div>
+              <div className="flex-1 p-4 flex flex-col justify-between">
+                <h3 className="text-lg font-medium text-gray-600 dark:text-gray-300">{genre.name}</h3>
+                <div className="flex gap-2 mt-4">
+                  <button
+                    onClick={() => handleEditGenre(genre)}
+                    className="flex-1 flex items-center justify-center gap-1 px-2 py-1 text-sm bg-yellow-500 text-white rounded-lg hover:bg-yellow-600"
+                  >
+                    <MdOutlineModeEdit className="text-lg" />
+                    <span>Chỉnh sửa</span>
+                  </button>
+                  <button
+                    onClick={() => handleDeleteClick(genre.id)}
+                    className="flex-1 flex items-center justify-center gap-1 px-2 py-1 text-sm bg-red-500 text-white rounded-lg hover:bg-red-600"
+                  >
+                    <MdDelete className="text-lg" />
+                    <span>Xóa</span>
+                  </button>
+                </div>
               </div>
             </div>
           ))}
         </div>
       </div>
 
-      {/* Modal for Edit Genre */}
+      {/* Edit Genre Modal */}
       {editingGenre && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
           <div className="bg-white dark:bg-gray-800 p-6 rounded-lg w-96">
             <h3 className="text-xl font-semibold mb-4 text-center text-black dark:text-white">Chỉnh sửa thể loại</h3>
             <input
@@ -303,6 +341,25 @@ const AdminGenrePage = () => {
               placeholder="Enter genre name"
               className="w-full px-4 py-2 mb-4 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white/5 dark:bg-gray-800 text-black dark:text-white"
             />
+            
+            {/* Image upload for editing */}
+            <div className="relative w-40 h-40 mx-auto mb-4 border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg overflow-hidden group">
+              <img
+                src={editingGenreImagePreview || editingGenre.imageUrl || ''}
+                alt="Genre preview"
+                className="w-full h-full object-cover"
+              />
+              <label className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-50 opacity-0 group-hover:opacity-100 cursor-pointer transition-opacity">
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={(e) => handleImageChange(e, true)}
+                  className="hidden"
+                />
+                <span className="text-white text-sm">Change Image</span>
+              </label>
+            </div>
+
             <div className="flex justify-between">
               <button
                 onClick={handleCancelEdit}
@@ -321,11 +378,13 @@ const AdminGenrePage = () => {
         </div>
       )}
 
-      {/* Xác nhận xóa */}
+      {/* Delete Confirmation Modal */}
       {isDeleting && (
-        <div ref={deleteModalRef} className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
+        <div ref={deleteModalRef} className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
           <div className="bg-white dark:bg-gray-800 p-6 rounded-lg w-96">
-            <h3 className="text-xl font-semibold mb-4 text-center text-black dark:text-white">Bạn có chắc chắn xóa thể loại này không?</h3>
+            <h3 className="text-xl font-semibold mb-4 text-center text-black dark:text-white">
+              Bạn có chắc chắn muốn xóa thể loại này?
+            </h3>
             <div className="flex justify-between">
               <button
                 onClick={handleCancelDelete}
