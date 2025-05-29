@@ -5,7 +5,7 @@ import RecentPodcast from "./RecentPodcast";
 import { getGenres } from "../../../services/GenreService";
 import TabNavigation from "./TabNavigation";
 import GenresPodcast from "./GenresPodcast";
-import { Link, useLocation, useNavigate } from "react-router-dom";
+import {  useLocation, useNavigate } from "react-router-dom";
 import PopularPodcast from "./PopularPodcast";
 import TrendingCarousel from "./TrendingCarousel";
 import SEO from "../../../context/SEO";

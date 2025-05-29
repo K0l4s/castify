@@ -10,7 +10,6 @@ import { getNext, getTranscipts } from "../../../services/PodcastService";
 import { Podcast } from "../../../models/PodcastModel";
 import { VideoTracking } from "../../../models/VideoTracking";
 import { trackService } from "../../../services/TrackingService";
-import ConfirmBox from "../dialogBox/ConfirmBox";
 import ConfirmBoxNoOverlay from "../dialogBox/ConfirmBoxNoOverlay";
 
 interface CustomPodcastVideoProps {

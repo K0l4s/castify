@@ -263,7 +263,7 @@ const AdminReportModal: React.FC<ReportModalProps> = ({ isOpen, onClose, report 
                                     Your browser does not support the video tag.
                                 </video>
                             </div> */}
-                            <CustomPodcastVideo videoRef={videoRef} videoSrc={podcast.videoUrl} posterSrc={podcast.thumbnailUrl || "/TEST.png"} />
+                            <CustomPodcastVideo podcastId={podcast.id} videoRef={videoRef} videoSrc={podcast.videoUrl} posterSrc={podcast.thumbnailUrl || "/TEST.png"} />
                             <CustomButton
                                 onClick={() => window.open(`/watch?pid=${podcast.id}`, "_blank")}
                                 className="w-full px-6 py-3 bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white rounded-lg shadow-md hover:shadow-xl transition-all duration-300 font-semibold transform hover:-translate-y-0.5"

@@ -319,7 +319,7 @@ const ProfilePage: React.FC = () => {
       </div>
     );
   }
-  const { language } = useLanguage();
+  // const { language } = useLanguage();
   return (
     <div className="min-h-screen">
      

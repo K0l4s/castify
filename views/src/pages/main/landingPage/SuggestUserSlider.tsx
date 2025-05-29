@@ -33,7 +33,7 @@ const defaultAvatar =
 
 const UserCardSwiper: React.FC = () => {
   const [users, setUsers] = useState<User[]>([]);
-  const navigate = useNavigate();
+  // const navigate = useNavigate();
 
   useEffect(() => {
     const fetchUsers = async () => {
