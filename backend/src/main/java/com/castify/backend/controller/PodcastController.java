@@ -102,6 +102,7 @@ public class PodcastController {
 
             // Format tên file
             String formattedVideoFileName = FileUtils.formatFileName(videoFile.getOriginalFilename());
+            Path userThumbnailDir = FileUtils.createUserDirectory(baseUploadDir, userModel.getId(), userModel.getEmail(), "thumbnail");
 
             // Lưu video thành file thật
             Path videoPath = userPodcastDir.resolve(formattedVideoFileName);
@@ -111,27 +112,15 @@ public class PodcastController {
             // Xử lý thumbnail
             String thumbnailUrl;
             if (thumbnail != null && !thumbnail.isEmpty()) {
-
-                // Upload thumbnail từ người dùng
-                thumbnailUrl = uploadFileService.uploadImage(thumbnail);
-            } else {
-                // Tạo thumbnail từ video
-                Path userThumbnailDir = FileUtils.createUserDirectory(baseUploadDir, userModel.getId(), userModel.getEmail(), "thumbnail");
-
                 // Resize & Upload thumbnail lên Cloudinary
                 thumbnailUrl = processAndUploadThumbnail(thumbnail, userThumbnailDir);
-            } else if (thumbnail == null || thumbnail.isEmpty()) {
+            } else {
                 // Tạo đường dẫn lưu thumbnail tạm thời
-
                 String tempThumbnailFileName = "thumb_" + formattedVideoFileName.replace(".mp4", ".jpeg");
                 Path tempThumbnailPath = userThumbnailDir.resolve(tempThumbnailFileName);
 
-                // FFmpeg tạo frame
+                // Sử dụng FFmpeg để capture frame đầu tiên
                 ffmpegService.captureFrameFromVideo(videoPath.toString(), tempThumbnailPath.toString());
-
-
-                // Upload frame lên Cloudinary
-                thumbnailUrl = uploadFileService.uploadImageBytes(FileUtils.encodeFileToBase64(tempThumbnailPath.toFile()));
 
                 // Resize về đúng tỉ lệ 16:9
                 Path resizedThumbnailPath = userThumbnailDir.resolve("resized_" + tempThumbnailFileName);
@@ -139,7 +128,6 @@ public class PodcastController {
 
                 // Upload frame đã capture lên Cloudinary
                 thumbnailUrl = uploadFileService.uploadImageBytes(FileUtils.encodeFileToBase64(resizedThumbnailPath.toFile()));
-
             }
 
             long duration = ffmpegService.getVideoDuration(videoPath.toString());
