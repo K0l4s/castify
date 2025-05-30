@@ -13,6 +13,7 @@ public class GenreModel {
     private String id;
     private String name;
     private String imageUrl;
+    private String color;
     private boolean isActive;
     private LocalDateTime lastEdited;
 }

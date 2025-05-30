@@ -11,4 +11,5 @@ import org.springframework.web.multipart.MultipartFile;
 public class CreateGenreDTO {
     private String name;
     private MultipartFile image;
+    private String color;
 }
