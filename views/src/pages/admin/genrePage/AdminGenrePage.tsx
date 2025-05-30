@@ -1,8 +1,8 @@
 import { useState, useEffect, useRef } from 'react';
 import { getGenres, createGenre, updateGenre, deleteGenre, getTotalActiveGenresCount } from "../../../services/GenreService";
 import { Genre, genreCreateUpdate } from "../../../models/GenreModel";
-import { MdOutlineModeEdit } from "react-icons/md";
-import { MdDelete } from "react-icons/md";
+// import { MdOutlineModeEdit } from "react-icons/md";
+// import { MdDelete } from "react-icons/md";
 import { RiImageAddLine } from "react-icons/ri";
 import { useToast } from "../../../context/ToastProvider";
 
@@ -492,6 +492,7 @@ const AdminGenrePage = () => {
                 Hủy
               </button>
               <button
+                disabled={loading}
                 onClick={handleDeleteGenre}
                 className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600"
               >
