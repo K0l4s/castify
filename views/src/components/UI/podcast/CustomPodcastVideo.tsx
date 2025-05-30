@@ -11,6 +11,8 @@ import { Podcast } from "../../../models/PodcastModel";
 import { VideoTracking } from "../../../models/VideoTracking";
 import { trackService } from "../../../services/TrackingService";
 import ConfirmBoxNoOverlay from "../dialogBox/ConfirmBoxNoOverlay";
+import { useSelector } from "react-redux";
+import { RootState } from "../../../redux/store";
 
 interface CustomPodcastVideoProps {
     videoSrc: string;
@@ -50,6 +52,7 @@ const CustomPodcastVideo = ({
     const id = queryParams.get("pid") as string | "";
 
     const [videoTracking, setVideoTracking] = useState<VideoTracking>();
+    const currentUserId = useSelector((state: RootState) => state.auth.user?.id);
     useEffect(() => {
         const fetchVideoTracking = async () => {
             try {
@@ -60,7 +63,10 @@ const CustomPodcastVideo = ({
                 console.error("Error fetching video tracking:", error);
             }
         };
-        fetchVideoTracking();
+        // console.log(user)
+        if (currentUserId && id) {
+            fetchVideoTracking();
+        }
     }, [id]);
     // Video tracking logic
     useEffect(() => {

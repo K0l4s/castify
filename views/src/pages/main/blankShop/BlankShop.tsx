@@ -8,6 +8,7 @@ import { getAcceptedFrames, purchaseFrame } from "../../../services/FrameService
 import { useToast } from "../../../context/ToastProvider";
 import FramePreviewModal from "./FramePreviewModal";
 import PurchaseConfirmationModal from "./PurchaseConfirmationModal";
+import Payment from "./Payment";
 
 const BlankShop = () => {
     const [frames, setFrames] = useState<Frame[]>([]);
@@ -40,19 +41,19 @@ const BlankShop = () => {
 
     const handleConfirmPurchase = async () => {
         if (!frameToPurchase || !user) return;
-        
+
         try {
             setPurchasing(true);
             const response = await purchaseFrame(frameToPurchase.id);
             if (response) {
                 toast.success(`Frame ${frameToPurchase.name} purchased successfully!`);
-                
+
                 // Refresh frames list
                 fetchAcceptedFrames();
-                
+
                 // Close modal
                 setFrameToPurchase(null);
-                
+
                 // Navigate to purchased frames page
                 navigate('/purchased-frames');
             }
@@ -74,6 +75,7 @@ const BlankShop = () => {
         setSelectedFrame(frame);
     };
 
+    const [isOpenPayment, setIsOpenPayment] = useState(false);
     if (loading) {
         return (
             <div className="flex justify-center items-center min-h-screen">
@@ -81,28 +83,27 @@ const BlankShop = () => {
             </div>
         );
     }
-
     return (
         <div className="container mx-auto px-4 py-8">
             <div className="flex justify-between items-center mb-6">
                 <h1 className="text-2xl font-bold text-black dark:text-white">Frame Shop</h1>
                 <div className="flex gap-4">
-                    <button 
+                    <button
                         onClick={() => navigate('/purchased-frames')}
                         className="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors"
                     >
                         My Purchased Frames
                     </button>
                     {/* nạp tiền */}
-                    <button 
-                        onClick={() => navigate('/payment')}
+                    <button
+                        onClick={() => setIsOpenPayment(true)}
                         className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
                     >
                         Add Coins
                     </button>
                 </div>
             </div>
-            
+
             <div className="text-center mb-8">
                 <p className="text-black dark:text-gray-400">
                     Browse our collection of beautiful frames
@@ -111,19 +112,19 @@ const BlankShop = () => {
                     Your current balance: {user?.coin} <img src={coin} alt="coin" className="w-5 h-5 inline-block" />
                 </p>
             </div>
-            
+
             <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6">
                 {frames.map((frame) => (
                     <div key={frame.id} className="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden">
                         <div className="relative aspect-square">
-                            <img 
+                            <img
                                 src={frame.imageURL}
                                 alt={frame.name}
                                 className="w-full h-full object-contain p-4"
                             />
                             {/* Preview overlay */}
                             <div className="absolute inset-0 bg-black bg-opacity-0 hover:bg-opacity-50 transition-opacity flex items-center justify-center opacity-0 hover:opacity-100">
-                                <button 
+                                <button
                                     onClick={() => handlePreview(frame)}
                                     className="px-4 py-2 bg-white dark:bg-gray-800 text-black dark:text-white rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
                                 >
@@ -131,7 +132,7 @@ const BlankShop = () => {
                                 </button>
                             </div>
                         </div>
-                        
+
                         <div className="p-4 border-t dark:border-gray-700">
                             <div className="flex justify-between items-start mb-2">
                                 <h2 className="text-lg font-semibold text-black dark:text-white">{frame.name}</h2>
@@ -145,13 +146,13 @@ const BlankShop = () => {
                         </div>
 
                         <div className="p-4 bg-gray-50 dark:bg-gray-900/50 flex justify-between items-center">
-                            <button 
+                            <button
                                 onClick={() => handleGift(frame.id)}
                                 className="w-full bg-blue-500 text-white py-2 rounded hover:bg-blue-600 transition-colors mr-2"
                             >
                                 GIFT
                             </button>
-                            <button 
+                            <button
                                 onClick={() => handlePurchase(frame)}
                                 className="w-full bg-blue-500 text-white py-2 rounded hover:bg-blue-600 transition-colors ml-2"
                             >
@@ -186,6 +187,11 @@ const BlankShop = () => {
                 framePrice={frameToPurchase?.price || 0}
                 purchasing={purchasing}
             />
+            <Payment
+                isOpen={isOpenPayment}
+                onClose={() => setIsOpenPayment(false)}
+            />
+
         </div>
     );
 };

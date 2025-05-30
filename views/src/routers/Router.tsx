@@ -35,7 +35,7 @@ import MyShop from '../pages/main/blankShop/MyShop'
 import PurchasedFrames from '../pages/main/blankShop/PurchasedFrames'
 import PaymentSuccess from '../pages/main/blankShop/PaymentSuccess'
 import PaymentFailure from '../pages/main/blankShop/PaymentFailure'
-import Payment from '../pages/main/blankShop/Payment'
+// import Payment from '../pages/main/blankShop/Payment'
 import ConversationLayout from '../pages/main/conversation/ConversationLayout'
 import PlaylistPage from '../pages/main/playlistPage/PlaylistPage'
 import SettingModals from '../components/modals/user/SettingModal'
@@ -95,7 +95,7 @@ const Router = () => {
                 <Route path='/privacy' element={<PrivacyPolicy />} />
                 <Route path='/payment-success' element={<PaymentSuccess />} />
                 <Route path='/payment-failure' element={<PaymentFailure />} />
-                <Route path='/payment' element={<Payment />} />
+                {/* <Route path='/payment' element={<Payment />} /> */}
                 <Route path="/msg" element={<ConversationLayout />} />
                 <Route path="/msg/:id" element={<ConversationLayout />} />
                 <Route path='video-editor' element={<VideoEditor />} />

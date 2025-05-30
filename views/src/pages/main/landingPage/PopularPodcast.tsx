@@ -80,8 +80,8 @@ const PopularPodcast: React.FC = () => {
     <div>
       {/* grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 */}
       <div className="
-      flex flex-wrap 
-       gap-6">
+      flex flex-wrap w-full m-auto
+       gap-4 items-center justify-center">
         {podcasts.map((podcast) => (
           <PodcastTag 
             key={podcast.id}
