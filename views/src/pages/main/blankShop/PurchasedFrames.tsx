@@ -3,11 +3,13 @@ import { useToast } from '../../../context/ToastProvider';
 import { Frame } from '../../../models/FrameModel';
 import { applyFrame, cancelCurrentFrame, getPurchasedFrames } from '../../../services/FrameService';
 import { BiXCircle } from 'react-icons/bi';
+import FramePreviewModal from './FramePreviewModal';
 
 const PurchasedFrames = () => {
   const [frames, setFrames] = useState<Frame[]>([]);
   const [loading, setLoading] = useState(true);
   const toast = useToast();
+  const [selectedFrameForPreview, setSelectedFrameForPreview] = useState<Frame | null>(null);
 
   useEffect(() => {
     fetchPurchasedFrames();
@@ -42,6 +44,10 @@ const PurchasedFrames = () => {
     } catch (error) {
       toast.error('Failed to cancel frame');
     }
+  };
+
+  const handlePreview = (frame: Frame) => {
+    setSelectedFrameForPreview(frame);
   };
 
   if (loading) {
@@ -86,7 +92,10 @@ const PurchasedFrames = () => {
                 className="w-full h-full object-contain p-4"
               />
               <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-50 transition duration-300 flex items-center justify-center">
-                <button className="px-4 py-2 bg-white text-black rounded-lg hover:bg-gray-100 dark:bg-gray-700 dark:text-white dark:hover:bg-gray-600 transition-colors">
+                <button 
+                  onClick={() => handlePreview(frame)}
+                  className="px-4 py-2 bg-white text-black rounded-lg hover:bg-gray-100 dark:bg-gray-700 dark:text-white dark:hover:bg-gray-600 transition-colors"
+                >
                   Preview
                 </button>
               </div>
@@ -121,6 +130,14 @@ const PurchasedFrames = () => {
           You haven't purchased any frames yet.
         </div>
       )}
+
+      {/* Frame Preview Modal */}
+      <FramePreviewModal
+        isOpen={!!selectedFrameForPreview}
+        onClose={() => setSelectedFrameForPreview(null)}
+        frameImage={selectedFrameForPreview?.imageURL || ''}
+        frameName={selectedFrameForPreview?.name || ''}
+      />
     </div>
   );
 };
