@@ -251,5 +251,10 @@ public class FrameServiceImpl implements IFrameService{
         currentUser.setUsedFrame(frame);
         userRepository.save(currentUser);
     }
-
+    @Override
+    public void cancelCurrentFrame() throws Exception {
+        UserEntity currentUser = userService.getUserByAuthentication();
+        currentUser.setUsedFrame(null);
+        userRepository.save(currentUser);
+    }
 }

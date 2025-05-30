@@ -5,6 +5,7 @@ import com.castify.backend.enums.Role;
 import com.castify.backend.models.user.GenrePreferenceRequest;
 import com.castify.backend.models.user.UpdateUserModel;
 import com.castify.backend.models.user.UserModel;
+import com.castify.backend.models.user.UserSimple;
 import com.castify.backend.service.uploadFile.IUploadFileService;
 import com.castify.backend.service.uploadFile.UploadFileServiceImpl;
 import com.castify.backend.service.user.IUserService;
@@ -18,6 +19,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.List;
 import java.util.logging.Logger;
 
 @RestController
@@ -87,11 +89,13 @@ public class UserController {
         }
     }
     @GetMapping("/recommend")
-    private ResponseEntity<?> getRecommendUser(){
-        try{
-            return ResponseEntity.ok((userService.getRecommendUser()));
+    private ResponseEntity<?> getRecommendUser() throws Exception {
+        try {
+            List<UserSimple> users = userService.recommendUsers();
+            return ResponseEntity.ok(users);
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Error: "+e.getMessage());
+            e.printStackTrace(); // In toàn bộ lỗi thật ra console
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Có lỗi xảy ra: " + e.getMessage());
         }
     }
     @PutMapping("/avatar")

@@ -235,17 +235,17 @@ const PlaylistSidebar: React.FC<PlaylistSidebarProps> = ({ playlistId, currentPo
     }
   };
 
-  const getCurrentIndexInfo = () => {
-    if (!playlist) return null;
-    const currentIndex = playlist.items.findIndex(item => item.podcastId === currentPodcastId);
-    if (currentIndex === -1) return null;
-    return {
-      current: currentIndex + 1,
-      total: playlist.items.length
-    };
-  };
+  // const getCurrentIndexInfo = () => {
+  //   if (!playlist) return null;
+  //   const currentIndex = playlist.items.findIndex(item => item.podcastId === currentPodcastId);
+  //   if (currentIndex === -1) return null;
+  //   return {
+  //     current: currentIndex + 1,
+  //     total: playlist.items.length
+  //   };
+  // };
 
-  const indexInfo = getCurrentIndexInfo();
+  // const indexInfo = getCurrentIndexInfo();
 
   if (loading) {
     return (
@@ -272,7 +272,10 @@ const PlaylistSidebar: React.FC<PlaylistSidebarProps> = ({ playlistId, currentPo
           <h3 className="text-lg font-semibold text-black dark:text-white">{playlist.name}</h3>
           <h3 className="text-sm text-black dark:text-white">{playlist.owner.lastName} {playlist.owner.middleName} {playlist.owner.firstName}</h3>
           <p className="text-sm text-gray-600 dark:text-gray-400">
-            {indexInfo ? `${indexInfo.current}/${indexInfo.total} videos` : `${playlist.totalItems} videos`}
+            {playlist.hiddenCount > 0 
+              ? `${playlist.totalItems} videos • (${playlist.hiddenCount} video has been hidden)`
+              : `${playlist.totalItems} videos`
+            }
           </p>
         </div>
         <div className="flex items-center space-x-2">
@@ -310,7 +313,7 @@ const PlaylistSidebar: React.FC<PlaylistSidebarProps> = ({ playlistId, currentPo
                   provided.innerRef(el);
                 }}
                 {...provided.droppableProps}
-                className="divide-y divide-gray-200 dark:divide-gray-700 overflow-y-auto max-h-[540px]"
+                className="divide-y divide-gray-200 dark:divide-gray-700 overflow-y-auto max-h-[600px]"
               >
                 {playlist.items.map((item, index) => (
                   <Draggable 
@@ -355,7 +358,7 @@ const PlaylistSidebar: React.FC<PlaylistSidebarProps> = ({ playlistId, currentPo
                               <img
                                 src={item.thumbnail || "https://via.placeholder.com/120x80"}
                                 alt="Video thumbnail"
-                                className="w-full h-full object-cover rounded"
+                                className="w-full h-full object-cover rounded aspect-[16/9]"
                               />
                               {item.duration && (
                                 <span className="absolute bottom-1 right-1 bg-black bg-opacity-70 text-white text-sm px-1 py-0.5 rounded">

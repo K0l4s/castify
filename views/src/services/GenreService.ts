@@ -1,5 +1,5 @@
 import { axiosInstance, axiosInstanceAuth } from '../utils/axiosInstance';
-import { Genre, genreCreateUpdate } from '../models/GenreModel';
+import { genreCreateUpdate } from '../models/GenreModel';
 
 export const getGenres = async () => {
   try {
