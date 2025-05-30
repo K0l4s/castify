@@ -749,7 +749,7 @@ public class PodcastServiceImpl implements IPodcastService {
                 podcast.getThumbnailUrl(),
                 podcast.getVideoUrl(),
                 podcast.getGenres() != null ? podcast.getGenres().stream()
-                        .map(g -> new GenreSimple(g.getId(), g.getName(), g.getImageUrl()))
+                        .map(g -> new GenreSimple(g.getId(), g.getName(), g.getImageUrl(), g.getColor()))
                         .collect(Collectors.toList()) : new ArrayList<>(),
                 podcast.getViews(),
                 podcast.getDuration(),
@@ -814,6 +814,8 @@ public class PodcastServiceImpl implements IPodcastService {
                         GenreSimple g = new GenreSimple();
                         g.setId(genre.getId());
                         g.setName(genre.getName());
+                        g.setImageUrl(genre.getImageUrl());
+                        g.setColor(genre.getColor());
                         return g;
                     })
                     .collect(Collectors.toList());

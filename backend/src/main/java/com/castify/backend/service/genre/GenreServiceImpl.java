@@ -52,6 +52,11 @@ public class GenreServiceImpl implements IGenreService {
 
     @Override
     public GenreModel createGenre(String name, MultipartFile image) {
+        return createGenre(name, image, null);
+    }
+
+    @Override
+    public GenreModel createGenre(String name, MultipartFile image, String color) {
         GenreEntity genreEntity = new GenreEntity();
         genreEntity.setName(name);
         genreEntity.setActive(true);
@@ -66,12 +71,19 @@ public class GenreServiceImpl implements IGenreService {
             }
         }
 
+        genreEntity.setColor(color);
+
         genreRepository.save(genreEntity);
         return modelMapper.map(genreEntity, GenreModel.class);
     }
 
     @Override
     public GenreModel updateGenre(String id, String newName, MultipartFile imageFile) {
+        return updateGenre(id, newName, imageFile, null);
+    }
+
+    @Override
+    public GenreModel updateGenre(String id, String newName, MultipartFile imageFile, String color) {
         GenreEntity genreEntity = genreRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Genre not found"));
 
@@ -88,11 +100,14 @@ public class GenreServiceImpl implements IGenreService {
             }
         }
 
+        if (color != null && !color.isEmpty()) {
+            genreEntity.setColor(color);
+        }
+
         genreEntity.setLastEdited(LocalDateTime.now());
         genreRepository.save(genreEntity);
         return modelMapper.map(genreEntity, GenreModel.class);
     }
-
 
     @Override
     public String deleteGenre(String id) {
