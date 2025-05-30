@@ -99,10 +99,10 @@ public class PodcastController {
 
             // Tạo thư mục user-specific
             Path userPodcastDir = FileUtils.createUserDirectory(baseUploadDir, userModel.getId(), userModel.getEmail(), "podcast");
-            Path userThumbnailDir = FileUtils.createUserDirectory(baseUploadDir, userModel.getId(), userModel.getEmail(), "thumbnail");
 
             // Format tên file
             String formattedVideoFileName = FileUtils.formatFileName(videoFile.getOriginalFilename());
+            Path userThumbnailDir = FileUtils.createUserDirectory(baseUploadDir, userModel.getId(), userModel.getEmail(), "thumbnail");
 
             // Lưu video thành file thật
             Path videoPath = userPodcastDir.resolve(formattedVideoFileName);
@@ -178,6 +178,7 @@ public class PodcastController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Error: " + e.getMessage());
         }
     }
+
 
 
     @PutMapping(value = "/edit/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
@@ -477,7 +478,14 @@ public class PodcastController {
         PageDTO<PodcastModel> podcasts = podcastService.getFollowingPodcastsByUsername(username, page, size);
         return ResponseEntity.ok(podcasts);
     }
-
+@GetMapping("/transcript")
+    public ResponseEntity<?> getTranscript(@RequestParam(value = "podcastId")String podcastId) {
+        return ResponseEntity.ok(videoTranscribe.getTranscripts(podcastId));
+    }
+    @GetMapping("/next")
+    public ResponseEntity<?> getNextPodcast(@RequestParam(value = "podcastId")String podcastId) {
+        return ResponseEntity.ok(podcastService.getSuggestedPodcasts(podcastId));
+    }
     private void validateCreatePodcastInfo(List<String> genreIds, MultipartFile videoFile) {
         // Kiểm tra số lượng genre
         if (genreIds.size() > 5) {

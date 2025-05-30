@@ -59,7 +59,7 @@ public class GenreController {
     @PostMapping("/create")
     public ResponseEntity<?> createGenre(@ModelAttribute CreateGenreDTO createGenreDTO) {
         try {
-            GenreModel genreModel = genreService.createGenre(createGenreDTO.getName(), createGenreDTO.getImage());
+            GenreModel genreModel = genreService.createGenre(createGenreDTO.getName(), createGenreDTO.getImage(), createGenreDTO.getColor());
             return new ResponseEntity<>(genreModel, HttpStatus.CREATED);
         } catch (Exception e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
@@ -69,7 +69,7 @@ public class GenreController {
     @PutMapping("/update/{id}")
     public ResponseEntity<?> updateGenre(@PathVariable String id, @ModelAttribute CreateGenreDTO createGenreDTO) {
         try {
-            GenreModel updateGenre = genreService.updateGenre(id, createGenreDTO.getName(), createGenreDTO.getImage());
+            GenreModel updateGenre = genreService.updateGenre(id, createGenreDTO.getName(), createGenreDTO.getImage(), createGenreDTO.getColor());
             return new ResponseEntity<>(updateGenre, HttpStatus.OK);
         } catch (ResourceNotFoundException e){
             return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);

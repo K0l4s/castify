@@ -329,3 +329,20 @@ export const getLikedPodcasts = async (page: number, size: number) => {
     throw error;
   }
 };
+
+
+export const getTranscipts = async (podcastId:string) => {
+  try {
+    return await axiosInstance.get("/api/v1/podcast/transcript?podcastId=" + podcastId);
+  } catch (error) {
+    throw error;
+  }
+}
+
+export const getNext = async (podcastId:string) => {
+  try {
+    return await axiosInstance.get("/api/v1/podcast/next?podcastId=" + podcastId);
+  } catch (error) {
+    throw error;
+  }
+}

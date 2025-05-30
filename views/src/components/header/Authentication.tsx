@@ -68,9 +68,9 @@ const Authentication = () => {
 
   useEffect(() => {
     if (isAuth && user && !userDataChecked) {
-      const shouldShowModal = !user.favoriteGenreIds || 
-                             (Array.isArray(user.favoriteGenreIds) && user.favoriteGenreIds.length === 0);
-      
+      const shouldShowModal = !user.favoriteGenreIds ||
+        (Array.isArray(user.favoriteGenreIds) && user.favoriteGenreIds.length === 0);
+
       if (shouldShowModal) {
         setTimeout(() => {
           setShowGenreModal(true);
@@ -78,7 +78,7 @@ const Authentication = () => {
       }
       setUserDataChecked(true);
     }
-    
+
     if (!isAuth || !user) {
       setUserDataChecked(false);
     }
@@ -206,6 +206,7 @@ const Authentication = () => {
                 setLang(e.target.value as 'en' | 'vi')
               }}
               className="px-4 py-2 rounded-md bg-white dark:bg-gray-800 text-gray-900 dark:text-white duration-300 ease-in-out outline-none"
+              // defaultValue={lang}
               value={lang}
             >
               <option value="en">EN</option>
@@ -252,10 +253,13 @@ const Authentication = () => {
                 {/* select option */}
                 <select
                   onChange={(e) => {
-                    localStorage.setItem('lang', e.target.value);
                     changeLanguage(e.target.value as 'en' | 'vi')
-                  }
-                  }
+                    localStorage.setItem('lang', e.target.value);
+                    setLang(e.target.value as 'en' | 'vi')
+                  }}
+                  // className="px-4 py-2 rounded-md bg-white dark:bg-gray-800 text-gray-900 dark:text-white duration-300 ease-in-out outline-none"
+                  // defaultValue={lang}
+                  value={lang}
                   className="px-4 py-2 rounded-md bg-white dark:bg-gray-800 text-gray-900 dark:text-white duration-300 ease-in-out outline-none"
                 >
                   <option value="en">English</option>
@@ -290,9 +294,9 @@ const Authentication = () => {
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
       />
-      <ChooseGenreModal 
-        isOpen={showGenreModal} 
-        onClose={() => setShowGenreModal(false)} 
+      <ChooseGenreModal
+        isOpen={showGenreModal}
+        onClose={() => setShowGenreModal(false)}
       />
     </div>
   );

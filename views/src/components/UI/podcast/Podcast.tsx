@@ -6,8 +6,6 @@ import { AiFillHeart, AiFillDislike, AiFillFire, AiFillThunderbolt } from 'react
 import { FaAngry } from 'react-icons/fa';
 import './Podcast.css';
 import PodcastCommentBar from './PodcastCommetBar';
-import { useSEO } from '../../../hooks/useSEO';
-import SEO from '../../../context/SEO';
 
 interface PodcastProps {
     videoSrc: string;

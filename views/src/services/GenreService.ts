@@ -1,5 +1,5 @@
 import { axiosInstance, axiosInstanceAuth } from '../utils/axiosInstance';
-import { Genre, genreCreateUpdate } from '../models/GenreModel';
+import { genreCreateUpdate } from '../models/GenreModel';
 
 export const getGenres = async () => {
   try {
@@ -35,6 +35,9 @@ export const createGenre = async (data: genreCreateUpdate) => {
     if (data.image) {
       formData.append('image', data.image);
     }
+    if (data.color) {
+      formData.append('color', data.color);
+    }
     const response = await axiosInstanceAuth.post('/api/v1/genre/create', formData, {
       headers: {
         'Content-Type': 'multipart/form-data',
@@ -52,6 +55,9 @@ export const updateGenre = async (id: string, data: genreCreateUpdate) => {
     formData.append('name', data.name);
     if (data.image) {
       formData.append('image', data.image);
+    }
+    if (data.color) {
+      formData.append('color', data.color);
     }
     const response = await axiosInstanceAuth.put(`/api/v1/genre/update/${id}`, formData, {
       headers: {

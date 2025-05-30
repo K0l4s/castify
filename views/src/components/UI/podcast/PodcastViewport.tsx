@@ -28,13 +28,36 @@ import PlaylistSidebar from "../../../pages/main/playlistPage/PlaylistSidebar";
 import { useDocumentTitle } from "../../../hooks/useDocumentTitle";
 import CounterAnimation from "../custom/animations/CounterAnimation";
 import AddToPlaylistModal from "../../../pages/main/playlistPage/AddToPlaylistModal";
+import { useTrackPodcastProgress } from "../../../hooks/useTrackPodcastProgress";
+import { BaseApi } from "../../../utils/axiosInstance";
 
 const PodcastViewport: React.FC = () => {
   const location = useLocation();
   const queryParams = new URLSearchParams(location.search);
-  const id = queryParams.get("pid");
+  const id = queryParams.get("pid") as string | "";
   const playlistId = queryParams.get("playlist");
+  const userId = useSelector((state: RootState) => state.auth.user?.id) as string | "";
+  
+  useEffect(() => {
+    const handleBeforeUnload = () => {
+      const video = document.getElementById('custom-podcast-video') as HTMLVideoElement | null;
+      const currentTime = video?.currentTime ?? 0;
+      // Use the correct server URL (should be https and with //)
+      const url = BaseApi+'/api/v1/tracking';
+      // sendBeacon requires a Blob or ArrayBuffer, not a string
+      const data = JSON.stringify({
+        podcastId: id,
+        pauseTime: currentTime,
+        userId: userId,
+      });
+      const blob = new Blob([data], { type: 'application/json' });
+      navigator.sendBeacon(url, blob);
+    };
 
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    return () => window.removeEventListener('beforeunload', handleBeforeUnload);
+  }, [id, userId]);
+  useTrackPodcastProgress({ podcastId:id, userId });
   const [podcast, setPodcast] = useState<Podcast | null>(null);
   const [isDescriptionExpanded, setIsDescriptionExpanded] = useState(false);
   const [showDescToggle, setShowDescToggle] = useState(false);
@@ -53,7 +76,7 @@ const PodcastViewport: React.FC = () => {
   const descriptionRef = useRef<HTMLPreElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
   const podcastLink = `${window.location.origin}/watch?pid=${id}`;
-  
+
   const [selectedPodcastId, setSelectedPodcastId] = useState<string | null>(null);
 
   const userRedux = useSelector((state: RootState) => state.auth.user);
@@ -63,9 +86,8 @@ const PodcastViewport: React.FC = () => {
   const navigate = useNavigate();
 
   useDocumentTitle(
-    podcast? `${podcast?.title} - ${podcast?.user.fullname} | Castify` : null,
+    podcast ? `${podcast?.title} - ${podcast?.user.fullname} | Castify` : null,
   );
-
   const refreshIntervalRef = useRef<NodeJS.Timeout | null>(null);
 
   const fetchPodcastData = useCallback(async () => {
@@ -130,15 +152,15 @@ const PodcastViewport: React.FC = () => {
   useEffect(() => {
     if (videoRef.current) {
       const cleanup = setupVideoViewTracking(
-        videoRef.current, 
-        incrementPodcastViews, 
-        id!, 
+        videoRef.current,
+        incrementPodcastViews,
+        id!,
         handleViewIncrement
       );
       return cleanup;
     }
   }, [id, isAuthenticated, podcast]);
-  
+
   const handleViewIncrement = () => {
     // Immediately update the UI by incrementing views
     setViews(prevViews => prevViews + 1);
@@ -151,7 +173,7 @@ const PodcastViewport: React.FC = () => {
       fetchPodcastData();
       console.log("Refreshing podcast data..."); // For debugging
     }, 30000); // 30 seconds
-    
+
     // Clean up on component unmount
     return () => {
       if (refreshIntervalRef.current) {
@@ -163,7 +185,7 @@ const PodcastViewport: React.FC = () => {
   useEffect(() => {
     if (videoRef.current) {
       videoRef.current.src = podcast?.videoUrl || "";
-      
+
       videoRef.current.load();
       window.scrollTo({ top: 0, behavior: "smooth" });
     }
@@ -176,7 +198,7 @@ const PodcastViewport: React.FC = () => {
       setShowDescToggle(lines > 5);
     }
   }, [podcast?.content]);
-  
+
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       const target = event.target as Node;
@@ -206,7 +228,7 @@ const PodcastViewport: React.FC = () => {
 
   if (!podcast) {
     return <div className="flex justify-center items-center h-screen">
-      <FiLoader size={48} className="text-black dark:text-white animate-spin"/>
+      <FiLoader size={48} className="text-black dark:text-white animate-spin" />
     </div>;
   }
 
@@ -269,7 +291,7 @@ const PodcastViewport: React.FC = () => {
   const handleSave = () => {
     toast.info("Save feature is coming soon");
   };
-  
+
   const toggleAddToPlaylistModal = (podcastId: string) => {
     setSelectedPodcastId(podcastId);
     setIsPlaylistModalOpen(!isPlaylistModalOpen);
@@ -284,6 +306,11 @@ const PodcastViewport: React.FC = () => {
     navigate(`/watch?pid=${nextPodcastId}&playlist=${playlistId}`);
   };
 
+  // const userId = useSelector((state: RootState) => state.auth.user?.id);
+
+
+
+
   return (
     <div className="flex flex-col lg:flex-row p-4 lg:p-8 bg-white text-black dark:bg-gray-900 dark:text-white">
       <div className="flex-1 lg:max-w-[70%] lg:mr-8">
@@ -291,8 +318,8 @@ const PodcastViewport: React.FC = () => {
           <source src={podcast.videoUrl} type="video/mp4" />
           Your browser does not support the video tag.
         </video> */}
-        <CustomPodcastVideo user={podcast.user} title={podcast.title} videoRef={videoRef} videoSrc={podcast.videoUrl} posterSrc={podcast.thumbnailUrl || "/TEST.png"}/>
- 
+        <CustomPodcastVideo podcastId={podcast.id} user={podcast.user} title={podcast.title} videoRef={videoRef} videoSrc={podcast.videoUrl} posterSrc={podcast.thumbnailUrl || "/TEST.png"} />
+
         {!podcast.active && (
           <div className="mt-4">
             <span className="font-medium py-2 px-4 rounded-full bg-gray-800 dark:bg-gray-700 text-white">
@@ -312,7 +339,7 @@ const PodcastViewport: React.FC = () => {
               className="w-10 h-10 rounded-full cursor-pointer" 
               onClick={() => navigate(`/profile/${podcast.username}`)}
             /> */}
-            <Avatar 
+            <Avatar
               width='w-10'
               height='h-10'
               avatarUrl={podcast.user.avatarUrl || defaultAvatar}
@@ -320,8 +347,8 @@ const PodcastViewport: React.FC = () => {
               onClick={() => navigate(`/profile/${podcast.username}`)}
             />
             <div className="flex flex-col">
-              <span 
-                className="text-base font-medium text-black dark:text-white cursor-pointer" 
+              <span
+                className="text-base font-medium text-black dark:text-white cursor-pointer"
                 onClick={() => navigate(`/profile/${podcast.username}`)}>
                 {userInfo}
               </span>
@@ -331,15 +358,15 @@ const PodcastViewport: React.FC = () => {
             </div>
             {podcast.user.id !== userRedux?.id ? (
               <CustomButton
-                text={`${follow ? "Unfollow" : "Follow" } `}
+                text={`${follow ? "Unfollow" : "Follow"} `}
                 variant="ghost"
                 rounded="full"
                 onClick={() => handleFollow(podcast.user.username)}
                 className={`bg-gray-600 hover:bg-gray-500 
-                  ${!follow ? "bg-gray-800 text-white hover:bg-gray-700 dark:bg-gray-100 dark:text-gray-800 hover:dark:bg-gray-400" 
+                  ${!follow ? "bg-gray-800 text-white hover:bg-gray-700 dark:bg-gray-100 dark:text-gray-800 hover:dark:bg-gray-400"
                     : "text-black bg-white border border-black hover:bg-gray-800 hover:text-white dark:bg-gray-600 dark:hover:bg-gray-500 dark:text-white"}`}
               />
-            ): (
+            ) : (
               <CustomButton
                 text="Edit video"
                 variant="primary"
@@ -351,10 +378,10 @@ const PodcastViewport: React.FC = () => {
           <div className="flex items-center gap-3">
             <CustomButton
               children={
-                <CounterAnimation 
-                  value={views} 
+                <CounterAnimation
+                  value={views}
                   formatter={formatViewsWithSeparators}
-                  className="animate-pulse-once" 
+                  className="animate-pulse-once"
                 />
               }
               icon={<FaEye size={22} />}
@@ -375,7 +402,7 @@ const PodcastViewport: React.FC = () => {
             </Tooltip>
             <CustomButton
               text="Share"
-              icon={<FaShareAlt size={20}/>}
+              icon={<FaShareAlt size={20} />}
               variant="primary"
               rounded="full"
               onClick={toggleShareModal}
@@ -390,31 +417,31 @@ const PodcastViewport: React.FC = () => {
               className="bg-purple-600 hover:bg-purple-500 dark:bg-purple-600 hover:dark:bg-purple-500"
             />
             <div className="relative">
-            <CustomButton
-              icon={<TfiMoreAlt size={20}/>}
-              variant="primary"
-              rounded="full"
-              onClick={toggleOptions}
-              className="bg-gray-600 hover:bg-gray-500 dark:bg-gray-600 hover:dark:bg-gray-500"
-            />
-            {showOptions && (
-              <div className="podcast-options absolute -top-10 right-0 -translate-y-2/3 w-48 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-lg shadow-lg z-50">
-                <ul className="py-1">
-                  <li className="px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer" onClick={toggleReportModal}>
-                    <FaFlag className="inline-block mb-1 mr-2" />
-                    Report
-                  </li>
-                  <li className="px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer" onClick={handleSave}>
-                    <FaBookmark className="inline-block mb-1 mr-2" />
-                    Save
-                  </li>
-                  <li className="px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer" onClick={() => toggleAddToPlaylistModal(podcast.id)}>
-                    <FaBookmark className="inline-block mb-1 mr-2" />
-                    Add to playlist
-                  </li>
-                </ul>
-              </div>
-            )}
+              <CustomButton
+                icon={<TfiMoreAlt size={20} />}
+                variant="primary"
+                rounded="full"
+                onClick={toggleOptions}
+                className="bg-gray-600 hover:bg-gray-500 dark:bg-gray-600 hover:dark:bg-gray-500"
+              />
+              {showOptions && (
+                <div className="podcast-options absolute -top-10 right-0 -translate-y-2/3 w-48 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-lg shadow-lg z-50">
+                  <ul className="py-1">
+                    <li className="px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer" onClick={toggleReportModal}>
+                      <FaFlag className="inline-block mb-1 mr-2" />
+                      Report
+                    </li>
+                    <li className="px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer" onClick={handleSave}>
+                      <FaBookmark className="inline-block mb-1 mr-2" />
+                      Save
+                    </li>
+                    <li className="px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer" onClick={() => toggleAddToPlaylistModal(podcast.id)}>
+                      <FaBookmark className="inline-block mb-1 mr-2" />
+                      Add to playlist
+                    </li>
+                  </ul>
+                </div>
+              )}
             </div>
           </div>
         </div>
@@ -437,20 +464,20 @@ const PodcastViewport: React.FC = () => {
         </div>
 
         {/* Comments */}
-        <CommentSection podcastId={id!} totalComments={podcast.totalComments} currentUserId={userRedux?.id!}/>
+        <CommentSection podcastId={id!} totalComments={podcast.totalComments} currentUserId={userRedux?.id!} />
       </div>
       <div className="lg:w-[30%] mt-6 lg:mt-0">
         {playlistId && (
           <div className="mb-8">
-            <PlaylistSidebar 
-              playlistId={playlistId} 
+            <PlaylistSidebar
+              playlistId={playlistId}
               currentPodcastId={id!}
               onNextPodcast={handleNextPodcast} />
           </div>
         )}
 
-        {podcast?.genres && 
-          <SuggestedPodcast 
+        {podcast?.genres &&
+          <SuggestedPodcast
             // genreIds={podcast.genres.map((genre) => genre.id)} 
             genreIds={memoizedGenreIds}
             currentPodcastId={podcast.id}

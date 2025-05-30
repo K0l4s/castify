@@ -5,6 +5,7 @@ import logo from '../../assets/images/logo.png';
 import Authentication from './Authentication';
 import MainSearchBar from './MainSearchBar';
 import { toggleSidebar } from '../../redux/slice/sidebarSlice';
+import { MdCategory } from 'react-icons/md';
 
 const MainHeader: React.FC = () => {
   const dispatch = useDispatch();
@@ -15,10 +16,10 @@ const MainHeader: React.FC = () => {
   };
 
   return (
-    <nav className="sticky top-0 z-50 w-full bg-white border-b border-gray-200 dark:bg-gray-800 dark:border-gray-700">
+    <nav className="sticky top-0 z-100 w-full bg-white border-b border-gray-200 dark:bg-gray-800 dark:border-gray-700">
       <div className="px-3 py-3 lg:px-5 lg:pl-3">
         <div className="flex items-center justify-between">
-          <div className="flex items-center justify-start rtl:justify-end">
+          <div className="flex items-center justify-start rtl:justify-end min-w-[220px]">
             <button
               onClick={handleToggleSidebar}
               type="button"
@@ -34,8 +35,23 @@ const MainHeader: React.FC = () => {
                 <span className="self-center text-xl font-semibold sm:text-2xl whitespace-nowrap text-black dark:text-white hidden sm:inline">Blankcil</span>
             </Link>
           </div>
-          <MainSearchBar />
-          <Authentication />
+          <div className="flex-1 flex justify-center">
+            <div className="flex items-center w-full max-w-2xl">
+              <div className="flex-1">
+                <MainSearchBar />
+              </div>
+              <Link 
+                to="/genres" 
+                className="ml-2 p-2 text-gray-500 rounded-lg hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-700"
+                title="Genres"
+              >
+                <MdCategory className="w-6 h-6" />
+              </Link>
+            </div>
+          </div>
+          <div className="flex items-center min-w-[120px] justify-end">
+            <Authentication />
+          </div>
         </div>
       </div>
     </nav>

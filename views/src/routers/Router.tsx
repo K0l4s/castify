@@ -6,6 +6,7 @@ import LandingPage from '../pages/main/landingPage/LandingPage'
 import AdminLadingPage from '../pages/admin/ladingPage/AdminLadingPage'
 import AdminUserPage from '../pages/admin/userPage/AdminUserPage'
 import AdminGenrePage from '../pages/admin/genrePage/AdminGenrePage'
+import GenrePage from '../pages/genre/GenrePage'
 import AdminFramePage from '../pages/admin/framePage/AdminFrameManagement'
 import CreatorLandingPage from '../pages/creator/ladingPage/CreatorLandingPage'
 import NotFoundPage from '../pages/informationPage/NotFoundPage'
@@ -47,6 +48,7 @@ import { useLanguage } from '../context/LanguageContext'
 import LikedPage from '../pages/main/likedPage/LikedPage'
 import DetailPlaylistPage from '../pages/main/playlistPage/DetailPlaylistPage'
 import WatchPartyPage from '../pages/main/watchParty/WatchPartyPage'
+import GenrePodcastsPage from '../pages/genre/GenrePodcastsPage'
 
 // import Test from '../components/main/conversation/Test'
 // import Test from '../pages/main/blankShop/Test'
@@ -99,6 +101,8 @@ const Router = () => {
                 <Route path="/msg" element={<ConversationLayout />} />
                 <Route path="/msg/:id" element={<ConversationLayout />} />
                 <Route path='video-editor' element={<VideoEditor />} />
+                <Route path='/genres' element={<GenrePage />} />
+                <Route path='/genres/:genreId' element={<GenrePodcastsPage />} />
 
                 {/* <Route path='test' element={<Test/>}/> */}
                 {/* <Route path='/noti' element={<NotificationComponent />} /> */}

@@ -92,5 +92,6 @@ export const userService = {
     },
     updateGenreFavorites: async (genreIds:string[]) => {
         return await axiosInstanceAuth.post(`/api/v1/user/favorite-genres`, { genreIds });
-    }
+    },
+
 };

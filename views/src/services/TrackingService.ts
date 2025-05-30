@@ -1,4 +1,4 @@
-import { axiosInstance } from "../utils/axiosInstance";
+import { axiosInstance, axiosInstanceAuth } from "../utils/axiosInstance";
 
 export const trackService = {
     trackVisitor: async (url:string) => {
@@ -10,6 +10,17 @@ export const trackService = {
             console.log("Tracking successfully sent for:", url);
         } catch (error) {
             console.error("Error tracking visitor:", error);
+        }
+    },
+    getVideoTracking: async (podcastId:string) => {
+        try {
+            const response = await axiosInstanceAuth.get(`/api/v1/tracking/podcast`, {
+                params: { podcastId }
+            });
+            return response.data;
+        } catch (error) {
+            console.error("Error fetching video tracking data:", error);
+            throw error;
         }
     }
 }

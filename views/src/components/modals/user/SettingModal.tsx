@@ -193,7 +193,7 @@ const SettingModals = (props: SettingModals) => {
     toast.loading("Uploading avatar...");
     const file = e.target.files?.[0];
     if (file) {
-      await userService.changeAvatar(file).then(res => {
+      await userService.changeAvatar(file).then(() => {
         toast.clearAllToasts();
         toast.success("Avatar updated successfully");
         setUser(prev => prev ? { ...prev, avatarUrl: URL.createObjectURL(file) } : prev);
@@ -210,7 +210,7 @@ const SettingModals = (props: SettingModals) => {
     toast.loading("Uploading cover...");
     const file = e.target.files?.[0];
     if (file) {
-      await userService.changeCover(file).then(res => {
+      await userService.changeCover(file).then(() => {
         toast.clearAllToasts();
         toast.success("Cover updated successfully");
         setUser(prev => prev ? { ...prev, coverUrl: URL.createObjectURL(file) } : prev);
