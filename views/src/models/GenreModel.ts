@@ -2,6 +2,7 @@ export interface Genre {
     id: string;
     name: string;
     imageUrl: string | null;
+    color: string | null;
     active: boolean;
     lastEdited: Date;
 }
@@ -9,4 +10,5 @@ export interface Genre {
 export interface genreCreateUpdate {
     name: string;
     image: File | null;
+    color?: string;
 }

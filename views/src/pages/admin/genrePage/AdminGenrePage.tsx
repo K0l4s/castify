@@ -10,11 +10,12 @@ const AdminGenrePage = () => {
   const [genres, setGenres] = useState<Genre[]>([]);
   const [totalGenreCount, setTotalGenreCount] = useState<number>(0);
   const [loading, setLoading] = useState<boolean>(false);
-  const [newGenre, setNewGenre] = useState<genreCreateUpdate>({ name: '', image: null });
+  const [newGenre, setNewGenre] = useState<genreCreateUpdate>({ name: '', image: null, color: '' });
   const [newGenreImagePreview, setNewGenreImagePreview] = useState<string>('');
   const [editingGenre, setEditingGenre] = useState<Genre | null>(null);
   const [editingGenreImage, setEditingGenreImage] = useState<File | null>(null);
   const [editingGenreImagePreview, setEditingGenreImagePreview] = useState<string>('');
+  const [editingGenreColor, setEditingGenreColor] = useState<string>('');
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [isDeleting, setIsDeleting] = useState<boolean>(false);
   const [deleteGenreId, setDeleteGenreId] = useState<string | null>(null);
@@ -23,6 +24,8 @@ const AdminGenrePage = () => {
 
   const deleteModalRef = useRef<HTMLDivElement | null>(null);
   const toast = useToast();
+
+  const [saving, setSaving] = useState<boolean>(false);
 
   useEffect(() => {
     setLoading(true);
@@ -86,21 +89,35 @@ const AdminGenrePage = () => {
       return;
     }
 
+    if (newGenre.name.length > 25) {
+      toast.error('Tên thể loại không được vượt quá 25 ký tự!');
+      return;
+    }
+
     if (!newGenre.image) {
       toast.error('Bạn chưa chọn ảnh đại diện.');
       return;
     }
 
+    if (!newGenre.color) {
+      toast.error('Bạn chưa chọn màu sắc.');
+      return;
+    }
+
+    setSaving(true);
+
     try {
       const createdGenre = await createGenre(newGenre);
       setAllGenres([...allGenres, createdGenre]);
       setGenres([...genres, createdGenre]);
-      setNewGenre({ name: '', image: null });
+      setNewGenre({ name: '', image: null, color: '' });
       setNewGenreImagePreview('');
       toast.success('Thêm thể loại mới thành công!');
     } catch (error) {
       console.error('Error creating genre:', error);
       toast.error('Có lỗi xảy ra, vui lòng thử lại!');
+    } finally {
+      setSaving(false);
     }
   };
 
@@ -110,10 +127,23 @@ const AdminGenrePage = () => {
       return;
     }
 
+    if (editingGenre.name.length > 25) {
+      toast.error('Tên thể loại không được vượt quá 25 ký tự!');
+      return;
+    }
+
+    if (!editingGenreColor) {
+      toast.error('Bạn chưa chọn màu sắc.');
+      return;
+    }
+
+    setSaving(true);
+
     try {
       const updatedGenre = await updateGenre(editingGenre.id, {
         name: editingGenre.name,
-        image: editingGenreImage
+        image: editingGenreImage,
+        color: editingGenreColor
       });
       
       const updateGenres = (list: Genre[]) => 
@@ -124,10 +154,13 @@ const AdminGenrePage = () => {
       setEditingGenre(null);
       setEditingGenreImage(null);
       setEditingGenreImagePreview('');
+      setEditingGenreColor('');
       toast.success('Cập nhật thành công!');
     } catch (error) {
       console.error('Error updating genre:', error);
       toast.error('Có lỗi xảy ra, vui lòng thử lại!');
+    } finally {
+      setSaving(false);
     }
   };
 
@@ -159,6 +192,7 @@ const AdminGenrePage = () => {
   const handleEditGenre = (genre: Genre) => {
     setEditingGenre({ ...genre });
     setEditingGenreImagePreview(genre.imageUrl || '');
+    setEditingGenreColor(genre.color || '');
     // setOpenMenuId(null);
   };
 
@@ -166,6 +200,7 @@ const AdminGenrePage = () => {
     setEditingGenre(null);
     setEditingGenreImage(null);
     setEditingGenreImagePreview('');
+    setEditingGenreColor('');
   };
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -202,8 +237,6 @@ const AdminGenrePage = () => {
     <div className="p-8 min-h-screen">
       <h1 className="text-3xl font-bold mb-6 text-black dark:text-white">Quản lý thể loại</h1>
 
-      {loading && <p className="text-blue-500">Loading genres...</p>}
-
       {/* Thống kê */}
       <div className="mb-8">
         <h3 className="text-2xl font-extrabold mb-6 text-black dark:text-white">Thống kê thể loại</h3>
@@ -239,48 +272,100 @@ const AdminGenrePage = () => {
       {/* Add new genre */}
       <div className="mb-8">
         <h3 className="text-2xl font-bold mb-4 text-black dark:text-white">Thêm thể loại mới</h3>
-        <div className="flex flex-col gap-4">
-          <div className="flex items-center gap-4">
-            <input
-              type="text"
-              value={newGenre.name}
-              onChange={(e) => setNewGenre(prev => ({ ...prev, name: e.target.value }))}
-              placeholder="Enter genre name"
-              className="flex-grow px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white/5 dark:bg-gray-800 text-black dark:text-white"
-            />
-            <button
-              onClick={handleCreateGenre}
-              className="px-4 py-2 bg-blue-500 text-white font-medium rounded-lg hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
-            >
-              Create
-            </button>
-          </div>
-          
-          {/* Image upload for new genre */}
-          <div className="relative w-40 h-40 border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg overflow-hidden group">
-            {newGenreImagePreview ? (
-              <img
-                src={newGenreImagePreview}
-                alt="Genre preview"
-                className="w-full h-full object-cover"
-              />
-            ) : (
-              <div className="w-full h-full flex items-center justify-center bg-gray-50 dark:bg-gray-800">
-                <RiImageAddLine className="w-12 h-12 text-gray-400" />
-              </div>
-            )}
-            <label className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-50 opacity-0 group-hover:opacity-100 cursor-pointer transition-opacity">
+        <div className="flex flex-col gap-6 md:flex-row">
+          <div className="flex-1 flex flex-col gap-4">
+            <div className="flex items-center gap-4">
               <input
-                type="file"
-                accept="image/*"
-                onChange={(e) => handleImageChange(e, false)}
-                className="hidden"
+                type="text"
+                value={newGenre.name}
+                onChange={(e) => setNewGenre(prev => ({ ...prev, name: e.target.value }))}
+                placeholder="Enter genre name"
+                className="flex-grow px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white/5 dark:bg-gray-800 text-black dark:text-white"
               />
-              <span className="text-white text-sm">Choose Image</span>
-            </label>
+              <input
+                type="color"
+                value={newGenre.color || '#000000'}
+                onChange={(e) => setNewGenre(prev => ({ ...prev, color: e.target.value }))}
+                title="Choose genre color"
+                className="w-10 h-10 p-0.5 border border-gray-300 dark:border-gray-600 rounded-lg cursor-pointer"
+              />
+            </div>
+
+            <div className="flex flex-col md:flex-row gap-4">
+              {/* Image Upload */}
+              <div className="relative w-40 h-40 border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg overflow-hidden group">
+                {newGenreImagePreview ? (
+                  <img
+                    src={newGenreImagePreview}
+                    alt="Genre preview"
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  <div className="w-full h-full flex items-center justify-center bg-gray-50 dark:bg-gray-800">
+                    <RiImageAddLine className="w-12 h-12 text-gray-400" />
+                  </div>
+                )}
+                <label className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-50 opacity-0 group-hover:opacity-100 cursor-pointer transition-opacity">
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={(e) => handleImageChange(e, false)}
+                    className="hidden"
+                  />
+                  <span className="text-white text-sm">Choose Image</span>
+                </label>
+              </div>
+
+              {/* Preview */}
+              <div className="flex-1 h-40">
+                <div
+                  className={`relative rounded-xl shadow-md overflow-hidden p-4 h-full flex flex-col justify-between w-full max-w-sm ${
+                    newGenre.color ? '' : 'bg-white/5 dark:bg-gray-800'
+                  }`}
+                  style={newGenre.color ? { backgroundColor: newGenre.color } : {}}
+                >
+                  {/* Genre Name */}
+                  <div className="z-10">
+                    <h3 className="text-2xl font-semibold text-white truncate">
+                      {newGenre.name || ''}
+                    </h3>
+                  </div>
+
+                  {/* Genre Image Preview */}
+                  {(newGenreImagePreview || newGenre.image) && (
+                    <div className="absolute bottom-0 right-0 transform translate-x-8 translate-y-8 w-36 h-36 overflow-hidden rounded-lg rotate-12">
+                      {newGenreImagePreview ? (
+                        <img
+                          src={newGenreImagePreview}
+                          alt="Genre preview"
+                          className="w-full h-full object-cover"
+                        />
+                      ) : newGenre.image ? (
+                        <img
+                          src={URL.createObjectURL(newGenre.image)}
+                          alt="Genre preview"
+                          className="w-full h-full object-cover"
+                        />
+                      ) : null}
+                    </div>
+                  )}
+                </div>
+              </div>
+
+            </div>
           </div>
         </div>
+
+        {/* Create button */}
+        <button
+          onClick={handleCreateGenre}
+          className={`mt-6 px-4 py-2 bg-blue-500 text-white font-medium rounded-lg hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 self-center ${saving ? 'opacity-50 cursor-not-allowed' : ''}`}
+          disabled={saving}
+        >
+          {saving ? 'Đang lưu...' : 'Create'}
+        </button>
       </div>
+
 
       {/* Genre list */}
       <div>
@@ -289,39 +374,39 @@ const AdminGenrePage = () => {
           {genres.map((genre) => (
             <div
               key={genre.id}
-              className="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden flex"
+              className="relative rounded-xl shadow-md hover:shadow-lg transition-shadow duration-300 overflow-hidden p-4 min-h-[140px] flex flex-col justify-between"
+              style={{ backgroundColor: genre.color || '#ffffff' }}
             >
-              <div className="relative w-1/3">
-                {genre.imageUrl ? (
+              {/* Genre Name */}
+              <div className="z-10">
+                <h3 className="text-xl font-semibold text-white truncate">{genre.name}</h3>
+              </div>
+
+              {/* Genre Image */}
+              {genre.imageUrl && (
+                <div className="absolute bottom-0 right-0 transform translate-x-8 translate-y-8 w-36 h-36 overflow-hidden rounded-lg rotate-12">
                   <img
                     src={genre.imageUrl}
                     alt={genre.name}
                     className="w-full h-full object-cover"
                   />
-                ) : (
-                  <div className="w-full h-full flex items-center justify-center bg-gray-100 dark:bg-gray-700">
-                    <RiImageAddLine className="w-12 h-12 text-gray-400" />
-                  </div>
-                )}
-              </div>
-              <div className="flex-1 p-4 flex flex-col justify-between">
-                <h3 className="text-lg font-medium text-gray-600 dark:text-gray-300">{genre.name}</h3>
-                <div className="flex gap-2 mt-4">
-                  <button
-                    onClick={() => handleEditGenre(genre)}
-                    className="flex-1 flex items-center justify-center gap-1 px-2 py-1 text-sm bg-yellow-500 text-white rounded-lg hover:bg-yellow-600"
-                  >
-                    <MdOutlineModeEdit className="text-lg" />
-                    <span>Chỉnh sửa</span>
-                  </button>
-                  <button
-                    onClick={() => handleDeleteClick(genre.id)}
-                    className="flex-1 flex items-center justify-center gap-1 px-2 py-1 text-sm bg-red-500 text-white rounded-lg hover:bg-red-600"
-                  >
-                    <MdDelete className="text-lg" />
-                    <span>Xóa</span>
-                  </button>
                 </div>
+              )}
+
+              {/* Buttons */}
+              <div className="z-20 flex gap-2 mt-4 justify-start">
+                <button
+                  onClick={() => handleEditGenre(genre)}
+                  className="px-3 py-1 text-sm bg-yellow-500 text-white rounded-lg hover:bg-yellow-600"
+                >
+                  Chỉnh sửa
+                </button>
+                <button
+                  onClick={() => handleDeleteClick(genre.id)}
+                  className="px-3 py-1 text-sm bg-red-500 text-white rounded-lg hover:bg-red-600"
+                >
+                  Xóa
+                </button>
               </div>
             </div>
           ))}
@@ -340,6 +425,19 @@ const AdminGenrePage = () => {
               placeholder="Enter genre name"
               className="w-full px-4 py-2 mb-4 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white/5 dark:bg-gray-800 text-black dark:text-white"
             />
+            
+            <div className="flex items-center gap-4 mb-4">
+              <label htmlFor="editingGenreColor" className="text-black dark:text-white">Color:</label>
+              <input
+                id="editingGenreColor"
+                type="color"
+                value={editingGenreColor || '#000000'}
+                onChange={(e) => setEditingGenreColor(e.target.value)}
+                title="Choose genre color"
+                className="w-10 h-10 p-0.5 border border-gray-300 dark:border-gray-600 rounded-lg cursor-pointer"
+              />
+              <span className="text-sm text-gray-500 dark:text-gray-400">{editingGenreColor}</span>
+            </div>
             
             {/* Image upload for editing */}
             <div className="relative w-40 h-40 mx-auto mb-4 border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg overflow-hidden group">
@@ -363,14 +461,16 @@ const AdminGenrePage = () => {
               <button
                 onClick={handleCancelEdit}
                 className="px-4 py-2 bg-gray-300 text-black rounded-lg hover:bg-gray-400"
+                disabled={saving}
               >
                 Hủy
               </button>
               <button
                 onClick={handleUpdateGenre}
-                className="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600"
+                className={`px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 ${saving ? 'opacity-50 cursor-not-allowed' : ''}`}
+                disabled={saving}
               >
-                Lưu
+                {saving ? 'Đang lưu...' : 'Lưu'}
               </button>
             </div>
           </div>

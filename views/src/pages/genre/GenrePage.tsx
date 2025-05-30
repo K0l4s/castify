@@ -45,9 +45,9 @@ const GenrePage = () => {
     );
     setFilteredGenres(filtered);
 
-    if (filtered.length === 0) {
-      toast.info('Không tìm thấy thể loại nào');
-    }
+    // if (filtered.length === 0) {
+    //   toast.info('Không tìm thấy thể loại nào');
+    // }
   };
 
   return (
@@ -87,9 +87,16 @@ const GenrePage = () => {
             <Link
               key={genre.id}
               to={`/genres/${genre.id}`}
-              className="flex items-center bg-white dark:bg-gray-800 rounded-xl shadow-md hover:shadow-lg transition-shadow duration-300 overflow-hidden min-h-[100px] cursor-pointer hover:ring-2 hover:ring-blue-400"
+              className="relative rounded-xl shadow-md hover:shadow-lg transition-shadow duration-300 overflow-hidden cursor-pointer hover:ring-2 hover:ring-blue-400 p-4 min-h-[140px] flex justify-between items-end"
+              style={{ backgroundColor: genre.color || '#ffffff' }}
             >
-              <div className="flex-shrink-0 w-24 h-24 bg-gray-100 dark:bg-gray-700 flex items-center justify-center overflow-hidden">
+              {/* Genre Name */}
+              <div className="z-10 self-start">
+                <h3 className="text-2xl font-bold text-white truncate">{genre.name}</h3>
+              </div>
+
+              {/* Genre Image */}
+              <div className="absolute bottom-0 right-0 transform translate-x-8 translate-y-8 w-36 h-36 overflow-hidden rounded-lg rotate-12">
                 {genre.imageUrl ? (
                   <img
                     src={genre.imageUrl}
@@ -97,11 +104,10 @@ const GenrePage = () => {
                     className="w-full h-full object-cover"
                   />
                 ) : (
-                  <RiImageAddLine className="w-12 h-12 text-gray-400" />
+                  <div className="w-full h-full flex items-center justify-center bg-gray-100 dark:bg-gray-700">
+                    <RiImageAddLine className="w-12 h-12 text-gray-400" />
+                  </div>
                 )}
-              </div>
-              <div className="flex-1 px-6 py-4 flex items-center">
-                <h3 className="text-xl font-semibold text-gray-700 dark:text-gray-200 truncate">{genre.name}</h3>
               </div>
             </Link>
           ))}
