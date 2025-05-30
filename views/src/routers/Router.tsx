@@ -46,6 +46,7 @@ import { useLanguage } from '../context/LanguageContext'
 
 import LikedPage from '../pages/main/likedPage/LikedPage'
 import DetailPlaylistPage from '../pages/main/playlistPage/DetailPlaylistPage'
+import WatchPartyPage from '../pages/main/watchParty/WatchPartyPage'
 
 // import Test from '../components/main/conversation/Test'
 // import Test from '../pages/main/blankShop/Test'
@@ -136,7 +137,7 @@ const Router = () => {
                     <Route path='/shop' element={<BlankShop />} />
                     <Route path='/my-shop' element={<RequireAuth><MyShop /></RequireAuth>} />
                     <Route path='/purchased-frames' element={<RequireAuth><PurchasedFrames /></RequireAuth>} />
-
+                    <Route path='/watch-party' element={<RequireAuth><WatchPartyPage /></RequireAuth>} />
                 </Route>
                 <Route element={<ProfileLayout />}>
 
