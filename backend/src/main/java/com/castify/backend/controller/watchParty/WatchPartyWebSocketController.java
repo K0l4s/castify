@@ -3,6 +3,7 @@ package com.castify.backend.controller.watchParty;
 import com.castify.backend.entity.watchParty.PlaybackSyncEvent;
 import com.castify.backend.entity.watchParty.WatchPartyMessageEntity;
 import com.castify.backend.entity.watchParty.WatchPartyRoomEntity;
+import com.castify.backend.enums.SyncEventType;
 import com.castify.backend.models.watchParty.ChatMessageRequest;
 import com.castify.backend.service.watchParty.IWatchPartyService;
 import lombok.RequiredArgsConstructor;
@@ -17,6 +18,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
 
 import java.security.Principal;
+import java.time.LocalDateTime;
 
 @Controller
 @RequiredArgsConstructor
@@ -85,24 +87,40 @@ public class WatchPartyWebSocketController {
      * Handle sync request - when client requests current room state
      */
     @MessageMapping("/room/{roomId}/sync-request")
-    public void handleSyncRequest(@DestinationVariable String roomId) {
+    public void handleSyncRequest(@DestinationVariable String roomId, SimpMessageHeaderAccessor headerAccessor) {
         try {
-            // 1. Get the latest room details
+            Principal user = headerAccessor.getUser();
+            if (user == null) {
+                System.err.println("No authenticated user for sync request");
+                return;
+            }
+
+            System.out.println("Sync requested by user: " + user.getName());
             WatchPartyRoomEntity room = watchPartyService.getRoomDetails(roomId);
 
-            // 2. Send room update to all clients subscribed to this room
-            messagingTemplate.convertAndSend("/topic/room/" + roomId + "/update", room);
+            if (room == null) {
+                System.err.println("Room not found with ID: " + roomId);
+                return;
+            }
 
-            // 3. Send current playback state
-            PlaybackSyncEvent syncEvent = new PlaybackSyncEvent();
-            syncEvent.setRoomId(roomId);
-            syncEvent.setPosition(room.getCurrentPosition());
-            syncEvent.setPlaying(room.isPlaying());
+            // GỬI YÊU CẦU ĐẾN HOST để lấy position hiện tại
+            PlaybackSyncEvent hostSyncRequest = new PlaybackSyncEvent();
+            hostSyncRequest.setRoomId(roomId);
+            hostSyncRequest.setEventType(SyncEventType.SYNC_REQUEST);
+            hostSyncRequest.setUserId(user.getName());
 
-            messagingTemplate.convertAndSend("/topic/room/" + roomId + "/sync", syncEvent);
+            // Gửi sync request đến riêng host qua user queue
+            messagingTemplate.convertAndSendToUser(
+                    room.getHostUserId(),
+                    "/queue/sync-request",
+                    hostSyncRequest
+            );
+
+            System.out.println("Sync request sent to host: " + room.getHostUserId());
+
         } catch (Exception e) {
-            // Log error
             System.err.println("Error handling sync request: " + e.getMessage());
+            e.printStackTrace();
         }
     }
 }

@@ -17,7 +17,8 @@ export default class WatchPartyService {
   private static connectionStatusListeners: ((connected: boolean) => void)[] = [];
   private static isConnecting: boolean = false;
   private static reconnectTimer: any = null;
-
+  private static hostSyncRequestListeners: ((event: any) => void)[] = [];
+  
   static async createRoom(request: CreateRoomRequest): Promise<WatchPartyRoom> {
     try {
       const response = await axiosInstanceAuth.post(`/api/v1/watch-party/create`, request);
@@ -101,7 +102,7 @@ export default class WatchPartyService {
       
       // Get the token ONCE and use it consistently
       const token = Cookie.get("token");
-      console.log("Using token for connection:", token ? "Present" : "Missing");
+      // console.log("Using token for connection:", token ? "Present" : "Missing");
 
       // Create a new SockJS connection
       const socket = new SockJS(`${BaseApi}/ws`);
@@ -111,11 +112,11 @@ export default class WatchPartyService {
         webSocketFactory: () => socket,
         connectHeaders: {
           Authorization: `Bearer ${token}`,
-          "ngrok-skip-browser-warning": "true" // Add this like in useStomp
+          "ngrok-skip-browser-warning": "true"
         },
-        debug: (str) => {
-          console.log('STOMP Debug:', str);
-        },
+        // debug: (str) => {
+        //   console.log('STOMP Debug:', str);
+        // },
         reconnectDelay: 5000,
         heartbeatIncoming: 4000,
         heartbeatOutgoing: 4000
@@ -270,7 +271,7 @@ export default class WatchPartyService {
     }
 
     const chatRequest: ChatMessageRequest = { message };
-    console.log(`Sending chat message to room ${roomId}: ${message}`);
+    // console.log(`Sending chat message to room ${roomId}: ${message}`);
 
     try {
       this.stompClient.publish({
@@ -281,7 +282,7 @@ export default class WatchPartyService {
           'Authorization': `Bearer ${Cookie.get("token")}`
         }
       });
-      console.log('Chat message sent successfully');
+      // console.log('Chat message sent successfully');
     } catch (e) {
       console.error('Error sending chat message:', e);
     }
@@ -292,8 +293,6 @@ export default class WatchPartyService {
       console.error('Cannot sync playback, not connected');
       return;
     }
-
-    console.log("CHECK: ", Cookie.get("token"));
 
     const syncEvent: PlaybackSyncEvent = {
       roomId,
@@ -311,7 +310,7 @@ export default class WatchPartyService {
           'Authorization': `Bearer ${Cookie.get("token")}`
         }
       });
-      console.log('Sync event sent successfully');
+      // console.log('Sync event sent successfully');
     } catch (e) {
       console.error('Error sending sync event:', e);
     }
@@ -329,7 +328,7 @@ export default class WatchPartyService {
   private static handleSyncEvent(message: Message): void {
     try {
       const syncEvent = JSON.parse(message.body) as PlaybackSyncEvent;
-      console.log('Received sync event:', syncEvent);
+      // console.log('Received sync event:', syncEvent);
       this.syncEventListeners.forEach(listener => listener(syncEvent));
     } catch (error) {
       console.error('Error parsing sync event:', error);
@@ -339,7 +338,7 @@ export default class WatchPartyService {
   private static handleRoomUpdate(message: Message): void {
     try {
       const roomUpdate = JSON.parse(message.body) as WatchPartyRoom;
-      console.log('Received room update:', roomUpdate);
+      // console.log('Received room update:', roomUpdate);
       this.roomUpdateListeners.forEach(listener => listener(roomUpdate));
     } catch (error) {
       console.error('Error parsing room update:', error);
@@ -389,5 +388,13 @@ export default class WatchPartyService {
     if (index !== -1) {
       this.connectionStatusListeners.splice(index, 1);
     }
+  }
+
+  static addHostSyncRequestListener(listener: (event: any) => void): void {
+    this.hostSyncRequestListeners.push(listener);
+  }
+  
+  static removeHostSyncRequestListener(listener: (event: any) => void): void {
+    this.hostSyncRequestListeners = this.hostSyncRequestListeners.filter(l => l !== listener);
   }
 }

@@ -209,6 +209,7 @@ public class WatchPartyServiceImpl implements IWatchPartyService {
 
     @Override
     public WatchPartyRoomEntity getRoomDetails(String roomId) {
+        System.out.println("ROOMID = " + roomId);
         WatchPartyRoomEntity room = activeRooms.get(roomId);
         if (room == null) {
             room = roomRepository.findByIdAndIsActiveTrue(roomId).orElse(null);

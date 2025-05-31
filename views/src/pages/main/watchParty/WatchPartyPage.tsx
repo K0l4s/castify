@@ -5,7 +5,7 @@ import { useToast } from '../../../context/ToastProvider';
 import { useSelector } from 'react-redux';
 import { RootState } from '../../../redux/store';
 import WatchPartyService from '../../../services/WatchPartyService';
-import { ChatMessage, PlaybackSyncEvent, SyncEventType, WatchPartyRoom } from '../../../models/WatchPartyModel';
+import { ChatMessage, SyncEventType, WatchPartyRoom } from '../../../models/WatchPartyModel';
 import { FiLoader } from 'react-icons/fi';
 import CustomButton from '../../../components/UI/custom/CustomButton';
 import { FaCopy, FaDoorOpen, FaPlus, FaSignInAlt, FaVideo } from 'react-icons/fa';
@@ -46,7 +46,7 @@ const WatchPartyPage: React.FC = () => {
   const fetchRoomDetails = useCallback(async (roomId: string) => {
     try {
       const roomDetails = await WatchPartyService.getRoomDetails(roomId);
-      console.log('Fetched updated room details (fallback):', roomDetails);
+      // console.log('Fetched updated room details (fallback):', roomDetails);
       setRoom(roomDetails);
     } catch (error) {
       console.error('Failed to fetch room details:', error);
@@ -105,12 +105,12 @@ const WatchPartyPage: React.FC = () => {
     };
     
     const roomUpdateListener = (updatedRoom: WatchPartyRoom) => {
-      console.log('Room updated via WebSocket:', updatedRoom);
+      // console.log('Room updated via WebSocket:', updatedRoom);
       setRoom(updatedRoom);
     };
 
-    const syncEventListener = (event: PlaybackSyncEvent) => {
-      console.log('Received sync event:', event);
+    const syncEventListener = () => {
+      // console.log('Received sync event:', event);
       // Handle any global sync event processing here if needed
     };
 
@@ -136,7 +136,7 @@ const WatchPartyPage: React.FC = () => {
           setError(null);
           
           const joinedRoom = await WatchPartyService.joinRoom(roomCode);
-          console.log('Joined room data:', joinedRoom);
+          // console.log('Joined room data:', joinedRoom);
           setRoom(joinedRoom);
           
           // Connect to WebSocket
@@ -199,7 +199,7 @@ const WatchPartyPage: React.FC = () => {
         isPublic
       });
       
-      console.log('Created room data:', newRoom);
+      // console.log('Created room data:', newRoom);
       setRoom(newRoom);
       
       // Connect to WebSocket
@@ -226,7 +226,7 @@ const WatchPartyPage: React.FC = () => {
       setError(null);
       
       const joinedRoom = await WatchPartyService.joinRoom(roomCode);
-      console.log('Joined room data:', joinedRoom);
+      // console.log('Joined room data:', joinedRoom);
       setRoom(joinedRoom);
       
       // Connect to WebSocket
@@ -282,7 +282,7 @@ const WatchPartyPage: React.FC = () => {
 
   const handleSyncPlayback = (position: number, playing: boolean, eventType: SyncEventType) => {
     if (!room || !isConnected) return;
-    console.log('Sending sync event:', { position, playing, eventType });
+    // console.log('Sending sync event:', { position, playing, eventType });
     WatchPartyService.syncPlayback(room.id, position, playing, eventType);
   };
 
@@ -382,6 +382,7 @@ const WatchPartyPage: React.FC = () => {
               onSync={handleSyncPlayback}
               isConnected={isConnected}
               initialPosition={room.currentPosition || 0}
+              roomId={room.id}
             />
           ) : podcast && !room ? (
             <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 border border-gray-200 dark:border-gray-700">

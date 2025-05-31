@@ -1,9 +1,9 @@
 import React from 'react';
 import { WatchPartyRoom } from '../../../models/WatchPartyModel';
 import Avatar from '../../../components/UI/user/Avatar';
-import { formatDistanceToNow } from 'date-fns';
 import { FaCrown } from 'react-icons/fa';
 import defaultAvatar from "../../../assets/images/default_avatar.jpg";
+import useTimeAgo from '../../../hooks/useTimeAgo';
 
 interface WatchPartyParticipantsProps {
   room: WatchPartyRoom;
@@ -87,8 +87,8 @@ const WatchPartyParticipants: React.FC<WatchPartyParticipantsProps> = ({
                 <Avatar
                   width="w-8"
                   height="h-8"
-                  avatarUrl={participant.user?.avatarUrl || defaultAvatar}
-                  usedFrame={participant.user?.usedFrame}
+                  avatarUrl={participant?.avatarUrl || defaultAvatar}
+                  usedFrame={participant?.usedFrame}
                   alt={getDisplayName(participant)}
                 />
                 <div className="flex-1">
@@ -103,7 +103,7 @@ const WatchPartyParticipants: React.FC<WatchPartyParticipantsProps> = ({
                     )}
                   </div>
                   <div className="text-xs text-gray-500 dark:text-gray-400">
-                    Joined {formatDistanceToNow(new Date(participant.joinedAt), { addSuffix: true })}
+                    Joined {useTimeAgo(participant.joinedAt)}
                   </div>
                 </div>
               </div>

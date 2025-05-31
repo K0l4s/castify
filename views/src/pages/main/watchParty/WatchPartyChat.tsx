@@ -1,9 +1,9 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { ChatMessage, MessageType } from '../../../models/WatchPartyModel';
-import { formatDistanceToNow } from 'date-fns';
 import { FiSend } from 'react-icons/fi';
 import Avatar from '../../../components/UI/user/Avatar';
 import defaultAvatar from '../../../assets/images/default_avatar.jpg';
+import useTimeAgo from '../../../hooks/useTimeAgo';
 // import { useLanguage } from '../../../context/LanguageContext';
 
 interface WatchPartyChatProps {
@@ -91,6 +91,8 @@ interface ChatMessageItemProps {
 }
 
 const ChatMessageItem: React.FC<ChatMessageItemProps> = ({ message }) => {
+  const timeAgo = useTimeAgo(message.timestamp!);
+  
   // Handle system messages differently
   if (message.type === MessageType.SYSTEM) {
     return (
@@ -113,9 +115,9 @@ const ChatMessageItem: React.FC<ChatMessageItemProps> = ({ message }) => {
           <span className="font-semibold text-sm text-gray-900 dark:text-white">
             {message.username || "Anonymous"}
           </span>
-          {message.timestamp && (
+          {timeAgo && (
             <span className="text-xs text-gray-500 dark:text-gray-400">
-              {formatDistanceToNow(new Date(message.timestamp), { addSuffix: true })}
+              {timeAgo}
             </span>
           )}
         </div>

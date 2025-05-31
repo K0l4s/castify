@@ -13,6 +13,7 @@ interface WatchPartyPlayerProps {
   isConnected: boolean;
   initialPosition?: number;
   onSync: (position: number, playing: boolean, eventType: SyncEventType) => void;
+  roomId: string;
 }
 
 const WatchPartyPlayer: React.FC<WatchPartyPlayerProps> = ({ 
@@ -20,7 +21,8 @@ const WatchPartyPlayer: React.FC<WatchPartyPlayerProps> = ({
   isHost,
   isConnected,
   initialPosition = 0,
-  onSync
+  onSync,
+  roomId
 }) => {
   const videoRef = useRef<HTMLVideoElement>(null);
   const playerContainerRef = useRef<HTMLDivElement>(null);
@@ -33,11 +35,108 @@ const WatchPartyPlayer: React.FC<WatchPartyPlayerProps> = ({
   const [, setIsFullscreen] = useState(false);
   const [showControls, setShowControls] = useState(true);
   const [isReadyForSync, setIsReadyForSync] = useState(false);
-  
+  const [pendingPlayRequest, setPendingPlayRequest] = useState(false);
+  const [hasUserInteracted, setHasUserInteracted] = useState(false);
+
   const controlsTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const lastSyncTimeRef = useRef<number>(0);
   const syncThrottleRef = useRef<NodeJS.Timeout | null>(null);
   const initialSyncDoneRef = useRef<boolean>(false);
+  const syncIntervalRef = useRef<NodeJS.Timeout | null>(null);
+
+  useEffect(() => {
+    const handleUserInteraction = () => {
+      if (!hasUserInteracted) {
+        setHasUserInteracted(true);
+        
+        // If there's a pending play request, try to fulfill it
+        if (pendingPlayRequest && videoRef.current) {
+          console.log('User interacted, attempting to play pending video');
+          videoRef.current.play().then(() => {
+            setPendingPlayRequest(false);
+            setIsPlaying(true);
+          }).catch(err => {
+            console.error('Still cannot play video after user interaction:', err);
+          });
+        }
+      }
+    };
+
+    const events = ['click', 'touchstart', 'keydown'];
+    events.forEach(event => {
+      document.addEventListener(event, handleUserInteraction, { once: true });
+    });
+
+    return () => {
+      events.forEach(event => {
+        document.removeEventListener(event, handleUserInteraction);
+      });
+    };
+  }, [hasUserInteracted, pendingPlayRequest]);
+
+  // Helper function to safely play video
+  const safePlayVideo = async () => {
+    if (!videoRef.current) return false;
+
+    try {
+      await videoRef.current.play();
+      setIsPlaying(true);
+      setPendingPlayRequest(false);
+      return true;
+    } catch (err) {
+      console.log('Cannot play video yet, waiting for user interaction:', err);
+      setPendingPlayRequest(true);
+      setIsPlaying(false);
+      return false;
+    }
+  };
+
+  // Thêm định kỳ cập nhật vị trí nếu là host
+  useEffect(() => {
+    if (isHost && isConnected && isReadyForSync && videoRef.current) {
+      syncIntervalRef.current = setInterval(() => {
+        if (videoRef.current && !videoRef.current.paused) {
+          // console.log('Host sending periodic position update');
+          onSync(
+            videoRef.current.currentTime,
+            true,
+            SyncEventType.SEEK
+          );
+        }
+      }, 5000);
+    }
+    
+    return () => {
+      if (syncIntervalRef.current) {
+        clearInterval(syncIntervalRef.current);
+        syncIntervalRef.current = null;
+      }
+    };
+  }, [isHost, isConnected, isReadyForSync, onSync]);
+  
+  // Thêm xử lý cho host khi nhận được SYNC_REQUEST từ hệ thống
+  useEffect(() => {
+    const handleHostSyncRequest = () => {
+      if (!isHost || !isConnected || !isReadyForSync || !videoRef.current) return;
+      
+      // console.log('Host received sync request, sending current position');
+      
+      // Gửi position hiện tại
+      WatchPartyService.syncPlayback(
+        roomId,
+        videoRef.current.currentTime,
+        !videoRef.current.paused,
+        SyncEventType.SEEK
+      );
+    };
+    
+    WatchPartyService.addHostSyncRequestListener(handleHostSyncRequest);
+    
+    return () => {
+      WatchPartyService.removeHostSyncRequestListener(handleHostSyncRequest);
+    };
+  }, [isHost, isConnected, isReadyForSync, roomId]);
+
 
   // Set initial position when video is loaded
   useEffect(() => {
@@ -49,54 +148,63 @@ const WatchPartyPlayer: React.FC<WatchPartyPlayerProps> = ({
   }, [initialPosition, isReadyForSync]);
 
   useEffect(() => {
-  const handleSyncEvent = (event: any) => {
-    if (!videoRef.current || !isReadyForSync) return;
+    const handleSyncEvent = (event: any) => {
+      if (!videoRef.current || !isReadyForSync) return;
 
-    // Skip if we're the host and the event is not a sync request - we're controlling playback
-    if (isHost && event.eventType !== SyncEventType.SYNC_REQUEST) {
-      console.log('Host ignoring sync event (expected behavior):', event);
-      return;
-    }
-    
-    // Skip if the sync is too close to our last one to avoid loops
-    if (Date.now() - lastSyncTimeRef.current < 1000) {
-      console.log('Ignoring too frequent sync event:', event);
-      return;
-    }
+      // Skip if we're the host and the event is not a sync request - we're controlling playback
+      if (isHost && event.eventType !== SyncEventType.SYNC_REQUEST) {
+        // console.log('Host ignoring sync event (expected behavior):', event);
+        return;
+      }
+      
+      // Skip if the sync is too close to our last one to avoid loops
+      if (Date.now() - lastSyncTimeRef.current < 1000) {
+        console.log('Ignoring too frequent sync event:', event);
+        return;
+      }
 
-    console.log('Processing sync event:', event);
-    const { position, playing, eventType } = event;
-    
-    switch(eventType) {
+      // console.log('Processing sync event:', event);
+      const { position, playing, eventType } = event;
+      
+      // Cập nhật thời gian phát với mọi loại event
+      if (Math.abs(videoRef.current.currentTime - position) > 1) {
+        console.log(`Adjusting position from ${videoRef.current.currentTime} to ${position}`);
+        videoRef.current.currentTime = position;
+        setCurrentTime(position);
+      }
+      
+      switch(eventType) {
       case SyncEventType.PLAY:
         console.log('Sync: Playing video at position', position);
-        setIsPlaying(true);
-        videoRef.current.currentTime = position;
-        videoRef.current.play().catch(err => console.error('Error playing video:', err));
+        // setIsPlaying(true);
+        // Luôn gọi play() khi nhận được event PLAY
+        safePlayVideo();
+        // videoRef.current.play().catch(err => {
+        //   console.error('Error playing video:', err);
+        // });
         break;
         
       case SyncEventType.PAUSE:
         console.log('Sync: Pausing video at position', position);
         setIsPlaying(false);
-        videoRef.current.currentTime = position;
+        setPendingPlayRequest(false);
         videoRef.current.pause();
         break;
         
       case SyncEventType.SEEK:
-        // Always seek to the exact position during a SEEK event
-        console.log(`Seeking from ${videoRef.current.currentTime} to ${position}`);
-        videoRef.current.currentTime = position;
-        setCurrentTime(position);
-        
-        // Also apply the play/pause state
+        // Cũng áp dụng trạng thái phát/dừng khi nhận được SEEK
         if (playing && videoRef.current.paused) {
           console.log('Sync: Starting playback after seek');
-          videoRef.current.play().catch(err => console.error('Error playing video after seek:', err));
+          safePlayVideo();
+          // videoRef.current.play().catch(err => {
+          //   console.error('Error playing video after seek:', err);
+          // });
           setIsPlaying(true);
         } else if (!playing && !videoRef.current.paused) {
           console.log('Sync: Pausing playback after seek');
           videoRef.current.pause();
           setIsPlaying(false);
+          setPendingPlayRequest(false);
         }
         break;
         
@@ -112,22 +220,27 @@ const WatchPartyPlayer: React.FC<WatchPartyPlayerProps> = ({
         }
         break;
     }
-  };
+    };
 
-  WatchPartyService.addSyncEventListener(handleSyncEvent);
-  
-  return () => {
-    WatchPartyService.removeSyncEventListener(handleSyncEvent);
-  };
-}, [isHost, isReadyForSync, onSync]);
+    WatchPartyService.addSyncEventListener(handleSyncEvent);
+    
+    return () => {
+      WatchPartyService.removeSyncEventListener(handleSyncEvent);
+    };
+  }, [isHost, isReadyForSync, onSync]);
 
   // Request sync from host when joining as participant
   useEffect(() => {
     if (!isHost && isConnected && isReadyForSync && videoRef.current) {
-      console.log('Participant requesting initial sync');
-      onSync(0, false, SyncEventType.SYNC_REQUEST);
+      console.log('Participant ready and requesting initial sync');
+      
+      // Đợi một chút để đảm bảo video đã load đầy đủ
+      setTimeout(() => {
+        console.log('Sending sync-request');
+        WatchPartyService.requestRoomSync(roomId);
+      }, 500);
     }
-  }, [isHost, isConnected, isReadyForSync, onSync]);
+  }, [isHost, isConnected, isReadyForSync, roomId]);
 
   // Initialize video event listeners
   useEffect(() => {
@@ -144,6 +257,11 @@ const WatchPartyPlayer: React.FC<WatchPartyPlayerProps> = ({
         videoElement.currentTime = initialPosition;
         setCurrentTime(initialPosition);
         initialSyncDoneRef.current = true;
+
+        if (!isHost && isConnected) {
+          console.log('Initialized position, requesting sync');
+          WatchPartyService.requestRoomSync(roomId);
+        }
       }
     };
 
@@ -265,7 +383,8 @@ const WatchPartyPlayer: React.FC<WatchPartyPlayerProps> = ({
     if (isPlaying) {
       videoRef.current.pause();
     } else {
-      videoRef.current.play().catch(err => console.error('Error playing video:', err));
+      safePlayVideo();
+      // videoRef.current.play().catch(err => console.error('Error playing video:', err));
     }
   };
 
@@ -352,6 +471,27 @@ const WatchPartyPlayer: React.FC<WatchPartyPlayerProps> = ({
       {isHost && (
         <div className="absolute top-2 left-2 px-2 py-1 rounded-full text-xs font-medium z-20 bg-blue-500 text-white">
           Host
+        </div>
+      )}
+      
+      {/* User interaction prompt for participants */}
+      {!isHost && pendingPlayRequest && (
+        <div className="absolute inset-0 flex items-center justify-center bg-black/50 z-30">
+          <div className="bg-white dark:bg-gray-800 p-6 rounded-lg text-center max-w-sm mx-4">
+            <FaPlay className="mx-auto text-blue-500 mb-3" size={32} />
+            <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">
+              Click to Start Watching
+            </h3>
+            <p className="text-gray-600 dark:text-gray-400 mb-4">
+              Your browser requires interaction to play video. Click anywhere to join the session.
+            </p>
+            <button
+              onClick={() => safePlayVideo()}
+              className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg transition-colors"
+            >
+              Start Watching
+            </button>
+          </div>
         </div>
       )}
       
