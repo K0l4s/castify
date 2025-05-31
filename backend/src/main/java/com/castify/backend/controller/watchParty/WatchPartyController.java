@@ -1,5 +1,6 @@
 package com.castify.backend.controller.watchParty;
 
+import com.castify.backend.entity.watchParty.WatchPartyMessageEntity;
 import com.castify.backend.entity.watchParty.WatchPartyRoomEntity;
 import com.castify.backend.models.watchParty.CreateRoomRequest;
 import com.castify.backend.service.watchParty.IWatchPartyService;
@@ -63,5 +64,18 @@ public class WatchPartyController {
             @RequestParam(defaultValue = "10") int size) {
         List<WatchPartyRoomEntity> rooms = watchPartyService.getPublicRooms(page, size);
         return ResponseEntity.ok(rooms);
+    }
+
+    @GetMapping("/{roomId}/messages")
+    public ResponseEntity<List<WatchPartyMessageEntity>> getRoomMessages(
+            @PathVariable String roomId,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "50") int size) {
+        try {
+            List<WatchPartyMessageEntity> messages = watchPartyService.getRoomMessages(roomId, page, size);
+            return ResponseEntity.ok(messages);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().build();
+        }
     }
 }

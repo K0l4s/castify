@@ -192,6 +192,24 @@ const WatchPartyPage: React.FC = () => {
     window.open(url, '_blank', 'noopener,noreferrer');
   };
 
+  // WatchPartyChat
+  const loadRoomMessages = useCallback(async (roomId: string) => {
+    try {
+      const messages = await WatchPartyService.getRoomMessages(roomId);
+      setChatMessages(messages);
+    } catch (error) {
+      console.error('Failed to load room messages:', error);
+      // Không hiển thị toast error cho việc load messages để không làm phiền user
+    }
+  }, []);
+
+  useEffect(() => {
+    if (room?.id && isConnected) {
+      // Load messages when connected to room
+      loadRoomMessages(room.id);
+    }
+  }, [room?.id, isConnected, loadRoomMessages]);
+
   // Setup WebSocket listeners
   useEffect(() => {
     const chatMessageListener = (message: ChatMessage) => {
@@ -251,12 +269,15 @@ const WatchPartyPage: React.FC = () => {
           // Connect to WebSocket
           await WatchPartyService.connect(joinedRoom.id);
           
+            // Load existing messages after connecting
+          await loadRoomMessages(joinedRoom.id);
+
           // If no podcast ID in URL, navigate to the room's podcast
           if (!podcastId) {
             navigate(`/watch-party?pid=${joinedRoom.podcastId}&room=${roomCode}`, { replace: true });
           }
           
-          toast.success(`Joined room: ${joinedRoom.roomName}`);
+          toast.success(`Joined room: ${joinedRoom.roomCode}`);
         } catch (error) {
           console.error("Failed to join room:", error);
           setError("Failed to join room. It may no longer exist.");
@@ -267,7 +288,7 @@ const WatchPartyPage: React.FC = () => {
     };
 
     joinRoomFromUrl();
-  }, [roomCode, isAuthenticated, room, navigate, podcastId, toast]);
+  }, [roomCode, isAuthenticated, room, navigate, podcastId, toast, loadRoomMessages]);
 
   // Only use a fallback refresh if WebSocket fails
   useEffect(() => {
@@ -314,6 +335,9 @@ const WatchPartyPage: React.FC = () => {
       // Connect to WebSocket
       await WatchPartyService.connect(newRoom.id);
       
+      // Load message (empty but good)
+      await loadRoomMessages(newRoom.id);
+    
       // Update URL with room code
       navigate(`/watch-party?pid=${podcastId}&room=${newRoom.roomCode}`, { replace: true });
       
@@ -340,6 +364,9 @@ const WatchPartyPage: React.FC = () => {
       
       // Connect to WebSocket
       await WatchPartyService.connect(joinedRoom.id);
+      
+      // Load existing messages
+      await loadRoomMessages(joinedRoom.id);
       
       // Navigate to the room with the podcast ID
       navigate(`/watch-party?pid=${joinedRoom.podcastId}&room=${roomCode}`, { replace: true });

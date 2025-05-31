@@ -68,6 +68,27 @@ export default class WatchPartyService {
     }
   }
 
+  static async getRoomMessages(roomId: string, page: number = 0, size: number = 50): Promise<ChatMessage[]> {
+    try {
+      const response = await axiosInstanceAuth(`/api/v1/watch-party/${roomId}/messages?page=${page}&size=${size}`);
+
+      return response.data.map((msg: any) => ({
+        id: msg.id,
+        roomId: msg.roomId,
+        userId: msg.userId,
+        username: msg.username,
+        avatarUrl: msg.avatarUrl,
+        message: msg.message,
+        type: msg.type,
+        timestamp: msg.timestamp
+      }));
+    } catch (error) {
+      console.error('Error fetching room messages:', error);
+      throw error;
+    }
+  }
+
+  // Socket
   static connect(roomId: string): Promise<boolean> {
     return new Promise((resolve, reject) => {
       // Clear any existing reconnect timer

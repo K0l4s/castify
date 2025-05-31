@@ -16,10 +16,12 @@ import com.castify.backend.utils.SecurityUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -224,6 +226,30 @@ public class WatchPartyServiceImpl implements IWatchPartyService {
     public List<WatchPartyRoomEntity> getPublicRooms(int page, int size) {
         Pageable pageable = PageRequest.of(page, size);
         return roomRepository.findByIsPublicTrueAndIsActiveTrueOrderByCreatedAtDesc(pageable);
+    }
+
+    @Override
+    public List<WatchPartyMessageEntity> getRoomMessages(String roomId, int page, int size) {
+        UserEntity user = SecurityUtils.getCurrentUser();
+        WatchPartyRoomEntity room = getRoomDetails(roomId);
+
+        if (room == null) {
+            throw new RuntimeException("Room not found");
+        }
+
+        // Kiểm tra user có phải participant không
+        if (!room.hasParticipant(user.getId())) {
+            throw new RuntimeException("You are not a participant in this room");
+        }
+
+        // Lấy messages với pagination, sort theo timestamp desc
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "timestamp"));
+        List<WatchPartyMessageEntity> messages = messageRepository.findByRoomIdOrderByTimestampDesc(roomId, pageable);
+
+        // Reverse list để hiển thị theo thứ tự thời gian tăng dần (cũ -> mới)
+        Collections.reverse(messages);
+
+        return messages;
     }
 
     /*

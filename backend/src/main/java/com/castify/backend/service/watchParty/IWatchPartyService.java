@@ -14,4 +14,5 @@ public interface IWatchPartyService {
     WatchPartyMessageEntity sendMessage(String roomId, String message, String username);
     WatchPartyRoomEntity getRoomDetails(String roomId);
     List<WatchPartyRoomEntity> getPublicRooms(int page, int size);
+    List<WatchPartyMessageEntity> getRoomMessages(String roomId, int page, int size);
 }
