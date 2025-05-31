@@ -8,6 +8,8 @@ import no_img_available from "../../../assets/images/no_img_available.jpg";
 import { useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { RootState } from "../../../redux/store";
+import CustomButton from "../../../components/UI/custom/CustomButton";
+import { useLanguage } from "../../../context/LanguageContext";
 
 interface PlaylistItemProps {
   playlist: PlaylistModel;
@@ -19,6 +21,7 @@ const PlaylistItem: React.FC<PlaylistItemProps> = ({ playlist, onEdit, onDelete 
   const [menuOpen, setMenuOpen] = useState(false);
   const menuRef = useRef(null);
   const navigate = useNavigate();
+  const { language } = useLanguage();
 
   const isAuthenticated = useSelector((state: RootState) => state.auth.isAuthenticated);
   const currentUser = useSelector((state: RootState) => state.auth.user);
@@ -119,6 +122,17 @@ const PlaylistItem: React.FC<PlaylistItemProps> = ({ playlist, onEdit, onDelete 
         )}
       </div>
       
+      <div className="flex flex-col items-center p-2">
+        <CustomButton
+          text={language.global.viewAll}
+          type="button"
+          rounded="full"
+          variant="outline"
+          size="sm"
+          className="text-shadow-md hover:text-white hover:bg-gray-600 dark:hover:bg-blue-800"
+          onClick={() => navigate(`/playlist/${playlist.id}`)}
+        />
+      </div>
     </div>
   );
 };

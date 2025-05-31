@@ -442,7 +442,14 @@ public class PodcastServiceImpl implements IPodcastService {
         }
 
         // Query các podcast có ít nhất một genre trùng với id trong genreIds
-        Criteria criteria = Criteria.where("genres._id").in(genreIds).and("_id").ne(currentPodcastId);
+        // Criteria criteria = Criteria.where("genres._id").in(genreIds).and("_id").ne(currentPodcastId);
+        Criteria criteria = new Criteria()
+                .andOperator(
+                        Criteria.where("genres._id").in(genreIds),
+                        Criteria.where("_id").ne(currentPodcastId),
+                        Criteria.where("isActive").is(true)
+                );
+
         Query baseQuery = new Query(criteria);
 
         // Đếm tổng số podcast

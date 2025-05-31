@@ -5,7 +5,7 @@ import { Podcast } from "../../../models/PodcastModel";
 import defaultAvatar from "../../../assets/images/default_avatar.jpg";
 import CustomButton from "../custom/CustomButton";
 import { HeartIcon } from "../custom/SVG_Icon";
-import { FaBookmark, FaEye, FaFlag, FaShareAlt } from "react-icons/fa";
+import { FaBookmark, FaEye, FaFlag, FaShareAlt, FaUsers } from "react-icons/fa";
 import { TfiMoreAlt } from "react-icons/tfi";
 import CommentSection from "./CommentSection";
 import Tooltip from "../custom/Tooltip";
@@ -408,6 +408,14 @@ const PodcastViewport: React.FC = () => {
               rounded="full"
               onClick={toggleShareModal}
               className="bg-gray-600 hover:bg-gray-500 dark:bg-gray-600 hover:dark:bg-gray-500"
+            />
+            <CustomButton
+              text="Watch Party"
+              icon={<FaUsers size={20}/>}
+              variant="primary"
+              rounded="full"
+              onClick={() => navigate(`/watch-party?pid=${podcast.id}`)}
+              className="bg-purple-600 hover:bg-purple-500 dark:bg-purple-600 hover:dark:bg-purple-500"
             />
             <div className="relative">
               <CustomButton
