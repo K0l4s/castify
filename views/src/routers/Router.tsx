@@ -46,6 +46,8 @@ import TrendingPage from '../pages/main/trendingPage/TrendingPage'
 import { useLanguage } from '../context/LanguageContext'
 
 import LikedPage from '../pages/main/likedPage/LikedPage'
+import DetailPlaylistPage from '../pages/main/playlistPage/DetailPlaylistPage'
+import WatchPartyPage from '../pages/main/watchParty/WatchPartyPage'
 import GenrePodcastsPage from '../pages/genre/GenrePodcastsPage'
 
 // import Test from '../components/main/conversation/Test'
@@ -131,6 +133,7 @@ const Router = () => {
                     <Route path='/feed/liked' element={<RequireAuth><LikedPage /></RequireAuth>} />
                     <Route path='/feed/history' element={<RequireAuth><HistoryPage /></RequireAuth>} />
                     <Route path='/playlist' element={<RequireAuth><PlaylistPage /></RequireAuth>} />
+                    <Route path="/playlist/:id" element={<RequireAuth><DetailPlaylistPage /></RequireAuth>} />
                     <Route path='/watch' element={<PodcastViewport />} />
                     <Route path='/search' element={<SearchPage />} />
                     <Route path='/profile' element={<ProfilePage />} />
@@ -138,7 +141,7 @@ const Router = () => {
                     <Route path='/shop' element={<BlankShop />} />
                     <Route path='/my-shop' element={<RequireAuth><MyShop /></RequireAuth>} />
                     <Route path='/purchased-frames' element={<RequireAuth><PurchasedFrames /></RequireAuth>} />
-
+                    <Route path='/watch-party' element={<RequireAuth><WatchPartyPage /></RequireAuth>} />
                 </Route>
                 <Route element={<ProfileLayout />}>
 

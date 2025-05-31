@@ -89,7 +89,13 @@
     "global": {
         "dashboard": "Bảng điều khiển",
         "myPodcast": "Podcast cá nhân",
-        "backToHome": "Trở về trang chủ"
+        "backToHome": "Trở về trang chủ",
+        "viewAll": "Xem tất cả",
+        "cancel": "Hủy bỏ",
+        "confirm": "Xác nhận",
+        "saveChanges": "Lưu thay đổi",
+        "delete": "Xóa",
+        "deleteTitle": "Bạn có chắc muốn xóa không?"
     },
     "creator": {
         "overview": "Tổng quan kênh",
@@ -102,5 +108,20 @@
         "y": "Năm",
         "m": "Tháng",
         "d": "Ngày"
+    },
+    "playlist": {
+        "playAll": "Phát tất cả",
+        "shuffle": "Trộn",
+        "editPlaylist": "Chỉnh sửa danh sách phát",
+        "deletePlaylist": "Xóa danh sách phát",
+        "hidden": "đã bị ẩn",
+        "visibility": "Hiển thị",
+        "public": "Công khai",
+        "private": "Riêng tư",
+        "hiddenItem": "Bị ẩn",
+        "lastUpdated": "Cập nhật lần cuối",
+        "createdAt": "Ngày tạo",
+        "name": "Tên",
+        "description": "Mô tả"
     }
 }

@@ -4,6 +4,7 @@ import com.castify.backend.controller.PaymentController;
 import com.castify.backend.service.authenticatation.jwt.IJwtService;
 import com.castify.backend.service.authenticatation.jwt.JwtServiceImpl;
 import com.castify.backend.utils.SocketJwtAuthenticationToken;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -33,15 +34,12 @@ import java.util.logging.Logger;
 
 @Configuration
 @EnableWebSocketMessageBroker
+@RequiredArgsConstructor
 public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
     private final JwtServiceImpl jwtService; // Dùng JwtService của mày
     private final UserDetailsService userDetailsService;
 
-        public WebSocketConfig(JwtServiceImpl jwtService, UserDetailsService userDetailsService) {
-        this.jwtService = jwtService;
-        this.userDetailsService = userDetailsService;
-    }
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
         registry.addEndpoint("/ws")
@@ -95,7 +93,6 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
         });
     }
 
-
     @Override
     public void configureMessageBroker(MessageBrokerRegistry registry) {
         registry.enableSimpleBroker("/topic", "/queue", "/user","/msg");
@@ -111,6 +108,7 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
         messages.nullDestMatcher().authenticated();
         messages.simpSubscribeDestMatchers("/user/**").permitAll();
         messages.simpMessageDestMatchers("/app/payment/**").permitAll();
+        messages.simpMessageDestMatchers("/app/room/**").authenticated();
         messages.anyMessage().authenticated();
 
         return messages.build();

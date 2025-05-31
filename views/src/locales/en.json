@@ -89,7 +89,13 @@
     "global":{
         "dashboard": "Dashboard",
         "myPodcast":"My Podcast",
-        "backToHome":"Back to Castify"
+        "backToHome":"Back to Castify",
+        "viewAll": "View all",
+        "cancel": "Cancel",
+        "confirm": "Confirm",
+        "saveChanges": "Save Changes",
+        "delete": "Delete",
+        "deleteTitle": "Are you really want to delete ?"
     },
     "creator":{
         "overview":"Creator Overview",
@@ -102,5 +108,20 @@
         "y":"Year",
         "m":"Month",
         "d":"Day"
+    },
+    "playlist": {
+        "playAll": "Play All",
+        "shuffle": "Shuffle",
+        "editPlaylist": "Edit Playlist",
+        "deletePlaylist": "Delete Playlist",
+        "hidden": "has been hidden",
+        "visibility": "Visibility",
+        "public": "Public",
+        "private": "Private",
+        "hiddenItem": "Hidden",
+        "lastUpdated": "Last updated",
+        "createdAt": "Created",
+        "name": "Name",
+        "description": "Description"
     }
 }
