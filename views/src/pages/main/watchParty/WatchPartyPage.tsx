@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useEffect, useState, useCallback, useRef } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Podcast } from '../../../models/PodcastModel';
 import { useToast } from '../../../context/ToastProvider';
@@ -8,7 +8,7 @@ import WatchPartyService from '../../../services/WatchPartyService';
 import { ChatMessage, SyncEventType, WatchPartyRoom } from '../../../models/WatchPartyModel';
 import { FiLoader } from 'react-icons/fi';
 import CustomButton from '../../../components/UI/custom/CustomButton';
-import { FaCopy, FaDoorOpen, FaPlus, FaSignInAlt, FaVideo } from 'react-icons/fa';
+import { FaCopy, FaDoorOpen, FaEye, FaPlus, FaSignInAlt, FaVideo } from 'react-icons/fa';
 import { formatDistanceToNow } from 'date-fns';
 // import { useLanguage } from '../../../context/LanguageContext';
 import WatchPartyPlayer from './WatchPartyPlayer';
@@ -16,7 +16,13 @@ import WatchPartyParticipants from './WatchPartyParticipants';
 import WatchPartyChat from './WatchPartyChat';
 import CreateRoomModal from '../../../components/modals/watchParty/CreateRoomModal';
 import JoinRoomModal from '../../../components/modals/watchParty/JoinRoomModal';
-import { getPodcastById } from '../../../services/PodcastService';
+import { getPodcastById, likePodcast } from '../../../services/PodcastService';
+import Avatar from '../../../components/UI/user/Avatar';
+import CounterAnimation from '../../../components/UI/custom/animations/CounterAnimation';
+import { formatViewsWithSeparators } from '../../../utils/formatViews';
+import { HeartIcon } from '../../../components/UI/custom/SVG_Icon';
+import defaultAvatar from '../../../assets/images/default_avatar.jpg';
+import { userService } from '../../../services/UserService';
 
 const WatchPartyPage: React.FC = () => {
   const [searchParams] = useSearchParams();
@@ -32,6 +38,15 @@ const WatchPartyPage: React.FC = () => {
   const [isCreateModalOpen, setIsCreateModalOpen] = useState<boolean>(false);
   const [isJoinModalOpen, setIsJoinModalOpen] = useState<boolean>(false);
   
+  // Add states for views and likes
+  const [views, setViews] = useState<number>(0);
+  const [totalLikes, setTotalLikes] = useState<number>(0);
+  const [liked, setLiked] = useState<boolean>(false);
+  const [follow, setFollow] = useState<boolean>(false);
+  const [totalFollower, setTotalFollower] = useState<number>(0);
+  const [isDescriptionExpanded, setIsDescriptionExpanded] = useState(false);
+  const refreshIntervalRef = useRef<NodeJS.Timeout | null>(null);
+
   // const { language } = useLanguage();
   const navigate = useNavigate();
   const toast = useToast();
@@ -41,6 +56,24 @@ const WatchPartyPage: React.FC = () => {
   
   // Safely check if the current user is the host
   const isHost = room?.hostUserId === currentUser?.id;
+
+  // Fetch podcast data with refresh capability
+  const fetchPodcastData = useCallback(async () => {
+    if (podcastId && isAuthenticated) {
+      try {
+        const data = await getPodcastById(podcastId);
+        setPodcast(data);
+        setViews(data.views);
+        setTotalLikes(data.totalLikes);
+        setLiked(data.liked);
+        setFollow(data.user.follow);
+        setTotalFollower(data.user.totalFollower);
+      } catch (error) {
+        console.error("Failed to fetch podcast:", error);
+        setError("Failed to load podcast");
+      }
+    }
+  }, [podcastId, isAuthenticated]);
 
   // Fetch room details only for fallback in case WebSocket fails
   const fetchRoomDetails = useCallback(async (roomId: string) => {
@@ -69,6 +102,11 @@ const WatchPartyPage: React.FC = () => {
           setLoading(true);
           const data = await getPodcastById(podcastId);
           setPodcast(data);
+          setViews(data.views);
+          setTotalLikes(data.totalLikes);
+          setLiked(data.liked);
+          setFollow(data.user.follow);
+          setTotalFollower(data.user.totalFollower);
         } catch (error) {
           console.error("Failed to fetch podcast:", error);
           setError("Failed to load podcast");
@@ -82,6 +120,77 @@ const WatchPartyPage: React.FC = () => {
       fetchPodcast();
     }
   }, [podcastId, isAuthenticated]);
+
+  // Add auto-refresh every 30 seconds like PodcastViewport
+  useEffect(() => {
+    // Start the refresh interval
+    refreshIntervalRef.current = setInterval(() => {
+      fetchPodcastData();
+      console.log("Refreshing podcast data...");
+    }, 30000); // 30 seconds
+
+    // Clean up on component unmount
+    return () => {
+      if (refreshIntervalRef.current) {
+        clearInterval(refreshIntervalRef.current);
+      }
+    };
+  }, [fetchPodcastData]);
+  
+  // Handle like functionality
+  const handleLike = async () => {
+    if (!isAuthenticated) {
+      toast.warning("Please login to like this podcast");
+      return;
+    }
+    if (!podcast) return;
+    
+    try {
+      await likePodcast(podcast.id);
+      const updatedPodcast = await getPodcastById(podcast.id);
+      setTotalLikes(updatedPodcast.totalLikes);
+      setLiked(updatedPodcast.liked);
+      setViews(updatedPodcast.views);
+    } catch (error) {
+      console.error("Error liking podcast:", error);
+      toast.error("Failed to like podcast");
+    }
+  };
+
+  // Handle follow functionality
+  const handleFollow = async () => {
+    if (!isAuthenticated) {
+      toast.warning("Please login to follow this user");
+      return;
+    }
+    if (!podcast) return;
+    
+    try {
+      await userService.followUser(podcast.user.username);
+      const updatedPodcast = await getPodcastById(podcast.id);
+      setFollow(updatedPodcast.user.follow);
+      setTotalFollower(updatedPodcast.user.totalFollower);
+      setViews(updatedPodcast.views);
+    } catch (error) {
+      console.error("Error following user:", error);
+      toast.error("Failed to follow user");
+    }
+  };
+
+  const toggleDescription = () => {
+    setIsDescriptionExpanded(!isDescriptionExpanded);
+  };
+
+  // Callback to update views when incremented
+  const handleViewIncrement = useCallback(() => {
+    setViews(prevViews => prevViews + 1);
+  }, []);
+
+  // Function to open profile in new tab
+  const openProfileInNewTab = (username: string) => {
+    const url = `/profile/${username}`;
+    window.open(url, '_blank', 'noopener,noreferrer');
+  };
 
   // Setup WebSocket listeners
   useEffect(() => {
@@ -376,71 +485,161 @@ const WatchPartyPage: React.FC = () => {
         {/* Left Side - Video Player or Select Podcast */}
         <div className="lg:w-2/3">
           {podcast && room ? (
-            <WatchPartyPlayer
-              podcast={podcast}
-              isHost={isHost}
-              onSync={handleSyncPlayback}
-              isConnected={isConnected}
-              initialPosition={room.currentPosition || 0}
-              roomId={room.id}
-            />
-          ) : podcast && !room ? (
-            <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 border border-gray-200 dark:border-gray-700">
-              <h2 className="text-xl font-semibold text-black dark:text-white mb-4">
-                Selected Podcast: {podcast.title}
-              </h2>
-              <img 
-                src={podcast.thumbnailUrl || "/TEST.png"} 
-                alt={podcast.title}
-                className="w-full aspect-video object-cover rounded-lg mb-4"
+            <div>
+              {/* Video Player */}
+              <WatchPartyPlayer
+                podcast={podcast}
+                isHost={isHost}
+                onSync={handleSyncPlayback}
+                isConnected={isConnected}
+                initialPosition={room.currentPosition || 0}
+                roomId={room.id}
+                onViewIncrement={handleViewIncrement}
               />
-              <p className="text-gray-700 dark:text-gray-300 mb-6">
-                {podcast.content?.length > 150 
-                  ? `${podcast.content.substring(0, 150)}...` 
-                  : podcast.content}
-              </p>
-              <div className="flex justify-center">
-                <CustomButton
-                  text="Create Watch Party"
-                  icon={<FaPlus />}
-                  variant="primary"
-                  onClick={() => setIsCreateModalOpen(true)}
-                />
+
+              {/* Podcast Info Section */}
+                <div className="mt-4">
+                  <h1 className="text-2xl font-bold mb-2 text-black dark:text-white">{podcast.title}</h1>
+                  
+                  {/* Creator Info & Actions */}
+                  <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-4 gap-3">
+                    <div className="flex items-center gap-3">
+                      <Avatar
+                        width='w-10'
+                        height='h-10'
+                        avatarUrl={podcast.user.avatarUrl || defaultAvatar}
+                        usedFrame={podcast.user.usedFrame}
+                        onClick={() => openProfileInNewTab(podcast.username)}
+                      />
+                      <div className="flex flex-col">
+                        <span
+                          className="text-base font-medium text-black dark:text-white cursor-pointer"
+                          onClick={() => openProfileInNewTab(podcast.username)}>
+                          {podcast.user.fullname}
+                        </span>
+                        <span className="text-sm text-gray-700 dark:text-gray-300">
+                          <CounterAnimation value={totalFollower} /> follower
+                        </span>
+                      </div>
+
+                      {podcast.user.id !== currentUser?.id && (
+                        <CustomButton
+                          text={follow ? "Unfollow" : "Follow"}
+                          variant="ghost"
+                          rounded="full"
+                          onClick={handleFollow}
+                          className={`
+                            ${!follow 
+                              ? "bg-gray-800 text-white hover:bg-gray-700 dark:bg-gray-100 dark:text-gray-800 hover:dark:bg-gray-400"
+                              : "text-black bg-white border border-black hover:bg-gray-800 hover:text-white dark:bg-gray-600 dark:hover:bg-gray-500 dark:text-white"
+                            }
+                          `}
+                        />
+                      )}
+                    </div>
+                    
+                    <div className="flex items-center gap-3">
+                      {/* Views */}
+                      <div className="flex items-center gap-1 text-gray-700 dark:text-gray-300">
+                        <FaEye size={16} />
+                        <CounterAnimation
+                          value={views}
+                          formatter={formatViewsWithSeparators}
+                        />
+                      </div>
+
+                      {/* Like button */}
+                      <button 
+                        onClick={handleLike}
+                        className="flex items-center gap-1 px-3 py-2 rounded-full bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors"
+                        title="Like this podcast"
+                      >
+                        <HeartIcon 
+                          filled={liked} 
+                          color={liked ? "red" : "gray"} 
+                          strokeColor={liked ? "red" : "gray"}
+                        />
+                        <span className="text-sm text-black dark:text-white">{totalLikes}</span>
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Description */}
+                  <div className="p-4 rounded-lg bg-gray-100 dark:bg-gray-800">
+                    <div 
+                      className={`text-black dark:text-white whitespace-pre-wrap ${isDescriptionExpanded ? '' : 'line-clamp-3'}`}
+                      style={{ fontFamily: 'inherit', fontSize: 'inherit' }}
+                    >
+                      {podcast.content}
+                    </div>
+                    {podcast.content && podcast.content.length > 150 && (
+                      <button
+                        onClick={toggleDescription}
+                        className="text-blue-600 dark:text-blue-300 font-medium mt-2"
+                      >
+                        {isDescriptionExpanded ? 'Show less' : 'Show more'}
+                      </button>
+                    )}
+                  </div>
+                </div>
               </div>
-            </div>
-          ) : !podcast && room ? (
-            <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 border border-gray-200 dark:border-gray-700">
-              <div className="flex justify-center items-center h-48">
-                <FiLoader size={32} className="text-blue-500 animate-spin mr-3" />
-                <span className="text-gray-700 dark:text-gray-300">Loading podcast...</span>
-              </div>
-            </div>
-          ) : (
-            <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 border border-gray-200 dark:border-gray-700">
-              <div className="flex flex-col items-center text-center p-8">
-                <FaVideo className="text-gray-400 dark:text-gray-600 mb-4" size={64} />
-                <h2 className="text-xl font-semibold text-black dark:text-white mb-2">
-                  Start a Watch Party
+            ) : podcast && !room ? (
+              <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 border border-gray-200 dark:border-gray-700">
+                <h2 className="text-xl font-semibold text-black dark:text-white mb-4">
+                  Selected Podcast: {podcast.title}
                 </h2>
-                <p className="text-gray-600 dark:text-gray-400 mb-6 max-w-md">
-                  Select a podcast to watch or join an existing watch party room
+                <img 
+                  src={podcast.thumbnailUrl || "/TEST.png"} 
+                  alt={podcast.title}
+                  className="w-full aspect-video object-cover rounded-lg mb-4"
+                />
+                <p className="text-gray-700 dark:text-gray-300 mb-6">
+                  {podcast.content?.length > 150 
+                    ? `${podcast.content.substring(0, 150)}...` 
+                    : podcast.content}
                 </p>
-                <div className="flex flex-col sm:flex-row gap-3">
+                <div className="flex justify-center">
                   <CustomButton
-                    text="Browse Podcasts"
+                    text="Create Watch Party"
+                    icon={<FaPlus />}
                     variant="primary"
-                    onClick={() => navigate('/')}
-                  />
-                  <CustomButton
-                    text="Join Room"
-                    icon={<FaSignInAlt />}
-                    variant="secondary"
-                    onClick={() => setIsJoinModalOpen(true)}
+                    onClick={() => setIsCreateModalOpen(true)}
                   />
                 </div>
               </div>
-            </div>
-          )}
+            ) : !podcast && room ? (
+              <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 border border-gray-200 dark:border-gray-700">
+                <div className="flex justify-center items-center h-48">
+                  <FiLoader size={32} className="text-blue-500 animate-spin mr-3" />
+                  <span className="text-gray-700 dark:text-gray-300">Loading podcast...</span>
+                </div>
+              </div>
+            ) : (
+              <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 border border-gray-200 dark:border-gray-700">
+                <div className="flex flex-col items-center text-center p-8">
+                  <FaVideo className="text-gray-400 dark:text-gray-600 mb-4" size={64} />
+                  <h2 className="text-xl font-semibold text-black dark:text-white mb-2">
+                    Start a Watch Party
+                  </h2>
+                  <p className="text-gray-600 dark:text-gray-400 mb-6 max-w-md">
+                    Select a podcast to watch or join an existing watch party room
+                  </p>
+                  <div className="flex flex-col sm:flex-row gap-3">
+                    <CustomButton
+                      text="Browse Podcasts"
+                      variant="primary"
+                      onClick={() => navigate('/')}
+                    />
+                    <CustomButton
+                      text="Join Room"
+                      icon={<FaSignInAlt />}
+                      variant="secondary"
+                      onClick={() => setIsJoinModalOpen(true)}
+                    />
+                  </div>
+                </div>
+              </div>
+            )}
         </div>
 
         {/* Right Side - Chat & Participants (only if in a room) */}
