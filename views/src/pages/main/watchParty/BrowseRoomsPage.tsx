@@ -28,7 +28,7 @@ const BrowseRoomsPage: React.FC = () => {
   const handleJoinRoom = async (roomCode: string) => {
     try {
       setJoining(roomCode);
-      const room = await WatchPartyService.joinRoom(roomCode);
+      const room = await WatchPartyService.getRoomByCode(roomCode);
       navigate(`/watch-party?room=${roomCode}&pid=${room.podcastId}`);
       toast.success('Joined room successfully!');
     } catch (error: any) {
@@ -42,7 +42,7 @@ const BrowseRoomsPage: React.FC = () => {
   // Join room from modal
   const handleJoinRoomFromModal = async (roomCode: string): Promise<WatchPartyRoom | null> => {
     try {
-      const room = await WatchPartyService.joinRoom(roomCode);
+      const room = await WatchPartyService.getRoomByCode(roomCode);
       setJoinModalOpen(false);
       navigate(`/watch-party?room=${roomCode}&pid=${room.podcastId}`);
       toast.success('Joined room successfully!');

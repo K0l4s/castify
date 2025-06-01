@@ -277,7 +277,6 @@ public class WatchPartyServiceImpl implements IWatchPartyService {
 
     @Override
     public WatchPartyRoomEntity getRoomDetails(String roomId) {
-        System.out.println("ROOMID = " + roomId);
         WatchPartyRoomEntity room = activeRooms.get(roomId);
         if (room == null) {
             room = roomRepository.findByIdAndIsActiveTrue(roomId).orElse(null);
@@ -319,6 +318,12 @@ public class WatchPartyServiceImpl implements IWatchPartyService {
         int totalPages = (int) Math.ceil((double) totalElements / size);
 
         return new PageDTO<>(rooms, page, totalPages, (int) totalElements);
+    }
+
+    @Override
+    public WatchPartyRoomEntity getRoomByCode(String roomCode) {
+        return roomRepository.findByRoomCodeAndIsActiveTrue(roomCode)
+                .orElseThrow(() -> new RuntimeException("Room not found or expired"));
     }
 
     @Override

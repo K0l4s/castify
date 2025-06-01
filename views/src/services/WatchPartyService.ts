@@ -109,6 +109,16 @@ export default class WatchPartyService {
     }
   }
 
+  static async getRoomByCode(roomCode: string): Promise<WatchPartyRoom> {
+    try {
+      const response = await axiosInstanceAuth.get(`/api/v1/watch-party/room/${roomCode}`);
+      return response.data;
+    } catch (error) {
+      console.error("Error getting room by code:", error);
+      throw error;
+    }
+  }
+
   static async getRoomMessages(roomId: string, page: number = 0, size: number = 50): Promise<ChatMessage[]> {
     try {
       const response = await axiosInstanceAuth(`/api/v1/watch-party/${roomId}/messages?page=${page}&size=${size}`);

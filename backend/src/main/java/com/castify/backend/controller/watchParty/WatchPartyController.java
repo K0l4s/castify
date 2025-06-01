@@ -100,6 +100,12 @@ public class WatchPartyController {
         return ResponseEntity.ok(rooms);
     }
 
+    @GetMapping("/room/{roomCode}")
+    public ResponseEntity<WatchPartyRoomEntity> getRoomByCode(@PathVariable String roomCode) {
+        WatchPartyRoomEntity room = watchPartyService.getRoomByCode(roomCode);
+        return ResponseEntity.ok(room);
+    }
+
     @GetMapping("/{roomId}/messages")
     public ResponseEntity<List<WatchPartyMessageEntity>> getRoomMessages(
             @PathVariable String roomId,
