@@ -3,12 +3,14 @@ package com.castify.backend.service.watchParty;
 import com.castify.backend.entity.watchParty.WatchPartyMessageEntity;
 import com.castify.backend.entity.watchParty.WatchPartyRoomEntity;
 import com.castify.backend.enums.SyncEventType;
+import com.castify.backend.models.watchParty.EditWatchPartyRoomDTO;
 
 import java.util.List;
 import java.util.Map;
 
 public interface IWatchPartyService {
     WatchPartyRoomEntity createRoom(String podcastId, String roomName, boolean isPublic);
+    WatchPartyRoomEntity editRoom(String roomId, EditWatchPartyRoomDTO editWatchPartyRoomDTO);
     WatchPartyRoomEntity joinRoom(String roomCode);
     void leaveRoom(String roomId);
     void syncPlayback(String roomId, long position, boolean isPlaying, SyncEventType eventType, String username);

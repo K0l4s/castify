@@ -4,6 +4,7 @@ import com.castify.backend.entity.watchParty.WatchPartyMessageEntity;
 import com.castify.backend.entity.watchParty.WatchPartyRoomEntity;
 import com.castify.backend.models.watchParty.BanUserRequest;
 import com.castify.backend.models.watchParty.CreateRoomRequest;
+import com.castify.backend.models.watchParty.EditWatchPartyRoomDTO;
 import com.castify.backend.models.watchParty.KickUserRequest;
 import com.castify.backend.service.watchParty.IWatchPartyService;
 import lombok.RequiredArgsConstructor;
@@ -29,6 +30,17 @@ public class WatchPartyController {
                     request.getRoomName(),
                     request.isPublic()
             );
+            return ResponseEntity.ok(room);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().build();
+        }
+    }
+
+    @PutMapping("/{roomId}/edit")
+    public ResponseEntity<WatchPartyRoomEntity> editRoom(@PathVariable String roomId,
+                                                         @RequestBody EditWatchPartyRoomDTO editRequest) {
+        try {
+            WatchPartyRoomEntity room = watchPartyService.editRoom(roomId, editRequest);
             return ResponseEntity.ok(room);
         } catch (Exception e) {
             return ResponseEntity.badRequest().build();
