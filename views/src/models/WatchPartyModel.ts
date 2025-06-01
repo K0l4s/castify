@@ -69,3 +69,13 @@ export interface CreateRoomRequest {
 export interface ChatMessageRequest {
   message: string;
 }
+
+export interface KickUserRequest {
+  userId: string;
+  reason?: string;
+}
+
+export interface BanUserRequest {
+  userId: string;
+  reason?: string;
+}
