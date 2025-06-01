@@ -10,7 +10,7 @@ export interface WatchPartyRoom {
   participants: WatchPartyParticipant[];
   maxParticipants: number;
   currentPosition: number;
-  isPublic: boolean;
+  publish: boolean;
   createdAt: string;
   lastUpdated: string;
   allowChat: boolean;

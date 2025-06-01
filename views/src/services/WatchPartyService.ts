@@ -21,6 +21,7 @@ export default class WatchPartyService {
   private static kickedListeners: ((data: any) => void)[] = [];
   private static bannedListeners: ((data: any) => void)[] = [];
   private static messageDeletedListeners: ((data: any) => void)[] = [];
+  private static settingsUpdateListeners: Array<(data: any) => void> = [];
 
   static async createRoom(request: CreateRoomRequest): Promise<WatchPartyRoom> {
     try {
@@ -28,6 +29,20 @@ export default class WatchPartyService {
       return response.data;
     } catch (error) {
       console.error("Error creating room:", error);
+      throw error;
+    }
+  }
+
+  static async editRoom(roomId: string, settings: {
+    roomName: string;
+    publish: boolean;
+    allowChat: boolean;
+  }): Promise<any> {
+    try {
+      const response = await axiosInstanceAuth.put(`/api/v1/watch-party/${roomId}/edit`, settings);
+      return response.data;
+    } catch (error) {
+      console.error('Error editing room:', error);
       throw error;
     }
   }
@@ -263,6 +278,13 @@ export default class WatchPartyService {
           const deleteData = JSON.parse(message.body);
           this.messageDeletedListeners.forEach(listener => listener(deleteData));
         });
+
+        // Settings update subscription
+        this.stompClient!.subscribe(`/topic/room/${roomId}/settings-update`, (message) => {
+          const data = JSON.parse(message.body);
+          this.settingsUpdateListeners.forEach(listener => listener(data));
+        });
+
         // Notify all listeners that we're connected
         this.connectionStatusListeners.forEach(listener => listener(true));
         
@@ -531,5 +553,13 @@ export default class WatchPartyService {
 
   static removeMessageDeletedListener(listener: (data: any) => void) {
     this.messageDeletedListeners = this.messageDeletedListeners.filter(l => l !== listener);
+  }
+
+  static addSettingsUpdateListener(listener: (data: any) => void) {
+    this.settingsUpdateListeners.push(listener);
+  }
+
+  static removeSettingsUpdateListener(listener: (data: any) => void) {
+    this.settingsUpdateListeners = this.settingsUpdateListeners.filter(l => l !== listener);
   }
 }
