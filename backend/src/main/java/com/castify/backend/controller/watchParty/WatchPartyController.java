@@ -2,7 +2,9 @@ package com.castify.backend.controller.watchParty;
 
 import com.castify.backend.entity.watchParty.WatchPartyMessageEntity;
 import com.castify.backend.entity.watchParty.WatchPartyRoomEntity;
+import com.castify.backend.models.watchParty.BanUserRequest;
 import com.castify.backend.models.watchParty.CreateRoomRequest;
+import com.castify.backend.models.watchParty.KickUserRequest;
 import com.castify.backend.service.watchParty.IWatchPartyService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -10,6 +12,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/v1/watch-party")
@@ -74,6 +77,50 @@ public class WatchPartyController {
         try {
             List<WatchPartyMessageEntity> messages = watchPartyService.getRoomMessages(roomId, page, size);
             return ResponseEntity.ok(messages);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().build();
+        }
+    }
+
+    @PostMapping("/{roomId}/kick")
+    public ResponseEntity<Void> kickUser(@PathVariable String roomId,
+                                         @RequestBody KickUserRequest request) {
+        try {
+            watchPartyService.kickUser(roomId, request.getUserId(), request.getReason());
+            return ResponseEntity.ok().build();
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().build();
+        }
+    }
+
+    @PostMapping("/{roomId}/ban")
+    public ResponseEntity<Void> banUser(@PathVariable String roomId,
+                                        @RequestBody BanUserRequest request) {
+        try {
+            watchPartyService.banUser(roomId, request.getUserId(), request.getReason());
+            return ResponseEntity.ok().build();
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().build();
+        }
+    }
+
+    @PostMapping("/{roomId}/unban")
+    public ResponseEntity<Void> unbanUser(@PathVariable String roomId,
+                                          @RequestBody Map<String, String> request) {
+        try {
+            watchPartyService.unbanUser(roomId, request.get("userId"));
+            return ResponseEntity.ok().build();
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().build();
+        }
+    }
+
+    @DeleteMapping("/{roomId}/messages/{messageId}")
+    public ResponseEntity<Void> deleteMessage(@PathVariable String roomId,
+                                              @PathVariable String messageId) {
+        try {
+            watchPartyService.deleteMessage(roomId, messageId);
+            return ResponseEntity.ok().build();
         } catch (Exception e) {
             return ResponseEntity.badRequest().build();
         }

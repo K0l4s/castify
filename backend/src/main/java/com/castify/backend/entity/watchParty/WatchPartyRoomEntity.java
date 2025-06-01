@@ -38,6 +38,7 @@ public class WatchPartyRoomEntity {
 
     private LocalDateTime createdAt = LocalDateTime.now();
     private LocalDateTime expiresAt; // Auto-expire after X hours
+    private List<String> bannedUserIds = new ArrayList<>();
     private boolean isActive = true;
 
     public boolean isFull() {
@@ -51,5 +52,19 @@ public class WatchPartyRoomEntity {
     public boolean hasParticipant(String userId) {
         return participants.stream()
                 .anyMatch(p -> p.getUserId().equals(userId));
+    }
+
+    public boolean isBanned(String userId) {
+        return bannedUserIds.contains(userId);
+    }
+
+    public void banUser(String userId) {
+        if (!bannedUserIds.contains(userId)) {
+            bannedUserIds.add(userId);
+        }
+    }
+
+    public void unbanUser(String userId) {
+        bannedUserIds.remove(userId);
     }
 }

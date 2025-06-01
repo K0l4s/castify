@@ -1,19 +1,45 @@
-import React from 'react';
+import React, { useRef, useState } from 'react';
 import { WatchPartyRoom } from '../../../models/WatchPartyModel';
-import Avatar from '../../../components/UI/user/Avatar';
-import { FaCrown } from 'react-icons/fa';
-import defaultAvatar from "../../../assets/images/default_avatar.jpg";
-import useTimeAgo from '../../../hooks/useTimeAgo';
+import { FiFlag, FiUserX } from 'react-icons/fi';
+import { useClickOutside } from '../../../hooks/useClickOutside';
+import HostItem from '../../../components/modals/watchParty/HostItem';
+import ParticipantItem from '../../../components/modals/watchParty/ParticipantItem';
 
 interface WatchPartyParticipantsProps {
   room: WatchPartyRoom;
   currentUserId?: string;
+  isHost?: boolean;
+  onKickUser?: (userId: string, reason?: string) => void;
+  onBanUser?: (userId: string, reason?: string) => void;
+  onReportUser?: (userId: string, reason: string) => void;
 }
 
 const WatchPartyParticipants: React.FC<WatchPartyParticipantsProps> = ({ 
   room,
-  currentUserId 
+  currentUserId,
+  isHost = false,
+  onKickUser,
+  onBanUser,
+  onReportUser
 }) => {
+  const [contextMenu, setContextMenu] = useState<{
+    visible: boolean;
+    x: number;
+    y: number;
+    userId: string;
+    username: string;
+    isOwnProfile: boolean;
+  }>({
+    visible: false,
+    x: 0,
+    y: 0,
+    userId: '',
+    username: '',
+    isOwnProfile: false
+  });
+
+  const contextMenuRef = useRef<HTMLDivElement>(null);
+
   // Safe getter for display name
   const getDisplayName = (participant: any) => {
     if (!participant) return 'Unknown';
@@ -26,6 +52,56 @@ const WatchPartyParticipants: React.FC<WatchPartyParticipantsProps> = ({
   // Find host participant
   const hostParticipant = participants.find(p => p.userId === room.hostUserId);
   
+  useClickOutside(contextMenuRef, () => {
+    setContextMenu(prev => ({ ...prev, visible: false }));
+  });
+
+  const handleMenuClick = (e: React.MouseEvent, participant: any) => {
+    e.preventDefault();
+    e.stopPropagation();
+    
+    // Don't show menu for own profile
+    if (participant.userId === currentUserId) {
+      return;
+    }
+
+    const rect = (e.target as HTMLElement).getBoundingClientRect();
+    const isOwnProfile = participant.userId === currentUserId;
+    
+    setContextMenu({
+      visible: true,
+      x: rect.right - 150,
+      y: rect.bottom + 5,
+      userId: participant.userId || '',
+      username: getDisplayName(participant),
+      isOwnProfile
+    });
+  };
+
+  const handleKick = () => {
+    const reason = prompt(`Enter reason for kicking ${contextMenu.username}:`);
+    if (reason !== null && onKickUser) {
+      onKickUser(contextMenu.userId, reason);
+    }
+    setContextMenu(prev => ({ ...prev, visible: false }));
+  };
+
+  const handleBan = () => {
+    const reason = prompt(`Enter reason for banning ${contextMenu.username}:`);
+    if (reason !== null && onBanUser) {
+      onBanUser(contextMenu.userId, reason);
+    }
+    setContextMenu(prev => ({ ...prev, visible: false }));
+  };
+
+  const handleReport = () => {
+    const reason = prompt(`Enter reason for reporting ${contextMenu.username}:`);
+    if (reason !== null && reason.trim() && onReportUser) {
+      onReportUser(contextMenu.userId, reason);
+    }
+    setContextMenu(prev => ({ ...prev, visible: false }));
+  };
+
   return (
     <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700">
       <div className="p-3 border-b border-gray-200 dark:border-gray-700">
@@ -36,77 +112,28 @@ const WatchPartyParticipants: React.FC<WatchPartyParticipantsProps> = ({
       
       <div className="p-2 max-h-[200px] overflow-y-auto">
         <div className="space-y-2">
-          {/* Host first - if host exists */}
+          {/* ✅ Host first - Sử dụng component riêng */}
           {hostParticipant && (
-            <div 
+            <HostItem
               key={`host-${hostParticipant.id}`}
-              className={`flex items-center gap-2 p-2 rounded-lg ${
-                hostParticipant.userId === currentUserId 
-                  ? 'bg-blue-50 dark:bg-blue-900/30 border border-blue-200 dark:border-blue-800/50' 
-                  : 'bg-blue-50/50 dark:bg-blue-900/20'
-              }`}
-            >
-              <Avatar
-                width="w-8"
-                height="h-8"
-                avatarUrl={hostParticipant?.avatarUrl || ""}
-                usedFrame={hostParticipant?.usedFrame}
-                alt={getDisplayName(hostParticipant)}
-              />
-              <div className="flex-1">
-                <div className="flex items-center gap-1">
-                  <span className="font-semibold text-gray-900 dark:text-white">
-                    {getDisplayName(hostParticipant)}
-                  </span>
-                  <FaCrown className="text-yellow-500" size={14} />
-                  <span className="text-xs bg-blue-100 dark:bg-blue-800 text-blue-800 dark:text-blue-100 px-2 py-0.5 rounded-full ml-1">
-                    Host
-                  </span>
-                  {hostParticipant.userId === currentUserId && (
-                    <span className="text-xs bg-green-100 dark:bg-green-800 text-green-800 dark:text-green-100 px-2 py-0.5 rounded-full ml-1">
-                      You
-                    </span>
-                  )}
-                </div>
-              </div>
-            </div>
+              hostParticipant={hostParticipant}
+              currentUserId={currentUserId}
+              onMenuClick={handleMenuClick}
+              getDisplayName={getDisplayName}
+            />
           )}
           
-          {/* Other participants */}
+          {/* ✅ Other participants - Sử dụng component riêng */}
           {participants
             .filter(p => p.userId !== room.hostUserId)
             .map(participant => (
-              <div 
+              <ParticipantItem
                 key={`participant-${participant.id}`}
-                className={`flex items-center gap-2 p-2 rounded-lg ${
-                  participant.userId === currentUserId 
-                    ? 'bg-green-50 dark:bg-green-900/30 border border-green-200 dark:border-green-800/50' 
-                    : 'hover:bg-gray-50 dark:hover:bg-gray-700'
-                }`}
-              >
-                <Avatar
-                  width="w-8"
-                  height="h-8"
-                  avatarUrl={participant?.avatarUrl || defaultAvatar}
-                  usedFrame={participant?.usedFrame}
-                  alt={getDisplayName(participant)}
-                />
-                <div className="flex-1">
-                  <div className="flex items-center">
-                    <span className="font-medium text-gray-900 dark:text-white">
-                      {getDisplayName(participant)}
-                    </span>
-                    {participant.userId === currentUserId && (
-                      <span className="text-xs bg-green-100 dark:bg-green-800 text-green-800 dark:text-green-100 px-2 py-0.5 rounded-full ml-2">
-                        You
-                      </span>
-                    )}
-                  </div>
-                  <div className="text-xs text-gray-500 dark:text-gray-400">
-                    Joined {useTimeAgo(participant.joinedAt)}
-                  </div>
-                </div>
-              </div>
+                participant={participant}
+                currentUserId={currentUserId}
+                onMenuClick={handleMenuClick}
+                getDisplayName={getDisplayName}
+              />
             ))}
             
           {participants.length <= 1 && (
@@ -116,6 +143,48 @@ const WatchPartyParticipants: React.FC<WatchPartyParticipantsProps> = ({
           )}
         </div>
       </div>
+
+      {/* Context Menu */}
+      {contextMenu.visible && (
+        <div 
+          ref={contextMenuRef}
+          className="fixed z-50 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg py-1 min-w-[150px]"
+          style={{ 
+            left: Math.max(10, Math.min(contextMenu.x, window.innerWidth - 170)), 
+            top: Math.max(10, Math.min(contextMenu.y, window.innerHeight - 200))
+          }}
+        >
+          {/* Report options (for all users) */}
+          <button
+            onClick={handleReport}
+            className="w-full px-4 py-2 text-left text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center gap-2"
+          >
+            <FiFlag size={14} />
+            Report User
+          </button>
+
+          {/* Host options (only for hosts) */}
+          {isHost && (
+            <>
+              <hr className="my-1 border-gray-200 dark:border-gray-700" />
+              <button
+                onClick={handleKick}
+                className="w-full px-4 py-2 text-left text-sm text-orange-600 dark:text-orange-400 hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center gap-2"
+              >
+                <FiUserX size={14} />
+                Kick User
+              </button>
+              <button
+                onClick={handleBan}
+                className="w-full px-4 py-2 text-left text-sm text-red-600 dark:text-red-400 hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center gap-2"
+              >
+                <FiUserX size={14} />
+                Ban User
+              </button>
+            </>
+          )}
+        </div>
+      )}
     </div>
   );
 };

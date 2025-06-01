@@ -76,6 +76,10 @@ public class WatchPartyServiceImpl implements IWatchPartyService {
         WatchPartyRoomEntity room = roomRepository.findByRoomCodeAndIsActiveTrue(roomCode)
                 .orElseThrow(() -> new RuntimeException("Room not found or expired"));
 
+        if (room.isBanned(user.getId())) {
+            throw new RuntimeException("You are banned from this room");
+        }
+
         // Kiểm tra room có full không
         if (room.isFull()) {
             throw new RuntimeException("Room is full");
@@ -252,6 +256,196 @@ public class WatchPartyServiceImpl implements IWatchPartyService {
         return messages;
     }
 
+    @Override
+    public void kickUser(String roomId, String targetUserId, String reason) {
+        UserEntity currentUser = SecurityUtils.getCurrentUser();
+        WatchPartyRoomEntity room = getRoomDetails(roomId);
+
+        if (room == null) {
+            throw new RuntimeException("Room not found");
+        }
+
+        // Check if current user is host
+        if (!room.isHost(currentUser.getId())) {
+            throw new RuntimeException("Only host can kick users");
+        }
+
+        // Check if target user is in room
+        if (!room.hasParticipant(targetUserId)) {
+            throw new RuntimeException("User is not in this room");
+        }
+
+        // Cannot kick yourself
+        if (targetUserId.equals(currentUser.getId())) {
+            throw new RuntimeException("You cannot kick yourself");
+        }
+
+        // Get target user info before removing
+        WatchPartyParticipant targetParticipant = room.getParticipants().stream()
+                .filter(p -> p.getUserId().equals(targetUserId))
+                .findFirst()
+                .orElse(null);
+
+        // ✅ Get target user entity để lấy username
+        UserEntity targetUser = userRepository.findById(targetUserId)
+                .orElseThrow(() -> new RuntimeException("Target user not found"));
+
+        messagingTemplate.convertAndSend(
+                "/topic/room/" + roomId + "/kick",
+                Map.of(
+                        "targetUserId", targetUserId,
+                        "targetUsername", targetUser.getUsername(),
+                        "roomId", roomId,
+                        "roomName", room.getRoomName(),
+                        "reason", reason != null ? reason : "No reason provided",
+                        "kickedBy", currentUser.getUsername(),
+                        "timestamp", LocalDateTime.now().toString()
+                )
+        );
+
+        System.out.println("🔥 KICK notification sent successfully!");
+
+        // Remove participant from room
+        room.getParticipants().removeIf(p -> p.getUserId().equals(targetUserId));
+        room.setLastUpdated(LocalDateTime.now());
+
+        // Save room
+        roomRepository.save(room);
+        activeRooms.put(roomId, room);
+
+        // Send system message
+        String kickMessage = targetParticipant != null
+                ? targetParticipant.getUsername() + " was kicked from the room"
+                : "A user was kicked from the room";
+        if (reason != null && !reason.trim().isEmpty()) {
+            kickMessage += " (" + reason + ")";
+        }
+
+        notifyRoomParticipants(roomId, "USER_KICKED", kickMessage);
+
+        // Broadcast room update
+        messagingTemplate.convertAndSend("/topic/room/" + roomId + "/update", room);
+    }
+
+    @Override
+    public void banUser(String roomId, String targetUserId, String reason) {
+        UserEntity currentUser = SecurityUtils.getCurrentUser();
+        WatchPartyRoomEntity room = getRoomDetails(roomId);
+
+        if (room == null) {
+            throw new RuntimeException("Room not found");
+        }
+
+        // Check if current user is host
+        if (!room.isHost(currentUser.getId())) {
+            throw new RuntimeException("Only host can ban users");
+        }
+
+        // Cannot ban yourself
+        if (targetUserId.equals(currentUser.getId())) {
+            throw new RuntimeException("You cannot ban yourself");
+        }
+
+        // Get target user info
+        UserEntity targetUser = userRepository.findById(targetUserId)
+                .orElseThrow(() -> new RuntimeException("Target user not found"));
+
+        messagingTemplate.convertAndSend(
+                "/topic/room/" + roomId + "/ban",
+                Map.of(
+                        "targetUserId", targetUserId,
+                        "targetUsername", targetUser.getUsername(),
+                        "roomId", roomId,
+                        "roomName", room.getRoomName(),
+                        "reason", reason != null ? reason : "No reason provided",
+                        "bannedBy", currentUser.getUsername(),
+                        "timestamp", LocalDateTime.now().toString()
+                )
+        );
+
+        // Add to banned list
+        room.banUser(targetUserId);
+
+        // Remove from participants if present
+        room.getParticipants().removeIf(p -> p.getUserId().equals(targetUserId));
+        room.setLastUpdated(LocalDateTime.now());
+
+        // Save room
+        roomRepository.save(room);
+        activeRooms.put(roomId, room);
+
+        // Send system message
+        String banMessage = targetUser.getUsername() + " was banned from the room";
+        if (reason != null && !reason.trim().isEmpty()) {
+            banMessage += " (" + reason + ")";
+        }
+
+        notifyRoomParticipants(roomId, "USER_BANNED", banMessage);
+
+        // Broadcast room update
+        messagingTemplate.convertAndSend("/topic/room/" + roomId + "/update", room);
+    }
+
+    @Override
+    public void unbanUser(String roomId, String targetUserId) {
+        UserEntity currentUser = SecurityUtils.getCurrentUser();
+        WatchPartyRoomEntity room = getRoomDetails(roomId);
+
+        if (room == null) {
+            throw new RuntimeException("Room not found");
+        }
+
+        // Check if current user is host
+        if (!room.isHost(currentUser.getId())) {
+            throw new RuntimeException("Only host can unban users");
+        }
+
+        // Remove from banned list
+        room.unbanUser(targetUserId);
+        room.setLastUpdated(LocalDateTime.now());
+
+        // Save room
+        roomRepository.save(room);
+        activeRooms.put(roomId, room);
+
+        // Get target user info
+        UserEntity targetUser = userRepository.findById(targetUserId)
+                .orElse(null);
+
+        // Send system message
+        String unbanMessage = targetUser != null
+                ? targetUser.getUsername() + " was unbanned"
+                : "A user was unbanned";
+
+        notifyRoomParticipants(roomId, "USER_UNBANNED", unbanMessage);
+    }
+
+    @Override
+    public void deleteMessage(String roomId, String messageId) {
+        UserEntity currentUser = SecurityUtils.getCurrentUser();
+
+        // Get the message
+        WatchPartyMessageEntity message = messageRepository.findById(messageId)
+                .orElseThrow(() -> new RuntimeException("Message not found"));
+
+        // Check if user is the author of the message
+        if (!message.getUserId().equals(currentUser.getId())) {
+            throw new RuntimeException("You can only delete your own messages");
+        }
+
+        // Check if message belongs to the room
+        if (!message.getRoomId().equals(roomId)) {
+            throw new RuntimeException("Message does not belong to this room");
+        }
+
+        // Delete the message
+        messageRepository.delete(message);
+
+        // Notify room participants about deleted message
+        messagingTemplate.convertAndSend("/topic/room/" + roomId + "/message-deleted",
+                Map.of("messageId", messageId, "userId", currentUser.getId()));
+    }
+
     /*
     * Helper method
     * */
@@ -270,7 +464,7 @@ public class WatchPartyServiceImpl implements IWatchPartyService {
         systemMessage.setType(MessageType.SYSTEM);
         systemMessage.getMetadata().put("eventType", eventType);
 
-        messagingTemplate.convertAndSend("/topic/room/" + roomId + "/system", systemMessage);
+        messagingTemplate.convertAndSend("/topic/room/" + roomId + "/chat", systemMessage);
     }
 
     private void closeRoom(String roomId) {

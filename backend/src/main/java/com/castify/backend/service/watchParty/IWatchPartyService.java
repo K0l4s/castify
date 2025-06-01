@@ -15,4 +15,8 @@ public interface IWatchPartyService {
     WatchPartyRoomEntity getRoomDetails(String roomId);
     List<WatchPartyRoomEntity> getPublicRooms(int page, int size);
     List<WatchPartyMessageEntity> getRoomMessages(String roomId, int page, int size);
+    void kickUser(String roomId, String targetUserId, String reason);
+    void banUser(String roomId, String targetUserId, String reason);
+    void unbanUser(String roomId, String targetUserId);
+    void deleteMessage(String roomId, String messageId);
 }

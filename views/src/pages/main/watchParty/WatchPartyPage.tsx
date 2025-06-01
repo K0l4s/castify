@@ -23,6 +23,7 @@ import { formatViewsWithSeparators } from '../../../utils/formatViews';
 import { HeartIcon } from '../../../components/UI/custom/SVG_Icon';
 import defaultAvatar from '../../../assets/images/default_avatar.jpg';
 import { userService } from '../../../services/UserService';
+import KickBanModal from './KickBanModal';
 
 const WatchPartyPage: React.FC = () => {
   const [searchParams] = useSearchParams();
@@ -37,7 +38,18 @@ const WatchPartyPage: React.FC = () => {
   const [chatMessages, setChatMessages] = useState<ChatMessage[]>([]);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState<boolean>(false);
   const [isJoinModalOpen, setIsJoinModalOpen] = useState<boolean>(false);
-  
+  const [kickBanNotification, setKickBanNotification] = useState<{
+    visible: boolean;
+    type: 'kick' | 'ban';
+    reason: string;
+    kickedBy: string;
+  }>({
+    visible: false,
+    type: 'kick',
+    reason: '',
+    kickedBy: ''
+  });
+
   // Add states for views and likes
   const [views, setViews] = useState<number>(0);
   const [totalLikes, setTotalLikes] = useState<number>(0);
@@ -53,7 +65,8 @@ const WatchPartyPage: React.FC = () => {
   
   const isAuthenticated = useSelector((state: RootState) => state.auth.isAuthenticated);
   const currentUser = useSelector((state: RootState) => state.auth.user);
-  
+  const [isKickedOrBanned, setIsKickedOrBanned] = useState<boolean>(false);
+
   // Safely check if the current user is the host
   const isHost = room?.hostUserId === currentUser?.id;
 
@@ -241,23 +254,109 @@ const WatchPartyPage: React.FC = () => {
       // Handle any global sync event processing here if needed
     };
 
+    const kickedListener = (data: any) => {
+      
+      if (data.targetUserId === currentUser?.id || data.targetUsername === currentUser?.username) {
+        setIsKickedOrBanned(true);
+
+        setKickBanNotification({
+          visible: true,
+          type: 'kick',
+          reason: data.reason || 'No reason provided',
+          kickedBy: data.kickedBy || 'Unknown'
+        });
+        
+        // Disconnect and clear state
+        WatchPartyService.disconnect();
+        setRoom(null);
+        setChatMessages([]);
+        setIsConnected(false);
+
+        setTimeout(() => {
+          setKickBanNotification(prev => ({ ...prev, visible: false }));
+          navigate('/');
+          toast.warning(`You have been kicked from the watch party. Reason: ${data.reason || 'No reason provided'}`);
+        }, 4000);
+      } else {
+        console.log(' This kick is not for me, ignoring...');
+      }
+    };
+
+
+    const bannedListener = (data: any) => {
+      
+      // Check if this ban is for current user
+      if (data.targetUserId === currentUser?.id || data.targetUsername === currentUser?.username) {
+        setIsKickedOrBanned(true);
+
+        setKickBanNotification({
+          visible: true,
+          type: 'ban',
+          reason: data.reason || 'No reason provided',
+          kickedBy: data.bannedBy || 'Unknown'
+        });
+        
+        // Disconnect and clear state
+        WatchPartyService.disconnect();
+        setRoom(null);
+        setChatMessages([]);
+        setIsConnected(false);
+      } else {
+        console.log(' This ban is not for me, ignoring...');
+      }
+    };
+
+    // Message deleted listener
+    const messageDeletedListener = (data: any) => {
+      setChatMessages(prev => prev.filter(msg => msg.id !== data.messageId));
+    };
+
     WatchPartyService.addChatMessageListener(chatMessageListener);
     WatchPartyService.addConnectionStatusListener(connectionStatusListener);
     WatchPartyService.addRoomUpdateListener(roomUpdateListener);
     WatchPartyService.addSyncEventListener(syncEventListener);
+    WatchPartyService.addKickedListener(kickedListener);
+    WatchPartyService.addBannedListener(bannedListener);
+    WatchPartyService.addMessageDeletedListener(messageDeletedListener);
 
     return () => {
       WatchPartyService.removeChatMessageListener(chatMessageListener);
       WatchPartyService.removeConnectionStatusListener(connectionStatusListener);
       WatchPartyService.removeRoomUpdateListener(roomUpdateListener);
       WatchPartyService.removeSyncEventListener(syncEventListener);
+      WatchPartyService.removeKickedListener(kickedListener);
+      WatchPartyService.removeBannedListener(bannedListener);
+      WatchPartyService.removeMessageDeletedListener(messageDeletedListener);
     };
-  }, [toast, room?.id]);
+  }, [toast, room?.id, currentUser]);
+
+  const handleKickBanModalClose = () => {
+    setKickBanNotification(prev => ({ ...prev, visible: false }));
+    
+    // Redirect to home page
+    navigate('/');
+    toast.warning(`You have been ${kickBanNotification.type === 'kick' ? 'kicked from' : 'banned from'} the watch party`);
+  };
+
+  // Handle delete message
+  const handleDeleteMessage = async (messageId: string) => {
+    if (!room) return;
+    
+    try {
+      await WatchPartyService.deleteMessage(room.id, messageId);
+      // Remove message from local state immediately for better UX
+      setChatMessages(prev => prev.filter(msg => msg.id !== messageId));
+      toast.success("Message deleted");
+    } catch (error) {
+      console.error("Error deleting message:", error);
+      toast.error("Failed to delete message");
+    }
+  };
 
   // Auto-join room from URL if room code is provided
   useEffect(() => {
     const joinRoomFromUrl = async () => {
-      if (roomCode && isAuthenticated && !room) {
+      if (roomCode && isAuthenticated && !room && !isKickedOrBanned) {
         try {
           setLoading(true);
           setError(null);
@@ -367,7 +466,7 @@ const WatchPartyPage: React.FC = () => {
       
       // Load existing messages
       await loadRoomMessages(joinedRoom.id);
-      
+
       // Navigate to the room with the podcast ID
       navigate(`/watch-party?pid=${joinedRoom.podcastId}&room=${roomCode}`, { replace: true });
       
@@ -414,6 +513,38 @@ const WatchPartyPage: React.FC = () => {
   const handleSendChatMessage = (message: string) => {
     if (!room || !isConnected) return;
     WatchPartyService.sendChatMessage(room.id, message);
+  };
+
+  const handleKickUser = async (userId: string, reason?: string) => {
+    if (!room) return;
+    
+    try {
+      await WatchPartyService.kickUser(room.id, userId, reason);
+      toast.success("User kicked successfully");
+    } catch (error) {
+      console.error("Error kicking user:", error);
+      toast.error("Failed to kick user");
+    }
+  };
+
+  const handleBanUser = async (userId: string, reason?: string) => {
+    if (!room) return;
+    
+    try {
+      await WatchPartyService.banUser(room.id, userId, reason);
+      toast.success("User banned successfully");
+    } catch (error) {
+      console.error("Error banning user:", error);
+      toast.error("Failed to ban user");
+    }
+  };
+
+  const handleReportMessage = async (messageId: string, reason: string) => {
+    if (!room) return;
+  };
+
+  const handleReportUser = async (userId: string, reason: string) => {
+    if (!room) return;
   };
 
   const handleSyncPlayback = (position: number, playing: boolean, eventType: SyncEventType) => {
@@ -675,11 +806,23 @@ const WatchPartyPage: React.FC = () => {
             <WatchPartyParticipants 
               room={room} 
               currentUserId={currentUser?.id} 
+              isHost={isHost}
+              onKickUser={handleKickUser}
+              onBanUser={handleBanUser}
+              onReportUser={handleReportUser}
             />
             <WatchPartyChat 
-              messages={chatMessages} 
-              onSendMessage={handleSendChatMessage} 
-              isConnected={isConnected} 
+              messages={chatMessages}
+              isConnected={isConnected}
+              isHost={isHost}
+              currentUserId={currentUser?.id || ''}
+              roomId={room?.id || ''}
+              onSendMessage={handleSendChatMessage}
+              onKickUser={handleKickUser}
+              onBanUser={handleBanUser}
+              onReportMessage={handleReportMessage}
+              onReportUser={handleReportUser}
+              onDeleteMessage={handleDeleteMessage}
             />
           </div>
         )}
@@ -698,6 +841,15 @@ const WatchPartyPage: React.FC = () => {
         isOpen={isJoinModalOpen}
         onClose={() => setIsJoinModalOpen(false)}
         onSubmit={handleJoinRoom}
+      />
+
+      {/* Kick/Ban Notification Modal */}
+      <KickBanModal
+        isVisible={kickBanNotification.visible}
+        type={kickBanNotification.type}
+        reason={kickBanNotification.reason}
+        kickedBy={kickBanNotification.kickedBy}
+        onClose={handleKickBanModalClose}
       />
     </div>
   );

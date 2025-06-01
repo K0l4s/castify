@@ -18,7 +18,10 @@ export default class WatchPartyService {
   private static isConnecting: boolean = false;
   private static reconnectTimer: any = null;
   private static hostSyncRequestListeners: ((event: any) => void)[] = [];
-  
+  private static kickedListeners: ((data: any) => void)[] = [];
+  private static bannedListeners: ((data: any) => void)[] = [];
+  private static messageDeletedListeners: ((data: any) => void)[] = [];
+
   static async createRoom(request: CreateRoomRequest): Promise<WatchPartyRoom> {
     try {
       const response = await axiosInstanceAuth.post(`/api/v1/watch-party/create`, request);
@@ -88,6 +91,51 @@ export default class WatchPartyService {
     }
   }
 
+  // Moderation methods
+  static async kickUser(roomId: string, userId: string, reason?: string): Promise<void> {
+    try {
+      await axiosInstanceAuth.post(`/api/v1/watch-party/${roomId}/kick`, {
+        userId,
+        reason
+      });
+    } catch (error) {
+      console.error("Error kicking user:", error);
+      throw error;
+    }
+  }
+
+  static async banUser(roomId: string, userId: string, reason?: string): Promise<void> {
+    try {
+      await axiosInstanceAuth.post(`/api/v1/watch-party/${roomId}/ban`, {
+        userId,
+        reason
+      });
+    } catch (error) {
+      console.error("Error banning user:", error);
+      throw error;
+    }
+  }
+
+  static async unbanUser(roomId: string, userId: string): Promise<void> {
+    try {
+      await axiosInstanceAuth.post(`/api/v1/watch-party/${roomId}/unban`, {
+        userId
+      });
+    } catch (error) {
+      console.error("Error unbanning user:", error);
+      throw error;
+    }
+  }
+
+  static async deleteMessage(roomId: string, messageId: string): Promise<void> {
+    try {
+      await axiosInstanceAuth.delete(`/api/v1/watch-party/${roomId}/messages/${messageId}`);
+    } catch (error) {
+      console.error("Error deleting message:", error);
+      throw error;
+    }
+  }
+
   // Socket
   static connect(roomId: string): Promise<boolean> {
     return new Promise((resolve, reject) => {
@@ -135,9 +183,11 @@ export default class WatchPartyService {
           Authorization: `Bearer ${token}`,
           "ngrok-skip-browser-warning": "true"
         },
-        // debug: (str) => {
-        //   console.log('STOMP Debug:', str);
-        // },
+        debug: (str) => {
+          if (str.includes('kick') || str.includes('ban') || str.includes('queue')) {
+            console.log('🔥 STOMP Debug:', str);
+          }
+        },
         reconnectDelay: 5000,
         heartbeatIncoming: 4000,
         heartbeatOutgoing: 4000
@@ -173,6 +223,36 @@ export default class WatchPartyService {
           subscribeHeaders
         );
         
+        this.stompClient!.subscribe(`/topic/room/${roomId}/kick`, (message) => {
+          try {
+            const kickData = JSON.parse(message.body);
+            
+            // handle the filtering
+            this.kickedListeners.forEach((listener) => {
+              listener(kickData);
+            });
+          } catch (error) {
+            console.error('Error parsing data:', error);
+          }
+        }, subscribeHeaders);
+
+        this.stompClient!.subscribe(`/topic/room/${roomId}/ban`, (message) => {
+          try {
+            const banData = JSON.parse(message.body);
+            
+            // handle the filtering
+            this.bannedListeners.forEach((listener) => {
+              listener(banData);
+            });
+          } catch (error) {
+            console.error('Error parsing data', error);
+          }
+        }, subscribeHeaders);
+
+        this.stompClient!.subscribe(`/topic/room/${roomId}/message-deleted`, (message) => {
+          const deleteData = JSON.parse(message.body);
+          this.messageDeletedListeners.forEach(listener => listener(deleteData));
+        });
         // Notify all listeners that we're connected
         this.connectionStatusListeners.forEach(listener => listener(true));
         
@@ -417,5 +497,29 @@ export default class WatchPartyService {
   
   static removeHostSyncRequestListener(listener: (event: any) => void): void {
     this.hostSyncRequestListeners = this.hostSyncRequestListeners.filter(l => l !== listener);
+  }
+
+  static addKickedListener(listener: (data: any) => void) {
+    this.kickedListeners.push(listener);
+  }
+
+  static removeKickedListener(listener: (data: any) => void) {
+    this.kickedListeners = this.kickedListeners.filter(l => l !== listener);
+  }
+
+  static addBannedListener(listener: (data: any) => void) {
+    this.bannedListeners.push(listener);
+  }
+
+  static removeBannedListener(listener: (data: any) => void) {
+    this.bannedListeners = this.bannedListeners.filter(l => l !== listener);
+  }
+
+  static addMessageDeletedListener(listener: (data: any) => void) {
+    this.messageDeletedListeners.push(listener);
+  }
+
+  static removeMessageDeletedListener(listener: (data: any) => void) {
+    this.messageDeletedListeners = this.messageDeletedListeners.filter(l => l !== listener);
   }
 }
