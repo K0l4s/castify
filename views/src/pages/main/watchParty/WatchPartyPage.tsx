@@ -539,11 +539,11 @@ const WatchPartyPage: React.FC = () => {
     }
   };
 
-  const handleReportMessage = async (messageId: string, reason: string) => {
+  const handleReportMessage = async () => {
     if (!room) return;
   };
 
-  const handleReportUser = async (userId: string, reason: string) => {
+  const handleReportUser = async () => {
     if (!room) return;
   };
 

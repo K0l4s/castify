@@ -26,12 +26,9 @@ const WatchPartyChat: React.FC<WatchPartyChatProps> = ({
   isConnected,
   isHost,
   currentUserId,
-  roomId,
   onSendMessage,
   onKickUser,
   onBanUser,
-  onReportMessage,
-  onReportUser,
   onDeleteMessage
 }) => {
   const [message, setMessage] = useState('');
@@ -267,8 +264,7 @@ const ChatMessageItem: React.FC<ChatMessageItemProps> = ({
   message,
   onMenuClick,
   showContextMenu = false,
-  currentUserId,
-  isHost = false
+  currentUserId
 }) => {
   const timeAgo = useTimeAgo(message.timestamp!);
   
