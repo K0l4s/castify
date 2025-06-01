@@ -3,6 +3,7 @@ package com.castify.backend.service.watchParty;
 import com.castify.backend.entity.watchParty.WatchPartyMessageEntity;
 import com.castify.backend.entity.watchParty.WatchPartyRoomEntity;
 import com.castify.backend.enums.SyncEventType;
+import com.castify.backend.models.PageDTO;
 import com.castify.backend.models.watchParty.EditWatchPartyRoomDTO;
 
 import java.util.List;
@@ -16,7 +17,8 @@ public interface IWatchPartyService {
     void syncPlayback(String roomId, long position, boolean isPlaying, SyncEventType eventType, String username);
     WatchPartyMessageEntity sendMessage(String roomId, String message, String username);
     WatchPartyRoomEntity getRoomDetails(String roomId);
-    List<WatchPartyRoomEntity> getPublicRooms(int page, int size);
+    PageDTO<WatchPartyRoomEntity> getPublicRooms(int page, int size,  String excludeUserId);
+    PageDTO<WatchPartyRoomEntity> getMyRooms(int page, int size);
     List<WatchPartyMessageEntity> getRoomMessages(String roomId, int page, int size);
     void kickUser(String roomId, String targetUserId, String reason);
     void banUser(String roomId, String targetUserId, String reason);

@@ -1,12 +1,15 @@
 package com.castify.backend.controller.watchParty;
 
+import com.castify.backend.entity.UserEntity;
 import com.castify.backend.entity.watchParty.WatchPartyMessageEntity;
 import com.castify.backend.entity.watchParty.WatchPartyRoomEntity;
+import com.castify.backend.models.PageDTO;
 import com.castify.backend.models.watchParty.BanUserRequest;
 import com.castify.backend.models.watchParty.CreateRoomRequest;
 import com.castify.backend.models.watchParty.EditWatchPartyRoomDTO;
 import com.castify.backend.models.watchParty.KickUserRequest;
 import com.castify.backend.service.watchParty.IWatchPartyService;
+import com.castify.backend.utils.SecurityUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -28,7 +31,7 @@ public class WatchPartyController {
             WatchPartyRoomEntity room = watchPartyService.createRoom(
                     request.getPodcastId(),
                     request.getRoomName(),
-                    request.isPublic()
+                    request.isPublish()
             );
             return ResponseEntity.ok(room);
         } catch (Exception e) {
@@ -74,10 +77,26 @@ public class WatchPartyController {
     }
 
     @GetMapping("/public")
-    public ResponseEntity<List<WatchPartyRoomEntity>> getPublicRooms(
+    public ResponseEntity<PageDTO<WatchPartyRoomEntity>> getPublicRooms(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "true") boolean excludeMyRooms) {
+
+        String excludeUserId = null;
+        if (excludeMyRooms) {
+            UserEntity currentUser = SecurityUtils.getCurrentUser();
+            excludeUserId = currentUser.getId();
+        }
+
+        PageDTO<WatchPartyRoomEntity> rooms = watchPartyService.getPublicRooms(page, size, excludeUserId);
+        return ResponseEntity.ok(rooms);
+    }
+
+    @GetMapping("/my-rooms")
+    public ResponseEntity<PageDTO<WatchPartyRoomEntity>> getMyRooms(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size) {
-        List<WatchPartyRoomEntity> rooms = watchPartyService.getPublicRooms(page, size);
+        PageDTO<WatchPartyRoomEntity> rooms = watchPartyService.getMyRooms(page, size);
         return ResponseEntity.ok(rooms);
     }
 

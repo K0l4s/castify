@@ -8,6 +8,7 @@ import com.castify.backend.entity.watchParty.WatchPartyParticipant;
 import com.castify.backend.entity.watchParty.WatchPartyRoomEntity;
 import com.castify.backend.enums.MessageType;
 import com.castify.backend.enums.SyncEventType;
+import com.castify.backend.models.PageDTO;
 import com.castify.backend.models.watchParty.EditWatchPartyRoomDTO;
 import com.castify.backend.repository.PodcastRepository;
 import com.castify.backend.repository.UserRepository;
@@ -288,9 +289,36 @@ public class WatchPartyServiceImpl implements IWatchPartyService {
     }
 
     @Override
-    public List<WatchPartyRoomEntity> getPublicRooms(int page, int size) {
+    public PageDTO<WatchPartyRoomEntity> getPublicRooms(int page, int size, String excludeUserId) {
         Pageable pageable = PageRequest.of(page, size);
-        return roomRepository.findByPublishTrueAndIsActiveTrueOrderByCreatedAtDesc(pageable);
+        List<WatchPartyRoomEntity> rooms;
+        long totalElements;
+
+        if (excludeUserId != null) {
+            rooms = roomRepository.findByPublishTrueAndIsActiveTrueAndHostUserIdNotOrderByCreatedAtDesc(
+                    excludeUserId, pageable);
+            totalElements = roomRepository.countByPublishTrueAndIsActiveTrueAndHostUserIdNot(excludeUserId);
+        } else {
+            rooms = roomRepository.findByPublishTrueAndIsActiveTrueOrderByCreatedAtDesc(pageable);
+            totalElements = roomRepository.countByPublishTrueAndIsActiveTrue();
+        }
+
+        int totalPages = (int) Math.ceil((double) totalElements / size);
+        return new PageDTO<>(rooms, page, totalPages, (int) totalElements);
+    }
+
+    @Override
+    public PageDTO<WatchPartyRoomEntity> getMyRooms(int page, int size) {
+        UserEntity currentUser = SecurityUtils.getCurrentUser();
+        Pageable pageable = PageRequest.of(page, size);
+
+        List<WatchPartyRoomEntity> rooms = roomRepository.findByHostUserIdAndIsActiveTrueOrderByCreatedAtDesc(
+                currentUser.getId(), pageable);
+
+        long totalElements = roomRepository.countByHostUserIdAndIsActiveTrue(currentUser.getId());
+        int totalPages = (int) Math.ceil((double) totalElements / size);
+
+        return new PageDTO<>(rooms, page, totalPages, (int) totalElements);
     }
 
     @Override

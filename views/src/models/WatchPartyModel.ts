@@ -63,7 +63,7 @@ export interface ChatMessage {
 export interface CreateRoomRequest {
   podcastId: string;
   roomName: string;
-  isPublic: boolean;
+  publish: boolean;
 }
 
 export interface ChatMessageRequest {

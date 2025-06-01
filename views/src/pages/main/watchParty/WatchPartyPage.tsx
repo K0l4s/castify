@@ -212,7 +212,6 @@ const WatchPartyPage: React.FC = () => {
       setChatMessages(messages);
     } catch (error) {
       console.error('Failed to load room messages:', error);
-      // Không hiển thị toast error cho việc load messages để không làm phiền user
     }
   }, []);
 
@@ -424,7 +423,7 @@ const WatchPartyPage: React.FC = () => {
     };
   }, [isConnected]);
 
-  const handleCreateRoom = async (podcastId: string, roomName: string, isPublic: boolean) => {
+  const handleCreateRoom = async (podcastId: string, roomName: string, publish: boolean) => {
     try {
       setLoading(true);
       setError(null);
@@ -432,7 +431,7 @@ const WatchPartyPage: React.FC = () => {
       const newRoom = await WatchPartyService.createRoom({
         podcastId,
         roomName,
-        isPublic
+        publish
       });
       
       // console.log('Created room data:', newRoom);

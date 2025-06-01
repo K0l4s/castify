@@ -9,7 +9,7 @@ import { FiLoader } from 'react-icons/fi';
 interface CreateRoomModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onSubmit: (podcastId: string, roomName: string, isPublic: boolean) => Promise<WatchPartyRoom | null>;
+  onSubmit: (podcastId: string, roomName: string, publish: boolean) => Promise<WatchPartyRoom | null>;
   podcast: Podcast | null;
 }
 
@@ -20,7 +20,7 @@ const CreateRoomModal: React.FC<CreateRoomModalProps> = ({
   podcast
 }) => {
   const [roomName, setRoomName] = useState(podcast ? `${podcast.title} Watch Party` : '');
-  const [isPublic, setIsPublic] = useState(true);
+  const [publish, setPublish] = useState(true);
   const [loading, setLoading] = useState(false);
   // const { language } = useLanguage();
   
@@ -31,7 +31,7 @@ const CreateRoomModal: React.FC<CreateRoomModalProps> = ({
     
     try {
       setLoading(true);
-      await onSubmit(podcast.id, roomName.trim(), isPublic);
+      await onSubmit(podcast.id, roomName.trim(), publish);
     } finally {
       setLoading(false);
     }
@@ -93,8 +93,8 @@ const CreateRoomModal: React.FC<CreateRoomModalProps> = ({
             <label className="flex items-center">
               <input
                 type="checkbox"
-                checked={isPublic}
-                onChange={(e) => setIsPublic(e.target.checked)}
+                checked={publish}
+                onChange={(e) => setPublish(e.target.checked)}
                 className="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
               />
               <span className="ml-2 text-sm text-gray-700 dark:text-gray-300">

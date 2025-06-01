@@ -472,7 +472,7 @@ const WatchPartyPlayer: React.FC<WatchPartyPlayerProps> = ({
       {/* Video */}
       <video
         ref={videoRef}
-        className="w-full h-full"
+        className="w-full h-full aspect-video"
         src={podcast.videoUrl}
         poster={podcast.thumbnailUrl || undefined}
         playsInline

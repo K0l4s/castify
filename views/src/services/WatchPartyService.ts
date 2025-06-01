@@ -76,12 +76,35 @@ export default class WatchPartyService {
     }
   }
 
-  static async getPublicRooms(page: number = 0, size: number = 10): Promise<WatchPartyRoom[]> {
+  static async getPublicRooms(page: number = 0, size: number = 10, excludeMyRooms: boolean = true): Promise<{
+    content: WatchPartyRoom[];
+    size: number;
+    currentPage: number;
+    totalPages: number;
+    totalElements: number;
+  }> {
     try {
-      const response = await axiosInstanceAuth.get(`/api/v1/watch-party/public?page=${page}&size=${size}`);
+      const response = await axiosInstanceAuth.get(`/api/v1/watch-party/public?page=${page}&size=${size}&excludeMyRooms=${excludeMyRooms}`);
       return response.data;
     } catch (error) {
       console.error("Error getting public rooms:", error);
+      throw error;
+    }
+  }
+
+
+  static async getMyRooms(page: number = 0, size: number = 10): Promise<{
+    content: WatchPartyRoom[];
+    size: number;
+    currentPage: number;
+    totalPages: number;
+    totalElements: number;
+  }> {
+    try {
+      const response = await axiosInstanceAuth.get(`/api/v1/watch-party/my-rooms?page=${page}&size=${size}`);
+      return response.data;
+    } catch (error) {
+      console.error("Error getting my rooms:", error);
       throw error;
     }
   }
