@@ -127,6 +127,16 @@ export default class WatchPartyService {
     }
   }
 
+  static async getBannedUsers(roomId: string): Promise<any[]> {
+  try {
+    const response = await axiosInstanceAuth.get(`/api/v1/watch-party/${roomId}/banned-users`);
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching banned users:', error);
+    throw error;
+  }
+}
+
   static async deleteMessage(roomId: string, messageId: string): Promise<void> {
     try {
       await axiosInstanceAuth.delete(`/api/v1/watch-party/${roomId}/messages/${messageId}`);

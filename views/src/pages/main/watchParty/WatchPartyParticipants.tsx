@@ -1,9 +1,10 @@
 import React, { useRef, useState } from 'react';
 import { WatchPartyRoom } from '../../../models/WatchPartyModel';
-import { FiFlag, FiUserX } from 'react-icons/fi';
+import { FiFlag, FiUserX, FiSettings } from 'react-icons/fi';
 import { useClickOutside } from '../../../hooks/useClickOutside';
 import HostItem from '../../../components/modals/watchParty/HostItem';
 import ParticipantItem from '../../../components/modals/watchParty/ParticipantItem';
+import RoomSettingsModal from '../../../components/modals/watchParty/RoomSettingModal';
 
 interface WatchPartyParticipantsProps {
   room: WatchPartyRoom;
@@ -37,6 +38,9 @@ const WatchPartyParticipants: React.FC<WatchPartyParticipantsProps> = ({
     username: '',
     isOwnProfile: false
   });
+
+  // ✅ Add settings modal state
+  const [isSettingsModalOpen, setIsSettingsModalOpen] = useState<boolean>(false);
 
   const contextMenuRef = useRef<HTMLDivElement>(null);
 
@@ -105,9 +109,21 @@ const WatchPartyParticipants: React.FC<WatchPartyParticipantsProps> = ({
   return (
     <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700">
       <div className="p-3 border-b border-gray-200 dark:border-gray-700">
-        <h3 className="font-semibold text-gray-900 dark:text-white">
-          Participants ({participants.length})
-        </h3>
+        <div className="flex items-center justify-between">
+          <h3 className="font-semibold text-gray-900 dark:text-white">
+            Participants ({participants.length})
+          </h3>
+          {/* ✅ Settings button for host */}
+          {isHost && (
+            <button
+              onClick={() => setIsSettingsModalOpen(true)}
+              className="p-2 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
+              title="Room Settings"
+            >
+              <FiSettings size={16} />
+            </button>
+          )}
+        </div>
       </div>
       
       <div className="p-2 max-h-[200px] overflow-y-auto">
@@ -185,6 +201,13 @@ const WatchPartyParticipants: React.FC<WatchPartyParticipantsProps> = ({
           )}
         </div>
       )}
+
+      {/* ✅ Room Settings Modal */}
+      <RoomSettingsModal
+        isOpen={isSettingsModalOpen}
+        onClose={() => setIsSettingsModalOpen(false)}
+        room={room}
+      />
     </div>
   );
 };

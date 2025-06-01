@@ -5,6 +5,7 @@ import com.castify.backend.entity.watchParty.WatchPartyRoomEntity;
 import com.castify.backend.enums.SyncEventType;
 
 import java.util.List;
+import java.util.Map;
 
 public interface IWatchPartyService {
     WatchPartyRoomEntity createRoom(String podcastId, String roomName, boolean isPublic);
@@ -19,4 +20,5 @@ public interface IWatchPartyService {
     void banUser(String roomId, String targetUserId, String reason);
     void unbanUser(String roomId, String targetUserId);
     void deleteMessage(String roomId, String messageId);
+    List<Map<String, Object>> getBannedUsers(String roomId);
 }

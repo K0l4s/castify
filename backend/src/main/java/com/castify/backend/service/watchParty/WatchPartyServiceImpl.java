@@ -21,10 +21,7 @@ import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 @Service
@@ -444,6 +441,38 @@ public class WatchPartyServiceImpl implements IWatchPartyService {
         // Notify room participants about deleted message
         messagingTemplate.convertAndSend("/topic/room/" + roomId + "/message-deleted",
                 Map.of("messageId", messageId, "userId", currentUser.getId()));
+    }
+
+    @Override
+    public List<Map<String, Object>> getBannedUsers(String roomId) {
+        UserEntity currentUser = SecurityUtils.getCurrentUser();
+        WatchPartyRoomEntity room = getRoomDetails(roomId);
+
+        if (room == null) {
+            throw new RuntimeException("Room not found");
+        }
+
+        // Check if current user is host
+        if (!room.isHost(currentUser.getId())) {
+            throw new RuntimeException("Only host can view banned users");
+        }
+
+        List<Map<String, Object>> bannedUsers = new ArrayList<>();
+
+        for (String bannedUserId : room.getBannedUserIds()) {
+            UserEntity user = userRepository.findById(bannedUserId).orElse(null);
+            if (user != null) {
+                Map<String, Object> bannedUser = new HashMap<>();
+                bannedUser.put("id", user.getId());
+                bannedUser.put("username", user.getUsername());
+                bannedUser.put("fullName", user.getFullname());
+                bannedUser.put("avatarUrl", user.getAvatarUrl());
+                bannedUser.put("usedFrame", user.getUsedFrame());
+                bannedUsers.add(bannedUser);
+            }
+        }
+
+        return bannedUsers;
     }
 
     /*

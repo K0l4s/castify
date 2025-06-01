@@ -125,4 +125,14 @@ public class WatchPartyController {
             return ResponseEntity.badRequest().build();
         }
     }
+
+    @GetMapping("/{roomId}/banned-users")
+    public ResponseEntity<List<Map<String, Object>>> getBannedUsers(@PathVariable String roomId) {
+        try {
+            List<Map<String, Object>> bannedUsers = watchPartyService.getBannedUsers(roomId);
+            return ResponseEntity.ok(bannedUsers);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().build();
+        }
+    }
 }
