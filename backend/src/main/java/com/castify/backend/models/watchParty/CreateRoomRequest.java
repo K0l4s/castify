@@ -10,5 +10,5 @@ import lombok.NoArgsConstructor;
 public class CreateRoomRequest {
     private String podcastId;
     private String roomName;
-    private boolean isPublic = true;
+    private boolean publish = true;
 }

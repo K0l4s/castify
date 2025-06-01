@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { FiUserMinus, FiShield, FiSettings } from 'react-icons/fi';
+import { FiUserMinus, FiShield, FiSettings, FiSave } from 'react-icons/fi';
 import Avatar from '../../UI/user/Avatar';
 import CustomButton from '../../UI/custom/CustomButton';
 import CustomModal from '../../UI/custom/CustomModal';
@@ -8,6 +8,7 @@ import { useToast } from '../../../context/ToastProvider';
 import defaultAvatar from "../../../assets/images/default_avatar.jpg";
 import { FaCopy } from 'react-icons/fa';
 import { WatchPartyRoom } from '../../../models/WatchPartyModel';
+import CustomInput from '../../UI/custom/CustomInput';
 
 interface BannedUser {
   id: string;
@@ -21,6 +22,7 @@ interface RoomSettingsModalProps {
   isOpen: boolean;
   onClose: () => void;
   room: WatchPartyRoom;
+  onRoomUpdate?: (updatedRoom: WatchPartyRoom) => void;
 }
 
 interface SettingTab {
@@ -54,17 +56,33 @@ const settingTabs: SettingTab[] = [
 const RoomSettingsModal: React.FC<RoomSettingsModalProps> = ({
   isOpen,
   onClose,
-  room
+  room,
+  onRoomUpdate
 }) => {
   const [activeTab, setActiveTab] = useState<string>('general');
   const [bannedUsers, setBannedUsers] = useState<BannedUser[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
   const [unbanning, setUnbanning] = useState<string | null>(null);
+  const [saving, setSaving] = useState<boolean>(false);
+  
+  // Room settings state
+  const [roomSettings, setRoomSettings] = useState({
+    roomName: room.roomName || '',
+    publish: room.publish ?? true,
+    allowChat: room.allowChat ?? true,
+  });
+
   const toast = useToast();
 
   const roomId = room.id; 
-  const roomName = room.roomName; 
-  const roomCode = room.roomCode;
+
+  useEffect(() => {
+    setRoomSettings({
+      roomName: room.roomName || '',
+      publish: room.publish ?? true,
+      allowChat: room.allowChat ?? true,
+    });
+  }, [room]);
 
   // Load banned users when modal opens
   useEffect(() => {
@@ -101,6 +119,32 @@ const RoomSettingsModal: React.FC<RoomSettingsModalProps> = ({
     } finally {
       setUnbanning(null);
     }
+  };
+
+  const handleSaveSettings = async () => {
+    try {
+      setSaving(true);
+      const updatedRoom = await WatchPartyService.editRoom(roomId, roomSettings);
+      
+      // Notify parent component about room update
+      if (onRoomUpdate) {
+        onRoomUpdate(updatedRoom);
+      }
+      
+      toast.success('Room settings updated successfully');
+    } catch (error) {
+      console.error('Error updating room settings:', error);
+      toast.error('Failed to update room settings');
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleSettingsChange = (field: string, value: any) => {
+    setRoomSettings(prev => ({
+      ...prev,
+      [field]: value
+    }));
   };
 
   const getDisplayName = (user: BannedUser) => {
@@ -188,39 +232,126 @@ const RoomSettingsModal: React.FC<RoomSettingsModalProps> = ({
         </p>
       </div>
 
-      <div className="space-y-4">
-        <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-4">
+      <div className="space-y-6">
+        {/* Room Name */}
+        <div>
           <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
             Room Name
           </label>
-          <div className="text-gray-900 dark:text-white font-medium">
-            {roomName}
-          </div>
+          <CustomInput
+            type="text"
+            value={roomSettings.roomName}
+            onChange={(e) => handleSettingsChange('roomName', e.target.value)}
+            placeholder="Enter room name"
+            className="w-full"
+          />
         </div>
 
-        <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-4">
-          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-            Room Code
+        {/* Room Visibility */}
+        <div>
+          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
+            Room Visibility
           </label>
-          <div className="text-gray-900 dark:text-white font-mono">
-            <CustomButton
-              icon={<FaCopy size={16} />}
-              text={roomCode}
-              variant="outline"
-              size="md"
-              className="text-blue-600 dark:text-blue-400 border-blue-600 dark:border-blue-400 hover:bg-blue-100 dark:hover:bg-blue-600/40"
-              onClick={() => { 
-                navigator.clipboard.writeText(roomCode)
-                toast.success('Room code copied to clipboard');
-              }} 
-            />
+          <div className="space-y-3">
+            <label className="flex items-center">
+              <input
+                type="radio"
+                name="visibility"
+                checked={roomSettings.publish}
+                onChange={() => handleSettingsChange('publish', true)}
+                className="mr-3 text-blue-600"
+              />
+              <div>
+                <div className="font-medium text-gray-900 dark:text-white">Public</div>
+                <div className="text-sm text-gray-500 dark:text-gray-400">
+                  Anyone can find and join this room
+                </div>
+              </div>
+            </label>
+            
+            <label className="flex items-center">
+              <input
+                type="radio"
+                name="visibility"
+                checked={!roomSettings.publish}
+                onChange={() => handleSettingsChange('publish', false)} 
+                className="mr-3 text-blue-600"
+              />
+              <div>
+                <div className="font-medium text-gray-900 dark:text-white">Private</div>
+                <div className="text-sm text-gray-500 dark:text-gray-400">
+                  Only people with room code can join
+                </div>
+              </div>
+            </label>
           </div>
         </div>
 
-        {/* Future settings can be added here */}
-        <div className="text-center py-8 text-gray-500 dark:text-gray-400">
-          <FiSettings size={48} className="mx-auto mb-4 opacity-50" />
-          <p>More general settings coming soon...</p>
+        {/* Chat Settings */}
+        <div>
+          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
+            Chat Settings
+          </label>
+          <label className="flex items-center">
+            <input
+              type="checkbox"
+              checked={roomSettings.allowChat}
+              onChange={(e) => handleSettingsChange('allowChat', e.target.checked)}
+              className="mr-3 text-blue-600"
+            />
+            <div>
+              <div className="font-medium text-gray-900 dark:text-white">Allow Chat</div>
+              <div className="text-sm text-gray-500 dark:text-gray-400">
+                Let participants send messages in chat
+              </div>
+            </div>
+          </label>
+        </div>
+
+        {/* Room Information */}
+        <div className="pt-6 border-t border-gray-200 dark:border-gray-700">
+          <h4 className="text-md font-medium text-gray-900 dark:text-white mb-4">
+            Room Information
+          </h4>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="bg-gray-200 dark:bg-gray-700 rounded-lg p-4">
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                Room Code
+              </label>
+              <div className="text-gray-900 dark:text-white font-mono text-lg">
+                {room.roomCode}
+                <FaCopy 
+                  className="inline-block ml-2 text-gray-500 dark:text-gray-400 cursor-pointer hover:text-gray-700 dark:hover:text-gray-300"
+                  title="Copy room code"
+                  onClick={() => {
+                    navigator.clipboard.writeText(room.roomCode);
+                    toast.success('Room code copied to clipboard');
+                  }}
+                />
+              </div>
+            </div>
+
+            <div className="bg-gray-200 dark:bg-gray-700 rounded-lg p-4">
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                Participants
+              </label>
+              <div className="text-gray-900 dark:text-white font-medium">
+                {room.participants?.length || 0} / {room.maxParticipants || 100}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Save Button */}
+        <div className="flex justify-end pt-4">
+          <CustomButton
+            text={saving ? 'Saving...' : 'Save Changes'}
+            icon={<FiSave />}
+            variant="primary"
+            onClick={handleSaveSettings}
+            disabled={saving}
+          />
         </div>
       </div>
     </div>
@@ -307,15 +438,6 @@ const RoomSettingsModal: React.FC<RoomSettingsModalProps> = ({
         <div className="flex-1 pl-6">
           {renderContent()}
         </div>
-      </div>
-
-      {/* Footer */}
-      <div className="flex justify-end pt-6 mt-6 border-t border-gray-200 dark:border-gray-700">
-        <CustomButton
-          text="Close"
-          variant="secondary"
-          onClick={onClose}
-        />
       </div>
     </CustomModal>
   );

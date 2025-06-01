@@ -10,7 +10,7 @@ export interface WatchPartyRoom {
   participants: WatchPartyParticipant[];
   maxParticipants: number;
   currentPosition: number;
-  isPublic: boolean;
+  publish: boolean;
   createdAt: string;
   lastUpdated: string;
   allowChat: boolean;
@@ -63,7 +63,7 @@ export interface ChatMessage {
 export interface CreateRoomRequest {
   podcastId: string;
   roomName: string;
-  isPublic: boolean;
+  publish: boolean;
 }
 
 export interface ChatMessageRequest {

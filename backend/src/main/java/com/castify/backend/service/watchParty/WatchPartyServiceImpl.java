@@ -8,6 +8,8 @@ import com.castify.backend.entity.watchParty.WatchPartyParticipant;
 import com.castify.backend.entity.watchParty.WatchPartyRoomEntity;
 import com.castify.backend.enums.MessageType;
 import com.castify.backend.enums.SyncEventType;
+import com.castify.backend.models.PageDTO;
+import com.castify.backend.models.watchParty.EditWatchPartyRoomDTO;
 import com.castify.backend.repository.PodcastRepository;
 import com.castify.backend.repository.UserRepository;
 import com.castify.backend.repository.WatchPartyMessageRepository;
@@ -48,7 +50,7 @@ public class WatchPartyServiceImpl implements IWatchPartyService {
         room.setRoomName(roomName != null ? roomName : "Watch Party: " + podcast.getTitle());
         room.setHostUserId(host.getId());
         room.setPodcastId(podcastId);
-        room.setPublic(isPublic);
+        room.setPublish(isPublic);
         room.setExpiresAt(LocalDateTime.now().plusHours(8)); // Expire after 8 hours
 
         // Add host as first participant
@@ -61,6 +63,69 @@ public class WatchPartyServiceImpl implements IWatchPartyService {
         // Save to DB and cache
         room = roomRepository.save(room);
         activeRooms.put(room.getId(), room);
+
+        return room;
+    }
+
+    @Override
+    public WatchPartyRoomEntity editRoom(String roomId, EditWatchPartyRoomDTO editRequest) {
+        UserEntity currentUser = SecurityUtils.getCurrentUser();
+        WatchPartyRoomEntity room = getRoomDetails(roomId);
+
+        if (room == null) {
+            throw new RuntimeException("Room not found");
+        }
+
+        if (!room.isHost(currentUser.getId())) {
+            throw new RuntimeException("Only host can edit settings");
+        }
+
+        String oldRoomName = room.getRoomName();
+        boolean oldAllowChat = room.isAllowChat();
+        boolean oldIsPublic = room.isPublish();
+
+        // Update room settings
+        if (editRequest.getRoomName() != null && !editRequest.getRoomName().trim().isEmpty()) {
+            room.setRoomName(editRequest.getRoomName().trim());
+        }
+        room.setPublish(editRequest.isPublish());
+        room.setAllowChat(editRequest.isAllowChat());
+        room.setLastUpdated(LocalDateTime.now());
+
+        roomRepository.save(room);
+        activeRooms.put(roomId, room);
+
+        List<String> changes = new ArrayList<>();
+
+        if (!oldRoomName.equals(room.getRoomName())) {
+            changes.add("Room name changed to: " + room.getRoomName());
+        }
+
+        if (oldAllowChat != room.isAllowChat()) {
+            changes.add("Chat " + (room.isAllowChat() ? "enabled" : "disabled"));
+        }
+
+        if (oldIsPublic != room.isPublish()) {
+            changes.add("Room is now " + (room.isPublish() ? "public" : "private"));
+        }
+
+        // Send system messages for each change
+        for (String change : changes) {
+            notifyRoomParticipants(roomId, "ROOM_SETTINGS_UPDATED",
+                    "Host updated room settings: " + change);
+        }
+
+        // Broadcast messages
+        messagingTemplate.convertAndSend("/topic/room/" + roomId + "/update", room);
+
+        Map<String, Object> settingsUpdate = new HashMap<>();
+        settingsUpdate.put("roomName", room.getRoomName());
+        settingsUpdate.put("allowChat", room.isAllowChat());
+        settingsUpdate.put("isPublic", room.isPublish());
+        settingsUpdate.put("updatedBy", currentUser.getUsername());
+        settingsUpdate.put("timestamp", LocalDateTime.now().toString());
+
+        messagingTemplate.convertAndSend("/topic/room/" + roomId + "/settings-update", settingsUpdate);
 
         return room;
     }
@@ -212,7 +277,6 @@ public class WatchPartyServiceImpl implements IWatchPartyService {
 
     @Override
     public WatchPartyRoomEntity getRoomDetails(String roomId) {
-        System.out.println("ROOMID = " + roomId);
         WatchPartyRoomEntity room = activeRooms.get(roomId);
         if (room == null) {
             room = roomRepository.findByIdAndIsActiveTrue(roomId).orElse(null);
@@ -224,9 +288,42 @@ public class WatchPartyServiceImpl implements IWatchPartyService {
     }
 
     @Override
-    public List<WatchPartyRoomEntity> getPublicRooms(int page, int size) {
+    public PageDTO<WatchPartyRoomEntity> getPublicRooms(int page, int size, String excludeUserId) {
         Pageable pageable = PageRequest.of(page, size);
-        return roomRepository.findByIsPublicTrueAndIsActiveTrueOrderByCreatedAtDesc(pageable);
+        List<WatchPartyRoomEntity> rooms;
+        long totalElements;
+
+        if (excludeUserId != null) {
+            rooms = roomRepository.findByPublishTrueAndIsActiveTrueAndHostUserIdNotOrderByCreatedAtDesc(
+                    excludeUserId, pageable);
+            totalElements = roomRepository.countByPublishTrueAndIsActiveTrueAndHostUserIdNot(excludeUserId);
+        } else {
+            rooms = roomRepository.findByPublishTrueAndIsActiveTrueOrderByCreatedAtDesc(pageable);
+            totalElements = roomRepository.countByPublishTrueAndIsActiveTrue();
+        }
+
+        int totalPages = (int) Math.ceil((double) totalElements / size);
+        return new PageDTO<>(rooms, page, totalPages, (int) totalElements);
+    }
+
+    @Override
+    public PageDTO<WatchPartyRoomEntity> getMyRooms(int page, int size) {
+        UserEntity currentUser = SecurityUtils.getCurrentUser();
+        Pageable pageable = PageRequest.of(page, size);
+
+        List<WatchPartyRoomEntity> rooms = roomRepository.findByHostUserIdAndIsActiveTrueOrderByCreatedAtDesc(
+                currentUser.getId(), pageable);
+
+        long totalElements = roomRepository.countByHostUserIdAndIsActiveTrue(currentUser.getId());
+        int totalPages = (int) Math.ceil((double) totalElements / size);
+
+        return new PageDTO<>(rooms, page, totalPages, (int) totalElements);
+    }
+
+    @Override
+    public WatchPartyRoomEntity getRoomByCode(String roomCode) {
+        return roomRepository.findByRoomCodeAndIsActiveTrue(roomCode)
+                .orElseThrow(() -> new RuntimeException("Room not found or expired"));
     }
 
     @Override

@@ -212,7 +212,6 @@ const WatchPartyPage: React.FC = () => {
       setChatMessages(messages);
     } catch (error) {
       console.error('Failed to load room messages:', error);
-      // Không hiển thị toast error cho việc load messages để không làm phiền user
     }
   }, []);
 
@@ -249,6 +248,11 @@ const WatchPartyPage: React.FC = () => {
       setRoom(updatedRoom);
     };
 
+    const settingsUpdateListener = (data: any) => {
+      console.log('🔧 Room settings updated:', data);
+      toast.info(`Room settings updated by ${data.updatedBy}`);
+    };
+
     const syncEventListener = () => {
       // console.log('Received sync event:', event);
       // Handle any global sync event processing here if needed
@@ -276,7 +280,7 @@ const WatchPartyPage: React.FC = () => {
           setKickBanNotification(prev => ({ ...prev, visible: false }));
           navigate('/');
           toast.warning(`You have been kicked from the watch party. Reason: ${data.reason || 'No reason provided'}`);
-        }, 4000);
+        }, 10000);
       } else {
         console.log(' This kick is not for me, ignoring...');
       }
@@ -318,6 +322,7 @@ const WatchPartyPage: React.FC = () => {
     WatchPartyService.addKickedListener(kickedListener);
     WatchPartyService.addBannedListener(bannedListener);
     WatchPartyService.addMessageDeletedListener(messageDeletedListener);
+    WatchPartyService.addSettingsUpdateListener(settingsUpdateListener);
 
     return () => {
       WatchPartyService.removeChatMessageListener(chatMessageListener);
@@ -327,6 +332,7 @@ const WatchPartyPage: React.FC = () => {
       WatchPartyService.removeKickedListener(kickedListener);
       WatchPartyService.removeBannedListener(bannedListener);
       WatchPartyService.removeMessageDeletedListener(messageDeletedListener);
+      WatchPartyService.removeSettingsUpdateListener(settingsUpdateListener);
     };
   }, [toast, room?.id, currentUser]);
 
@@ -417,7 +423,7 @@ const WatchPartyPage: React.FC = () => {
     };
   }, [isConnected]);
 
-  const handleCreateRoom = async (podcastId: string, roomName: string, isPublic: boolean) => {
+  const handleCreateRoom = async (podcastId: string, roomName: string, publish: boolean) => {
     try {
       setLoading(true);
       setError(null);
@@ -425,7 +431,7 @@ const WatchPartyPage: React.FC = () => {
       const newRoom = await WatchPartyService.createRoom({
         podcastId,
         roomName,
-        isPublic
+        publish
       });
       
       // console.log('Created room data:', newRoom);
