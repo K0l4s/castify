@@ -12,4 +12,5 @@ public class CreateGenreDTO {
     private String name;
     private MultipartFile image;
     private String color;
+    private String textColor;
 }

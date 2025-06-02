@@ -12,4 +12,13 @@ public class GenreSimple {
     private String name;
     private String imageUrl;
     private String color;
+    private String textColor;
+
+    public GenreSimple(String id, String name, String imageUrl, String color) {
+        this.id = id;
+        this.name = name;
+        this.imageUrl = imageUrl;
+        this.color = color;
+        this.textColor = "#ffffff"; // Default text color
+    }
 }
