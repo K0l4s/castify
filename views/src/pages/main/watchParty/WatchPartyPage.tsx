@@ -87,9 +87,13 @@ const WatchPartyPage: React.FC = () => {
     const roomToLeave = currentRoomRef.current;
     if (!roomToLeave || !shouldAutoLeaveRef.current) return;
     
+    const isCurrentUserHost = roomToLeave.hostUserId === currentUser?.id;
+    if (isCurrentUserHost) {
+      console.log(' Host detected - skipping auto-leave on route change');
+      return;
+    }
+
     try {
-      // console.log('🚪 Leaving room silently...');
-      
       // Disconnect WebSocket first
       WatchPartyService.disconnect();
       
@@ -97,19 +101,23 @@ const WatchPartyPage: React.FC = () => {
       await WatchPartyService.leaveRoom(roomToLeave.id);
       
       shouldAutoLeaveRef.current = false;
-      // console.log('Successfully left room silently');
     } catch (error) {
       console.error('Error leaving room silently:', error);
     }
-  }, []);
+  }, [currentUser?.id]);
 
   // Use fetch with keepalive for reliable page unload
   const leaveRoomWithKeepalive = useCallback(() => {
     const roomToLeave = currentRoomRef.current;
     if (!roomToLeave || !shouldAutoLeaveRef.current) return;
 
+    const isCurrentUserHost = roomToLeave.hostUserId === currentUser?.id;
+    if (isCurrentUserHost) {
+      console.log('Host detected - skipping auto-leave on page unload');
+      return;
+    }
+
     try {
-      
       // Disconnect WebSocket immediately
       WatchPartyService.disconnect();
       
@@ -135,7 +143,7 @@ const WatchPartyPage: React.FC = () => {
     } catch (error) {
       console.error('Error in keepalive leave:', error);
     }
-  }, []);
+  }, [currentUser?.id]);
 
   // Handle page unload events (close tab, refresh, navigate away)
   useEffect(() => {
@@ -171,7 +179,7 @@ const WatchPartyPage: React.FC = () => {
         leaveRoomSilently();
       }
     };
-  }, []);
+  }, [leaveRoomSilently]);
 
   // Clean up WebSocket on unmount - separate effect
   useEffect(() => {
@@ -349,7 +357,7 @@ const WatchPartyPage: React.FC = () => {
           WatchPartyService.requestRoomSync(room.id);
         }
       } else {
-        toast.error("Disconnected from watch party");
+        console.error("Disconnected from watch party");
       }
     };
     
