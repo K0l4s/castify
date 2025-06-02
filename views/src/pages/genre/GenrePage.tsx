@@ -92,7 +92,7 @@ const GenrePage = () => {
             >
               {/* Genre Name */}
               <div className="z-10 self-start">
-                <h3 className="text-2xl font-bold text-white truncate">{genre.name}</h3>
+                <h3 className="text-2xl font-bold truncate" style={{ color: genre.textColor || '#ffffff' }}>{genre.name}</h3>
               </div>
 
               {/* Genre Image */}
