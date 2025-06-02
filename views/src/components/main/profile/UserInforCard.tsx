@@ -1,62 +1,54 @@
 import { FaUserFriends } from 'react-icons/fa';
+import { LuUserX2 } from 'react-icons/lu';
 import { userCard } from '../../../models/User';
 import { useNavigate } from 'react-router-dom';
 import { userService } from '../../../services/UserService';
 import { useToast } from '../../../context/ToastProvider';
 import { useState } from 'react';
-import { LuUserX2 } from 'react-icons/lu';
-import defaultAvatar from '../../../assets/images/default_avatar.jpg';
+import Avatar from '../../UI/user/Avatar';
 
 const UserInforCard = (user: userCard) => {
   const [isFollow, setIsFollow] = useState(user.follow);
   const navigate = useNavigate();
   const toast = useToast();
+
   const toggleFollow = async () => {
-    await userService.followUser(user.username).then(() => {
-      // user.follow = !user.follow
-      setIsFollow(!isFollow)
-      if (isFollow) toast.success("You have successfully unfollowed " + user.fullname)
-      else toast.success("You have successfully followed " + user.fullname)
-    console.log(user)
-    })
-      ;
-  }
+    try {
+      await userService.followUser(user.username);
+      setIsFollow(!isFollow);
+      toast.success(
+        isFollow
+          ? `You have unfollowed ${user.fullname}`
+          : `You are now following ${user.fullname}`
+      );
+    } catch (error) {
+      toast.error('Something went wrong. Please try again.');
+    }
+  };
+
   return (
-    <div className=" flex flex-col items-center w-96 p-4">
-      <div className="w-full max-w-sm bg-gray-800 rounded-lg shadow-lg p-6">
-        <div className="flex flex-col items-center">
-          <img
-            src={user.avatarUrl ? user.avatarUrl : defaultAvatar}
-            alt="Profile"
-            className="w-12 h-12 rounded-full border-4 border-blue-500 mb-4 cursor-pointer"
-            onClick={() => navigate(`/profile/${user.username}`)}
-          />
-          <h2 className="text-xl text-center font-bold mb-2 cursor-pointer" onClick={() => navigate(`/profile/${user.username}`)}>{user.fullname}</h2>
-          <p className="text-gray-400 text-sm mb-4 cursor-pointer" onClick={() => navigate(`/profile/${user.username}`)}>@{user.username}</p>
+    <div className="w-48 text-center bg-gradient-to-br from-[#1f2937] to-[#111827] text-white rounded-2xl shadow-2xl overflow-hidden transition transform hover:scale-105 duration-300">
+      <div className="flex flex-col items-center px-6 py-8">
 
-          <div className="flex justify-between w-full mb-6">
-            <div className="text-center">
-              <div className="font-bold">{user.totalFollowing}</div>
-              <div className="text-sm text-gray-400">Following</div>
-            </div>
-            <div className="text-center">
-              <div className="font-bold">{user.totalFollower}</div>
-              <div className="text-sm text-gray-400">Followers</div>
-            </div>
-            <div className="text-center">
-              <div className="font-bold">{user.totalPost}</div>
-              <div className="text-sm text-gray-400">Posts</div>
-            </div>
-          </div>
+        <Avatar avatarUrl={user.avatarUrl} alt={user.fullname} width='w-20' height='h-20' usedFrame={user.usedFrame}/>
+        <h3
+          className="mt-4 text-sm font-semibold hover:underline cursor-pointer"
+          onClick={() => navigate(`/profile/${user.username}`)}
+        >
+          {user.fullname}
+        </h3>
 
-          <button onClick={toggleFollow}
-            className={`w-full  text-white font-semibold py-2 px-4 rounded-lg transition duration-200 flex items-center justify-center
-            ${isFollow ? "bg-red-500 hover:bg-red-600" : "bg-blue-500 hover:bg-blue-600"}
-            `}>
-              {isFollow ? <LuUserX2 className="mr-2" /> : <FaUserFriends  className="mr-2" />}
-            {isFollow ? "Unfollow" : "Follow"}
-          </button>
-        </div>
+        <button
+          onClick={toggleFollow}
+          className={`mt-6 flex items-center justify-center gap-2 w-full py-2 text-sm font-medium rounded-full transition duration-200
+          ${isFollow
+              ? 'bg-red-500 hover:bg-red-600'
+              : 'bg-blue-500 hover:bg-blue-600'
+            }`}
+        >
+          {isFollow ? <LuUserX2 className="text-lg" /> : <FaUserFriends className="text-lg" />}
+          {isFollow ? 'Unfollow' : 'Follow'}
+        </button>
       </div>
     </div>
   );

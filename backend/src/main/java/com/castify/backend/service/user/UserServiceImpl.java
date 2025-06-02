@@ -4,6 +4,7 @@ import com.castify.backend.entity.UserEntity;
 import com.castify.backend.entity.location.WardEntity;
 import com.castify.backend.enums.NotiType;
 import com.castify.backend.enums.Role;
+import com.castify.backend.models.PageDTO;
 import com.castify.backend.models.paginated.PaginatedResponse;
 import com.castify.backend.models.user.*;
 import com.castify.backend.repository.PodcastRepository;
@@ -298,7 +299,7 @@ public class UserServiceImpl implements IUserService {
         return resultUsers;
     }
     @Override
-    public List<UserSimple> recommendUsers() throws Exception {
+    public PageDTO<UserSimple> recommendUsers(int page, int size) throws Exception {
         UserEntity currentUser = getUserByAuthentication();
         List<UserEntity> allUsers = userRepository.findAll();
 
@@ -340,8 +341,8 @@ public class UserServiceImpl implements IUserService {
             }
         }
 
-        // Trả kết quả sau khi sắp xếp theo điểm giảm dần
-        List<UserSimple> resultUsers = scores.entrySet().stream()
+        // Sắp xếp theo điểm giảm dần
+        List<UserSimple> sortedRecommendations = scores.entrySet().stream()
                 .sorted((a, b) -> b.getValue().compareTo(a.getValue()))
                 .map(entry -> {
                     UserEntity user = userMap.get(entry.getKey());
@@ -349,8 +350,18 @@ public class UserServiceImpl implements IUserService {
                 })
                 .collect(Collectors.toList());
 
-        return resultUsers;
+        int totalElements = sortedRecommendations.size();
+        int totalPages = (int) Math.ceil((double) totalElements / size);
+        int fromIndex = page * size;
+        int toIndex = Math.min(fromIndex + size, totalElements);
+
+        List<UserSimple> pageContent = fromIndex >= totalElements
+                ? Collections.emptyList()
+                : sortedRecommendations.subList(fromIndex, toIndex);
+
+        return new PageDTO<>(pageContent, page, totalPages, totalElements);
     }
+
 
 
 

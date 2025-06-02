@@ -390,7 +390,8 @@ const ProfilePage: React.FC = () => {
                   <p className="text-gray-600 dark:text-gray-500 text-sm">This user hasn't uploaded any podcasts yet.</p>
                 </div>
               ) : (
-                <div className="flex flex-wrap gap-6">
+                <div className="flex flex-wrap w-full m-auto
+       gap-4 items-center justify-center">
                   {podcasts.map((podcast) => (
                     <PodcastTag
                       key={podcast.id}

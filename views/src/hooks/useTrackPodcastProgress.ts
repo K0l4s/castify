@@ -21,6 +21,10 @@ export function useTrackPodcastProgress({
     };
 
     const sendTrackingData = async () => {
+      if (!podcastId || !userId) {
+        console.warn('Podcast ID or User ID is missing. Skipping tracking.');
+        return;
+      }
       const pauseTime = getCurrentTime();
       try {
         await axios.post(BaseApi+'/api/v1/tracking', {

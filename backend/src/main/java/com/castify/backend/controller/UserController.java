@@ -89,10 +89,10 @@ public class UserController {
         }
     }
     @GetMapping("/recommend")
-    private ResponseEntity<?> getRecommendUser() throws Exception {
+    private ResponseEntity<?> getRecommendUser(@RequestParam(value = "pageNumber",defaultValue = "0") int pageNumber,
+                                               @RequestParam(value = "pageSize", defaultValue="4") int pageSize) throws Exception {
         try {
-            List<UserSimple> users = userService.recommendUsers();
-            return ResponseEntity.ok(users);
+            return ResponseEntity.ok(userService.recommendUsers(pageNumber,pageSize));
         } catch (Exception e) {
             e.printStackTrace(); // In toàn bộ lỗi thật ra console
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Có lỗi xảy ra: " + e.getMessage());

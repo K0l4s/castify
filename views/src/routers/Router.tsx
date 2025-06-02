@@ -35,7 +35,7 @@ import MyShop from '../pages/main/blankShop/MyShop'
 import PurchasedFrames from '../pages/main/blankShop/PurchasedFrames'
 import PaymentSuccess from '../pages/main/blankShop/PaymentSuccess'
 import PaymentFailure from '../pages/main/blankShop/PaymentFailure'
-import Payment from '../pages/main/blankShop/Payment'
+// import Payment from '../pages/main/blankShop/Payment'
 import ConversationLayout from '../pages/main/conversation/ConversationLayout'
 import PlaylistPage from '../pages/main/playlistPage/PlaylistPage'
 import SettingModals from '../components/modals/user/SettingModal'
@@ -50,6 +50,7 @@ import DetailPlaylistPage from '../pages/main/playlistPage/DetailPlaylistPage'
 import WatchPartyPage from '../pages/main/watchParty/WatchPartyPage'
 import GenrePodcastsPage from '../pages/genre/GenrePodcastsPage'
 import BrowseRoomsPage from '../pages/main/watchParty/BrowseRoomsPage'
+// import IntroVideoPage from '../pages/main/landingPage/IntroVideoPage'
 
 // import Test from '../components/main/conversation/Test'
 // import Test from '../pages/main/blankShop/Test'
@@ -98,12 +99,13 @@ const Router = () => {
                 <Route path='/privacy' element={<PrivacyPolicy />} />
                 <Route path='/payment-success' element={<PaymentSuccess />} />
                 <Route path='/payment-failure' element={<PaymentFailure />} />
-                <Route path='/payment' element={<Payment />} />
+                {/* <Route path='/payment' element={<Payment />} /> */}
                 <Route path="/msg" element={<ConversationLayout />} />
                 <Route path="/msg/:id" element={<ConversationLayout />} />
                 <Route path='video-editor' element={<VideoEditor />} />
                 <Route path='/genres' element={<GenrePage />} />
                 <Route path='/genres/:genreId' element={<GenrePodcastsPage />} />
+                {/* <Route path="/info" element={<IntroVideoPage/>}/> */}
 
                 {/* <Route path='test' element={<Test/>}/> */}
                 {/* <Route path='/noti' element={<NotificationComponent />} /> */}
