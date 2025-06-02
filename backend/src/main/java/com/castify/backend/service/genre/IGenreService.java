@@ -12,8 +12,10 @@ public interface IGenreService {
     List<GenreModel> getALlGenre();
     GenreModel createGenre(String name, MultipartFile image);
     GenreModel createGenre(String name, MultipartFile image, String color);
+    GenreModel createGenre(String name, MultipartFile image, String color, String textColor);
     GenreModel updateGenre(String id, String newName, MultipartFile image);
     GenreModel updateGenre(String id, String newName, MultipartFile image, String color);
+    GenreModel updateGenre(String id, String newName, MultipartFile image, String color, String textColor);
     String deleteGenre(String id);
     List<GenreSimple> getGenresByIds(List<String> ids);
     long countActiveGenres();
