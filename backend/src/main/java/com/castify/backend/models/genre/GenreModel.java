@@ -14,6 +14,7 @@ public class GenreModel {
     private String name;
     private String imageUrl;
     private String color;
+    private String textColor;
     private boolean isActive;
     private LocalDateTime lastEdited;
 }
