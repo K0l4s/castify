@@ -91,7 +91,7 @@ const PurchasedFrames = () => {
                 alt={frame.name}
                 className="w-full h-full object-contain p-4"
               />
-              <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-50 transition duration-300 flex items-center justify-center">
+              <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-50 transition duration-300 flex items-center justify-center opacity-0 group-hover:opacity-100">
                 <button 
                   onClick={() => handlePreview(frame)}
                   className="px-4 py-2 bg-white text-black rounded-lg hover:bg-gray-100 dark:bg-gray-700 dark:text-white dark:hover:bg-gray-600 transition-colors"
