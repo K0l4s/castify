@@ -38,7 +38,6 @@ public class WatchPartyWebSocketController {
             Principal user = headerAccessor.getUser();
             if (user != null) {
                 String userId = user.getName();
-                System.out.println("User ID from WebSocket session: " + userId);
 
                 syncEvent.setUserId(userId);
                 syncEvent.setRoomId(roomId);

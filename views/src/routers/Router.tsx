@@ -49,6 +49,7 @@ import LikedPage from '../pages/main/likedPage/LikedPage'
 import DetailPlaylistPage from '../pages/main/playlistPage/DetailPlaylistPage'
 import WatchPartyPage from '../pages/main/watchParty/WatchPartyPage'
 import GenrePodcastsPage from '../pages/genre/GenrePodcastsPage'
+import BrowseRoomsPage from '../pages/main/watchParty/BrowseRoomsPage'
 
 // import Test from '../components/main/conversation/Test'
 // import Test from '../pages/main/blankShop/Test'
@@ -142,6 +143,7 @@ const Router = () => {
                     <Route path='/my-shop' element={<RequireAuth><MyShop /></RequireAuth>} />
                     <Route path='/purchased-frames' element={<RequireAuth><PurchasedFrames /></RequireAuth>} />
                     <Route path='/watch-party' element={<RequireAuth><WatchPartyPage /></RequireAuth>} />
+                    <Route path='/browse-rooms' element={<RequireAuth><BrowseRoomsPage /></RequireAuth>} />
                 </Route>
                 <Route element={<ProfileLayout />}>
 

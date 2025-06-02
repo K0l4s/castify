@@ -2,10 +2,13 @@ import React, { useEffect, useRef, useState } from 'react';
 import { Podcast } from '../../../models/PodcastModel';
 import { SyncEventType } from '../../../models/WatchPartyModel';
 import WatchPartyService from '../../../services/WatchPartyService';
-import { formatTimeDuration } from '../../../components/UI/podcast/video';
+import { formatTimeDuration, setupVideoViewTracking } from '../../../components/UI/podcast/video';
 import { FaPause, FaPlay } from 'react-icons/fa';
 import { FiVolume2, FiVolumeX } from 'react-icons/fi';
 import { BsFullscreen } from 'react-icons/bs';
+import { useSelector } from 'react-redux';
+import { RootState } from '../../../redux/store';
+import { incrementPodcastViews } from '../../../services/PodcastService';
 
 interface WatchPartyPlayerProps {
   podcast: Podcast;
@@ -14,6 +17,7 @@ interface WatchPartyPlayerProps {
   initialPosition?: number;
   onSync: (position: number, playing: boolean, eventType: SyncEventType) => void;
   roomId: string;
+  onViewIncrement?: () => void;
 }
 
 const WatchPartyPlayer: React.FC<WatchPartyPlayerProps> = ({ 
@@ -22,7 +26,8 @@ const WatchPartyPlayer: React.FC<WatchPartyPlayerProps> = ({
   isConnected,
   initialPosition = 0,
   onSync,
-  roomId
+  roomId,
+  onViewIncrement
 }) => {
   const videoRef = useRef<HTMLVideoElement>(null);
   const playerContainerRef = useRef<HTMLDivElement>(null);
@@ -43,6 +48,21 @@ const WatchPartyPlayer: React.FC<WatchPartyPlayerProps> = ({
   const syncThrottleRef = useRef<NodeJS.Timeout | null>(null);
   const initialSyncDoneRef = useRef<boolean>(false);
   const syncIntervalRef = useRef<NodeJS.Timeout | null>(null);
+
+  const isAuthenticated = useSelector((state: RootState) => state.auth.isAuthenticated);
+
+    // Add view tracking effect
+  useEffect(() => {
+    if (videoRef.current && isAuthenticated) {
+      const cleanup = setupVideoViewTracking(
+        videoRef.current,
+        incrementPodcastViews,
+        podcast.id,
+        onViewIncrement
+      );
+      return cleanup;
+    }
+  }, [podcast.id, isAuthenticated]);
 
   useEffect(() => {
     const handleUserInteraction = () => {
@@ -452,7 +472,7 @@ const WatchPartyPlayer: React.FC<WatchPartyPlayerProps> = ({
       {/* Video */}
       <video
         ref={videoRef}
-        className="w-full h-full"
+        className="w-full h-full aspect-video"
         src={podcast.videoUrl}
         poster={podcast.thumbnailUrl || undefined}
         playsInline

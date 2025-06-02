@@ -6,6 +6,7 @@ import { useToast } from "../../context/ToastProvider";
 import { useLanguage } from "../../context/LanguageContext";
 import { BsFire } from "react-icons/bs";
 import FollowingSidebar from "./FollowingSidebar";
+import { MdLiveTv } from "react-icons/md";
 
 const MainSidebar = () => {
   const location = useLocation();
@@ -107,6 +108,13 @@ const MainSidebar = () => {
                   <path d="M16.5 13.5v5.379l2.25-1.43 2.25-1.43-2.25-1.43-2.25-1.43z"/>
                 </svg>
                 {isOpenSideBar && <span>{language.sidebar.playlist}</span>}
+              </Link>
+            </li>
+
+            <li>
+              <Link to="/browse-rooms" className={getLinkClass("/browse-rooms")} onClick={handleClick}>
+                <MdLiveTv className={`w-[24px] h-[24px] mb-1 ${isOpenSideBar ? 'mr-4' : 'mx-auto'}`} />
+                {isOpenSideBar && <span>Watch Party</span>}
               </Link>
             </li>
 

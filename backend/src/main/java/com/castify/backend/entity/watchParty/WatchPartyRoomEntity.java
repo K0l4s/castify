@@ -24,7 +24,7 @@ public class WatchPartyRoomEntity {
     private String podcastId;
 
     private List<WatchPartyParticipant> participants = new ArrayList<>();
-    private int maxParticipants = 10;
+    private int maxParticipants = 100;
 
     // Playback state
     private long currentPosition = 0; // Current playback position in seconds
@@ -32,12 +32,13 @@ public class WatchPartyRoomEntity {
     private LocalDateTime lastUpdated = LocalDateTime.now();
 
     // Room settings
-    private boolean isPublic = true; // Public rooms can be discovered
+    private boolean publish = true; // Public rooms can be discovered
     private boolean allowChat = true;
     private boolean hostOnlyControl = true; // Only host can control playback
 
     private LocalDateTime createdAt = LocalDateTime.now();
     private LocalDateTime expiresAt; // Auto-expire after X hours
+    private List<String> bannedUserIds = new ArrayList<>();
     private boolean isActive = true;
 
     public boolean isFull() {
@@ -51,5 +52,19 @@ public class WatchPartyRoomEntity {
     public boolean hasParticipant(String userId) {
         return participants.stream()
                 .anyMatch(p -> p.getUserId().equals(userId));
+    }
+
+    public boolean isBanned(String userId) {
+        return bannedUserIds.contains(userId);
+    }
+
+    public void banUser(String userId) {
+        if (!bannedUserIds.contains(userId)) {
+            bannedUserIds.add(userId);
+        }
+    }
+
+    public void unbanUser(String userId) {
+        bannedUserIds.remove(userId);
     }
 }

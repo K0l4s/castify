@@ -18,13 +18,31 @@ export default class WatchPartyService {
   private static isConnecting: boolean = false;
   private static reconnectTimer: any = null;
   private static hostSyncRequestListeners: ((event: any) => void)[] = [];
-  
+  private static kickedListeners: ((data: any) => void)[] = [];
+  private static bannedListeners: ((data: any) => void)[] = [];
+  private static messageDeletedListeners: ((data: any) => void)[] = [];
+  private static settingsUpdateListeners: Array<(data: any) => void> = [];
+
   static async createRoom(request: CreateRoomRequest): Promise<WatchPartyRoom> {
     try {
       const response = await axiosInstanceAuth.post(`/api/v1/watch-party/create`, request);
       return response.data;
     } catch (error) {
       console.error("Error creating room:", error);
+      throw error;
+    }
+  }
+
+  static async editRoom(roomId: string, settings: {
+    roomName: string;
+    publish: boolean;
+    allowChat: boolean;
+  }): Promise<any> {
+    try {
+      const response = await axiosInstanceAuth.put(`/api/v1/watch-party/${roomId}/edit`, settings);
+      return response.data;
+    } catch (error) {
+      console.error('Error editing room:', error);
       throw error;
     }
   }
@@ -58,9 +76,15 @@ export default class WatchPartyService {
     }
   }
 
-  static async getPublicRooms(page: number = 0, size: number = 10): Promise<WatchPartyRoom[]> {
+  static async getPublicRooms(page: number = 0, size: number = 10, excludeMyRooms: boolean = true): Promise<{
+    content: WatchPartyRoom[];
+    size: number;
+    currentPage: number;
+    totalPages: number;
+    totalElements: number;
+  }> {
     try {
-      const response = await axiosInstanceAuth.get(`/api/v1/watch-party/public?page=${page}&size=${size}`);
+      const response = await axiosInstanceAuth.get(`/api/v1/watch-party/public?page=${page}&size=${size}&excludeMyRooms=${excludeMyRooms}`);
       return response.data;
     } catch (error) {
       console.error("Error getting public rooms:", error);
@@ -68,6 +92,109 @@ export default class WatchPartyService {
     }
   }
 
+
+  static async getMyRooms(page: number = 0, size: number = 10): Promise<{
+    content: WatchPartyRoom[];
+    size: number;
+    currentPage: number;
+    totalPages: number;
+    totalElements: number;
+  }> {
+    try {
+      const response = await axiosInstanceAuth.get(`/api/v1/watch-party/my-rooms?page=${page}&size=${size}`);
+      return response.data;
+    } catch (error) {
+      console.error("Error getting my rooms:", error);
+      throw error;
+    }
+  }
+
+  static async getRoomByCode(roomCode: string): Promise<WatchPartyRoom> {
+    try {
+      const response = await axiosInstanceAuth.get(`/api/v1/watch-party/room/${roomCode}`);
+      return response.data;
+    } catch (error) {
+      console.error("Error getting room by code:", error);
+      throw error;
+    }
+  }
+
+  static async getRoomMessages(roomId: string, page: number = 0, size: number = 50): Promise<ChatMessage[]> {
+    try {
+      const response = await axiosInstanceAuth(`/api/v1/watch-party/${roomId}/messages?page=${page}&size=${size}`);
+
+      return response.data.map((msg: any) => ({
+        id: msg.id,
+        roomId: msg.roomId,
+        userId: msg.userId,
+        username: msg.username,
+        avatarUrl: msg.avatarUrl,
+        message: msg.message,
+        type: msg.type,
+        timestamp: msg.timestamp
+      }));
+    } catch (error) {
+      console.error('Error fetching room messages:', error);
+      throw error;
+    }
+  }
+
+  // Moderation methods
+  static async kickUser(roomId: string, userId: string, reason?: string): Promise<void> {
+    try {
+      await axiosInstanceAuth.post(`/api/v1/watch-party/${roomId}/kick`, {
+        userId,
+        reason
+      });
+    } catch (error) {
+      console.error("Error kicking user:", error);
+      throw error;
+    }
+  }
+
+  static async banUser(roomId: string, userId: string, reason?: string): Promise<void> {
+    try {
+      await axiosInstanceAuth.post(`/api/v1/watch-party/${roomId}/ban`, {
+        userId,
+        reason
+      });
+    } catch (error) {
+      console.error("Error banning user:", error);
+      throw error;
+    }
+  }
+
+  static async unbanUser(roomId: string, userId: string): Promise<void> {
+    try {
+      await axiosInstanceAuth.post(`/api/v1/watch-party/${roomId}/unban`, {
+        userId
+      });
+    } catch (error) {
+      console.error("Error unbanning user:", error);
+      throw error;
+    }
+  }
+
+  static async getBannedUsers(roomId: string): Promise<any[]> {
+  try {
+    const response = await axiosInstanceAuth.get(`/api/v1/watch-party/${roomId}/banned-users`);
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching banned users:', error);
+    throw error;
+  }
+}
+
+  static async deleteMessage(roomId: string, messageId: string): Promise<void> {
+    try {
+      await axiosInstanceAuth.delete(`/api/v1/watch-party/${roomId}/messages/${messageId}`);
+    } catch (error) {
+      console.error("Error deleting message:", error);
+      throw error;
+    }
+  }
+
+  // Socket
   static connect(roomId: string): Promise<boolean> {
     return new Promise((resolve, reject) => {
       // Clear any existing reconnect timer
@@ -114,9 +241,11 @@ export default class WatchPartyService {
           Authorization: `Bearer ${token}`,
           "ngrok-skip-browser-warning": "true"
         },
-        // debug: (str) => {
-        //   console.log('STOMP Debug:', str);
-        // },
+        debug: (str) => {
+          if (str.includes('kick') || str.includes('ban') || str.includes('queue')) {
+            console.log('🔥 STOMP Debug:', str);
+          }
+        },
         reconnectDelay: 5000,
         heartbeatIncoming: 4000,
         heartbeatOutgoing: 4000
@@ -152,6 +281,43 @@ export default class WatchPartyService {
           subscribeHeaders
         );
         
+        this.stompClient!.subscribe(`/topic/room/${roomId}/kick`, (message) => {
+          try {
+            const kickData = JSON.parse(message.body);
+            
+            // handle the filtering
+            this.kickedListeners.forEach((listener) => {
+              listener(kickData);
+            });
+          } catch (error) {
+            console.error('Error parsing data:', error);
+          }
+        }, subscribeHeaders);
+
+        this.stompClient!.subscribe(`/topic/room/${roomId}/ban`, (message) => {
+          try {
+            const banData = JSON.parse(message.body);
+            
+            // handle the filtering
+            this.bannedListeners.forEach((listener) => {
+              listener(banData);
+            });
+          } catch (error) {
+            console.error('Error parsing data', error);
+          }
+        }, subscribeHeaders);
+
+        this.stompClient!.subscribe(`/topic/room/${roomId}/message-deleted`, (message) => {
+          const deleteData = JSON.parse(message.body);
+          this.messageDeletedListeners.forEach(listener => listener(deleteData));
+        });
+
+        // Settings update subscription
+        this.stompClient!.subscribe(`/topic/room/${roomId}/settings-update`, (message) => {
+          const data = JSON.parse(message.body);
+          this.settingsUpdateListeners.forEach(listener => listener(data));
+        });
+
         // Notify all listeners that we're connected
         this.connectionStatusListeners.forEach(listener => listener(true));
         
@@ -396,5 +562,37 @@ export default class WatchPartyService {
   
   static removeHostSyncRequestListener(listener: (event: any) => void): void {
     this.hostSyncRequestListeners = this.hostSyncRequestListeners.filter(l => l !== listener);
+  }
+
+  static addKickedListener(listener: (data: any) => void) {
+    this.kickedListeners.push(listener);
+  }
+
+  static removeKickedListener(listener: (data: any) => void) {
+    this.kickedListeners = this.kickedListeners.filter(l => l !== listener);
+  }
+
+  static addBannedListener(listener: (data: any) => void) {
+    this.bannedListeners.push(listener);
+  }
+
+  static removeBannedListener(listener: (data: any) => void) {
+    this.bannedListeners = this.bannedListeners.filter(l => l !== listener);
+  }
+
+  static addMessageDeletedListener(listener: (data: any) => void) {
+    this.messageDeletedListeners.push(listener);
+  }
+
+  static removeMessageDeletedListener(listener: (data: any) => void) {
+    this.messageDeletedListeners = this.messageDeletedListeners.filter(l => l !== listener);
+  }
+
+  static addSettingsUpdateListener(listener: (data: any) => void) {
+    this.settingsUpdateListeners.push(listener);
+  }
+
+  static removeSettingsUpdateListener(listener: (data: any) => void) {
+    this.settingsUpdateListeners = this.settingsUpdateListeners.filter(l => l !== listener);
   }
 }

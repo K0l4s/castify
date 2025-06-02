@@ -13,6 +13,12 @@ public interface WatchPartyRoomRepository extends MongoRepository<WatchPartyRoom
     Optional<WatchPartyRoomEntity> findByRoomCodeAndIsActiveTrue(String roomCode);
     Optional<WatchPartyRoomEntity> findByIdAndIsActiveTrue(String id);
     boolean existsByRoomCodeAndIsActiveTrue(String roomCode);
-    List<WatchPartyRoomEntity> findByIsPublicTrueAndIsActiveTrueOrderByCreatedAtDesc(Pageable pageable);
+    List<WatchPartyRoomEntity> findByPublishTrueAndIsActiveTrueOrderByCreatedAtDesc(Pageable pageable);
+    long countByPublishTrueAndIsActiveTrue();
     List<WatchPartyRoomEntity> findByHostUserId(String hostUserId);
+
+    List<WatchPartyRoomEntity> findByHostUserIdAndIsActiveTrueOrderByCreatedAtDesc(String hostUserId, Pageable pageable);
+    long countByHostUserIdAndIsActiveTrue(String hostUserId);
+    List<WatchPartyRoomEntity> findByPublishTrueAndIsActiveTrueAndHostUserIdNotOrderByCreatedAtDesc(String excludeHostUserId, Pageable pageable);
+    long countByPublishTrueAndIsActiveTrueAndHostUserIdNot(String excludeHostUserId);
 }

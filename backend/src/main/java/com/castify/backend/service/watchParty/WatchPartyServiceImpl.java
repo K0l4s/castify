@@ -8,6 +8,8 @@ import com.castify.backend.entity.watchParty.WatchPartyParticipant;
 import com.castify.backend.entity.watchParty.WatchPartyRoomEntity;
 import com.castify.backend.enums.MessageType;
 import com.castify.backend.enums.SyncEventType;
+import com.castify.backend.models.PageDTO;
+import com.castify.backend.models.watchParty.EditWatchPartyRoomDTO;
 import com.castify.backend.repository.PodcastRepository;
 import com.castify.backend.repository.UserRepository;
 import com.castify.backend.repository.WatchPartyMessageRepository;
@@ -16,13 +18,12 @@ import com.castify.backend.utils.SecurityUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 @Service
@@ -49,7 +50,7 @@ public class WatchPartyServiceImpl implements IWatchPartyService {
         room.setRoomName(roomName != null ? roomName : "Watch Party: " + podcast.getTitle());
         room.setHostUserId(host.getId());
         room.setPodcastId(podcastId);
-        room.setPublic(isPublic);
+        room.setPublish(isPublic);
         room.setExpiresAt(LocalDateTime.now().plusHours(8)); // Expire after 8 hours
 
         // Add host as first participant
@@ -67,12 +68,79 @@ public class WatchPartyServiceImpl implements IWatchPartyService {
     }
 
     @Override
+    public WatchPartyRoomEntity editRoom(String roomId, EditWatchPartyRoomDTO editRequest) {
+        UserEntity currentUser = SecurityUtils.getCurrentUser();
+        WatchPartyRoomEntity room = getRoomDetails(roomId);
+
+        if (room == null) {
+            throw new RuntimeException("Room not found");
+        }
+
+        if (!room.isHost(currentUser.getId())) {
+            throw new RuntimeException("Only host can edit settings");
+        }
+
+        String oldRoomName = room.getRoomName();
+        boolean oldAllowChat = room.isAllowChat();
+        boolean oldIsPublic = room.isPublish();
+
+        // Update room settings
+        if (editRequest.getRoomName() != null && !editRequest.getRoomName().trim().isEmpty()) {
+            room.setRoomName(editRequest.getRoomName().trim());
+        }
+        room.setPublish(editRequest.isPublish());
+        room.setAllowChat(editRequest.isAllowChat());
+        room.setLastUpdated(LocalDateTime.now());
+
+        roomRepository.save(room);
+        activeRooms.put(roomId, room);
+
+        List<String> changes = new ArrayList<>();
+
+        if (!oldRoomName.equals(room.getRoomName())) {
+            changes.add("Room name changed to: " + room.getRoomName());
+        }
+
+        if (oldAllowChat != room.isAllowChat()) {
+            changes.add("Chat " + (room.isAllowChat() ? "enabled" : "disabled"));
+        }
+
+        if (oldIsPublic != room.isPublish()) {
+            changes.add("Room is now " + (room.isPublish() ? "public" : "private"));
+        }
+
+        // Send system messages for each change
+        for (String change : changes) {
+            notifyRoomParticipants(roomId, "ROOM_SETTINGS_UPDATED",
+                    "Host updated room settings: " + change);
+        }
+
+        // Broadcast messages
+        messagingTemplate.convertAndSend("/topic/room/" + roomId + "/update", room);
+
+        Map<String, Object> settingsUpdate = new HashMap<>();
+        settingsUpdate.put("roomName", room.getRoomName());
+        settingsUpdate.put("allowChat", room.isAllowChat());
+        settingsUpdate.put("isPublic", room.isPublish());
+        settingsUpdate.put("updatedBy", currentUser.getUsername());
+        settingsUpdate.put("timestamp", LocalDateTime.now().toString());
+
+        messagingTemplate.convertAndSend("/topic/room/" + roomId + "/settings-update", settingsUpdate);
+
+        return room;
+    }
+
+    @Override
     public WatchPartyRoomEntity joinRoom(String roomCode) {
         UserEntity user = SecurityUtils.getCurrentUser();
 
         // Tìm room
         WatchPartyRoomEntity room = roomRepository.findByRoomCodeAndIsActiveTrue(roomCode)
                 .orElseThrow(() -> new RuntimeException("Room not found or expired"));
+
+        if (room.isBanned(user.getId())) {
+            throw new RuntimeException("You are banned from this room");
+        }
 
         // Kiểm tra room có full không
         if (room.isFull()) {
@@ -209,7 +277,6 @@ public class WatchPartyServiceImpl implements IWatchPartyService {
 
     @Override
     public WatchPartyRoomEntity getRoomDetails(String roomId) {
-        System.out.println("ROOMID = " + roomId);
         WatchPartyRoomEntity room = activeRooms.get(roomId);
         if (room == null) {
             room = roomRepository.findByIdAndIsActiveTrue(roomId).orElse(null);
@@ -221,9 +288,288 @@ public class WatchPartyServiceImpl implements IWatchPartyService {
     }
 
     @Override
-    public List<WatchPartyRoomEntity> getPublicRooms(int page, int size) {
+    public PageDTO<WatchPartyRoomEntity> getPublicRooms(int page, int size, String excludeUserId) {
         Pageable pageable = PageRequest.of(page, size);
-        return roomRepository.findByIsPublicTrueAndIsActiveTrueOrderByCreatedAtDesc(pageable);
+        List<WatchPartyRoomEntity> rooms;
+        long totalElements;
+
+        if (excludeUserId != null) {
+            rooms = roomRepository.findByPublishTrueAndIsActiveTrueAndHostUserIdNotOrderByCreatedAtDesc(
+                    excludeUserId, pageable);
+            totalElements = roomRepository.countByPublishTrueAndIsActiveTrueAndHostUserIdNot(excludeUserId);
+        } else {
+            rooms = roomRepository.findByPublishTrueAndIsActiveTrueOrderByCreatedAtDesc(pageable);
+            totalElements = roomRepository.countByPublishTrueAndIsActiveTrue();
+        }
+
+        int totalPages = (int) Math.ceil((double) totalElements / size);
+        return new PageDTO<>(rooms, page, totalPages, (int) totalElements);
+    }
+
+    @Override
+    public PageDTO<WatchPartyRoomEntity> getMyRooms(int page, int size) {
+        UserEntity currentUser = SecurityUtils.getCurrentUser();
+        Pageable pageable = PageRequest.of(page, size);
+
+        List<WatchPartyRoomEntity> rooms = roomRepository.findByHostUserIdAndIsActiveTrueOrderByCreatedAtDesc(
+                currentUser.getId(), pageable);
+
+        long totalElements = roomRepository.countByHostUserIdAndIsActiveTrue(currentUser.getId());
+        int totalPages = (int) Math.ceil((double) totalElements / size);
+
+        return new PageDTO<>(rooms, page, totalPages, (int) totalElements);
+    }
+
+    @Override
+    public WatchPartyRoomEntity getRoomByCode(String roomCode) {
+        return roomRepository.findByRoomCodeAndIsActiveTrue(roomCode)
+                .orElseThrow(() -> new RuntimeException("Room not found or expired"));
+    }
+
+    @Override
+    public List<WatchPartyMessageEntity> getRoomMessages(String roomId, int page, int size) {
+        UserEntity user = SecurityUtils.getCurrentUser();
+        WatchPartyRoomEntity room = getRoomDetails(roomId);
+
+        if (room == null) {
+            throw new RuntimeException("Room not found");
+        }
+
+        // Kiểm tra user có phải participant không
+        if (!room.hasParticipant(user.getId())) {
+            throw new RuntimeException("You are not a participant in this room");
+        }
+
+        // Lấy messages với pagination, sort theo timestamp desc
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "timestamp"));
+        List<WatchPartyMessageEntity> messages = messageRepository.findByRoomIdOrderByTimestampDesc(roomId, pageable);
+
+        // Reverse list để hiển thị theo thứ tự thời gian tăng dần (cũ -> mới)
+        Collections.reverse(messages);
+
+        return messages;
+    }
+
+    @Override
+    public void kickUser(String roomId, String targetUserId, String reason) {
+        UserEntity currentUser = SecurityUtils.getCurrentUser();
+        WatchPartyRoomEntity room = getRoomDetails(roomId);
+
+        if (room == null) {
+            throw new RuntimeException("Room not found");
+        }
+
+        // Check if current user is host
+        if (!room.isHost(currentUser.getId())) {
+            throw new RuntimeException("Only host can kick users");
+        }
+
+        // Check if target user is in room
+        if (!room.hasParticipant(targetUserId)) {
+            throw new RuntimeException("User is not in this room");
+        }
+
+        // Cannot kick yourself
+        if (targetUserId.equals(currentUser.getId())) {
+            throw new RuntimeException("You cannot kick yourself");
+        }
+
+        // Get target user info before removing
+        WatchPartyParticipant targetParticipant = room.getParticipants().stream()
+                .filter(p -> p.getUserId().equals(targetUserId))
+                .findFirst()
+                .orElse(null);
+
+        // ✅ Get target user entity để lấy username
+        UserEntity targetUser = userRepository.findById(targetUserId)
+                .orElseThrow(() -> new RuntimeException("Target user not found"));
+
+        messagingTemplate.convertAndSend(
+                "/topic/room/" + roomId + "/kick",
+                Map.of(
+                        "targetUserId", targetUserId,
+                        "targetUsername", targetUser.getUsername(),
+                        "roomId", roomId,
+                        "roomName", room.getRoomName(),
+                        "reason", reason != null ? reason : "No reason provided",
+                        "kickedBy", currentUser.getUsername(),
+                        "timestamp", LocalDateTime.now().toString()
+                )
+        );
+
+        System.out.println("🔥 KICK notification sent successfully!");
+
+        // Remove participant from room
+        room.getParticipants().removeIf(p -> p.getUserId().equals(targetUserId));
+        room.setLastUpdated(LocalDateTime.now());
+
+        // Save room
+        roomRepository.save(room);
+        activeRooms.put(roomId, room);
+
+        // Send system message
+        String kickMessage = targetParticipant != null
+                ? targetParticipant.getUsername() + " was kicked from the room"
+                : "A user was kicked from the room";
+        if (reason != null && !reason.trim().isEmpty()) {
+            kickMessage += " (" + reason + ")";
+        }
+
+        notifyRoomParticipants(roomId, "USER_KICKED", kickMessage);
+
+        // Broadcast room update
+        messagingTemplate.convertAndSend("/topic/room/" + roomId + "/update", room);
+    }
+
+    @Override
+    public void banUser(String roomId, String targetUserId, String reason) {
+        UserEntity currentUser = SecurityUtils.getCurrentUser();
+        WatchPartyRoomEntity room = getRoomDetails(roomId);
+
+        if (room == null) {
+            throw new RuntimeException("Room not found");
+        }
+
+        // Check if current user is host
+        if (!room.isHost(currentUser.getId())) {
+            throw new RuntimeException("Only host can ban users");
+        }
+
+        // Cannot ban yourself
+        if (targetUserId.equals(currentUser.getId())) {
+            throw new RuntimeException("You cannot ban yourself");
+        }
+
+        // Get target user info
+        UserEntity targetUser = userRepository.findById(targetUserId)
+                .orElseThrow(() -> new RuntimeException("Target user not found"));
+
+        messagingTemplate.convertAndSend(
+                "/topic/room/" + roomId + "/ban",
+                Map.of(
+                        "targetUserId", targetUserId,
+                        "targetUsername", targetUser.getUsername(),
+                        "roomId", roomId,
+                        "roomName", room.getRoomName(),
+                        "reason", reason != null ? reason : "No reason provided",
+                        "bannedBy", currentUser.getUsername(),
+                        "timestamp", LocalDateTime.now().toString()
+                )
+        );
+
+        // Add to banned list
+        room.banUser(targetUserId);
+
+        // Remove from participants if present
+        room.getParticipants().removeIf(p -> p.getUserId().equals(targetUserId));
+        room.setLastUpdated(LocalDateTime.now());
+
+        // Save room
+        roomRepository.save(room);
+        activeRooms.put(roomId, room);
+
+        // Send system message
+        String banMessage = targetUser.getUsername() + " was banned from the room";
+        if (reason != null && !reason.trim().isEmpty()) {
+            banMessage += " (" + reason + ")";
+        }
+
+        notifyRoomParticipants(roomId, "USER_BANNED", banMessage);
+
+        // Broadcast room update
+        messagingTemplate.convertAndSend("/topic/room/" + roomId + "/update", room);
+    }
+
+    @Override
+    public void unbanUser(String roomId, String targetUserId) {
+        UserEntity currentUser = SecurityUtils.getCurrentUser();
+        WatchPartyRoomEntity room = getRoomDetails(roomId);
+
+        if (room == null) {
+            throw new RuntimeException("Room not found");
+        }
+
+        // Check if current user is host
+        if (!room.isHost(currentUser.getId())) {
+            throw new RuntimeException("Only host can unban users");
+        }
+
+        // Remove from banned list
+        room.unbanUser(targetUserId);
+        room.setLastUpdated(LocalDateTime.now());
+
+        // Save room
+        roomRepository.save(room);
+        activeRooms.put(roomId, room);
+
+        // Get target user info
+        UserEntity targetUser = userRepository.findById(targetUserId)
+                .orElse(null);
+
+        // Send system message
+        String unbanMessage = targetUser != null
+                ? targetUser.getUsername() + " was unbanned"
+                : "A user was unbanned";
+
+        notifyRoomParticipants(roomId, "USER_UNBANNED", unbanMessage);
+    }
+
+    @Override
+    public void deleteMessage(String roomId, String messageId) {
+        UserEntity currentUser = SecurityUtils.getCurrentUser();
+
+        // Get the message
+        WatchPartyMessageEntity message = messageRepository.findById(messageId)
+                .orElseThrow(() -> new RuntimeException("Message not found"));
+
+        // Check if user is the author of the message
+        if (!message.getUserId().equals(currentUser.getId())) {
+            throw new RuntimeException("You can only delete your own messages");
+        }
+
+        // Check if message belongs to the room
+        if (!message.getRoomId().equals(roomId)) {
+            throw new RuntimeException("Message does not belong to this room");
+        }
+
+        // Delete the message
+        messageRepository.delete(message);
+
+        // Notify room participants about deleted message
+        messagingTemplate.convertAndSend("/topic/room/" + roomId + "/message-deleted",
+                Map.of("messageId", messageId, "userId", currentUser.getId()));
+    }
+
+    @Override
+    public List<Map<String, Object>> getBannedUsers(String roomId) {
+        UserEntity currentUser = SecurityUtils.getCurrentUser();
+        WatchPartyRoomEntity room = getRoomDetails(roomId);
+
+        if (room == null) {
+            throw new RuntimeException("Room not found");
+        }
+
+        // Check if current user is host
+        if (!room.isHost(currentUser.getId())) {
+            throw new RuntimeException("Only host can view banned users");
+        }
+
+        List<Map<String, Object>> bannedUsers = new ArrayList<>();
+
+        for (String bannedUserId : room.getBannedUserIds()) {
+            UserEntity user = userRepository.findById(bannedUserId).orElse(null);
+            if (user != null) {
+                Map<String, Object> bannedUser = new HashMap<>();
+                bannedUser.put("id", user.getId());
+                bannedUser.put("username", user.getUsername());
+                bannedUser.put("fullName", user.getFullname());
+                bannedUser.put("avatarUrl", user.getAvatarUrl());
+                bannedUser.put("usedFrame", user.getUsedFrame());
+                bannedUsers.add(bannedUser);
+            }
+        }
+
+        return bannedUsers;
     }
 
     /*
@@ -244,7 +590,7 @@ public class WatchPartyServiceImpl implements IWatchPartyService {
         systemMessage.setType(MessageType.SYSTEM);
         systemMessage.getMetadata().put("eventType", eventType);
 
-        messagingTemplate.convertAndSend("/topic/room/" + roomId + "/system", systemMessage);
+        messagingTemplate.convertAndSend("/topic/room/" + roomId + "/chat", systemMessage);
     }
 
     private void closeRoom(String roomId) {
