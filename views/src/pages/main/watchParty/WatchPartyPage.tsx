@@ -24,6 +24,8 @@ import { HeartIcon } from '../../../components/UI/custom/SVG_Icon';
 import defaultAvatar from '../../../assets/images/default_avatar.jpg';
 import { userService } from '../../../services/UserService';
 import KickBanModal from './KickBanModal';
+import Cookie from 'js-cookie';
+import { BaseApi } from '../../../utils/axiosInstance';
 
 const WatchPartyPage: React.FC = () => {
   const [searchParams] = useSearchParams();
@@ -59,6 +61,11 @@ const WatchPartyPage: React.FC = () => {
   const [isDescriptionExpanded, setIsDescriptionExpanded] = useState(false);
   const refreshIntervalRef = useRef<NodeJS.Timeout | null>(null);
 
+  // Add ref to track if user should auto-leave
+  const shouldAutoLeaveRef = useRef<boolean>(true);
+  // Add ref to track current room for cleanup
+  const currentRoomRef = useRef<WatchPartyRoom | null>(null);
+
   // const { language } = useLanguage();
   const navigate = useNavigate();
   const toast = useToast();
@@ -69,6 +76,109 @@ const WatchPartyPage: React.FC = () => {
 
   // Safely check if the current user is the host
   const isHost = room?.hostUserId === currentUser?.id;
+
+  // Update room ref when room changes
+  useEffect(() => {
+    currentRoomRef.current = room;
+  }, [room]);
+
+  // Auto-leave room functions
+  const leaveRoomSilently = useCallback(async () => {
+    const roomToLeave = currentRoomRef.current;
+    if (!roomToLeave || !shouldAutoLeaveRef.current) return;
+    
+    try {
+      // console.log('🚪 Leaving room silently...');
+      
+      // Disconnect WebSocket first
+      WatchPartyService.disconnect();
+      
+      // Call leave room API
+      await WatchPartyService.leaveRoom(roomToLeave.id);
+      
+      shouldAutoLeaveRef.current = false;
+      // console.log('Successfully left room silently');
+    } catch (error) {
+      console.error('Error leaving room silently:', error);
+    }
+  }, []);
+
+  // Use fetch with keepalive for reliable page unload
+  const leaveRoomWithKeepalive = useCallback(() => {
+    const roomToLeave = currentRoomRef.current;
+    if (!roomToLeave || !shouldAutoLeaveRef.current) return;
+
+    try {
+      
+      // Disconnect WebSocket immediately
+      WatchPartyService.disconnect();
+      
+      // Use fetch with keepalive for reliable delivery
+      const token = Cookie.get("token");
+      
+      fetch(`${BaseApi}/api/v1/watch-party/leave/${roomToLeave.id}`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+          'ngrok-skip-browser-warning': '69420'
+        },
+        body: JSON.stringify({}),
+        keepalive: true
+      }).then(() => {
+        console.log('Leave room keepalive request sent');
+        shouldAutoLeaveRef.current = false;
+      }).catch(err => {
+        console.error('Keepalive request failed:', err);
+      });
+      
+    } catch (error) {
+      console.error('Error in keepalive leave:', error);
+    }
+  }, []);
+
+  // Handle page unload events (close tab, refresh, navigate away)
+  useEffect(() => {
+    const handleBeforeUnload = () => {
+      if (currentRoomRef.current && shouldAutoLeaveRef.current) {
+        console.log('beforeunload: Leaving room...');
+        leaveRoomWithKeepalive();
+      }
+    };
+
+    const handlePageHide = () => {
+      if (currentRoomRef.current && shouldAutoLeaveRef.current) {
+        console.log('pagehide: Leaving room...');
+        leaveRoomWithKeepalive();
+      }
+    };
+
+    // Add event listeners
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    window.addEventListener('pagehide', handlePageHide);
+
+    return () => {
+      window.removeEventListener('beforeunload', handleBeforeUnload);
+      window.removeEventListener('pagehide', handlePageHide);
+    };
+  }, [leaveRoomWithKeepalive]);
+
+   // Component unmount cleanup (route change)
+  useEffect(() => {
+    return () => {
+      if (shouldAutoLeaveRef.current && currentRoomRef.current) {
+        console.log('🔄 Component unmounting, leaving room...');
+        leaveRoomSilently();
+      }
+    };
+  }, []);
+
+  // Clean up WebSocket on unmount - separate effect
+  useEffect(() => {
+    return () => {
+      WatchPartyService.disconnect();
+    };
+  }, []);
 
   // Fetch podcast data with refresh capability
   const fetchPodcastData = useCallback(async () => {
@@ -414,15 +524,6 @@ const WatchPartyPage: React.FC = () => {
     };
   }, [room?.id, isConnected, fetchRoomDetails]);
 
-  // Clean up WebSocket connection on unmount
-  useEffect(() => {
-    return () => {
-      if (isConnected) {
-        WatchPartyService.disconnect();
-      }
-    };
-  }, [isConnected]);
-
   const handleCreateRoom = async (podcastId: string, roomName: string, publish: boolean) => {
     try {
       setLoading(true);
@@ -488,11 +589,13 @@ const WatchPartyPage: React.FC = () => {
     }
   };
 
+  // ✅ Modified handleLeaveRoom to disable auto-leave
   const handleLeaveRoom = async () => {
     if (!room) return;
     
     try {
       setLoading(true);
+      shouldAutoLeaveRef.current = false; // ✅ Disable auto-leave for manual leave
       
       // Disconnect from WebSocket first
       WatchPartyService.disconnect();
@@ -511,6 +614,7 @@ const WatchPartyPage: React.FC = () => {
     } catch (error) {
       console.error("Failed to leave room:", error);
       toast.error("Failed to leave room");
+      shouldAutoLeaveRef.current = true; // ✅ Re-enable auto-leave on error
     } finally {
       setLoading(false);
     }
@@ -590,6 +694,7 @@ const WatchPartyPage: React.FC = () => {
 
   return (
     <div className="container mx-auto p-4">
+      {/* ...rest of existing JSX remains unchanged... */}
       <div className="mb-6">
         <h1 className="text-2xl md:text-3xl font-bold text-black dark:text-white mb-2">
           Watch Party {room ? `- ${room.roomName}` : ''}

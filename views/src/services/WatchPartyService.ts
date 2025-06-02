@@ -57,9 +57,25 @@ export default class WatchPartyService {
     }
   }
 
-  static async leaveRoom(roomId: string): Promise<void> {
+  static async leaveRoom(roomId: string, useKeepalive: boolean = false): Promise<void> {
     try {
-      await axiosInstanceAuth.post(`/api/v1/watch-party/leave/${roomId}`, {});
+      if (useKeepalive) {
+        // ✅ Use keepalive for page unload scenarios
+        const token = Cookie.get("token");
+        await fetch(`${BaseApi}/api/v1/watch-party/leave/${roomId}`, {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json',
+            'ngrok-skip-browser-warning': '69420'
+          },
+          body: JSON.stringify({}),
+          keepalive: true
+        });
+      } else {
+        // ✅ Use normal axiosInstanceAuth for regular scenarios
+        await axiosInstanceAuth.post(`/api/v1/watch-party/leave/${roomId}`);
+      }
     } catch (error) {
       console.error("Error leaving room:", error);
       throw error;
@@ -241,11 +257,11 @@ export default class WatchPartyService {
           Authorization: `Bearer ${token}`,
           "ngrok-skip-browser-warning": "true"
         },
-        debug: (str) => {
-          if (str.includes('kick') || str.includes('ban') || str.includes('queue')) {
-            console.log('🔥 STOMP Debug:', str);
-          }
-        },
+        // debug: (str) => {
+        //   if (str.includes('kick') || str.includes('ban') || str.includes('queue')) {
+        //     console.log('🔥 STOMP Debug:', str);
+        //   }
+        // },
         reconnectDelay: 5000,
         heartbeatIncoming: 4000,
         heartbeatOutgoing: 4000
