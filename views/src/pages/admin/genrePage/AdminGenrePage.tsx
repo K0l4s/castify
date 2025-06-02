@@ -10,12 +10,13 @@ const AdminGenrePage = () => {
   const [genres, setGenres] = useState<Genre[]>([]);
   const [totalGenreCount, setTotalGenreCount] = useState<number>(0);
   const [loading, setLoading] = useState<boolean>(false);
-  const [newGenre, setNewGenre] = useState<genreCreateUpdate>({ name: '', image: null, color: '' });
+  const [newGenre, setNewGenre] = useState<genreCreateUpdate>({ name: '', image: null, color: '', textColor: '' });
   const [newGenreImagePreview, setNewGenreImagePreview] = useState<string>('');
   const [editingGenre, setEditingGenre] = useState<Genre | null>(null);
   const [editingGenreImage, setEditingGenreImage] = useState<File | null>(null);
   const [editingGenreImagePreview, setEditingGenreImagePreview] = useState<string>('');
   const [editingGenreColor, setEditingGenreColor] = useState<string>('');
+  const [editingGenreTextColor, setEditingGenreTextColor] = useState<string>('');
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [isDeleting, setIsDeleting] = useState<boolean>(false);
   const [deleteGenreId, setDeleteGenreId] = useState<string | null>(null);
@@ -104,13 +105,18 @@ const AdminGenrePage = () => {
       return;
     }
 
+    if (!newGenre.textColor) {
+      toast.error('Bạn chưa chọn màu chữ.');
+      return;
+    }
+
     setSaving(true);
 
     try {
       const createdGenre = await createGenre(newGenre);
       setAllGenres([...allGenres, createdGenre]);
       setGenres([...genres, createdGenre]);
-      setNewGenre({ name: '', image: null, color: '' });
+      setNewGenre({ name: '', image: null, color: '', textColor: '' });
       setNewGenreImagePreview('');
       toast.success('Thêm thể loại mới thành công!');
     } catch (error) {
@@ -137,13 +143,19 @@ const AdminGenrePage = () => {
       return;
     }
 
+    if (!editingGenreTextColor) {
+      toast.error('Bạn chưa chọn màu chữ.');
+      return;
+    }
+
     setSaving(true);
 
     try {
       const updatedGenre = await updateGenre(editingGenre.id, {
         name: editingGenre.name,
         image: editingGenreImage,
-        color: editingGenreColor
+        color: editingGenreColor,
+        textColor: editingGenreTextColor
       });
       
       const updateGenres = (list: Genre[]) => 
@@ -155,6 +167,7 @@ const AdminGenrePage = () => {
       setEditingGenreImage(null);
       setEditingGenreImagePreview('');
       setEditingGenreColor('');
+      setEditingGenreTextColor('');
       toast.success('Cập nhật thành công!');
     } catch (error) {
       console.error('Error updating genre:', error);
@@ -193,6 +206,7 @@ const AdminGenrePage = () => {
     setEditingGenre({ ...genre });
     setEditingGenreImagePreview(genre.imageUrl || '');
     setEditingGenreColor(genre.color || '');
+    setEditingGenreTextColor(genre.textColor || '');
     // setOpenMenuId(null);
   };
 
@@ -201,6 +215,7 @@ const AdminGenrePage = () => {
     setEditingGenreImage(null);
     setEditingGenreImagePreview('');
     setEditingGenreColor('');
+    setEditingGenreTextColor('');
   };
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -274,21 +289,39 @@ const AdminGenrePage = () => {
         <h3 className="text-2xl font-bold mb-4 text-black dark:text-white">Thêm thể loại mới</h3>
         <div className="flex flex-col gap-6 md:flex-row">
           <div className="flex-1 flex flex-col gap-4">
-            <div className="flex items-center gap-4">
-              <input
-                type="text"
-                value={newGenre.name}
-                onChange={(e) => setNewGenre(prev => ({ ...prev, name: e.target.value }))}
-                placeholder="Enter genre name"
-                className="flex-grow px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white/5 dark:bg-gray-800 text-black dark:text-white"
-              />
-              <input
-                type="color"
-                value={newGenre.color || '#000000'}
-                onChange={(e) => setNewGenre(prev => ({ ...prev, color: e.target.value }))}
-                title="Choose genre color"
-                className="w-10 h-10 p-0.5 border border-gray-300 dark:border-gray-600 rounded-lg cursor-pointer"
-              />
+            <div className="flex flex-col gap-4">
+              <div className="flex items-center gap-4">
+                <input
+                  type="text"
+                  value={newGenre.name}
+                  onChange={(e) => setNewGenre(prev => ({ ...prev, name: e.target.value }))}
+                  placeholder="Enter genre name"
+                  className="flex-grow px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white/5 dark:bg-gray-800 text-black dark:text-white"
+                />
+              </div>
+
+              <div className="flex items-center gap-4">
+                <div className="flex items-center gap-2">
+                  <label className="text-sm text-gray-600 dark:text-gray-400 whitespace-nowrap">Màu chữ:</label>
+                  <input
+                    type="color"
+                    value={newGenre.textColor || '#ffffff'}
+                    onChange={(e) => setNewGenre(prev => ({ ...prev, textColor: e.target.value }))}
+                    title="Choose text color"
+                    className="w-10 h-10 p-0.5 border border-gray-300 dark:border-gray-600 rounded-lg cursor-pointer"
+                  />
+                </div>
+                <div className="flex items-center gap-2">
+                  <label className="text-sm text-gray-600 dark:text-gray-400 whitespace-nowrap">Màu nền:</label>
+                  <input
+                    type="color"
+                    value={newGenre.color || '#000000'}
+                    onChange={(e) => setNewGenre(prev => ({ ...prev, color: e.target.value }))}
+                    title="Choose background color"
+                    className="w-10 h-10 p-0.5 border border-gray-300 dark:border-gray-600 rounded-lg cursor-pointer"
+                  />
+                </div>
+              </div>
             </div>
 
             <div className="flex flex-col md:flex-row gap-4">
@@ -326,7 +359,7 @@ const AdminGenrePage = () => {
                 >
                   {/* Genre Name */}
                   <div className="z-10">
-                    <h3 className="text-2xl font-semibold text-white truncate">
+                    <h3 className="text-2xl font-semibold truncate" style={{ color: newGenre.textColor || '#ffffff' }}>
                       {newGenre.name || ''}
                     </h3>
                   </div>
@@ -379,7 +412,7 @@ const AdminGenrePage = () => {
             >
               {/* Genre Name */}
               <div className="z-10">
-                <h3 className="text-xl font-semibold text-white truncate">{genre.name}</h3>
+                <h3 className="text-xl font-semibold truncate" style={{ color: genre.textColor || '#ffffff' }}>{genre.name}</h3>
               </div>
 
               {/* Genre Image */}
@@ -418,25 +451,39 @@ const AdminGenrePage = () => {
         <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
           <div className="bg-white dark:bg-gray-800 p-6 rounded-lg w-96">
             <h3 className="text-xl font-semibold mb-4 text-center text-black dark:text-white">Chỉnh sửa thể loại</h3>
-            <input
-              type="text"
-              value={editingGenre.name}
-              onChange={(e) => setEditingGenre({ ...editingGenre, name: e.target.value })}
-              placeholder="Enter genre name"
-              className="w-full px-4 py-2 mb-4 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white/5 dark:bg-gray-800 text-black dark:text-white"
-            />
-            
-            <div className="flex items-center gap-4 mb-4">
-              <label htmlFor="editingGenreColor" className="text-black dark:text-white">Color:</label>
+            <div className="flex flex-col gap-4 mb-4">
               <input
-                id="editingGenreColor"
-                type="color"
-                value={editingGenreColor || '#000000'}
-                onChange={(e) => setEditingGenreColor(e.target.value)}
-                title="Choose genre color"
-                className="w-10 h-10 p-0.5 border border-gray-300 dark:border-gray-600 rounded-lg cursor-pointer"
+                type="text"
+                value={editingGenre.name}
+                onChange={(e) => setEditingGenre({ ...editingGenre, name: e.target.value })}
+                placeholder="Enter genre name"
+                className="w-full px-4 py-2 mb-4 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white/5 dark:bg-gray-800 text-black dark:text-white"
               />
-              <span className="text-sm text-gray-500 dark:text-gray-400">{editingGenreColor}</span>
+              
+              <div className="flex items-center gap-4">
+                <div className="flex items-center gap-2">
+                  <label htmlFor="editingGenreTextColor" className="text-black dark:text-white whitespace-nowrap">Màu chữ:</label>
+                  <input
+                    id="editingGenreTextColor"
+                    type="color"
+                    value={editingGenreTextColor || '#ffffff'}
+                    onChange={(e) => setEditingGenreTextColor(e.target.value)}
+                    title="Choose text color"
+                    className="w-10 h-10 p-0.5 border border-gray-300 dark:border-gray-600 rounded-lg cursor-pointer"
+                  />
+                </div>
+                <div className="flex items-center gap-2">
+                  <label htmlFor="editingGenreColor" className="text-black dark:text-white whitespace-nowrap">Màu nền:</label>
+                  <input
+                    id="editingGenreColor"
+                    type="color"
+                    value={editingGenreColor || '#000000'}
+                    onChange={(e) => setEditingGenreColor(e.target.value)}
+                    title="Choose background color"
+                    className="w-10 h-10 p-0.5 border border-gray-300 dark:border-gray-600 rounded-lg cursor-pointer"
+                  />
+                </div>
+              </div>
             </div>
             
             {/* Image upload for editing */}
