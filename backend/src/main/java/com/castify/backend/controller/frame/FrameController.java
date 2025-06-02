@@ -3,6 +3,7 @@ package com.castify.backend.controller.frame;
 import com.castify.backend.models.frame.FrameModel;
 import com.castify.backend.models.frame.UploadFrameRequest;
 import com.castify.backend.models.ErrorResponse;
+import com.castify.backend.models.frame.VoucherModelRequest;
 import com.castify.backend.service.frame.IFrameService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -39,9 +40,9 @@ public class FrameController {
 
     // Purchase a frame
     @PostMapping("/purchase/{frameId}")
-    public ResponseEntity<?> purchaseFrame(@PathVariable String frameId) {
+    public ResponseEntity<?> purchaseFrame(@PathVariable String frameId,@RequestParam(required = false) String voucherCode) {
         try {
-            FrameModel purchasedFrame = frameService.purchaseFrame(frameId);
+            FrameModel purchasedFrame = frameService.purchaseFrame(frameId,voucherCode);
             return new ResponseEntity<>(purchasedFrame, HttpStatus.OK);
         } catch (Exception e) {
 //            logger.error("Error purchasing frame: " + e.getMessage());
@@ -130,4 +131,6 @@ public class FrameController {
             return new ResponseEntity<>(new ErrorResponse(e.getMessage()), HttpStatus.BAD_REQUEST);
         }
     }
+
+
 }

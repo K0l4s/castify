@@ -50,6 +50,7 @@ import DetailPlaylistPage from '../pages/main/playlistPage/DetailPlaylistPage'
 import WatchPartyPage from '../pages/main/watchParty/WatchPartyPage'
 import GenrePodcastsPage from '../pages/genre/GenrePodcastsPage'
 import BrowseRoomsPage from '../pages/main/watchParty/BrowseRoomsPage'
+// import IntroVideoPage from '../pages/main/landingPage/IntroVideoPage'
 
 // import Test from '../components/main/conversation/Test'
 // import Test from '../pages/main/blankShop/Test'
@@ -104,6 +105,7 @@ const Router = () => {
                 <Route path='video-editor' element={<VideoEditor />} />
                 <Route path='/genres' element={<GenrePage />} />
                 <Route path='/genres/:genreId' element={<GenrePodcastsPage />} />
+                {/* <Route path="/info" element={<IntroVideoPage/>}/> */}
 
                 {/* <Route path='test' element={<Test/>}/> */}
                 {/* <Route path='/noti' element={<NotificationComponent />} /> */}

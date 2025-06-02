@@ -16,6 +16,7 @@ const BlankShop = () => {
     const [selectedFrame, setSelectedFrame] = useState<Frame | null>(null);
     const [frameToPurchase, setFrameToPurchase] = useState<Frame | null>(null);
     const [purchasing, setPurchasing] = useState(false);
+    const [voucher, setVoucher] = useState<string>();
     const user = useSelector((state: RootState) => state.auth.user);
     const toast = useToast();
     const navigate = useNavigate();
@@ -44,7 +45,11 @@ const BlankShop = () => {
 
         try {
             setPurchasing(true);
-            const response = await purchaseFrame(frameToPurchase.id);
+            // const response = await purchaseFrame(frameToPurchase.id);
+            const response = await purchaseFrame(
+                frameToPurchase.id,
+                voucher?.trim() ? voucher.trim() : undefined
+            );
             if (response) {
                 toast.success(`Frame ${frameToPurchase.name} purchased successfully!`);
 
@@ -186,6 +191,8 @@ const BlankShop = () => {
                 frameImage={frameToPurchase?.imageURL || ''}
                 framePrice={frameToPurchase?.price || 0}
                 purchasing={purchasing}
+                voucherCode={voucher}
+                setVoucherCode={setVoucher}
             />
             <Payment
                 isOpen={isOpenPayment}

@@ -4,6 +4,7 @@ import com.castify.backend.enums.FrameStatus;
 import com.castify.backend.models.ErrorResponse;
 import com.castify.backend.models.frame.FrameModel;
 // import com.castify.backend.models.frame.UploadFrameRequest;
+import com.castify.backend.models.frame.VoucherModelRequest;
 import com.castify.backend.service.frame.IFrameService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -43,5 +44,13 @@ public class AdminFrameController {
             return new ResponseEntity<>(new ErrorResponse(e.getMessage()), HttpStatus.BAD_REQUEST);
         }
     }
+    @PostMapping("/voucher/add")
+    public ResponseEntity<?> createVoucher(@RequestBody VoucherModelRequest voucher) {
+        try {
 
+            return new ResponseEntity<>(frameService.createVoucher(voucher), HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<>(new ErrorResponse(e.getMessage()), HttpStatus.BAD_REQUEST);
+        }
+    }
 }
