@@ -10,7 +10,6 @@ import { HiDotsVertical } from 'react-icons/hi';
 import { useSelector } from 'react-redux';
 import { RootState } from '../../../redux/store';
 import Avatar from '../user/Avatar';
-import { CgEyeAlt } from 'react-icons/cg';
 import { BsClock } from 'react-icons/bs';
 import { RiAddBoxLine } from 'react-icons/ri';
 
