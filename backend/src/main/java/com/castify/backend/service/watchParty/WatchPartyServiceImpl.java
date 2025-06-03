@@ -15,6 +15,7 @@ import com.castify.backend.repository.UserRepository;
 import com.castify.backend.repository.WatchPartyMessageRepository;
 import com.castify.backend.repository.WatchPartyRoomRepository;
 import com.castify.backend.utils.SecurityUtils;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -218,6 +219,7 @@ public class WatchPartyServiceImpl implements IWatchPartyService {
     }
 
     @Override
+    @Transactional
     public void forceCloseRoom(String roomId) {
         UserEntity currentUser = SecurityUtils.getCurrentUser();
         // Remove all participants
@@ -233,6 +235,7 @@ public class WatchPartyServiceImpl implements IWatchPartyService {
         }
 
         room.getParticipants().clear();
+        messageRepository.deleteByRoomId(roomId);
 
         notifyRoomParticipants(roomId, "ROOM_CLOSED",
                 "The room has been closed by the host");
@@ -640,6 +643,7 @@ public class WatchPartyServiceImpl implements IWatchPartyService {
             room.setActive(false);
             roomRepository.save(room);
             activeRooms.remove(roomId);
+            messageRepository.deleteByRoomId(roomId);
 
             // Notify all participants
             messagingTemplate.convertAndSend("/topic/room/" + roomId + "/system",

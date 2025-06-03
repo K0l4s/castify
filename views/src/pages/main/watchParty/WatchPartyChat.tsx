@@ -5,6 +5,8 @@ import Avatar from '../../../components/UI/user/Avatar';
 import defaultAvatar from '../../../assets/images/default_avatar.jpg';
 import useTimeAgo from '../../../hooks/useTimeAgo';
 import { useClickOutside } from '../../../hooks/useClickOutside';
+import ReportModal from '../../../components/modals/report/ReportModal';
+import { ReportType } from '../../../models/Report';
 // import { useLanguage } from '../../../context/LanguageContext';
 
 interface WatchPartyChatProps {
@@ -48,6 +50,16 @@ const WatchPartyChat: React.FC<WatchPartyChatProps> = ({
     userId: '',
     username: '',
     isOwnMessage: false
+  });
+
+  const [reportModal, setReportModal] = useState<{
+    isOpen: boolean;
+    type: string;
+    targetId: string;
+  }>({
+    isOpen: false,
+    type: 'user',
+    targetId: ''
   });
 
   const contextMenuRef = useRef<HTMLDivElement>(null);
@@ -111,12 +123,25 @@ const WatchPartyChat: React.FC<WatchPartyChatProps> = ({
     setContextMenu(prev => ({ ...prev, visible: false }));
   };
 
-  const handleReport = (type: 'message' | 'user') => {
-    // Implement report logic here
-    console.log(`Report ${type}:`, contextMenu);
+  const handleReport = (type: string) => {
+    const targetId = contextMenu.userId;
+    
+    setReportModal({
+      isOpen: true,
+      type,
+      targetId
+    });
     setContextMenu(prev => ({ ...prev, visible: false }));
   };
 
+  const handleReportClose = () => {
+    setReportModal({
+      isOpen: false,
+      type: 'user',
+      targetId: ''
+    });
+  };
+  
   const handleDelete = () => {
     if (onDeleteMessage && contextMenu.messageId) {
       const confirmed = confirm('Are you sure you want to delete this message?');
@@ -128,6 +153,7 @@ const WatchPartyChat: React.FC<WatchPartyChatProps> = ({
   };
 
   return (
+    <>
     <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 flex flex-col h-[400px]">
       <div className="p-3 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center">
         <h3 className="font-semibold text-gray-900 dark:text-white">Chat</h3>
@@ -210,13 +236,6 @@ const WatchPartyChat: React.FC<WatchPartyChatProps> = ({
           {!contextMenu.isOwnMessage && (
             <>
               <button
-                onClick={() => handleReport('message')}
-                className="w-full px-4 py-2 text-left text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center gap-2"
-              >
-                <FiFlag size={14} />
-                Report Message
-              </button>
-              <button
                 onClick={() => handleReport('user')}
                 className="w-full px-4 py-2 text-left text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center gap-2"
               >
@@ -249,6 +268,14 @@ const WatchPartyChat: React.FC<WatchPartyChatProps> = ({
         </div>
       )}
     </div>
+
+    <ReportModal
+      isOpen={reportModal.isOpen}
+      onClose={handleReportClose}
+      targetId={reportModal.targetId}
+      reportType={ReportType.U}
+    />
+    </>
   );
 };
 
