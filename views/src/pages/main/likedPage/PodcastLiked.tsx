@@ -69,7 +69,7 @@ const PodcastLiked: React.FC<PodcastLikedProps> = ({
         </div>
         {/* Duration indicator */}
         <div className="flex absolute bottom-2 right-2 bg-black/70 text-white text-sm px-2 py-1 rounded">
-          <FaClock className="mt-[2px] mr-1" size={14}/>
+          <FaClock className="mt-[3px] mr-1" size={14}/>
           {formatTimeDuration(podcast.duration) || "10:00"}
         </div>
       </Link>

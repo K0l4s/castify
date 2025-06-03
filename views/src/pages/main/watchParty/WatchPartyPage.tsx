@@ -6,7 +6,7 @@ import { useSelector } from 'react-redux';
 import { RootState } from '../../../redux/store';
 import WatchPartyService from '../../../services/WatchPartyService';
 import { ChatMessage, SyncEventType, WatchPartyRoom } from '../../../models/WatchPartyModel';
-import { FiLoader } from 'react-icons/fi';
+import { FiAlertCircle, FiLoader } from 'react-icons/fi';
 import CustomButton from '../../../components/UI/custom/CustomButton';
 import { FaCopy, FaDoorOpen, FaEye, FaPlus, FaSignInAlt, FaVideo } from 'react-icons/fa';
 import { formatDistanceToNow } from 'date-fns';
@@ -50,6 +50,18 @@ const WatchPartyPage: React.FC = () => {
     type: 'kick',
     reason: '',
     kickedBy: ''
+  });
+
+  const [roomClosedNotification, setRoomClosedNotification] = useState<{
+    visible: boolean;
+    roomName: string;
+    closedBy: string;
+    message: string;
+  }>({
+    visible: false,
+    roomName: '',
+    closedBy: '',
+    message: ''
   });
 
   // Add states for views and likes
@@ -147,35 +159,25 @@ const WatchPartyPage: React.FC = () => {
 
   // Handle page unload events (close tab, refresh, navigate away)
   useEffect(() => {
-    const handleBeforeUnload = () => {
-      if (currentRoomRef.current && shouldAutoLeaveRef.current) {
-        console.log('beforeunload: Leaving room...');
-        leaveRoomWithKeepalive();
-      }
-    };
+  const handlePageUnload = () => {
+    if (currentRoomRef.current && shouldAutoLeaveRef.current) {
+      // console.log(' Page unloading: Checking if should leave room...');
+      leaveRoomWithKeepalive();
+    }
+  };
 
-    const handlePageHide = () => {
-      if (currentRoomRef.current && shouldAutoLeaveRef.current) {
-        console.log('pagehide: Leaving room...');
-        leaveRoomWithKeepalive();
-      }
-    };
+  // Use only pagehide - more reliable and no duplicates
+  window.addEventListener('pagehide', handlePageUnload);
 
-    // Add event listeners
-    window.addEventListener('beforeunload', handleBeforeUnload);
-    window.addEventListener('pagehide', handlePageHide);
-
-    return () => {
-      window.removeEventListener('beforeunload', handleBeforeUnload);
-      window.removeEventListener('pagehide', handlePageHide);
-    };
-  }, [leaveRoomWithKeepalive]);
-
+  return () => {
+    window.removeEventListener('pagehide', handlePageUnload);
+  };
+}, [leaveRoomWithKeepalive]);
    // Component unmount cleanup (route change)
   useEffect(() => {
     return () => {
       if (shouldAutoLeaveRef.current && currentRoomRef.current) {
-        console.log('🔄 Component unmounting, leaving room...');
+        // console.log(' Component unmounting, leaving room...');
         leaveRoomSilently();
       }
     };
@@ -366,6 +368,30 @@ const WatchPartyPage: React.FC = () => {
       setRoom(updatedRoom);
     };
 
+    const roomClosedListener = (data: any) => {
+      console.log('🏠🏠🏠 ROOM CLOSED LISTENER TRIGGERED:', data);
+      
+      setRoomClosedNotification({
+        visible: true,
+        roomName: data.roomName || 'Unknown Room',
+        closedBy: data.closedBy || 'Unknown',
+        message: data.message || 'Room has been closed'
+      });
+      
+      // Disconnect and clear state immediately
+      WatchPartyService.disconnect();
+      setRoom(null);
+      setChatMessages([]);
+      setIsConnected(false);
+      
+      // Redirect after showing notification
+      setTimeout(() => {
+        setRoomClosedNotification(prev => ({ ...prev, visible: false }));
+        navigate('/');
+        toast.warning(data.message || 'Room has been closed');
+      }, 5000);
+    };
+
     const settingsUpdateListener = (data: any) => {
       console.log('🔧 Room settings updated:', data);
       toast.info(`Room settings updated by ${data.updatedBy}`);
@@ -441,7 +467,8 @@ const WatchPartyPage: React.FC = () => {
     WatchPartyService.addBannedListener(bannedListener);
     WatchPartyService.addMessageDeletedListener(messageDeletedListener);
     WatchPartyService.addSettingsUpdateListener(settingsUpdateListener);
-
+     WatchPartyService.addRoomClosedListener(roomClosedListener);
+     
     return () => {
       WatchPartyService.removeChatMessageListener(chatMessageListener);
       WatchPartyService.removeConnectionStatusListener(connectionStatusListener);
@@ -451,6 +478,7 @@ const WatchPartyPage: React.FC = () => {
       WatchPartyService.removeBannedListener(bannedListener);
       WatchPartyService.removeMessageDeletedListener(messageDeletedListener);
       WatchPartyService.removeSettingsUpdateListener(settingsUpdateListener);
+      WatchPartyService.removeRoomClosedListener(roomClosedListener);
     };
   }, [toast, room?.id, currentUser]);
 
@@ -475,6 +503,11 @@ const WatchPartyPage: React.FC = () => {
       console.error("Error deleting message:", error);
       toast.error("Failed to delete message");
     }
+  };
+
+  const handleRoomClosedModalClose = () => {
+    setRoomClosedNotification(prev => ({ ...prev, visible: false }));
+    navigate('/');
   };
 
   // Auto-join room from URL if room code is provided
@@ -970,6 +1003,46 @@ const WatchPartyPage: React.FC = () => {
         kickedBy={kickBanNotification.kickedBy}
         onClose={handleKickBanModalClose}
       />
+
+      {/* Room Closed Notification Modal */}
+      {roomClosedNotification.visible && (
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black bg-opacity-80">
+          <div className="bg-white dark:bg-gray-800 p-6 rounded-lg max-w-md w-full mx-4 border-2 border-red-500">
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center gap-2">
+                <FiAlertCircle className="text-red-500" size={24} />
+                <h2 className="text-xl font-bold text-red-600 dark:text-red-400">
+                  Room Closed
+                </h2>
+              </div>
+            </div>
+
+            <div className="space-y-4">
+              <div className="bg-red-50 dark:bg-red-900/30 p-4 rounded-lg">
+                <p className="text-gray-900 dark:text-white mb-2">
+                  <strong>Room:</strong> {roomClosedNotification.roomName}
+                </p>
+                {roomClosedNotification.closedBy && (
+                  <p className="text-gray-900 dark:text-white mb-2">
+                    <strong>Closed by:</strong> {roomClosedNotification.closedBy}
+                  </p>
+                )}
+                <p className="text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 p-3 rounded border italic">
+                  "{roomClosedNotification.message}"
+                </p>
+              </div>
+            </div>
+
+            <div className="mt-6 flex justify-center">
+              <CustomButton
+                text="Return to Home"
+                variant="primary"
+                onClick={handleRoomClosedModalClose}
+              />
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

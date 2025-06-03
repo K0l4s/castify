@@ -22,6 +22,7 @@ export default class WatchPartyService {
   private static bannedListeners: ((data: any) => void)[] = [];
   private static messageDeletedListeners: ((data: any) => void)[] = [];
   private static settingsUpdateListeners: Array<(data: any) => void> = [];
+  private static roomClosedListeners: ((data: any) => void)[] = [];
 
   static async createRoom(request: CreateRoomRequest): Promise<WatchPartyRoom> {
     try {
@@ -60,7 +61,7 @@ export default class WatchPartyService {
   static async leaveRoom(roomId: string, useKeepalive: boolean = false): Promise<void> {
     try {
       if (useKeepalive) {
-        // ✅ Use keepalive for page unload scenarios
+        // Use keepalive for page unload scenarios
         const token = Cookie.get("token");
         await fetch(`${BaseApi}/api/v1/watch-party/leave/${roomId}`, {
           method: 'POST',
@@ -73,11 +74,20 @@ export default class WatchPartyService {
           keepalive: true
         });
       } else {
-        // ✅ Use normal axiosInstanceAuth for regular scenarios
+        // Use normal axiosInstanceAuth for regular scenarios
         await axiosInstanceAuth.post(`/api/v1/watch-party/leave/${roomId}`);
       }
     } catch (error) {
       console.error("Error leaving room:", error);
+      throw error;
+    }
+  }
+
+  static async closeRoom(roomId: string): Promise<void> {
+    try {
+      await axiosInstanceAuth.post(`/api/v1/watch-party/close/${roomId}`);
+    } catch (error) {
+      console.error("Error closing room:", error);
       throw error;
     }
   }
@@ -297,6 +307,19 @@ export default class WatchPartyService {
           subscribeHeaders
         );
         
+        // Subscribe to room closed notifications
+        this.stompClient!.subscribe(`/topic/room/${roomId}/closed`, (message) => {
+          try {
+            const closedData = JSON.parse(message.body);
+            this.roomClosedListeners.forEach(listener => {
+              // console.log('Calling room closed listener');
+              listener(closedData);
+            });
+          } catch (error) {
+            console.error('ERROR PARSING CLOSED DATA:', error);
+          }
+        }, subscribeHeaders);
+
         this.stompClient!.subscribe(`/topic/room/${roomId}/kick`, (message) => {
           try {
             const kickData = JSON.parse(message.body);
@@ -610,5 +633,16 @@ export default class WatchPartyService {
 
   static removeSettingsUpdateListener(listener: (data: any) => void) {
     this.settingsUpdateListeners = this.settingsUpdateListeners.filter(l => l !== listener);
+  }
+
+  static addRoomClosedListener(listener: (data: any) => void): void {
+    this.roomClosedListeners.push(listener);
+  }
+
+  static removeRoomClosedListener(listener: (data: any) => void): void {
+    const index = this.roomClosedListeners.indexOf(listener);
+    if (index > -1) {
+      this.roomClosedListeners.splice(index, 1);
+    }
   }
 }
