@@ -26,6 +26,7 @@ import { userService } from '../../../services/UserService';
 import KickBanModal from './KickBanModal';
 import Cookie from 'js-cookie';
 import { BaseApi } from '../../../utils/axiosInstance';
+import ChangePodcastModal from '../../../components/modals/watchParty/ChangePodcastModal';
 
 const WatchPartyPage: React.FC = () => {
   const [searchParams] = useSearchParams();
@@ -63,6 +64,8 @@ const WatchPartyPage: React.FC = () => {
     closedBy: '',
     message: ''
   });
+
+  const [isChangePodcastModalOpen, setIsChangePodcastModalOpen] = useState<boolean>(false);
 
   // Add states for views and likes
   const [views, setViews] = useState<number>(0);
@@ -392,6 +395,31 @@ const WatchPartyPage: React.FC = () => {
       }, 5000);
     };
 
+    const podcastChangedListener = (data: any) => {
+      // Fetch the new podcast data
+      const fetchNewPodcast = async () => {
+        try {
+          const newPodcastData = await getPodcastById(data.newPodcastId);
+          setPodcast(newPodcastData);
+          setViews(newPodcastData.views);
+          setTotalLikes(newPodcastData.totalLikes);
+          setLiked(newPodcastData.liked);
+          setFollow(newPodcastData.user.follow);
+          setTotalFollower(newPodcastData.user.totalFollower);
+          
+          // Update URL with new podcast ID
+          navigate(`/watch-party?pid=${data.newPodcastId}&room=${room?.roomCode}`, { replace: true });
+          
+          toast.info(`Video changed to: ${data.newPodcastTitle}`);
+        } catch (error) {
+          console.error('Error fetching new podcast:', error);
+          toast.error('Failed to load new video');
+        }
+      };
+
+      fetchNewPodcast();
+    };
+
     const settingsUpdateListener = (data: any) => {
       console.log('🔧 Room settings updated:', data);
       toast.info(`Room settings updated by ${data.updatedBy}`);
@@ -467,8 +495,9 @@ const WatchPartyPage: React.FC = () => {
     WatchPartyService.addBannedListener(bannedListener);
     WatchPartyService.addMessageDeletedListener(messageDeletedListener);
     WatchPartyService.addSettingsUpdateListener(settingsUpdateListener);
-     WatchPartyService.addRoomClosedListener(roomClosedListener);
-     
+    WatchPartyService.addRoomClosedListener(roomClosedListener);
+    WatchPartyService.addPodcastChangedListener(podcastChangedListener);
+
     return () => {
       WatchPartyService.removeChatMessageListener(chatMessageListener);
       WatchPartyService.removeConnectionStatusListener(connectionStatusListener);
@@ -479,6 +508,7 @@ const WatchPartyPage: React.FC = () => {
       WatchPartyService.removeMessageDeletedListener(messageDeletedListener);
       WatchPartyService.removeSettingsUpdateListener(settingsUpdateListener);
       WatchPartyService.removeRoomClosedListener(roomClosedListener);
+      WatchPartyService.removePodcastChangedListener(podcastChangedListener);
     };
   }, [toast, room?.id, currentUser]);
 
@@ -509,6 +539,8 @@ const WatchPartyPage: React.FC = () => {
     setRoomClosedNotification(prev => ({ ...prev, visible: false }));
     navigate('/');
   };
+
+
 
   // Auto-join room from URL if room code is provided
   useEffect(() => {
@@ -630,13 +662,13 @@ const WatchPartyPage: React.FC = () => {
     }
   };
 
-  // ✅ Modified handleLeaveRoom to disable auto-leave
+  // Modified handleLeaveRoom to disable auto-leave
   const handleLeaveRoom = async () => {
     if (!room) return;
     
     try {
       setLoading(true);
-      shouldAutoLeaveRef.current = false; // ✅ Disable auto-leave for manual leave
+      shouldAutoLeaveRef.current = false; // Disable auto-leave for manual leave
       
       // Disconnect from WebSocket first
       WatchPartyService.disconnect();
@@ -655,7 +687,7 @@ const WatchPartyPage: React.FC = () => {
     } catch (error) {
       console.error("Failed to leave room:", error);
       toast.error("Failed to leave room");
-      shouldAutoLeaveRef.current = true; // ✅ Re-enable auto-leave on error
+      shouldAutoLeaveRef.current = true; // Re-enable auto-leave on error
     } finally {
       setLoading(false);
     }
@@ -702,6 +734,33 @@ const WatchPartyPage: React.FC = () => {
     if (!room || !isConnected) return;
     // console.log('Sending sync event:', { position, playing, eventType });
     WatchPartyService.syncPlayback(room.id, position, playing, eventType);
+  };
+
+  const handleChangePodcast = async (newPodcastId: string) => {
+    if (!room || !isHost) return;
+    
+    try {
+      setLoading(true);
+      
+      await WatchPartyService.changePodcast(room.id, newPodcastId);
+      
+      setIsChangePodcastModalOpen(false);
+      toast.success("Podcast changed successfully");
+    } catch (error) {
+      console.error("Failed to change podcast:", error);
+      toast.error("Failed to change podcast");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleOpenChangePodcastModal = () => {
+    if (!isHost) {
+      toast.warning("Only the host can change the podcast");
+      return;
+    }
+    
+    setIsChangePodcastModalOpen(true);
   };
 
   const copyInviteLink = () => {
@@ -805,6 +864,7 @@ const WatchPartyPage: React.FC = () => {
                 initialPosition={room.currentPosition || 0}
                 roomId={room.id}
                 onViewIncrement={handleViewIncrement}
+                onChangePodcast={handleOpenChangePodcastModal}
               />
 
               {/* Podcast Info Section */}
@@ -1002,6 +1062,14 @@ const WatchPartyPage: React.FC = () => {
         reason={kickBanNotification.reason}
         kickedBy={kickBanNotification.kickedBy}
         onClose={handleKickBanModalClose}
+      />
+
+      {/* ✅ Change Podcast Modal */}
+      <ChangePodcastModal
+        isOpen={isChangePodcastModalOpen}
+        onClose={() => setIsChangePodcastModalOpen(false)}
+        onConfirm={handleChangePodcast}
+        currentPodcast={podcast}
       />
 
       {/* Room Closed Notification Modal */}

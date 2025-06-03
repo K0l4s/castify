@@ -3,7 +3,7 @@ import { Podcast } from '../../../models/PodcastModel';
 import { SyncEventType } from '../../../models/WatchPartyModel';
 import WatchPartyService from '../../../services/WatchPartyService';
 import { formatTimeDuration, setupVideoViewTracking } from '../../../components/UI/podcast/video';
-import { FaPause, FaPlay } from 'react-icons/fa';
+import { FaExchangeAlt, FaPause, FaPlay } from 'react-icons/fa';
 import { FiVolume2, FiVolumeX } from 'react-icons/fi';
 import { BsFullscreen } from 'react-icons/bs';
 import { useSelector } from 'react-redux';
@@ -16,6 +16,7 @@ interface WatchPartyPlayerProps {
   isConnected: boolean;
   initialPosition?: number;
   onSync: (position: number, playing: boolean, eventType: SyncEventType) => void;
+  onChangePodcast?: () => void;
   roomId: string;
   onViewIncrement?: () => void;
 }
@@ -26,6 +27,7 @@ const WatchPartyPlayer: React.FC<WatchPartyPlayerProps> = ({
   isConnected,
   initialPosition = 0,
   onSync,
+  onChangePodcast,
   roomId,
   onViewIncrement
 }) => {
@@ -48,6 +50,8 @@ const WatchPartyPlayer: React.FC<WatchPartyPlayerProps> = ({
   const syncThrottleRef = useRef<NodeJS.Timeout | null>(null);
   const initialSyncDoneRef = useRef<boolean>(false);
   const syncIntervalRef = useRef<NodeJS.Timeout | null>(null);
+  const [showHostLabels, setShowHostLabels] = useState(true);
+  const hostLabelsTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   const isAuthenticated = useSelector((state: RootState) => state.auth.isAuthenticated);
 
@@ -340,18 +344,29 @@ const WatchPartyPlayer: React.FC<WatchPartyPlayerProps> = ({
     };
   }, [isHost, isConnected, isReadyForSync, onSync, initialPosition]);
 
-  // Set up controls auto-hide
+  // Set up controls & label auto-hide
   useEffect(() => {
     const handleMouseMove = () => {
       setShowControls(true);
-      
+      setShowHostLabels(true);
+
       if (controlsTimeoutRef.current) {
         clearTimeout(controlsTimeoutRef.current);
       }
       
+      if (hostLabelsTimeoutRef.current) {
+        clearTimeout(hostLabelsTimeoutRef.current);
+      }
+    
       controlsTimeoutRef.current = setTimeout(() => {
         if (isPlaying) {
           setShowControls(false);
+        }
+      }, 3000);
+
+      hostLabelsTimeoutRef.current = setTimeout(() => {
+        if (isPlaying) {
+          setShowHostLabels(false);
         }
       }, 3000);
     };
@@ -368,6 +383,10 @@ const WatchPartyPlayer: React.FC<WatchPartyPlayerProps> = ({
       
       if (controlsTimeoutRef.current) {
         clearTimeout(controlsTimeoutRef.current);
+      }
+
+      if (hostLabelsTimeoutRef.current) {
+        clearTimeout(hostLabelsTimeoutRef.current);
       }
     };
   }, [isPlaying]);
@@ -463,6 +482,12 @@ const WatchPartyPlayer: React.FC<WatchPartyPlayerProps> = ({
     return formatTimeDuration(time);
   };
 
+  const handleChangePodcast = () => {
+    if (onChangePodcast) {
+      onChangePodcast();
+    }
+  };
+
   return (
     <div 
       ref={playerContainerRef}
@@ -481,18 +506,33 @@ const WatchPartyPlayer: React.FC<WatchPartyPlayerProps> = ({
       />
       
       {/* Connection status indicator */}
-      <div className={`absolute top-2 right-2 px-2 py-1 rounded-full text-xs font-medium z-20 ${
+      {/* <div className={`absolute top-2 right-2 px-2 py-1 rounded-full text-xs font-medium z-20 ${
         isConnected ? "bg-green-500" : "bg-red-500"
       } text-white`}>
         {isConnected ? "Connected" : "Disconnected"}
-      </div>
+      </div> */}
       
       {/* Host indicator */}
-      {isHost && (
-        <div className="absolute top-2 left-2 px-2 py-1 rounded-full text-xs font-medium z-20 bg-blue-500 text-white">
-          Host
-        </div>
-      )}
+      <div className={`absolute top-2 left-2 flex items-center gap-2 z-20 transition-opacity duration-300 ${
+        showHostLabels ? 'opacity-100' : 'opacity-0'
+      }`}>
+        {isHost && (
+          <div className="px-3 py-2 rounded-full text-sm font-medium bg-blue-500 text-white">
+            Host
+          </div>
+        )}
+        
+        {isHost && onChangePodcast && (
+          <button
+            onClick={handleChangePodcast}
+            className="px-2 py-2 rounded-full text-sm font-medium bg-purple-500 hover:bg-purple-600 text-white transition-colors flex items-center gap-1"
+            title="Change Podcast"
+          >
+            <FaExchangeAlt size={10} />
+            <span className="hidden sm:inline">Change source</span>
+          </button>
+        )}
+      </div>
       
       {/* User interaction prompt for participants */}
       {!isHost && pendingPlayRequest && (

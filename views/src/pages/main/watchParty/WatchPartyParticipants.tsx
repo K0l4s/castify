@@ -5,6 +5,8 @@ import { useClickOutside } from '../../../hooks/useClickOutside';
 import HostItem from '../../../components/modals/watchParty/HostItem';
 import ParticipantItem from '../../../components/modals/watchParty/ParticipantItem';
 import RoomSettingsModal from '../../../components/modals/watchParty/RoomSettingModal';
+import { ReportType } from '../../../models/Report';
+import ReportModal from '../../../components/modals/report/ReportModal';
 
 interface WatchPartyParticipantsProps {
   room: WatchPartyRoom;
@@ -21,7 +23,6 @@ const WatchPartyParticipants: React.FC<WatchPartyParticipantsProps> = ({
   isHost = false,
   onKickUser,
   onBanUser,
-  onReportUser
 }) => {
   const [contextMenu, setContextMenu] = useState<{
     visible: boolean;
@@ -39,8 +40,16 @@ const WatchPartyParticipants: React.FC<WatchPartyParticipantsProps> = ({
     isOwnProfile: false
   });
 
-  // ✅ Add settings modal state
+  // Add settings modal state
   const [isSettingsModalOpen, setIsSettingsModalOpen] = useState<boolean>(false);
+
+  const [reportModal, setReportModal] = useState<{
+    isOpen: boolean;
+    userId: string;
+  }>({
+    isOpen: false,
+    userId: ''
+  });
 
   const contextMenuRef = useRef<HTMLDivElement>(null);
 
@@ -99,11 +108,18 @@ const WatchPartyParticipants: React.FC<WatchPartyParticipantsProps> = ({
   };
 
   const handleReport = () => {
-    const reason = prompt(`Enter reason for reporting ${contextMenu.username}:`);
-    if (reason !== null && reason.trim() && onReportUser) {
-      onReportUser(contextMenu.userId, reason);
-    }
+    setReportModal({
+      isOpen: true,
+      userId: contextMenu.userId
+    });
     setContextMenu(prev => ({ ...prev, visible: false }));
+  };
+  
+  const handleReportClose = () => {
+    setReportModal({
+      isOpen: false,
+      userId: ''
+    });
   };
 
   return (
@@ -113,7 +129,7 @@ const WatchPartyParticipants: React.FC<WatchPartyParticipantsProps> = ({
           <h3 className="font-semibold text-gray-900 dark:text-white">
             Participants ({participants.length})
           </h3>
-          {/* ✅ Settings button for host */}
+          {/* Settings button for host */}
           {isHost && (
             <button
               onClick={() => setIsSettingsModalOpen(true)}
@@ -128,7 +144,7 @@ const WatchPartyParticipants: React.FC<WatchPartyParticipantsProps> = ({
       
       <div className="p-2 max-h-[200px] overflow-y-auto">
         <div className="space-y-2">
-          {/* ✅ Host first - Sử dụng component riêng */}
+          {/* Host first */}
           {hostParticipant && (
             <HostItem
               key={`host-${hostParticipant.id}`}
@@ -139,7 +155,7 @@ const WatchPartyParticipants: React.FC<WatchPartyParticipantsProps> = ({
             />
           )}
           
-          {/* ✅ Other participants - Sử dụng component riêng */}
+          {/* Other participants*/}
           {participants
             .filter(p => p.userId !== room.hostUserId)
             .map(participant => (
@@ -202,11 +218,18 @@ const WatchPartyParticipants: React.FC<WatchPartyParticipantsProps> = ({
         </div>
       )}
 
-      {/* ✅ Room Settings Modal */}
+      {/* Room Settings Modal */}
       <RoomSettingsModal
         isOpen={isSettingsModalOpen}
         onClose={() => setIsSettingsModalOpen(false)}
         room={room}
+      />
+
+      <ReportModal
+        isOpen={reportModal.isOpen}
+        onClose={handleReportClose}
+        targetId={reportModal.userId}
+        reportType={ReportType.U}
       />
     </div>
   );

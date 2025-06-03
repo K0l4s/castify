@@ -15,6 +15,7 @@ import com.castify.backend.repository.UserRepository;
 import com.castify.backend.repository.WatchPartyMessageRepository;
 import com.castify.backend.repository.WatchPartyRoomRepository;
 import com.castify.backend.utils.SecurityUtils;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -218,6 +219,7 @@ public class WatchPartyServiceImpl implements IWatchPartyService {
     }
 
     @Override
+    @Transactional
     public void forceCloseRoom(String roomId) {
         UserEntity currentUser = SecurityUtils.getCurrentUser();
         // Remove all participants
@@ -233,6 +235,7 @@ public class WatchPartyServiceImpl implements IWatchPartyService {
         }
 
         room.getParticipants().clear();
+        messageRepository.deleteByRoomId(roomId);
 
         notifyRoomParticipants(roomId, "ROOM_CLOSED",
                 "The room has been closed by the host");
@@ -256,6 +259,64 @@ public class WatchPartyServiceImpl implements IWatchPartyService {
 
         // Remove from active rooms cache
         activeRooms.remove(roomId);
+    }
+
+    @Override
+    public WatchPartyRoomEntity changePodcast(String roomId, String newPodcastId) {
+        UserEntity currentUser = SecurityUtils.getCurrentUser();
+        WatchPartyRoomEntity room = getRoomDetails(roomId);
+
+        if (room == null) {
+            throw new RuntimeException("Room not found");
+        }
+
+        // Check if current user is host
+        if (!room.isHost(currentUser.getId())) {
+            throw new RuntimeException("Only host can change the podcast");
+        }
+
+        // Verify new podcast exists
+        PodcastEntity newPodcast = podcastRepository.findByIdAndIsActiveTrue(newPodcastId)
+                .orElseThrow(() -> new RuntimeException("Podcast not found"));
+
+        // Store old podcast info for notification
+        PodcastEntity oldPodcast = podcastRepository.findById(room.getPodcastId()).orElse(null);
+        String oldPodcastTitle = oldPodcast != null ? oldPodcast.getTitle() : "Unknown";
+
+        // Update room
+        room.setPodcastId(newPodcastId);
+        room.setCurrentPosition(0); // Reset to beginning
+        room.setPlaying(false); // Pause by default
+        room.setLastUpdated(LocalDateTime.now());
+
+        // Save to database
+        roomRepository.save(room);
+        activeRooms.put(roomId, room);
+
+        // Send system message
+        String changeMessage = String.format("Host changed the video from \"%s\" to \"%s\"",
+                oldPodcastTitle, newPodcast.getTitle());
+        notifyRoomParticipants(roomId, "PODCAST_CHANGED", changeMessage);
+
+        // Send podcast change notification via WebSocket
+        Map<String, Object> podcastChangeData = Map.of(
+                "roomId", roomId,
+                "newPodcastId", newPodcastId,
+                "newPodcastTitle", newPodcast.getTitle(),
+                "newPodcastUrl", newPodcast.getVideoUrl(),
+                "newThumbnailUrl", newPodcast.getThumbnailUrl() != null ? newPodcast.getThumbnailUrl() : "",
+                "changedBy", currentUser.getUsername(),
+                "timestamp", LocalDateTime.now().toString(),
+                "message", changeMessage
+        );
+
+        messagingTemplate.convertAndSend("/topic/room/" + roomId + "/podcast-changed", podcastChangeData);
+
+        // Broadcast room update
+        messagingTemplate.convertAndSend("/topic/room/" + roomId + "/update", room);
+
+        System.out.println("🎬 Podcast changed successfully in room: " + roomId);
+        return room;
     }
 
     /**
@@ -640,6 +701,7 @@ public class WatchPartyServiceImpl implements IWatchPartyService {
             room.setActive(false);
             roomRepository.save(room);
             activeRooms.remove(roomId);
+            messageRepository.deleteByRoomId(roomId);
 
             // Notify all participants
             messagingTemplate.convertAndSend("/topic/room/" + roomId + "/system",
