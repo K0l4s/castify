@@ -12,3 +12,12 @@ export interface FrameCreateUpdate {
     name: string;
     imageURL: string;
 } 
+
+export interface CreateFrameEventModel {
+    name:string;
+    description:string;
+    startDate: string;
+    endDate:string;
+    percent:number;
+    active:boolean;
+}
