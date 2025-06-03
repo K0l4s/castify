@@ -422,7 +422,6 @@ const WatchPartyPage: React.FC = () => {
 
     const settingsUpdateListener = (data: any) => {
       console.log('🔧 Room settings updated:', data);
-      toast.info(`Room settings updated by ${data.updatedBy}`);
     };
 
     const syncEventListener = () => {
@@ -793,7 +792,7 @@ const WatchPartyPage: React.FC = () => {
   }
 
   return (
-    <div className="container mx-auto p-4">
+    <div className="container mx-auto p-2">
       {/* ...rest of existing JSX remains unchanged... */}
       <div className="mb-6">
         <h1 className="text-2xl md:text-3xl font-bold text-black dark:text-white mb-2">
@@ -852,7 +851,7 @@ const WatchPartyPage: React.FC = () => {
       {/* Main Content */}
       <div className="flex flex-col lg:flex-row gap-6">
         {/* Left Side - Video Player or Select Podcast */}
-        <div className="lg:w-2/3">
+        <div className="lg:w-3/4">
           {podcast && room ? (
             <div>
               {/* Video Player */}
@@ -1014,7 +1013,7 @@ const WatchPartyPage: React.FC = () => {
 
         {/* Right Side - Chat & Participants (only if in a room) */}
         {room && (
-          <div className="lg:w-1/3 flex flex-col gap-4">
+          <div className="lg:w-1/4 flex flex-col gap-4">
             <WatchPartyParticipants 
               room={room} 
               currentUserId={currentUser?.id} 
@@ -1029,6 +1028,7 @@ const WatchPartyPage: React.FC = () => {
               isHost={isHost}
               currentUserId={currentUser?.id || ''}
               roomId={room?.id || ''}
+              allowChat={room?.allowChat ?? true}
               onSendMessage={handleSendChatMessage}
               onKickUser={handleKickUser}
               onBanUser={handleBanUser}

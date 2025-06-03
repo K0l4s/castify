@@ -9,6 +9,7 @@ import defaultAvatar from "../../../assets/images/default_avatar.jpg";
 import { FaCopy } from 'react-icons/fa';
 import { WatchPartyRoom } from '../../../models/WatchPartyModel';
 import CustomInput from '../../UI/custom/CustomInput';
+import ConfirmModal from '../utils/ConfirmDelete';
 
 interface BannedUser {
   id: string;
@@ -66,6 +67,8 @@ const RoomSettingsModal: React.FC<RoomSettingsModalProps> = ({
   const [loading, setLoading] = useState<boolean>(false);
   const [unbanning, setUnbanning] = useState<string | null>(null);
   const [saving, setSaving] = useState<boolean>(false);
+  
+  const [showConfirmClose, setShowConfirmClose] = useState<boolean>(false);
   
   // Room settings state
   const [roomSettings, setRoomSettings] = useState({
@@ -149,10 +152,11 @@ const RoomSettingsModal: React.FC<RoomSettingsModalProps> = ({
     }));
   };
 
-  const handleCloseRoom = async () => {
-    if (!window.confirm('Are you sure you want to close this room? All participants will be removed and the room will be permanently closed.')) {
-      return;
-    }
+  const handleCloseRoom = () => {
+    setShowConfirmClose(true);
+  };
+
+  const confirmCloseRoom = async () => {
 
     try {
       setLoading(true);
@@ -164,6 +168,7 @@ const RoomSettingsModal: React.FC<RoomSettingsModalProps> = ({
         onRoomClosed();
       }
 
+      setShowConfirmClose(false);
       onClose();
     } catch (error) {
       console.error('Error closing room:', error);
@@ -444,17 +449,19 @@ const RoomSettingsModal: React.FC<RoomSettingsModalProps> = ({
   };
 
   return (
+    <>
     <CustomModal
       title={`Room Settings`}
       isOpen={isOpen}
       onClose={onClose}
       size="xl"
       animation="zoom"
-      className="backdrop-blur-sm"
+      className="backdrop-blur-sm max-h-[100vh]"
     >
-      <div className="flex min-h-[500px]">
+      {/* Scrollable container */}
+      <div className="flex min-h-[500px] max-h-[70vh] overflow-hidden">
         {/* Left Sidebar - Settings Navigation */}
-        <div className="w-64 border-r border-gray-200 dark:border-gray-700 pr-6">
+        <div className="w-64 border-r border-gray-200 dark:border-gray-700 pr-6 flex-shrink-0">
           <div className="space-y-2">
             {settingTabs.map((tab) => (
               <button
@@ -486,12 +493,20 @@ const RoomSettingsModal: React.FC<RoomSettingsModalProps> = ({
           </div>
         </div>
 
-        {/* Right Content Area */}
-        <div className="flex-1 pl-6">
+        {/* Right Content Area - Scrollable */}
+        <div className="flex-1 pl-6 overflow-y-auto">
           {renderContent()}
         </div>
       </div>
     </CustomModal>
+
+    <ConfirmModal
+      isOpen={showConfirmClose}
+      title="Are you sure you want to close this room? All participants will be removed and the room will be permanently closed. This action cannot be undone."
+      onClose={() => setShowConfirmClose(false)}
+      onConfirm={confirmCloseRoom}
+    />
+    </>
   );
 };
 
