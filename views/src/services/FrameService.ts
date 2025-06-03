@@ -1,5 +1,6 @@
 import { axiosInstance, axiosInstanceAuth, axiosInstanceFile } from '../utils/axiosInstance';
-import { Frame
+import {
+  Frame
   //, FrameCreateUpdate 
 } from '../models/FrameModel';
 
@@ -15,10 +16,10 @@ export const getAcceptedFrames = async () => {
 };
 
 // Purchase frame
-export const purchaseFrame = async (frameId: string,voucherCode?:string): Promise<Frame> => {
+export const purchaseFrame = async (frameId: string, voucherCode?: string): Promise<Frame> => {
   try {
     let response;
-    if(voucherCode)
+    if (voucherCode)
       response = await axiosInstanceAuth.post(`/api/v1/frame/purchase/${frameId}?voucherCode=${voucherCode}`);
     else
       response = await axiosInstanceAuth.post(`/api/v1/frame/purchase/${frameId}`);
@@ -26,7 +27,7 @@ export const purchaseFrame = async (frameId: string,voucherCode?:string): Promis
   } catch (error) {
     throw error;
   }
-}; 
+};
 
 
 // For MyShop
@@ -79,7 +80,7 @@ export const updateFrame = async (id: string, name: string, price: number) => {
     const params = new URLSearchParams();
     params.append('name', name);
     params.append('price', price.toString());
-    
+
     const response = await axiosInstanceAuth.put(`/api/v1/frame/update/${id}?${params.toString()}`);
     return response.data;
   } catch (error) {

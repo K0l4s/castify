@@ -50,6 +50,8 @@ import DetailPlaylistPage from '../pages/main/playlistPage/DetailPlaylistPage'
 import WatchPartyPage from '../pages/main/watchParty/WatchPartyPage'
 import GenrePodcastsPage from '../pages/genre/GenrePodcastsPage'
 import BrowseRoomsPage from '../pages/main/watchParty/BrowseRoomsPage'
+import AdminEventFramePage from '../pages/admin/framePage/AdminEventFramePage'
+// import CreateFrameEventForm from '../components/admin/event/CreateFrameEventForm'
 // import IntroVideoPage from '../pages/main/landingPage/IntroVideoPage'
 
 // import Test from '../components/main/conversation/Test'
@@ -90,6 +92,7 @@ const Router = () => {
             {/* <SettingModals isOpen={true} onClose={() => null} /> */}
             <Routes>
                 {/* <Route> */}
+                {/* <Route path="test" element={<CreateFrameEventForm/>}/> */}
                 <Route path='/login' element={<LandingPage />} />
                 <Route path='/register' element={<LandingPage />} />
                 <Route path='/forgot-password' element={<LandingPage />} />
@@ -118,6 +121,7 @@ const Router = () => {
                     <Route path="report" element={<AdminReportPage />} />
                     <Route path="genre" element={<AdminGenrePage />} />
                     <Route path="frame" element={<AdminFramePage />} />
+                    <Route path="event" element={<AdminEventFramePage/>}/>
                 </Route>
 
                 <Route path='/creator/*' element={<RequireAuth><CreatorLayout /></RequireAuth>} >
