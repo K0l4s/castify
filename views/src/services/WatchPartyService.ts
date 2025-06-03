@@ -22,6 +22,7 @@ export default class WatchPartyService {
   private static bannedListeners: ((data: any) => void)[] = [];
   private static messageDeletedListeners: ((data: any) => void)[] = [];
   private static settingsUpdateListeners: Array<(data: any) => void> = [];
+  private static roomClosedListeners: ((data: any) => void)[] = [];
 
   static async createRoom(request: CreateRoomRequest): Promise<WatchPartyRoom> {
     try {
@@ -57,11 +58,36 @@ export default class WatchPartyService {
     }
   }
 
-  static async leaveRoom(roomId: string): Promise<void> {
+  static async leaveRoom(roomId: string, useKeepalive: boolean = false): Promise<void> {
     try {
-      await axiosInstanceAuth.post(`/api/v1/watch-party/leave/${roomId}`, {});
+      if (useKeepalive) {
+        // Use keepalive for page unload scenarios
+        const token = Cookie.get("token");
+        await fetch(`${BaseApi}/api/v1/watch-party/leave/${roomId}`, {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json',
+            'ngrok-skip-browser-warning': '69420'
+          },
+          body: JSON.stringify({}),
+          keepalive: true
+        });
+      } else {
+        // Use normal axiosInstanceAuth for regular scenarios
+        await axiosInstanceAuth.post(`/api/v1/watch-party/leave/${roomId}`);
+      }
     } catch (error) {
       console.error("Error leaving room:", error);
+      throw error;
+    }
+  }
+
+  static async closeRoom(roomId: string): Promise<void> {
+    try {
+      await axiosInstanceAuth.post(`/api/v1/watch-party/close/${roomId}`);
+    } catch (error) {
+      console.error("Error closing room:", error);
       throw error;
     }
   }
@@ -241,11 +267,11 @@ export default class WatchPartyService {
           Authorization: `Bearer ${token}`,
           "ngrok-skip-browser-warning": "true"
         },
-        debug: (str) => {
-          if (str.includes('kick') || str.includes('ban') || str.includes('queue')) {
-            console.log('🔥 STOMP Debug:', str);
-          }
-        },
+        // debug: (str) => {
+        //   if (str.includes('kick') || str.includes('ban') || str.includes('queue')) {
+        //     console.log('🔥 STOMP Debug:', str);
+        //   }
+        // },
         reconnectDelay: 5000,
         heartbeatIncoming: 4000,
         heartbeatOutgoing: 4000
@@ -281,6 +307,19 @@ export default class WatchPartyService {
           subscribeHeaders
         );
         
+        // Subscribe to room closed notifications
+        this.stompClient!.subscribe(`/topic/room/${roomId}/closed`, (message) => {
+          try {
+            const closedData = JSON.parse(message.body);
+            this.roomClosedListeners.forEach(listener => {
+              // console.log('Calling room closed listener');
+              listener(closedData);
+            });
+          } catch (error) {
+            console.error('ERROR PARSING CLOSED DATA:', error);
+          }
+        }, subscribeHeaders);
+
         this.stompClient!.subscribe(`/topic/room/${roomId}/kick`, (message) => {
           try {
             const kickData = JSON.parse(message.body);
@@ -594,5 +633,16 @@ export default class WatchPartyService {
 
   static removeSettingsUpdateListener(listener: (data: any) => void) {
     this.settingsUpdateListeners = this.settingsUpdateListeners.filter(l => l !== listener);
+  }
+
+  static addRoomClosedListener(listener: (data: any) => void): void {
+    this.roomClosedListeners.push(listener);
+  }
+
+  static removeRoomClosedListener(listener: (data: any) => void): void {
+    const index = this.roomClosedListeners.indexOf(listener);
+    if (index > -1) {
+      this.roomClosedListeners.splice(index, 1);
+    }
   }
 }

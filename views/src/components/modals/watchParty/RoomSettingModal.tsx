@@ -23,6 +23,7 @@ interface RoomSettingsModalProps {
   onClose: () => void;
   room: WatchPartyRoom;
   onRoomUpdate?: (updatedRoom: WatchPartyRoom) => void;
+  onRoomClosed?: () => void;
 }
 
 interface SettingTab {
@@ -57,7 +58,8 @@ const RoomSettingsModal: React.FC<RoomSettingsModalProps> = ({
   isOpen,
   onClose,
   room,
-  onRoomUpdate
+  onRoomUpdate,
+  onRoomClosed
 }) => {
   const [activeTab, setActiveTab] = useState<string>('general');
   const [bannedUsers, setBannedUsers] = useState<BannedUser[]>([]);
@@ -145,6 +147,30 @@ const RoomSettingsModal: React.FC<RoomSettingsModalProps> = ({
       ...prev,
       [field]: value
     }));
+  };
+
+  const handleCloseRoom = async () => {
+    if (!window.confirm('Are you sure you want to close this room? All participants will be removed and the room will be permanently closed.')) {
+      return;
+    }
+
+    try {
+      setLoading(true);
+      await WatchPartyService.closeRoom(roomId);
+      toast.success('Room closed successfully');
+
+      // Notify parent about room closure
+      if (onRoomClosed) {
+        onRoomClosed();
+      }
+
+      onClose();
+    } catch (error) {
+      console.error('Error closing room:', error);
+      toast.error('Failed to close room');
+    } finally {
+      setLoading(false);
+    }
   };
 
   const getDisplayName = (user: BannedUser) => {
@@ -339,6 +365,32 @@ const RoomSettingsModal: React.FC<RoomSettingsModalProps> = ({
               <div className="text-gray-900 dark:text-white font-medium">
                 {room.participants?.length || 0} / {room.maxParticipants || 100}
               </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Danger Zone */}
+        <div className="pt-6 border-t border-red-200 dark:border-red-700">
+          <h4 className="text-md font-medium text-red-600 dark:text-red-400 mb-4">
+            Danger Zone
+          </h4>
+          
+          <div className="bg-red-50 dark:bg-red-900/30 p-4 rounded-lg">
+            <div className="flex items-start justify-between">
+              <div>
+                <h5 className="font-medium text-red-800 dark:text-red-300">Close Room</h5>
+                <p className="text-sm text-red-600 dark:text-red-400 mt-1">
+                  Permanently close this room. All participants will be removed and the room cannot be reopened.
+                </p>
+              </div>
+              <CustomButton
+                text={loading ? 'Closing...' : 'Close Room'}
+                variant="danger"
+                size="sm"
+                disabled={loading}
+                onClick={handleCloseRoom}
+                className="ml-4"
+              />
             </div>
           </div>
         </div>

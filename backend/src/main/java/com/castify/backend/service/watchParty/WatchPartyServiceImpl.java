@@ -217,6 +217,47 @@ public class WatchPartyServiceImpl implements IWatchPartyService {
         }
     }
 
+    @Override
+    public void forceCloseRoom(String roomId) {
+        UserEntity currentUser = SecurityUtils.getCurrentUser();
+        // Remove all participants
+        WatchPartyRoomEntity room = activeRooms.get(roomId);
+
+        if (room == null) {
+            room = roomRepository.findById(roomId)
+                    .orElseThrow(() -> new RuntimeException("Room not found"));
+        }
+
+        if (!room.isHost(currentUser.getId())) {
+            throw new RuntimeException("Only host can close the room");
+        }
+
+        room.getParticipants().clear();
+
+        notifyRoomParticipants(roomId, "ROOM_CLOSED",
+                "The room has been closed by the host");
+
+        messagingTemplate.convertAndSend("/topic/room/" + roomId + "/closed",
+                Map.of(
+                        "roomId", roomId,
+                        "roomName", room.getRoomName(),
+                        "closedBy", currentUser.getUsername(),
+                        "timestamp", LocalDateTime.now().toString(),
+                        "message", "The room has been closed by the host"
+                )
+        );
+
+        // Close room
+        room.setActive(false);
+        room.setLastUpdated(LocalDateTime.now());
+
+        // Save to database
+        roomRepository.save(room);
+
+        // Remove from active rooms cache
+        activeRooms.remove(roomId);
+    }
+
     /**
      * Sync playback state
      */

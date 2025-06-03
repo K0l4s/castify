@@ -70,6 +70,16 @@ public class WatchPartyController {
         }
     }
 
+    @PostMapping("/close/{roomId}")
+    public ResponseEntity<?> closeRoom(@PathVariable String roomId) {
+        try {
+            watchPartyService.forceCloseRoom(roomId);
+            return ResponseEntity.ok().build();
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().build();
+        }
+    }
+
     @GetMapping("/{roomId}")
     public ResponseEntity<WatchPartyRoomEntity> getRoomDetails(@PathVariable String roomId) {
         WatchPartyRoomEntity room = watchPartyService.getRoomDetails(roomId);

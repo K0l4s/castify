@@ -1,5 +1,5 @@
 import React from 'react';
-import { FiUsers, FiGlobe, FiLock, FiClock, FiArrowRight, FiSettings, FiTrash2 } from 'react-icons/fi';
+import { FiUsers, FiGlobe, FiLock, FiClock, FiArrowRight, FiSettings } from 'react-icons/fi';
 import defaultAvatar from "../../../assets/images/default_avatar.jpg";
 import { WatchPartyRoom } from '../../../models/WatchPartyModel';
 import Avatar from '../../UI/user/Avatar';
@@ -11,7 +11,6 @@ interface RoomCardProps {
   isJoining?: boolean;
   onJoinRoom?: (roomCode: string) => void;
   onSettingsClick?: (room: WatchPartyRoom) => void;
-  onDeleteRoom?: (roomId: string) => void;
   currentUserId?: string;
 }
 
@@ -21,7 +20,6 @@ const RoomCard: React.FC<RoomCardProps> = ({
   isJoining = false,
   onJoinRoom,
   onSettingsClick,
-  onDeleteRoom,
 }) => {
   // Format time ago
   const formatTimeAgo = (dateString: string) => {
@@ -137,14 +135,6 @@ const RoomCard: React.FC<RoomCardProps> = ({
               size="sm"
               className="px-3"
               onClick={() => onSettingsClick?.(room)}
-            />
-            <CustomButton
-              text=""
-              icon={<FiTrash2 />}
-              variant="outline"
-              size="sm"
-              className="px-3 text-red-600 dark:text-red-400 border-red-600 dark:border-red-400 hover:bg-red-50 dark:hover:bg-red-900/20"
-              onClick={() => onDeleteRoom?.(room.id)}
             />
           </div>
         ) : (

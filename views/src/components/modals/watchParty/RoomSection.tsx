@@ -17,7 +17,6 @@ interface RoomSectionProps {
   isMyRooms?: boolean;
   onJoinRoom: (roomCode: string) => void;
   onSettingsClick?: (room: WatchPartyRoom) => void;
-  onDeleteRoom?: (roomId: string) => void;
   joining: string | null;
   currentUserId?: string;
 }
@@ -33,7 +32,6 @@ const RoomSection = forwardRef<RoomSectionRef, RoomSectionProps>(({
   isMyRooms = false,
   onJoinRoom,
   onSettingsClick,
-  onDeleteRoom,
   joining,
   currentUserId
 }, ref) => {
@@ -157,7 +155,6 @@ const RoomSection = forwardRef<RoomSectionRef, RoomSectionProps>(({
                 isJoining={joining === room.roomCode}
                 onJoinRoom={onJoinRoom}
                 onSettingsClick={onSettingsClick}
-                onDeleteRoom={onDeleteRoom}
                 currentUserId={currentUserId}
               />
             ))}

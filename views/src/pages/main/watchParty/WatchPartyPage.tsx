@@ -6,7 +6,7 @@ import { useSelector } from 'react-redux';
 import { RootState } from '../../../redux/store';
 import WatchPartyService from '../../../services/WatchPartyService';
 import { ChatMessage, SyncEventType, WatchPartyRoom } from '../../../models/WatchPartyModel';
-import { FiLoader } from 'react-icons/fi';
+import { FiAlertCircle, FiLoader } from 'react-icons/fi';
 import CustomButton from '../../../components/UI/custom/CustomButton';
 import { FaCopy, FaDoorOpen, FaEye, FaPlus, FaSignInAlt, FaVideo } from 'react-icons/fa';
 import { formatDistanceToNow } from 'date-fns';
@@ -24,6 +24,8 @@ import { HeartIcon } from '../../../components/UI/custom/SVG_Icon';
 import defaultAvatar from '../../../assets/images/default_avatar.jpg';
 import { userService } from '../../../services/UserService';
 import KickBanModal from './KickBanModal';
+import Cookie from 'js-cookie';
+import { BaseApi } from '../../../utils/axiosInstance';
 
 const WatchPartyPage: React.FC = () => {
   const [searchParams] = useSearchParams();
@@ -50,6 +52,18 @@ const WatchPartyPage: React.FC = () => {
     kickedBy: ''
   });
 
+  const [roomClosedNotification, setRoomClosedNotification] = useState<{
+    visible: boolean;
+    roomName: string;
+    closedBy: string;
+    message: string;
+  }>({
+    visible: false,
+    roomName: '',
+    closedBy: '',
+    message: ''
+  });
+
   // Add states for views and likes
   const [views, setViews] = useState<number>(0);
   const [totalLikes, setTotalLikes] = useState<number>(0);
@@ -58,6 +72,11 @@ const WatchPartyPage: React.FC = () => {
   const [totalFollower, setTotalFollower] = useState<number>(0);
   const [isDescriptionExpanded, setIsDescriptionExpanded] = useState(false);
   const refreshIntervalRef = useRef<NodeJS.Timeout | null>(null);
+
+  // Add ref to track if user should auto-leave
+  const shouldAutoLeaveRef = useRef<boolean>(true);
+  // Add ref to track current room for cleanup
+  const currentRoomRef = useRef<WatchPartyRoom | null>(null);
 
   // const { language } = useLanguage();
   const navigate = useNavigate();
@@ -69,6 +88,107 @@ const WatchPartyPage: React.FC = () => {
 
   // Safely check if the current user is the host
   const isHost = room?.hostUserId === currentUser?.id;
+
+  // Update room ref when room changes
+  useEffect(() => {
+    currentRoomRef.current = room;
+  }, [room]);
+
+  // Auto-leave room functions
+  const leaveRoomSilently = useCallback(async () => {
+    const roomToLeave = currentRoomRef.current;
+    if (!roomToLeave || !shouldAutoLeaveRef.current) return;
+    
+    const isCurrentUserHost = roomToLeave.hostUserId === currentUser?.id;
+    if (isCurrentUserHost) {
+      console.log(' Host detected - skipping auto-leave on route change');
+      return;
+    }
+
+    try {
+      // Disconnect WebSocket first
+      WatchPartyService.disconnect();
+      
+      // Call leave room API
+      await WatchPartyService.leaveRoom(roomToLeave.id);
+      
+      shouldAutoLeaveRef.current = false;
+    } catch (error) {
+      console.error('Error leaving room silently:', error);
+    }
+  }, [currentUser?.id]);
+
+  // Use fetch with keepalive for reliable page unload
+  const leaveRoomWithKeepalive = useCallback(() => {
+    const roomToLeave = currentRoomRef.current;
+    if (!roomToLeave || !shouldAutoLeaveRef.current) return;
+
+    const isCurrentUserHost = roomToLeave.hostUserId === currentUser?.id;
+    if (isCurrentUserHost) {
+      console.log('Host detected - skipping auto-leave on page unload');
+      return;
+    }
+
+    try {
+      // Disconnect WebSocket immediately
+      WatchPartyService.disconnect();
+      
+      // Use fetch with keepalive for reliable delivery
+      const token = Cookie.get("token");
+      
+      fetch(`${BaseApi}/api/v1/watch-party/leave/${roomToLeave.id}`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+          'ngrok-skip-browser-warning': '69420'
+        },
+        body: JSON.stringify({}),
+        keepalive: true
+      }).then(() => {
+        console.log('Leave room keepalive request sent');
+        shouldAutoLeaveRef.current = false;
+      }).catch(err => {
+        console.error('Keepalive request failed:', err);
+      });
+      
+    } catch (error) {
+      console.error('Error in keepalive leave:', error);
+    }
+  }, [currentUser?.id]);
+
+  // Handle page unload events (close tab, refresh, navigate away)
+  useEffect(() => {
+  const handlePageUnload = () => {
+    if (currentRoomRef.current && shouldAutoLeaveRef.current) {
+      // console.log(' Page unloading: Checking if should leave room...');
+      leaveRoomWithKeepalive();
+    }
+  };
+
+  // Use only pagehide - more reliable and no duplicates
+  window.addEventListener('pagehide', handlePageUnload);
+
+  return () => {
+    window.removeEventListener('pagehide', handlePageUnload);
+  };
+}, [leaveRoomWithKeepalive]);
+   // Component unmount cleanup (route change)
+  useEffect(() => {
+    return () => {
+      if (shouldAutoLeaveRef.current && currentRoomRef.current) {
+        // console.log(' Component unmounting, leaving room...');
+        leaveRoomSilently();
+      }
+    };
+  }, [leaveRoomSilently]);
+
+  // Clean up WebSocket on unmount - separate effect
+  useEffect(() => {
+    return () => {
+      WatchPartyService.disconnect();
+    };
+  }, []);
 
   // Fetch podcast data with refresh capability
   const fetchPodcastData = useCallback(async () => {
@@ -239,13 +359,37 @@ const WatchPartyPage: React.FC = () => {
           WatchPartyService.requestRoomSync(room.id);
         }
       } else {
-        toast.error("Disconnected from watch party");
+        console.error("Disconnected from watch party");
       }
     };
     
     const roomUpdateListener = (updatedRoom: WatchPartyRoom) => {
       // console.log('Room updated via WebSocket:', updatedRoom);
       setRoom(updatedRoom);
+    };
+
+    const roomClosedListener = (data: any) => {
+      console.log('🏠🏠🏠 ROOM CLOSED LISTENER TRIGGERED:', data);
+      
+      setRoomClosedNotification({
+        visible: true,
+        roomName: data.roomName || 'Unknown Room',
+        closedBy: data.closedBy || 'Unknown',
+        message: data.message || 'Room has been closed'
+      });
+      
+      // Disconnect and clear state immediately
+      WatchPartyService.disconnect();
+      setRoom(null);
+      setChatMessages([]);
+      setIsConnected(false);
+      
+      // Redirect after showing notification
+      setTimeout(() => {
+        setRoomClosedNotification(prev => ({ ...prev, visible: false }));
+        navigate('/');
+        toast.warning(data.message || 'Room has been closed');
+      }, 5000);
     };
 
     const settingsUpdateListener = (data: any) => {
@@ -323,7 +467,8 @@ const WatchPartyPage: React.FC = () => {
     WatchPartyService.addBannedListener(bannedListener);
     WatchPartyService.addMessageDeletedListener(messageDeletedListener);
     WatchPartyService.addSettingsUpdateListener(settingsUpdateListener);
-
+     WatchPartyService.addRoomClosedListener(roomClosedListener);
+     
     return () => {
       WatchPartyService.removeChatMessageListener(chatMessageListener);
       WatchPartyService.removeConnectionStatusListener(connectionStatusListener);
@@ -333,6 +478,7 @@ const WatchPartyPage: React.FC = () => {
       WatchPartyService.removeBannedListener(bannedListener);
       WatchPartyService.removeMessageDeletedListener(messageDeletedListener);
       WatchPartyService.removeSettingsUpdateListener(settingsUpdateListener);
+      WatchPartyService.removeRoomClosedListener(roomClosedListener);
     };
   }, [toast, room?.id, currentUser]);
 
@@ -357,6 +503,11 @@ const WatchPartyPage: React.FC = () => {
       console.error("Error deleting message:", error);
       toast.error("Failed to delete message");
     }
+  };
+
+  const handleRoomClosedModalClose = () => {
+    setRoomClosedNotification(prev => ({ ...prev, visible: false }));
+    navigate('/');
   };
 
   // Auto-join room from URL if room code is provided
@@ -413,15 +564,6 @@ const WatchPartyPage: React.FC = () => {
       }
     };
   }, [room?.id, isConnected, fetchRoomDetails]);
-
-  // Clean up WebSocket connection on unmount
-  useEffect(() => {
-    return () => {
-      if (isConnected) {
-        WatchPartyService.disconnect();
-      }
-    };
-  }, [isConnected]);
 
   const handleCreateRoom = async (podcastId: string, roomName: string, publish: boolean) => {
     try {
@@ -488,11 +630,13 @@ const WatchPartyPage: React.FC = () => {
     }
   };
 
+  // ✅ Modified handleLeaveRoom to disable auto-leave
   const handleLeaveRoom = async () => {
     if (!room) return;
     
     try {
       setLoading(true);
+      shouldAutoLeaveRef.current = false; // ✅ Disable auto-leave for manual leave
       
       // Disconnect from WebSocket first
       WatchPartyService.disconnect();
@@ -511,6 +655,7 @@ const WatchPartyPage: React.FC = () => {
     } catch (error) {
       console.error("Failed to leave room:", error);
       toast.error("Failed to leave room");
+      shouldAutoLeaveRef.current = true; // ✅ Re-enable auto-leave on error
     } finally {
       setLoading(false);
     }
@@ -590,6 +735,7 @@ const WatchPartyPage: React.FC = () => {
 
   return (
     <div className="container mx-auto p-4">
+      {/* ...rest of existing JSX remains unchanged... */}
       <div className="mb-6">
         <h1 className="text-2xl md:text-3xl font-bold text-black dark:text-white mb-2">
           Watch Party {room ? `- ${room.roomName}` : ''}
@@ -857,6 +1003,46 @@ const WatchPartyPage: React.FC = () => {
         kickedBy={kickBanNotification.kickedBy}
         onClose={handleKickBanModalClose}
       />
+
+      {/* Room Closed Notification Modal */}
+      {roomClosedNotification.visible && (
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black bg-opacity-80">
+          <div className="bg-white dark:bg-gray-800 p-6 rounded-lg max-w-md w-full mx-4 border-2 border-red-500">
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center gap-2">
+                <FiAlertCircle className="text-red-500" size={24} />
+                <h2 className="text-xl font-bold text-red-600 dark:text-red-400">
+                  Room Closed
+                </h2>
+              </div>
+            </div>
+
+            <div className="space-y-4">
+              <div className="bg-red-50 dark:bg-red-900/30 p-4 rounded-lg">
+                <p className="text-gray-900 dark:text-white mb-2">
+                  <strong>Room:</strong> {roomClosedNotification.roomName}
+                </p>
+                {roomClosedNotification.closedBy && (
+                  <p className="text-gray-900 dark:text-white mb-2">
+                    <strong>Closed by:</strong> {roomClosedNotification.closedBy}
+                  </p>
+                )}
+                <p className="text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 p-3 rounded border italic">
+                  "{roomClosedNotification.message}"
+                </p>
+              </div>
+            </div>
+
+            <div className="mt-6 flex justify-center">
+              <CustomButton
+                text="Return to Home"
+                variant="primary"
+                onClick={handleRoomClosedModalClose}
+              />
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
