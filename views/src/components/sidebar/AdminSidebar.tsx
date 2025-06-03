@@ -3,6 +3,8 @@ import { FaUsersCog } from "react-icons/fa";
 import { TbReport } from "react-icons/tb";
 import { FaRegListAlt } from 'react-icons/fa';
 import { Link } from "react-router-dom";
+import { MdOutlineFilterFrames } from "react-icons/md";
+import { BsCalendar2Event } from "react-icons/bs";
 
 
 
@@ -30,15 +32,20 @@ const AdminSidebar = () => {
                 className={childrenClass}>
                 <TbReport />
                 Report Management</Link>
-              <Link to="/admin/genre" 
+              <Link to="/admin/genre"
                 className={childrenClass}>
                 <FaRegListAlt />
                 Genre Management
               </Link>
-              <Link to="/admin/frame" 
+              <Link to="/admin/frame"
                 className={childrenClass}>
-                <FaRegListAlt />
+                <MdOutlineFilterFrames />
                 Frame Management
+              </Link>
+              <Link to="/admin/event"
+                className={childrenClass}>
+                <BsCalendar2Event />
+                Event Management
               </Link>
             </li>
           </ul>
