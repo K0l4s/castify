@@ -1,6 +1,7 @@
 package com.castify.backend.service.user;
 
 import com.castify.backend.entity.UserEntity;
+import com.castify.backend.models.PageDTO;
 import com.castify.backend.models.paginated.PaginatedResponse;
 import com.castify.backend.models.user.*;
 import org.springframework.data.domain.Page;
@@ -38,7 +39,9 @@ public interface IUserService {
     List<UserSimple> getRecommendUser() throws Exception;
 
 
-    List<UserSimple> recommendUsers() throws Exception;
+//    List<UserSimple> recommendUsers() throws Exception;
+
+    PageDTO<UserSimple> recommendUsers(int page, int size) throws Exception;
 
     PaginatedResponse<BasicUserModel> getAllUser(Integer pageNumber, Integer pageSize) throws Exception;
 

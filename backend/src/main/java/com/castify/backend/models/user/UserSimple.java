@@ -25,5 +25,6 @@ public class UserSimple {
         this.isFollow=follow;
     }
 
+
 }
 

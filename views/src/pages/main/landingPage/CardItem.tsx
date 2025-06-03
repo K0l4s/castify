@@ -59,7 +59,7 @@ export const CardItem = ({
             </div>
 
             {/* Image */}
-            <div className="hidden md:block z-10 pr-4">
+            <div className="hidden md:block  z-10 pr-4">
                 <img
                     src={image}
                     alt="Card Visual"

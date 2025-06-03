@@ -19,6 +19,7 @@ public class GenreEntity {
     private String imageUrl;
 //    private String description;
     private String color;
+    private String textColor;
     private boolean isActive;
     private LocalDateTime lastEdited;
 }

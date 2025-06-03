@@ -57,6 +57,11 @@ public class GenreServiceImpl implements IGenreService {
 
     @Override
     public GenreModel createGenre(String name, MultipartFile image, String color) {
+        return createGenre(name, image, color, "#ffffff");
+    }
+
+    @Override
+    public GenreModel createGenre(String name, MultipartFile image, String color, String textColor) {
         GenreEntity genreEntity = new GenreEntity();
         genreEntity.setName(name);
         genreEntity.setActive(true);
@@ -72,6 +77,7 @@ public class GenreServiceImpl implements IGenreService {
         }
 
         genreEntity.setColor(color);
+        genreEntity.setTextColor(textColor);
 
         genreRepository.save(genreEntity);
         return modelMapper.map(genreEntity, GenreModel.class);
@@ -79,11 +85,16 @@ public class GenreServiceImpl implements IGenreService {
 
     @Override
     public GenreModel updateGenre(String id, String newName, MultipartFile imageFile) {
-        return updateGenre(id, newName, imageFile, null);
+        return updateGenre(id, newName, imageFile, null, "#ffffff");
     }
 
     @Override
     public GenreModel updateGenre(String id, String newName, MultipartFile imageFile, String color) {
+        return updateGenre(id, newName, imageFile, color, "#ffffff");
+    }
+
+    @Override
+    public GenreModel updateGenre(String id, String newName, MultipartFile imageFile, String color, String textColor) {
         GenreEntity genreEntity = genreRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Genre not found"));
 
@@ -102,6 +113,10 @@ public class GenreServiceImpl implements IGenreService {
 
         if (color != null && !color.isEmpty()) {
             genreEntity.setColor(color);
+        }
+
+        if (textColor != null && !textColor.isEmpty()) {
+            genreEntity.setTextColor(textColor);
         }
 
         genreEntity.setLastEdited(LocalDateTime.now());

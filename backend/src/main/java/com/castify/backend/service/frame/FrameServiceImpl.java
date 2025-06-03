@@ -1,14 +1,18 @@
 package com.castify.backend.service.frame;
 
+import com.castify.backend.controller.ConversationController;
 import com.castify.backend.entity.FrameEntity;
 import com.castify.backend.entity.UserFrameEntity;
 import com.castify.backend.entity.UserEntity;
+import com.castify.backend.entity.VoucherEntity;
 import com.castify.backend.enums.FrameStatus;
 import com.castify.backend.models.frame.FrameModel;
 import com.castify.backend.models.frame.UploadFrameRequest;
+import com.castify.backend.models.frame.VoucherModelRequest;
 import com.castify.backend.repository.FrameRepository;
 import com.castify.backend.repository.UserFrameRepository;
 import com.castify.backend.repository.UserRepository;
+import com.castify.backend.repository.VoucherRepository;
 import com.castify.backend.service.uploadFile.IUploadFileService;
 import com.castify.backend.service.user.IUserService;
 import org.modelmapper.ModelMapper;
@@ -17,6 +21,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 @Service
@@ -39,6 +44,10 @@ public class FrameServiceImpl implements IFrameService{
 
     @Autowired
     private UserFrameRepository userFrameRepository;
+
+    @Autowired
+    private VoucherRepository voucherRepository;
+    private static final Logger logger = Logger.getLogger(FrameServiceImpl.class.getName());
 
     @Override
     public FrameModel uploadFrame(UploadFrameRequest uploadFrameRequest) throws Exception {
@@ -96,7 +105,7 @@ public class FrameServiceImpl implements IFrameService{
     }
 
     @Override
-    public FrameModel purchaseFrame(String frameId) throws Exception {
+    public FrameModel purchaseFrame(String frameId,String voucherCode) throws Exception {
         UserEntity currentUser = userService.getUserByAuthentication();
 
         FrameEntity frame = frameRepository.findById(frameId)
@@ -114,15 +123,21 @@ public class FrameServiceImpl implements IFrameService{
         if (alreadyOwned) {
             throw new Exception("You already own this frame");
         }
-        
+
         try {
+//            long price = frame.getPrice();
             // Deduct coins from buyer
-            currentUser.setCoin(currentUser.getCoin() - frame.getPrice());
+
+
+            long price = calculateDiscountedPrice(frame, voucherCode);
+            logger.info(" "+price);
+
+            currentUser.setCoin(currentUser.getCoin() - price);
             userRepository.save(currentUser);
-            
+
             // Add coins to seller
             UserEntity seller = frame.getUser();
-            seller.setCoin(seller.getCoin() + frame.getPrice());
+            seller.setCoin(seller.getCoin() + price);
             userRepository.save(seller);
 
             UserFrameEntity userFrame = new UserFrameEntity();
@@ -130,11 +145,22 @@ public class FrameServiceImpl implements IFrameService{
             userFrame.addFrame(frame);
             userFrame.setPurchasedAt(LocalDateTime.now());
             userFrameRepository.save(userFrame);
-            
+
             return modelMapper.map(frame, FrameModel.class);
         } catch (Exception e) {
             throw new Exception("Failed to process purchase: " + e.getMessage());
         }
+    }
+    private long calculateDiscountedPrice(FrameEntity frame, String code) {
+        long price = frame.getPrice();
+        if (code != null) {
+            VoucherEntity voucher = voucherRepository.findByVoucherCode(code);
+            if (voucher!=null && voucher.checkValidAmount() && voucher.checkValidDate()
+                    && voucher.checkValidFrameIds(frame.getId())) {
+                price -= Math.round(price * voucher.getPercent());
+            }
+        }
+        return price;
     }
 
     @Override
@@ -256,5 +282,11 @@ public class FrameServiceImpl implements IFrameService{
         UserEntity currentUser = userService.getUserByAuthentication();
         currentUser.setUsedFrame(null);
         userRepository.save(currentUser);
+    }
+    @Override
+    public VoucherModelRequest createVoucher(VoucherModelRequest voucher){
+        VoucherEntity newVou = modelMapper.map(voucher, VoucherEntity.class);
+        VoucherEntity savedVou = voucherRepository.save(newVou);
+        return modelMapper.map(savedVou,VoucherModelRequest.class);
     }
 }

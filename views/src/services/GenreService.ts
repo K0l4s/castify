@@ -38,6 +38,9 @@ export const createGenre = async (data: genreCreateUpdate) => {
     if (data.color) {
       formData.append('color', data.color);
     }
+    if (data.textColor) {
+      formData.append('textColor', data.textColor);
+    }
     const response = await axiosInstanceAuth.post('/api/v1/genre/create', formData, {
       headers: {
         'Content-Type': 'multipart/form-data',
@@ -58,6 +61,9 @@ export const updateGenre = async (id: string, data: genreCreateUpdate) => {
     }
     if (data.color) {
       formData.append('color', data.color);
+    }
+    if (data.textColor) {
+      formData.append('textColor', data.textColor);
     }
     const response = await axiosInstanceAuth.put(`/api/v1/genre/update/${id}`, formData, {
       headers: {

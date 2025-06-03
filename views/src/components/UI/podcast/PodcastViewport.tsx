@@ -40,6 +40,7 @@ const PodcastViewport: React.FC = () => {
   
   useEffect(() => {
     const handleBeforeUnload = () => {
+      if(!id || !userId) return; // Ensure id and userId are available
       const video = document.getElementById('custom-podcast-video') as HTMLVideoElement | null;
       const currentTime = video?.currentTime ?? 0;
       // Use the correct server URL (should be https and with //)

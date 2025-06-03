@@ -15,9 +15,13 @@ export const getAcceptedFrames = async () => {
 };
 
 // Purchase frame
-export const purchaseFrame = async (frameId: string): Promise<Frame> => {
+export const purchaseFrame = async (frameId: string,voucherCode?:string): Promise<Frame> => {
   try {
-    const response = await axiosInstanceAuth.post(`/api/v1/frame/purchase/${frameId}`);
+    let response;
+    if(voucherCode)
+      response = await axiosInstanceAuth.post(`/api/v1/frame/purchase/${frameId}?voucherCode=${voucherCode}`);
+    else
+      response = await axiosInstanceAuth.post(`/api/v1/frame/purchase/${frameId}`);
     return response.data;
   } catch (error) {
     throw error;

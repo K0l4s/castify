@@ -5,13 +5,15 @@ import RecentPodcast from "./RecentPodcast";
 import { getGenres } from "../../../services/GenreService";
 import TabNavigation from "./TabNavigation";
 import GenresPodcast from "./GenresPodcast";
-import {  useLocation, useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import PopularPodcast from "./PopularPodcast";
 import TrendingCarousel from "./TrendingCarousel";
 import SEO from "../../../context/SEO";
 import { useLanguage } from "../../../context/LanguageContext";
 import en from "../../../locales/en.json";
 import { CardItem } from "./CardItem";
+import SuggestFollow from "./SuggestFollow";
+import IntroVideoPage from "./IntroVideoPage";
 // import FancyCard from "../../../components/UI/custom/FancyCard";
 
 const LandingPage = () => {
@@ -92,29 +94,30 @@ const LandingPage = () => {
   />
   return (
     <div className="px-8 py-4">
+      <IntroVideoPage />
       {/* New Trending Carousel */}
       <div className="flex flex-col md:flex-row items-center justify-between gap-3 mb-4">
         <TrendingCarousel />
         <div className="flex flex-col items-center justify-center gap-4 w-full md:w-2/5 mx-auto">
           <CardItem
-            title="Frame nào"
-            subtitle="Cũng có"
-            label="Blankshop"
-            image="https://cdn-icons-png.flaticon.com/512/3523/3523887.png"
-            linkText="Buy Now"
-            linkTo="/shop"
+            title="VUI HƠN"
+            subtitle="Khi xem nhóm cùng WATCH PARTY!"
+            label="WATCH PARTY"
+            image="https://png.pngtree.com/png-vector/20220709/ourmid/pngtree-friends-watching-movie-together-flat-illustration-png-image_5838894.png"
+            linkText="Learn more"
+            linkTo="/browse-rooms"
           />
           <CardItem
-            title="Sale Hot"
-            subtitle="Chỉ hôm nay"
+            title="NHẬP MÃ CHAOHE2025"
+            subtitle="SALE 25% Tất cả frame trong cửa hàng"
             label="Flash Deal"
             image="https://cdn-icons-png.flaticon.com/512/3523/3523935.png"
             linkText="Shop Now"
-            linkTo="/flash-deals"
+            linkTo="/shop"
           />
         </div>
       </div>
-
+      <SuggestFollow />
       {/* Tab Navigation */}
       <TabNavigation selectedTab={selectedTab} onSelectTab={handleTabSelect} genres={genres} />
       {/* Content */}
