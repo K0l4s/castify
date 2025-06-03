@@ -4,7 +4,7 @@ import { axiosInstanceAuth } from '../../../utils/axiosInstance';
 import 'react-big-calendar/lib/css/react-big-calendar.css';
 import EventTableResult from '../../../components/admin/event/EventTableResult';
 import EventCalendarResult from '../../../components/admin/event/EventCalendarResult';
-import { FaTableCellsColumnLock } from 'react-icons/fa6';
+// import { FaTableCellsColumnLock } from 'react-icons/fa6';
 import { FaRegCalendarAlt, FaTable } from 'react-icons/fa';
 import Tooltip from '../../../components/UI/custom/Tooltip';
 
