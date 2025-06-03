@@ -8,6 +8,7 @@ import RoomSettingsModal from '../../../components/modals/watchParty/RoomSetting
 import { ReportType } from '../../../models/Report';
 import ReportModal from '../../../components/modals/report/ReportModal';
 import KickBanUserModal from '../../../components/modals/watchParty/KickBanUserModal';
+import { FaUsers } from 'react-icons/fa';
 
 interface WatchPartyParticipantsProps {
   room: WatchPartyRoom;
@@ -189,6 +190,7 @@ const WatchPartyParticipants: React.FC<WatchPartyParticipantsProps> = ({
             className="flex-1 flex items-center justify-between p-3 text-left hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors rounded-t-lg"
           >
             <h3 className="font-semibold text-gray-900 dark:text-white flex items-center gap-2">
+              <FaUsers size={16} />
               Participants ({participants.length})
               <span className={`transition-transform duration-300 ${isExpanded ? 'rotate-180' : 'rotate-0'}`}>
                 <FiChevronDown size={16} />
@@ -302,6 +304,7 @@ const WatchPartyParticipants: React.FC<WatchPartyParticipantsProps> = ({
       {/* Room Settings Modal */}
       <RoomSettingsModal
         isOpen={isSettingsModalOpen}
+        isHost={isHost}
         onClose={() => setIsSettingsModalOpen(false)}
         room={room}
       />

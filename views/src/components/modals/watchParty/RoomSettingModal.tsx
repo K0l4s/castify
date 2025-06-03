@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { FiUserMinus, FiShield, FiSettings, FiSave } from 'react-icons/fi';
+import { FiUserMinus, FiShield, FiSettings, FiSave, FiClock } from 'react-icons/fi';
 import Avatar from '../../UI/user/Avatar';
 import CustomButton from '../../UI/custom/CustomButton';
 import CustomModal from '../../UI/custom/CustomModal';
@@ -10,6 +10,7 @@ import { FaCopy } from 'react-icons/fa';
 import { WatchPartyRoom } from '../../../models/WatchPartyModel';
 import CustomInput from '../../UI/custom/CustomInput';
 import ConfirmModal from '../utils/ConfirmDelete';
+import RoomExpirationTimer from './RoomExpirationTimer';
 
 interface BannedUser {
   id: string;
@@ -23,6 +24,7 @@ interface RoomSettingsModalProps {
   isOpen: boolean;
   onClose: () => void;
   room: WatchPartyRoom;
+  isHost?: boolean;
   onRoomUpdate?: (updatedRoom: WatchPartyRoom) => void;
   onRoomClosed?: () => void;
 }
@@ -40,6 +42,12 @@ const settingTabs: SettingTab[] = [
     name: 'General',
     icon: <FiSettings size={20} />,
     description: 'Room settings'
+  },
+  {
+    id: 'expiration',
+    name: 'Expiration',
+    icon: <FiClock size={20} />,
+    description: 'Room time settings'
   },
     {
     id: 'banlist',
@@ -59,6 +67,7 @@ const RoomSettingsModal: React.FC<RoomSettingsModalProps> = ({
   isOpen,
   onClose,
   room,
+  isHost,
   onRoomUpdate,
   onRoomClosed
 }) => {
@@ -67,7 +76,8 @@ const RoomSettingsModal: React.FC<RoomSettingsModalProps> = ({
   const [loading, setLoading] = useState<boolean>(false);
   const [unbanning, setUnbanning] = useState<string | null>(null);
   const [saving, setSaving] = useState<boolean>(false);
-  
+  const [extending, setExtending] = useState<boolean>(false);
+
   const [showConfirmClose, setShowConfirmClose] = useState<boolean>(false);
   
   // Room settings state
@@ -178,9 +188,157 @@ const RoomSettingsModal: React.FC<RoomSettingsModalProps> = ({
     }
   };
 
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const expirationUpdateListener = (data: any) => {
+      console.log('📅 Settings modal received expiration update:', data);
+      
+      if (data.roomId === room.id) {
+        // Update parent component with new room data
+        if (onRoomUpdate) {
+          const updatedRoom = {
+            ...room,
+            expiresAt: data.newExpiresAt
+          };
+          onRoomUpdate(updatedRoom);
+        }
+
+        toast.success(`Room extended by ${data.additionalHours} hours`);
+      }
+    };
+
+    WatchPartyService.addExpirationUpdateListener(expirationUpdateListener);
+
+    return () => {
+      WatchPartyService.removeExpirationUpdateListener(expirationUpdateListener);
+    };
+  }, [isOpen, room.id, onRoomUpdate, toast]);
+
+  const handleExtendRoom = async (additionalHours: number = 4) => {
+    try {
+      setExtending(true);
+      await WatchPartyService.extendRoom(roomId, additionalHours);
+    } catch (error) {
+      console.error('Error extending room:', error);
+      toast.error('Failed to extend room time');
+    } finally {
+      setExtending(false);
+    }
+  };
+
   const getDisplayName = (user: BannedUser) => {
     return user.fullName || user.username || 'Unknown';
   };
+
+  const renderExpirationContent = () => (
+    <div className="space-y-6">
+      <div>
+        <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
+          Room Expiration Settings
+        </h3>
+        <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">
+          Manage when this room will automatically close
+        </p>
+      </div>
+
+      {/* Expiration Timer Component */}
+      <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-4">
+        <RoomExpirationTimer
+          roomId={roomId}
+          isHost={isHost!}
+          onExtend={() => handleExtendRoom(4)}
+        />
+      </div>
+
+      {/* Extend Options */}
+      {isHost && (
+        <div className="space-y-4">
+          <h4 className="text-md font-medium text-gray-900 dark:text-white">
+            Extend Room Time
+          </h4>
+          <p className="text-sm text-gray-500 dark:text-gray-400">
+            Add more time to keep the room active longer
+          </p>
+          
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+            <CustomButton
+              text="+ 1 Hour"
+              variant="outline"
+              size="sm"
+              disabled={extending}
+              onClick={() => handleExtendRoom(1)}
+              className="text-blue-600 dark:text-blue-400"
+            />
+            <CustomButton
+              text="+ 2 Hours"
+              variant="outline"
+              size="sm"
+              disabled={extending}
+              onClick={() => handleExtendRoom(2)}
+              className="text-blue-600 dark:text-blue-400"
+            />
+            <CustomButton
+              text="+ 4 Hours"
+              variant="outline"
+              size="sm"
+              disabled={extending}
+              onClick={() => handleExtendRoom(4)}
+              className="text-blue-600 dark:text-blue-400"
+            />
+            <CustomButton
+              text="+ 8 Hours"
+              variant="outline"
+              size="sm"
+              disabled={extending}
+              onClick={() => handleExtendRoom(8)}
+              className="text-blue-600 dark:text-blue-400"
+            />
+          </div>
+
+          {extending && (
+            <div className="flex items-center gap-2 text-blue-600 dark:text-blue-400">
+              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600"></div>
+              <span className="text-sm">Extending room time...</span>
+            </div>
+          )}
+
+          <div className="bg-yellow-50 dark:bg-yellow-900/30 border border-yellow-200 dark:border-yellow-700 rounded-lg p-4">
+            <div className="flex items-start gap-3">
+              <FiClock className="text-yellow-600 dark:text-yellow-400 mt-0.5" size={16} />
+              <div>
+                <h5 className="font-medium text-yellow-800 dark:text-yellow-300">
+                  Auto-Expiration Policy
+                </h5>
+                <p className="text-sm text-yellow-700 dark:text-yellow-400 mt-1">
+                  • Rooms automatically close after 8 hours by default<br/>
+                  • Maximum extension is 8 additional hours per request<br/>
+                  • All participants will be notified when room expires<br/>
+                  • Room data will be permanently deleted after closure
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {!isHost && (
+        <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-4">
+          <div className="flex items-center gap-3">
+            <FiShield className="text-gray-500 dark:text-gray-400" size={16} />
+            <div>
+              <div className="font-medium text-gray-900 dark:text-white">
+                Host Only
+              </div>
+              <div className="text-sm text-gray-500 dark:text-gray-400">
+                Only the room host can extend the expiration time. If you are the host, please join the room to extend the time.
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
 
   const renderBanListContent = () => (
     <div className="space-y-4">
@@ -439,6 +597,8 @@ const RoomSettingsModal: React.FC<RoomSettingsModalProps> = ({
     switch (activeTab) {
       case 'general':
         return renderGeneralContent();
+      case 'expiration':
+        return renderExpirationContent();
       case 'banlist':
         return renderBanListContent();
       // case 'permissions':
@@ -459,7 +619,7 @@ const RoomSettingsModal: React.FC<RoomSettingsModalProps> = ({
       className="backdrop-blur-sm max-h-[100vh]"
     >
       {/* Scrollable container */}
-      <div className="flex min-h-[500px] max-h-[70vh] overflow-hidden">
+      <div className="flex min-h-[70vh] max-h-[70vh] overflow-hidden">
         {/* Left Sidebar - Settings Navigation */}
         <div className="w-64 border-r border-gray-200 dark:border-gray-700 pr-6 flex-shrink-0">
           <div className="space-y-2">

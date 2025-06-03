@@ -24,6 +24,7 @@ export default class WatchPartyService {
   private static settingsUpdateListeners: Array<(data: any) => void> = [];
   private static roomClosedListeners: ((data: any) => void)[] = [];
   private static podcastChangedListeners: ((data: any) => void)[] = [];
+  private static expirationUpdateListeners: ((data: any) => void)[] = [];
 
   static async createRoom(request: CreateRoomRequest): Promise<WatchPartyRoom> {
     try {
@@ -233,6 +234,56 @@ export default class WatchPartyService {
     }
   }
 
+  // Extend
+  static async extendRoom(roomId: string, additionalHours: number = 4): Promise<WatchPartyRoom> {
+    try {
+      const response = await axiosInstanceAuth.post(`/api/v1/watch-party/${roomId}/extend`, {}, {
+        params: { additionalHours }
+      });
+      return response.data;
+    } catch (error) {
+      console.error("Error extending room:", error);
+      throw error;
+    }
+  }
+
+  // Add get expiration info method
+  static async getRoomExpirationInfo(roomId: string): Promise<{
+    expiresAt: string;
+    minutesRemaining: number;
+    isExpiringSoon: boolean;
+    canExtend: boolean;
+  }> {
+    try {
+      const response = await axiosInstanceAuth.get(`/api/v1/watch-party/${roomId}/expiration`);
+      return response.data;
+    } catch (error) {
+      console.error("Error getting expiration info:", error);
+      throw error;
+    }
+  }
+
+  // Admin methods (optional)
+  static async forceCleanup(): Promise<{ expiredRooms: number; message: string }> {
+    try {
+      const response = await axiosInstanceAuth.post(`/api/v1/admin/watch-party/cleanup`);
+      return response.data;
+    } catch (error) {
+      console.error("Error force cleanup:", error);
+      throw error;
+    }
+  }
+
+  static async getRoomsExpiringSoon(): Promise<WatchPartyRoom[]> {
+    try {
+      const response = await axiosInstanceAuth.get(`/api/v1/admin/watch-party/expiring-soon`);
+      return response.data;
+    } catch (error) {
+      console.error("Error getting expiring rooms:", error);
+      throw error;
+    }
+  }
+
   // Socket
   static connect(roomId: string): Promise<boolean> {
     return new Promise((resolve, reject) => {
@@ -340,6 +391,15 @@ export default class WatchPartyService {
             this.podcastChangedListeners.forEach(listener => listener(podcastChangeData));
           } catch (error) {
             console.error('Error parsing podcast change data:', error);
+          }
+        }, subscribeHeaders);
+
+        this.stompClient!.subscribe(`/topic/room/${roomId}/expiration-update`, (message) => {
+          try {
+            const expirationData = JSON.parse(message.body);
+            this.expirationUpdateListeners.forEach(listener => listener(expirationData));
+          } catch (error) {
+            console.error('Error parsing expiration update data:', error);
           }
         }, subscribeHeaders);
 
@@ -677,6 +737,17 @@ export default class WatchPartyService {
     const index = this.podcastChangedListeners.indexOf(listener);
     if (index > -1) {
       this.podcastChangedListeners.splice(index, 1);
+    }
+  }
+
+  static addExpirationUpdateListener(listener: (data: any) => void): void {
+    this.expirationUpdateListeners.push(listener);
+  }
+
+  static removeExpirationUpdateListener(listener: (data: any) => void): void {
+    const index = this.expirationUpdateListeners.indexOf(listener);
+    if (index > -1) {
+      this.expirationUpdateListeners.splice(index, 1);
     }
   }
 }
