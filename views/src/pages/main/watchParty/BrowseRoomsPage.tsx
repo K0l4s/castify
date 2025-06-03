@@ -83,7 +83,6 @@ const BrowseRoomsPage: React.FC = () => {
     if (myRoomsRef.current) {
       myRoomsRef.current.refreshRooms();
     }
-    toast.success('Room updated successfully');
   };
 
   // Load functions for each section

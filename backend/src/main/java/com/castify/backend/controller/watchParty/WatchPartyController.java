@@ -8,6 +8,7 @@ import com.castify.backend.models.watchParty.BanUserRequest;
 import com.castify.backend.models.watchParty.CreateRoomRequest;
 import com.castify.backend.models.watchParty.EditWatchPartyRoomDTO;
 import com.castify.backend.models.watchParty.KickUserRequest;
+import com.castify.backend.service.watchParty.IWatchPartyCleanupService;
 import com.castify.backend.service.watchParty.IWatchPartyService;
 import com.castify.backend.utils.SecurityUtils;
 import lombok.RequiredArgsConstructor;
@@ -24,6 +25,7 @@ import java.util.Map;
 @PreAuthorize("isAuthenticated()")
 public class WatchPartyController {
     private final IWatchPartyService watchPartyService;
+    private final IWatchPartyCleanupService cleanupService;
 
     @PostMapping("/create")
     public ResponseEntity<WatchPartyRoomEntity> createRoom(@RequestBody CreateRoomRequest request) {
@@ -199,4 +201,36 @@ public class WatchPartyController {
             return ResponseEntity.badRequest().build();
         }
     }
+
+    /*
+    * Cleanup
+    * */
+    @GetMapping("/{roomId}/expiration")
+    public ResponseEntity<Map<String, Object>> getRoomExpirationInfo(@PathVariable String roomId) {
+        try {
+            Map<String, Object> expirationInfo = watchPartyService.getRoomExpirationInfo(roomId);
+            return ResponseEntity.ok(expirationInfo);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+        }
+    }
+
+    // ✅ Extend room expiration (host only)
+    @PostMapping("/{roomId}/extend")
+    public ResponseEntity<WatchPartyRoomEntity> extendRoomExpiration(
+            @PathVariable String roomId,
+            @RequestParam(defaultValue = "4") int additionalHours) {
+        try {
+            // Max 8 additional hours
+            if (additionalHours > 8) {
+                additionalHours = 8;
+            }
+
+            WatchPartyRoomEntity room = watchPartyService.extendRoomExpiration(roomId, additionalHours);
+            return ResponseEntity.ok(room);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().build();
+        }
+    }
+
 }

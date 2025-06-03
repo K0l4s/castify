@@ -28,4 +28,8 @@ public interface IWatchPartyService {
     void unbanUser(String roomId, String targetUserId);
     void deleteMessage(String roomId, String messageId);
     List<Map<String, Object>> getBannedUsers(String roomId);
+
+    WatchPartyRoomEntity extendRoomExpiration(String roomId, int additionalHours);
+    Map<String, Object> getRoomExpirationInfo(String roomId);
+
 }

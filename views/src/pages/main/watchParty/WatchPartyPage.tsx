@@ -6,7 +6,7 @@ import { useSelector } from 'react-redux';
 import { RootState } from '../../../redux/store';
 import WatchPartyService from '../../../services/WatchPartyService';
 import { ChatMessage, SyncEventType, WatchPartyRoom } from '../../../models/WatchPartyModel';
-import { FiAlertCircle, FiLoader } from 'react-icons/fi';
+import { FiAlertCircle, FiLoader, FiSettings } from 'react-icons/fi';
 import CustomButton from '../../../components/UI/custom/CustomButton';
 import { FaCopy, FaDoorOpen, FaEye, FaPlus, FaSignInAlt, FaVideo } from 'react-icons/fa';
 import { formatDistanceToNow } from 'date-fns';
@@ -27,6 +27,8 @@ import KickBanModal from './KickBanModal';
 import Cookie from 'js-cookie';
 import { BaseApi } from '../../../utils/axiosInstance';
 import ChangePodcastModal from '../../../components/modals/watchParty/ChangePodcastModal';
+import RoomExpirationTimer from '../../../components/modals/watchParty/RoomExpirationTimer';
+import RoomSettingsModal from '../../../components/modals/watchParty/RoomSettingModal';
 
 const WatchPartyPage: React.FC = () => {
   const [searchParams] = useSearchParams();
@@ -41,6 +43,7 @@ const WatchPartyPage: React.FC = () => {
   const [chatMessages, setChatMessages] = useState<ChatMessage[]>([]);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState<boolean>(false);
   const [isJoinModalOpen, setIsJoinModalOpen] = useState<boolean>(false);
+  const [showRoomSettings, setShowRoomSettings] = useState<boolean>(false);
   const [kickBanNotification, setKickBanNotification] = useState<{
     visible: boolean;
     type: 'kick' | 'ban';
@@ -96,6 +99,19 @@ const WatchPartyPage: React.FC = () => {
   useEffect(() => {
     currentRoomRef.current = room;
   }, [room]);
+
+  // Extend room handler
+  const handleQuickExtendRoom = async () => {
+    if (!room || !isHost) return;
+    
+    try {
+      await WatchPartyService.extendRoom(room.id, 4);
+      toast.success('Room time extended by 4 hours');
+    } catch (error) {
+      console.error('Failed to extend room:', error);
+      toast.error('Failed to extend room time');
+    }
+  };
 
   // Auto-leave room functions
   const leaveRoomSilently = useCallback(async () => {
@@ -422,7 +438,19 @@ const WatchPartyPage: React.FC = () => {
 
     const settingsUpdateListener = (data: any) => {
       console.log('🔧 Room settings updated:', data);
-      toast.info(`Room settings updated by ${data.updatedBy}`);
+    };
+
+    const expirationUpdateListener = (data: any) => {
+      if (data.roomId === room?.id) {
+        // Update room expiration in room object
+        setRoom(prevRoom => {
+          if (!prevRoom) return prevRoom;
+          return {
+            ...prevRoom,
+            expiresAt: data.newExpiresAt
+          };
+        });
+      }
     };
 
     const syncEventListener = () => {
@@ -497,7 +525,7 @@ const WatchPartyPage: React.FC = () => {
     WatchPartyService.addSettingsUpdateListener(settingsUpdateListener);
     WatchPartyService.addRoomClosedListener(roomClosedListener);
     WatchPartyService.addPodcastChangedListener(podcastChangedListener);
-
+    WatchPartyService.addExpirationUpdateListener(expirationUpdateListener);
     return () => {
       WatchPartyService.removeChatMessageListener(chatMessageListener);
       WatchPartyService.removeConnectionStatusListener(connectionStatusListener);
@@ -509,6 +537,7 @@ const WatchPartyPage: React.FC = () => {
       WatchPartyService.removeSettingsUpdateListener(settingsUpdateListener);
       WatchPartyService.removeRoomClosedListener(roomClosedListener);
       WatchPartyService.removePodcastChangedListener(podcastChangedListener);
+      WatchPartyService.removeExpirationUpdateListener(expirationUpdateListener);
     };
   }, [toast, room?.id, currentUser]);
 
@@ -793,15 +822,33 @@ const WatchPartyPage: React.FC = () => {
   }
 
   return (
-    <div className="container mx-auto p-4">
-      {/* ...rest of existing JSX remains unchanged... */}
-      <div className="mb-6">
-        <h1 className="text-2xl md:text-3xl font-bold text-black dark:text-white mb-2">
-          Watch Party {room ? `- ${room.roomName}` : ''}
-        </h1>
-        <p className="text-gray-600 dark:text-gray-400 mb-4">
-          Watch podcasts together with friends in real-time
-        </p>
+    <div className="container mx-auto p-2">
+      <div className="flex items-center justify-between mb-6">
+        <div className="flex items-center gap-4">
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
+            Watch Party: {room?.roomName || 'Watch Party'}
+          </h1>
+        </div>
+
+        {/* Add expiration timer and settings in header */}
+        {room && (
+          <div className="flex items-center gap-4">
+            <RoomExpirationTimer
+              roomId={room.id}
+              isHost={isHost}
+              onExtend={handleQuickExtendRoom}
+            />
+            {isHost && (
+              <CustomButton
+                text="Settings"
+                icon={<FiSettings />}
+                variant="outline"
+                size="sm"
+                onClick={() => setShowRoomSettings(true)}
+              />
+            )}
+          </div>
+        )}
       </div>
 
       {error && (
@@ -852,7 +899,7 @@ const WatchPartyPage: React.FC = () => {
       {/* Main Content */}
       <div className="flex flex-col lg:flex-row gap-6">
         {/* Left Side - Video Player or Select Podcast */}
-        <div className="lg:w-2/3">
+        <div className="lg:w-3/4">
           {podcast && room ? (
             <div>
               {/* Video Player */}
@@ -1014,7 +1061,7 @@ const WatchPartyPage: React.FC = () => {
 
         {/* Right Side - Chat & Participants (only if in a room) */}
         {room && (
-          <div className="lg:w-1/3 flex flex-col gap-4">
+          <div className="lg:w-1/4 flex flex-col gap-4">
             <WatchPartyParticipants 
               room={room} 
               currentUserId={currentUser?.id} 
@@ -1029,6 +1076,7 @@ const WatchPartyPage: React.FC = () => {
               isHost={isHost}
               currentUserId={currentUser?.id || ''}
               roomId={room?.id || ''}
+              allowChat={room?.allowChat ?? true}
               onSendMessage={handleSendChatMessage}
               onKickUser={handleKickUser}
               onBanUser={handleBanUser}
@@ -1110,6 +1158,24 @@ const WatchPartyPage: React.FC = () => {
             </div>
           </div>
         </div>
+      )}
+
+      {showRoomSettings && room && (
+        <RoomSettingsModal
+          isOpen={showRoomSettings}
+          onClose={() => setShowRoomSettings(false)}
+          room={room}
+          isHost={isHost}
+          onRoomUpdate={(updatedRoom) => {
+            setRoom(updatedRoom);
+            // setShowRoomSettings(false);
+          }}
+          onRoomClosed={() => {
+            setRoom(null);
+            setShowRoomSettings(false);
+            navigate('/watch-party');
+          }}
+        />
       )}
     </div>
   );

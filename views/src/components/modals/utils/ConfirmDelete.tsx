@@ -25,7 +25,7 @@ const ConfirmModal: React.FC<ConfirmModalProps> = ({ isOpen,title, onClose, onCo
           onClick={onClose}
         />
         <CustomButton 
-          text="Delete" 
+          text="Confirm" 
           variant="primary" 
           onClick={onConfirm} 
           className='bg-red-500 dark:bg-red-600 hover:bg-red-600 hover:dark:bg-red-500'

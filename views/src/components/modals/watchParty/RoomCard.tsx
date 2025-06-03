@@ -1,5 +1,5 @@
 import React from 'react';
-import { FiUsers, FiGlobe, FiLock, FiClock, FiArrowRight, FiSettings } from 'react-icons/fi';
+import { FiUsers, FiGlobe, FiLock, FiClock, FiArrowRight, FiSettings, FiImage } from 'react-icons/fi';
 import defaultAvatar from "../../../assets/images/default_avatar.jpg";
 import { WatchPartyRoom } from '../../../models/WatchPartyModel';
 import Avatar from '../../UI/user/Avatar';
@@ -39,6 +39,58 @@ const RoomCard: React.FC<RoomCardProps> = ({
 
   return (
     <div className="bg-white dark:bg-gray-800 rounded-xl shadow-md hover:shadow-xl transition-all duration-200 border border-gray-200 dark:border-gray-700 overflow-hidden group">
+      {/* Podcast Thumbnail Section */}
+      {room.podcastThumbnail && (
+        <div className="relative h-48 overflow-hidden">
+          <img 
+            src={room.podcastThumbnail} 
+            alt={`${room.roomName} thumbnail`}
+            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+            onError={(e) => {
+              // Fallback to placeholder if image fails to load
+              e.currentTarget.src = "/TEST.png";
+            }}
+          />
+          {/* Live indicator overlay */}
+          <div className="absolute top-3 left-3 flex items-center gap-2 bg-black/60 backdrop-blur-sm px-3 py-1.5 rounded-full">
+            <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse"></div>
+            <span className="text-xs font-medium text-white">LIVE</span>
+          </div>
+          {/* Room type indicator */}
+          <div className="absolute top-3 right-3 bg-black/60 backdrop-blur-sm px-2 py-1 rounded-full">
+            {room.publish ? (
+              <div className="flex items-center gap-1 text-white">
+                <FiGlobe size={12} />
+                <span className="text-xs">Public</span>
+              </div>
+            ) : (
+              <div className="flex items-center gap-1 text-white">
+                <FiLock size={12} />
+                <span className="text-xs">Private</span>
+              </div>
+            )}
+          </div>
+          {/* Participants count overlay */}
+          <div className="absolute bottom-3 right-3 bg-black/60 backdrop-blur-sm px-2 py-1 rounded-full">
+            <div className="flex items-center gap-1 text-white">
+              <FiUsers size={12} />
+              <span className="text-xs">{room.participants?.length || 0}/{room.maxParticipants}</span>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Fallback thumbnail section if no image */}
+      {!room.podcastThumbnail && (
+        <div className="relative h-32 bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center">
+          <FiImage size={32} className="text-white/60" />
+          <div className="absolute top-3 left-3 flex items-center gap-2 bg-black/40 backdrop-blur-sm px-3 py-1.5 rounded-full">
+            <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse"></div>
+            <span className="text-xs font-medium text-white">LIVE</span>
+          </div>
+        </div>
+      )}
+      
       {/* Room Header */}
       <div className="p-6 pb-4">
         <div className="flex items-start justify-between mb-3">
