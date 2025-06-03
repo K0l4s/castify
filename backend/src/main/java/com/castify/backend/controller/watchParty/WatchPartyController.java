@@ -80,6 +80,23 @@ public class WatchPartyController {
         }
     }
 
+    @PostMapping("/{roomId}/change-podcast")
+    public ResponseEntity<WatchPartyRoomEntity> changePodcast(@PathVariable String roomId,
+                                                              @RequestBody Map<String, String> request) {
+        try {
+            String newPodcastId = request.get("podcastId");
+            if (newPodcastId == null || newPodcastId.trim().isEmpty()) {
+                return ResponseEntity.badRequest().build();
+            }
+
+            WatchPartyRoomEntity room = watchPartyService.changePodcast(roomId, newPodcastId);
+            return ResponseEntity.ok(room);
+        } catch (Exception e) {
+            System.err.println("Error changing podcast: " + e.getMessage());
+            return ResponseEntity.badRequest().build();
+        }
+    }
+
     @GetMapping("/{roomId}")
     public ResponseEntity<WatchPartyRoomEntity> getRoomDetails(@PathVariable String roomId) {
         WatchPartyRoomEntity room = watchPartyService.getRoomDetails(roomId);

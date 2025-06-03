@@ -15,6 +15,7 @@ public interface IWatchPartyService {
     WatchPartyRoomEntity joinRoom(String roomCode);
     void leaveRoom(String roomId);
     void forceCloseRoom(String roomId);
+    WatchPartyRoomEntity changePodcast(String roomId, String newPodcastId);
     void syncPlayback(String roomId, long position, boolean isPlaying, SyncEventType eventType, String username);
     WatchPartyMessageEntity sendMessage(String roomId, String message, String username);
     WatchPartyRoomEntity getRoomDetails(String roomId);

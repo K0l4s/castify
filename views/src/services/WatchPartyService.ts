@@ -23,6 +23,7 @@ export default class WatchPartyService {
   private static messageDeletedListeners: ((data: any) => void)[] = [];
   private static settingsUpdateListeners: Array<(data: any) => void> = [];
   private static roomClosedListeners: ((data: any) => void)[] = [];
+  private static podcastChangedListeners: ((data: any) => void)[] = [];
 
   static async createRoom(request: CreateRoomRequest): Promise<WatchPartyRoom> {
     try {
@@ -88,6 +89,18 @@ export default class WatchPartyService {
       await axiosInstanceAuth.post(`/api/v1/watch-party/close/${roomId}`);
     } catch (error) {
       console.error("Error closing room:", error);
+      throw error;
+    }
+  }
+
+  static async changePodcast(roomId: string, podcastId: string): Promise<WatchPartyRoom> {
+    try {
+      const response = await axiosInstanceAuth.post(`/api/v1/watch-party/${roomId}/change-podcast`, {
+        podcastId
+      });
+      return response.data;
+    } catch (error) {
+      console.error("Error changing podcast:", error);
       throw error;
     }
   }
@@ -317,6 +330,16 @@ export default class WatchPartyService {
             });
           } catch (error) {
             console.error('ERROR PARSING CLOSED DATA:', error);
+          }
+        }, subscribeHeaders);
+
+        // Subscribe to podcast change notifications
+        this.stompClient!.subscribe(`/topic/room/${roomId}/podcast-changed`, (message) => {
+          try {
+            const podcastChangeData = JSON.parse(message.body);
+            this.podcastChangedListeners.forEach(listener => listener(podcastChangeData));
+          } catch (error) {
+            console.error('Error parsing podcast change data:', error);
           }
         }, subscribeHeaders);
 
@@ -643,6 +666,17 @@ export default class WatchPartyService {
     const index = this.roomClosedListeners.indexOf(listener);
     if (index > -1) {
       this.roomClosedListeners.splice(index, 1);
+    }
+  }
+
+  static addPodcastChangedListener(listener: (data: any) => void): void {
+    this.podcastChangedListeners.push(listener);
+  }
+
+  static removePodcastChangedListener(listener: (data: any) => void): void {
+    const index = this.podcastChangedListeners.indexOf(listener);
+    if (index > -1) {
+      this.podcastChangedListeners.splice(index, 1);
     }
   }
 }

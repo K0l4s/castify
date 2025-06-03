@@ -261,6 +261,64 @@ public class WatchPartyServiceImpl implements IWatchPartyService {
         activeRooms.remove(roomId);
     }
 
+    @Override
+    public WatchPartyRoomEntity changePodcast(String roomId, String newPodcastId) {
+        UserEntity currentUser = SecurityUtils.getCurrentUser();
+        WatchPartyRoomEntity room = getRoomDetails(roomId);
+
+        if (room == null) {
+            throw new RuntimeException("Room not found");
+        }
+
+        // Check if current user is host
+        if (!room.isHost(currentUser.getId())) {
+            throw new RuntimeException("Only host can change the podcast");
+        }
+
+        // Verify new podcast exists
+        PodcastEntity newPodcast = podcastRepository.findByIdAndIsActiveTrue(newPodcastId)
+                .orElseThrow(() -> new RuntimeException("Podcast not found"));
+
+        // Store old podcast info for notification
+        PodcastEntity oldPodcast = podcastRepository.findById(room.getPodcastId()).orElse(null);
+        String oldPodcastTitle = oldPodcast != null ? oldPodcast.getTitle() : "Unknown";
+
+        // Update room
+        room.setPodcastId(newPodcastId);
+        room.setCurrentPosition(0); // Reset to beginning
+        room.setPlaying(false); // Pause by default
+        room.setLastUpdated(LocalDateTime.now());
+
+        // Save to database
+        roomRepository.save(room);
+        activeRooms.put(roomId, room);
+
+        // Send system message
+        String changeMessage = String.format("Host changed the video from \"%s\" to \"%s\"",
+                oldPodcastTitle, newPodcast.getTitle());
+        notifyRoomParticipants(roomId, "PODCAST_CHANGED", changeMessage);
+
+        // Send podcast change notification via WebSocket
+        Map<String, Object> podcastChangeData = Map.of(
+                "roomId", roomId,
+                "newPodcastId", newPodcastId,
+                "newPodcastTitle", newPodcast.getTitle(),
+                "newPodcastUrl", newPodcast.getVideoUrl(),
+                "newThumbnailUrl", newPodcast.getThumbnailUrl() != null ? newPodcast.getThumbnailUrl() : "",
+                "changedBy", currentUser.getUsername(),
+                "timestamp", LocalDateTime.now().toString(),
+                "message", changeMessage
+        );
+
+        messagingTemplate.convertAndSend("/topic/room/" + roomId + "/podcast-changed", podcastChangeData);
+
+        // Broadcast room update
+        messagingTemplate.convertAndSend("/topic/room/" + roomId + "/update", room);
+
+        System.out.println("🎬 Podcast changed successfully in room: " + roomId);
+        return room;
+    }
+
     /**
      * Sync playback state
      */
