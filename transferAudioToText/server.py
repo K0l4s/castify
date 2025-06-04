@@ -5,7 +5,7 @@ import uuid
 import time
 
 app = Flask(__name__)
-model = whisper.load_model("large")  # Hoặc "base", "tiny" nếu muốn nhẹ hơn
+model = whisper.load_model("tiny")  # Hoặc "base", "tiny" nếu muốn nhẹ hơn
 
 @app.route('/transcribe', methods=['POST'])
 def transcribe():
