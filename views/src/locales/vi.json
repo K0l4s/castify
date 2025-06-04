@@ -23,6 +23,8 @@
     "profile": {
         "followers": "Người theo dõi",
         "following": "Đang theo dõi",
+        "follow": "Theo dõi",
+        "unfollow": "Hủy theo dõi",
         "posts": "Bài viết",
         "newest": "Mới nhất",
         "view": "Phổ biến",
@@ -124,6 +126,9 @@
         "name": "Tên",
         "description": "Mô tả"
     },
+    "common": {
+        "loading": "Đang tải dữ liệu..."
+},
     "watchParty": {
         "page": {
             "prefix": "Xem chung",

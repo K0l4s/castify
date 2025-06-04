@@ -9,7 +9,7 @@
         "following": "Following",
         "studio": "Studio"
     },
-    "navbar":{
+    "navbar": {
         "search": "Search podcasts, episodes, creators...",
         "profile": "Profile",
         "upload": "Upload",
@@ -20,12 +20,14 @@
         "logout": "Logout",
         "language": "Language"
     },
-    "profile":{
+    "profile": {
         "followers": "Followers",
         "following": "Following",
+        "follow": "Follow",
+        "unfollow": "Unfollow",
         "posts": "Posts",
         "newest": "Newest",
-        "view":"Views",
+        "view": "Views",
         "oldest": "Oldest",
         "reactions": "Reactions",
         "studio": "Studio",
@@ -44,7 +46,7 @@
         "popular": "Popular",
         "recent": "Recent"
     },
-    "login":{
+    "login": {
         "welcome": "Welcome back!",
         "description": "Please enter your credentials to access your account.",
         "login": "Login",
@@ -57,7 +59,7 @@
         "or": "or continue with",
         "loginWithGoogle": "Login with Google"
     },
-    "register":{
+    "register": {
         "button": "Register",
         "step": "Step",
         "title": "Create your account",
@@ -67,13 +69,13 @@
         "password": "Password",
         "confirmPassword": "Confirm Password",
         "next": "Next",
-        "signIn":"Sign in instead",
+        "signIn": "Sign in instead",
         "forgotPassword": "Forgot Password?",
         "registerFor": "Register for",
         "terms": "Terms of Service",
         "privacy": "Privacy Policy",
         "and": "and",
-        "accept":"By createing an account, you agree to our",
+        "accept": "By createing an account, you agree to our",
         "firstName": "First Name",
         "middleName": "Middle Name",
         "lastName": "Last Name",
@@ -86,10 +88,10 @@
         "ward": "Ward",
         "select": "Select"
     },
-    "global":{
+    "global": {
         "dashboard": "Dashboard",
-        "myPodcast":"My Podcast",
-        "backToHome":"Back to Castify",
+        "myPodcast": "My Podcast",
+        "backToHome": "Back to Castify",
         "viewAll": "View all",
         "cancel": "Cancel",
         "confirm": "Confirm",
@@ -97,17 +99,17 @@
         "delete": "Delete",
         "deleteTitle": "Are you really want to delete ?"
     },
-    "creator":{
-        "overview":"Creator Overview",
-        "likes":"Likes",
-        "comments":"Comments",
-        "views":"Views",
-        "top10vid":"Top 10 Podcasts"
+    "creator": {
+        "overview": "Creator Overview",
+        "likes": "Likes",
+        "comments": "Comments",
+        "views": "Views",
+        "top10vid": "Top 10 Podcasts"
     },
-    "day":{
-        "y":"Year",
-        "m":"Month",
-        "d":"Day"
+    "day": {
+        "y": "Year",
+        "m": "Month",
+        "d": "Day"
     },
     "playlist": {
         "playAll": "Play All",
@@ -124,6 +126,11 @@
         "name": "Name",
         "description": "Description"
     },
+
+    "common": {
+        "loading": "Loading..."
+},
+
     "watchParty": {
         "page": {
             "prefix": "Watch Party",
