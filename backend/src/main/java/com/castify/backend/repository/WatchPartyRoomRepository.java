@@ -5,6 +5,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -21,4 +22,9 @@ public interface WatchPartyRoomRepository extends MongoRepository<WatchPartyRoom
     long countByHostUserIdAndIsActiveTrue(String hostUserId);
     List<WatchPartyRoomEntity> findByPublishTrueAndIsActiveTrueAndHostUserIdNotOrderByCreatedAtDesc(String excludeHostUserId, Pageable pageable);
     long countByPublishTrueAndIsActiveTrueAndHostUserIdNot(String excludeHostUserId);
+
+    // New methods for cleanup service
+    List<WatchPartyRoomEntity> findByIsActiveTrueAndExpiresAtBefore(LocalDateTime expireTime);
+    List<WatchPartyRoomEntity> findByIsActiveFalseAndLastUpdatedBefore(LocalDateTime cutoffTime);
+    List<WatchPartyRoomEntity> findByIsActiveTrueAndExpiresAtBetween(LocalDateTime start, LocalDateTime end);
 }

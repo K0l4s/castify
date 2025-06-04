@@ -126,7 +126,184 @@
         "name": "Name",
         "description": "Description"
     },
+
     "common": {
         "loading": "Loading..."
+},
+
+    "watchParty": {
+        "page": {
+            "prefix": "Watch Party",
+            "roomCode": "Room Code",
+            "host": "Host",
+            "created": "Created",
+            "participants": "Participants",
+            "copyLink": "Copy Invite Link",
+            "leaveRoom": "Leave Room",
+            "roomExpires": "Room expires in",
+            "roomExpired": "Room has expired",
+            "settings": "Settings",
+            "follower": "Followers",
+            "follow": "Follow",
+            "unfollow": "Unfollow",
+            "like": "Like",
+            "unlike": "Unlike",
+            "showMore": "Show More",
+            "showLess": "Show Less",
+            "selectedPodcast": "Selected Podcast",
+            "create": "Create Watch Party",
+            "fallback": {
+                "text1": "Start a Watch Party",
+                "text2": "Select a podcast to watch or join an existing watch party room"
+            },
+            "browse": "Browse Podcasts",
+            "join": "Join Room",
+            "closedModal": {
+                "title": "Room Closed",
+                "room": "Room",
+                "closedBy": "Closed by",
+                "returnHome": "Return to Home"
+            },
+            "setting": "Settings"
+        },
+        "participant": {
+            "header": "Participants",
+            "host": "Host",
+            "you": "You",
+            "reportUser": "Report User",
+            "kickUser": "Kick User",
+            "banUser": "Ban User",
+            "note": "No other participants yet. Share the room code to invite friends!",
+            "joined": "Joined"
+        },
+        "chat": {
+            "header": "Chat",
+            "placeholder": "Type a message...",
+            "status": {
+                "connecting": "Connecting...",
+                "connected": "Connected",
+                "disconnected": "Disconnected",
+                "reconnecting": "Reconnecting..."
+            },
+            "you": "You",
+            "deleteMessage": "Delete message",
+            "noMessages": "No messages yet",
+            "startChat": "Start the conversation!",
+            "disabledChat": "Chat has been disabled by the host",
+            "reportUser": "Report User",
+            "kickUser": "Kick User",
+            "banUser": "Ban User"
+        },
+        "player": {
+            "play": "Play",
+            "pause": "Pause",
+            "stop": "Stop",
+            "mute": "Mute",
+            "unmute": "Unmute",
+            "fullscreen": "Fullscreen",
+            "exitFullscreen": "Exit Fullscreen",
+            "host": "Host",
+            "changeSource": "Change Source",
+            "clickToStart": "Click to start watchhing",
+            "note": "Your browser requires interaction to play video. Click anywhere to join the session.",
+            "startWatching": "Start Watching",
+            "onlyHost": "Only the host can control playback"
+        },
+        "expireTimer": {
+            "roomExpiresIn": "Room will expire in",
+            "expired": "Expired",
+            "extend": "Extend",
+            "extending": "Extending...",
+            "warning": "Room will be closed about 5 minutes after time expires"
+        },
+        "roomSettings": {
+            "title": "Room Settings",
+            "settingsSaved": "Settings saved successfully",
+            "tab": {
+                "general": {
+                    "title": "General",
+                    "description": "Room settings"
+                },
+                "expiration": {
+                    "title": "Expiration",
+                    "description": "Room time settings"
+                },
+                "banList": {
+                    "title": "Ban List",
+                    "description": "Manage banned users"
+                }
+            },
+            "expiration": {
+                "title": "Room Expiration Settings",
+                "description": "Manage when this room will automatically close",
+                "extendRoomTime": "Extend Room Time",
+                "extendRoomTimeDescription": "Add more time to keep the room active longer",
+                "_1Hour": "+ 1 Hour",
+                "_2Hours": "+ 2 Hours",
+                "_4Hours": "+ 4 Hours",
+                "_8Hours": "+ 8 Hours",
+                "extending": "Extending room time...",
+                "policy": {
+                    "title": "Auto-Expiration Policy",
+                    "d1": "Rooms automatically close after 8 hours by default",
+                    "d2": "Maximum extension is 8 additional hours per request",
+                    "d3": "All participants will be notified when room expires",
+                    "d4": "Room data will be permanently deleted after closure",
+                    "fallback": {
+                        "title": "Host Only",
+                        "description": "Only the room host can extend the expiration time. If you are the host, please join the room to extend the time."
+                    }
+                    
+                }
+            }, 
+            "banList": {
+                "title": "Banned Users",
+                "description": "Manage users who have been banned from this room",
+                "noBannedUsers": "No users banned yet",
+                "noBannedUsersDescription": "Users who get banned will appear here",
+                "ban": "Ban User",
+                "unban": "Unban",
+                "bannedBy": "Banned by",
+                "bannedAt": "Banned at",
+                "refresh": "Refresh"
+            },
+            "general": {
+                "title": "General Settings",
+                "description": "Configure general settings for your watch party room",
+                "roomName": "Room Name",
+                "roomDescription": "Room Description",
+                "saveChanges": "Save Changes",
+                "changesSaved": "Changes saved uccessfully",
+                "roomVisibility": "Room Visibility",
+                "visibility": {
+                    "public": "Public",
+                    "publicDescription": "Anyone can find and join this room",
+                    "private": "Private",
+                    "privateDescription": "Only invited users or people with room code can join this room"
+                },
+                "chat": {
+                    "title": "Chat Settings",
+                    "allowChat": "Allow Chat",
+                    "allowChatDescription": "Let participants send messages in chat"
+                },
+                "roomInformation": {
+                    "title": "Room Information",
+                    "roomCode": "Room Code",
+                    "participants": "Participants",
+                    "dangerZone": {
+                        "title": "Danger Zone",
+                        "section": {
+                            "closeRoom": {
+                                "title": "Close Room",
+                                "description": "Permanently close this room. All participants will be removed and the room cannot be reopened.",
+                                "closing": "Closing",
+                                "close": "Close Room"
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
     }
 }

@@ -3,6 +3,7 @@ import { FaEllipsisV } from 'react-icons/fa';
 import defaultAvatar from "../../../assets/images/default_avatar.jpg";
 import useTimeAgo from '../../../hooks/useTimeAgo';
 import Avatar from '../../UI/user/Avatar';
+import { useLanguage } from '../../../context/LanguageContext';
 
 interface ParticipantItemProps {
   participant: any;
@@ -17,7 +18,8 @@ const ParticipantItem: React.FC<ParticipantItemProps> = ({
   onMenuClick,
   getDisplayName
 }) => {
-  // ✅ Hook ở top level của component này
+  const { language } = useLanguage();
+  // Hook ở top level của component này
   const timeAgo = useTimeAgo(participant.joinedAt);
 
   return (
@@ -42,12 +44,12 @@ const ParticipantItem: React.FC<ParticipantItemProps> = ({
           </span>
           {participant.userId === currentUserId && (
             <span className="text-xs bg-green-100 dark:bg-green-800 text-green-800 dark:text-green-100 px-2 py-0.5 rounded-full ml-2">
-              You
+              {language.watchParty.participant.you}
             </span>
           )}
         </div>
         <div className="text-xs text-gray-500 dark:text-gray-400">
-          Joined {timeAgo}
+          {language.watchParty.participant.joined} {timeAgo}
         </div>
       </div>
       

@@ -24,6 +24,23 @@ const BrowseRoomsPage: React.FC = () => {
   const myRoomsRef = useRef<any>(null);
   const publicRoomsRef = useRef<any>(null);
 
+  // Handle room closure
+  const handleRoomClosed = () => {
+    if (myRoomsRef.current) {
+      myRoomsRef.current.refreshRooms();
+    }
+    if (publicRoomsRef.current) {
+      publicRoomsRef.current.refreshRooms();
+    }
+    
+    // Close the settings modal
+    setSettingsModalOpen(false);
+    setSelectedRoom(null);
+    
+    toast.success('Room has been closed and removed from listings');
+  };
+
+
   // Join room
   const handleJoinRoom = async (roomCode: string) => {
     try {
@@ -65,21 +82,6 @@ const BrowseRoomsPage: React.FC = () => {
     setSelectedRoom(updatedRoom);
     if (myRoomsRef.current) {
       myRoomsRef.current.refreshRooms();
-    }
-    toast.success('Room updated successfully');
-  };
-
-  // Handle delete room
-  const handleDeleteRoom = async () => {
-    if (!confirm('Are you sure you want to delete this room?')) return;
-    
-    try {
-      // handle delete room
-      toast.success('Room deleted successfully');
-      // Refresh rooms list
-    } catch (error) {
-      console.error('Error deleting room:', error);
-      toast.error('Failed to delete room');
     }
   };
 
@@ -125,7 +127,6 @@ const BrowseRoomsPage: React.FC = () => {
           isMyRooms={true}
           onJoinRoom={handleJoinRoom}
           onSettingsClick={handleSettingsClick}
-          onDeleteRoom={handleDeleteRoom}
           joining={joining}
           currentUserId={currentUser?.id}
         />
@@ -159,6 +160,7 @@ const BrowseRoomsPage: React.FC = () => {
             }}
             room={selectedRoom}
             onRoomUpdate={handleRoomUpdate}
+            onRoomClosed={handleRoomClosed}
           />
         )}
       </div>

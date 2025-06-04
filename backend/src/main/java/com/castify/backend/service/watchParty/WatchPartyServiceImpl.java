@@ -15,7 +15,9 @@ import com.castify.backend.repository.UserRepository;
 import com.castify.backend.repository.WatchPartyMessageRepository;
 import com.castify.backend.repository.WatchPartyRoomRepository;
 import com.castify.backend.utils.SecurityUtils;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -28,6 +30,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class WatchPartyServiceImpl implements IWatchPartyService {
     private final WatchPartyRoomRepository roomRepository;
     private final WatchPartyMessageRepository messageRepository;
@@ -50,6 +53,7 @@ public class WatchPartyServiceImpl implements IWatchPartyService {
         room.setRoomName(roomName != null ? roomName : "Watch Party: " + podcast.getTitle());
         room.setHostUserId(host.getId());
         room.setPodcastId(podcastId);
+        room.setPodcastThumbnail(podcast.getThumbnailUrl());
         room.setPublish(isPublic);
         room.setExpiresAt(LocalDateTime.now().plusHours(8)); // Expire after 8 hours
 
@@ -138,6 +142,13 @@ public class WatchPartyServiceImpl implements IWatchPartyService {
         WatchPartyRoomEntity room = roomRepository.findByRoomCodeAndIsActiveTrue(roomCode)
                 .orElseThrow(() -> new RuntimeException("Room not found or expired"));
 
+        if (room.getExpiresAt() != null && room.getExpiresAt().isBefore(LocalDateTime.now())) {
+            // Auto-expire the room
+            room.setActive(false);
+            roomRepository.save(room);
+            throw new RuntimeException("Room has expired and is no longer available");
+        }
+
         if (room.isBanned(user.getId())) {
             throw new RuntimeException("You are banned from this room");
         }
@@ -217,6 +228,108 @@ public class WatchPartyServiceImpl implements IWatchPartyService {
         }
     }
 
+    @Override
+    @Transactional
+    public void forceCloseRoom(String roomId) {
+        UserEntity currentUser = SecurityUtils.getCurrentUser();
+        // Remove all participants
+        WatchPartyRoomEntity room = activeRooms.get(roomId);
+
+        if (room == null) {
+            room = roomRepository.findById(roomId)
+                    .orElseThrow(() -> new RuntimeException("Room not found"));
+        }
+
+        if (!room.isHost(currentUser.getId())) {
+            throw new RuntimeException("Only host can close the room");
+        }
+
+        room.getParticipants().clear();
+        messageRepository.deleteByRoomId(roomId);
+
+        notifyRoomParticipants(roomId, "ROOM_CLOSED",
+                "The room has been closed by the host");
+
+        messagingTemplate.convertAndSend("/topic/room/" + roomId + "/closed",
+                Map.of(
+                        "roomId", roomId,
+                        "roomName", room.getRoomName(),
+                        "closedBy", currentUser.getUsername(),
+                        "timestamp", LocalDateTime.now().toString(),
+                        "message", "The room has been closed by the host"
+                )
+        );
+
+        // Close room
+        room.setActive(false);
+        room.setLastUpdated(LocalDateTime.now());
+
+        // Save to database
+        roomRepository.save(room);
+
+        // Remove from active rooms cache
+        activeRooms.remove(roomId);
+    }
+
+    @Override
+    public WatchPartyRoomEntity changePodcast(String roomId, String newPodcastId) {
+        UserEntity currentUser = SecurityUtils.getCurrentUser();
+        WatchPartyRoomEntity room = getRoomDetails(roomId);
+
+        if (room == null) {
+            throw new RuntimeException("Room not found");
+        }
+
+        // Check if current user is host
+        if (!room.isHost(currentUser.getId())) {
+            throw new RuntimeException("Only host can change the podcast");
+        }
+
+        // Verify new podcast exists
+        PodcastEntity newPodcast = podcastRepository.findByIdAndIsActiveTrue(newPodcastId)
+                .orElseThrow(() -> new RuntimeException("Podcast not found"));
+
+        // Store old podcast info for notification
+        PodcastEntity oldPodcast = podcastRepository.findById(room.getPodcastId()).orElse(null);
+        String oldPodcastTitle = oldPodcast != null ? oldPodcast.getTitle() : "Unknown";
+
+        // Update room
+        room.setPodcastId(newPodcastId);
+        room.setPodcastThumbnail(newPodcast.getThumbnailUrl());
+        room.setCurrentPosition(0); // Reset to beginning
+        room.setPlaying(false); // Pause by default
+        room.setLastUpdated(LocalDateTime.now());
+
+        // Save to database
+        roomRepository.save(room);
+        activeRooms.put(roomId, room);
+
+        // Send system message
+        String changeMessage = String.format("Host changed the video from \"%s\" to \"%s\"",
+                oldPodcastTitle, newPodcast.getTitle());
+        notifyRoomParticipants(roomId, "PODCAST_CHANGED", changeMessage);
+
+        // Send podcast change notification via WebSocket
+        Map<String, Object> podcastChangeData = Map.of(
+                "roomId", roomId,
+                "newPodcastId", newPodcastId,
+                "newPodcastTitle", newPodcast.getTitle(),
+                "newPodcastUrl", newPodcast.getVideoUrl(),
+                "newThumbnailUrl", newPodcast.getThumbnailUrl() != null ? newPodcast.getThumbnailUrl() : "",
+                "changedBy", currentUser.getUsername(),
+                "timestamp", LocalDateTime.now().toString(),
+                "message", changeMessage
+        );
+
+        messagingTemplate.convertAndSend("/topic/room/" + roomId + "/podcast-changed", podcastChangeData);
+
+        // Broadcast room update
+        messagingTemplate.convertAndSend("/topic/room/" + roomId + "/update", room);
+
+        System.out.println(" Podcast changed successfully in room: " + roomId);
+        return room;
+    }
+
     /**
      * Sync playback state
      */
@@ -281,6 +394,13 @@ public class WatchPartyServiceImpl implements IWatchPartyService {
         if (room == null) {
             room = roomRepository.findByIdAndIsActiveTrue(roomId).orElse(null);
             if (room != null) {
+                if (room.getExpiresAt() != null && room.getExpiresAt().isBefore(LocalDateTime.now())) {
+                    // Auto-expire the room
+                    room.setActive(false);
+                    roomRepository.save(room);
+                    activeRooms.remove(roomId);
+                    return null; // Room expired
+                }
                 activeRooms.put(roomId, room);
             }
         }
@@ -599,6 +719,7 @@ public class WatchPartyServiceImpl implements IWatchPartyService {
             room.setActive(false);
             roomRepository.save(room);
             activeRooms.remove(roomId);
+            messageRepository.deleteByRoomId(roomId);
 
             // Notify all participants
             messagingTemplate.convertAndSend("/topic/room/" + roomId + "/system",
@@ -606,4 +727,78 @@ public class WatchPartyServiceImpl implements IWatchPartyService {
         }
     }
 
+    // method to extend room expiration (for hosts)
+    @Override
+    public WatchPartyRoomEntity extendRoomExpiration(String roomId, int additionalHours) {
+        UserEntity currentUser = SecurityUtils.getCurrentUser();
+        WatchPartyRoomEntity room = getRoomDetails(roomId);
+
+        if (room == null) {
+            throw new RuntimeException("Room not found");
+        }
+
+        if (!room.isHost(currentUser.getId())) {
+            throw new RuntimeException("Only host can extend room expiration");
+        }
+
+        // Extend expiration by additional hours
+        LocalDateTime newExpiration = room.getExpiresAt().plusHours(additionalHours);
+        room.setExpiresAt(newExpiration);
+        room.setLastUpdated(LocalDateTime.now());
+
+        roomRepository.save(room);
+        activeRooms.put(roomId, room);
+
+        // Send WebSocket notification for expiration update
+        sendExpirationUpdateNotification(roomId, newExpiration, additionalHours, currentUser.getUsername());
+
+        // Notify participants
+        notifyRoomParticipants(roomId, "ROOM_EXTENDED",
+                String.format("Host extended room time by %d hours. ",
+                        additionalHours));
+
+        return room;
+    }
+
+    // method to get room expiration info
+    @Override
+    public Map<String, Object> getRoomExpirationInfo(String roomId) {
+        WatchPartyRoomEntity room = getRoomDetails(roomId);
+
+        if (room == null) {
+            throw new RuntimeException("Room not found");
+        }
+
+        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime expiresAt = room.getExpiresAt();
+
+        long minutesRemaining = java.time.Duration.between(now, expiresAt).toMinutes();
+        boolean isExpiringSoon = minutesRemaining <= 30; // Less than 30 minutes
+
+        return Map.of(
+                "expiresAt", expiresAt.toString(),
+                "minutesRemaining", Math.max(0, minutesRemaining),
+                "isExpiringSoon", isExpiringSoon,
+                "canExtend", room.isHost(SecurityUtils.getCurrentUser().getId())
+        );
+    }
+
+    private void sendExpirationUpdateNotification(String roomId, LocalDateTime newExpiration, int additionalHours, String hostUsername) {
+        try {
+            Map<String, Object> expirationUpdate = Map.of(
+                    "roomId", roomId,
+                    "newExpiresAt", newExpiration.toString(),
+                    "additionalHours", additionalHours,
+                    "extendedBy", hostUsername,
+                    "timestamp", LocalDateTime.now().toString(),
+                    "eventType", "ROOM_EXTENDED"
+            );
+
+            messagingTemplate.convertAndSend("/topic/room/" + roomId + "/expiration-update", expirationUpdate);
+
+            log.info("Sent expiration update notification for room: {} - New expiration: {}", roomId, newExpiration);
+        } catch (Exception e) {
+            log.error("Failed to send expiration update notification for room: {}", roomId, e);
+        }
+    }
 }

@@ -14,6 +14,8 @@ public interface IWatchPartyService {
     WatchPartyRoomEntity editRoom(String roomId, EditWatchPartyRoomDTO editWatchPartyRoomDTO);
     WatchPartyRoomEntity joinRoom(String roomCode);
     void leaveRoom(String roomId);
+    void forceCloseRoom(String roomId);
+    WatchPartyRoomEntity changePodcast(String roomId, String newPodcastId);
     void syncPlayback(String roomId, long position, boolean isPlaying, SyncEventType eventType, String username);
     WatchPartyMessageEntity sendMessage(String roomId, String message, String username);
     WatchPartyRoomEntity getRoomDetails(String roomId);
@@ -26,4 +28,8 @@ public interface IWatchPartyService {
     void unbanUser(String roomId, String targetUserId);
     void deleteMessage(String roomId, String messageId);
     List<Map<String, Object>> getBannedUsers(String roomId);
+
+    WatchPartyRoomEntity extendRoomExpiration(String roomId, int additionalHours);
+    Map<String, Object> getRoomExpirationInfo(String roomId);
+
 }

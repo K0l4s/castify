@@ -5,6 +5,7 @@ export interface WatchPartyRoom {
   roomCode: string;
   roomName: string;
   podcastId: string;
+  podcastThumbnail?: string;
   hostUserId: string;
   host?: UserSimple;
   participants: WatchPartyParticipant[];

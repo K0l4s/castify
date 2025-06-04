@@ -3,12 +3,13 @@ import { Podcast } from '../../../models/PodcastModel';
 import { SyncEventType } from '../../../models/WatchPartyModel';
 import WatchPartyService from '../../../services/WatchPartyService';
 import { formatTimeDuration, setupVideoViewTracking } from '../../../components/UI/podcast/video';
-import { FaPause, FaPlay } from 'react-icons/fa';
+import { FaExchangeAlt, FaPause, FaPlay } from 'react-icons/fa';
 import { FiVolume2, FiVolumeX } from 'react-icons/fi';
 import { BsFullscreen } from 'react-icons/bs';
 import { useSelector } from 'react-redux';
 import { RootState } from '../../../redux/store';
 import { incrementPodcastViews } from '../../../services/PodcastService';
+import { useLanguage } from '../../../context/LanguageContext';
 
 interface WatchPartyPlayerProps {
   podcast: Podcast;
@@ -16,6 +17,7 @@ interface WatchPartyPlayerProps {
   isConnected: boolean;
   initialPosition?: number;
   onSync: (position: number, playing: boolean, eventType: SyncEventType) => void;
+  onChangePodcast?: () => void;
   roomId: string;
   onViewIncrement?: () => void;
 }
@@ -26,9 +28,11 @@ const WatchPartyPlayer: React.FC<WatchPartyPlayerProps> = ({
   isConnected,
   initialPosition = 0,
   onSync,
+  onChangePodcast,
   roomId,
   onViewIncrement
 }) => {
+  const {language} = useLanguage();
   const videoRef = useRef<HTMLVideoElement>(null);
   const playerContainerRef = useRef<HTMLDivElement>(null);
   const [isPlaying, setIsPlaying] = useState(false);
@@ -48,6 +52,8 @@ const WatchPartyPlayer: React.FC<WatchPartyPlayerProps> = ({
   const syncThrottleRef = useRef<NodeJS.Timeout | null>(null);
   const initialSyncDoneRef = useRef<boolean>(false);
   const syncIntervalRef = useRef<NodeJS.Timeout | null>(null);
+  const [showHostLabels, setShowHostLabels] = useState(true);
+  const hostLabelsTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   const isAuthenticated = useSelector((state: RootState) => state.auth.isAuthenticated);
 
@@ -340,18 +346,29 @@ const WatchPartyPlayer: React.FC<WatchPartyPlayerProps> = ({
     };
   }, [isHost, isConnected, isReadyForSync, onSync, initialPosition]);
 
-  // Set up controls auto-hide
+  // Set up controls & label auto-hide
   useEffect(() => {
     const handleMouseMove = () => {
       setShowControls(true);
-      
+      setShowHostLabels(true);
+
       if (controlsTimeoutRef.current) {
         clearTimeout(controlsTimeoutRef.current);
       }
       
+      if (hostLabelsTimeoutRef.current) {
+        clearTimeout(hostLabelsTimeoutRef.current);
+      }
+    
       controlsTimeoutRef.current = setTimeout(() => {
         if (isPlaying) {
           setShowControls(false);
+        }
+      }, 3000);
+
+      hostLabelsTimeoutRef.current = setTimeout(() => {
+        if (isPlaying) {
+          setShowHostLabels(false);
         }
       }, 3000);
     };
@@ -368,6 +385,10 @@ const WatchPartyPlayer: React.FC<WatchPartyPlayerProps> = ({
       
       if (controlsTimeoutRef.current) {
         clearTimeout(controlsTimeoutRef.current);
+      }
+
+      if (hostLabelsTimeoutRef.current) {
+        clearTimeout(hostLabelsTimeoutRef.current);
       }
     };
   }, [isPlaying]);
@@ -463,6 +484,12 @@ const WatchPartyPlayer: React.FC<WatchPartyPlayerProps> = ({
     return formatTimeDuration(time);
   };
 
+  const handleChangePodcast = () => {
+    if (onChangePodcast) {
+      onChangePodcast();
+    }
+  };
+
   return (
     <div 
       ref={playerContainerRef}
@@ -481,18 +508,33 @@ const WatchPartyPlayer: React.FC<WatchPartyPlayerProps> = ({
       />
       
       {/* Connection status indicator */}
-      <div className={`absolute top-2 right-2 px-2 py-1 rounded-full text-xs font-medium z-20 ${
+      {/* <div className={`absolute top-2 right-2 px-2 py-1 rounded-full text-xs font-medium z-20 ${
         isConnected ? "bg-green-500" : "bg-red-500"
       } text-white`}>
         {isConnected ? "Connected" : "Disconnected"}
-      </div>
+      </div> */}
       
       {/* Host indicator */}
-      {isHost && (
-        <div className="absolute top-2 left-2 px-2 py-1 rounded-full text-xs font-medium z-20 bg-blue-500 text-white">
-          Host
-        </div>
-      )}
+      <div className={`absolute top-2 left-2 flex items-center gap-2 z-20 transition-opacity duration-300 ${
+        showHostLabels ? 'opacity-100' : 'opacity-0'
+      }`}>
+        {isHost && (
+          <div className="px-3 py-2 rounded-full text-sm font-medium bg-blue-500 text-white">
+            {language.watchParty.player.host}
+          </div>
+        )}
+        
+        {isHost && onChangePodcast && (
+          <button
+            onClick={handleChangePodcast}
+            className="px-2 py-2 rounded-full text-sm font-medium bg-purple-500 hover:bg-purple-600 text-white transition-colors flex items-center gap-1"
+            title="Change Podcast"
+          >
+            <FaExchangeAlt size={10} />
+            <span className="hidden sm:inline">{language.watchParty.player.changeSource}</span>
+          </button>
+        )}
+      </div>
       
       {/* User interaction prompt for participants */}
       {!isHost && pendingPlayRequest && (
@@ -500,16 +542,16 @@ const WatchPartyPlayer: React.FC<WatchPartyPlayerProps> = ({
           <div className="bg-white dark:bg-gray-800 p-6 rounded-lg text-center max-w-sm mx-4">
             <FaPlay className="mx-auto text-blue-500 mb-3" size={32} />
             <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">
-              Click to Start Watching
+              {language.watchParty.player.clickToStart}
             </h3>
             <p className="text-gray-600 dark:text-gray-400 mb-4">
-              Your browser requires interaction to play video. Click anywhere to join the session.
+              {language.watchParty.player.note}
             </p>
             <button
               onClick={() => safePlayVideo()}
               className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg transition-colors"
             >
-              Start Watching
+              {language.watchParty.player.startWatching}
             </button>
           </div>
         </div>
@@ -551,7 +593,7 @@ const WatchPartyPlayer: React.FC<WatchPartyPlayerProps> = ({
               onClick={isHost ? togglePlay : undefined}
               className={`text-white transition-colors ${isHost ? 'hover:text-gray-300' : 'opacity-60'}`}
               disabled={!isHost}
-              title={isHost ? (isPlaying ? "Pause" : "Play") : "Only the host can control playback"}
+              title={isHost ? (isPlaying ? language.watchParty.player.pause : language.watchParty.player.play) : `${language.watchParty.player.onlyHost}`}
               data-testid="play-pause-button"
             >
               {isPlaying ? (
@@ -618,7 +660,7 @@ const WatchPartyPlayer: React.FC<WatchPartyPlayerProps> = ({
           <div className={`absolute bottom-16 left-1/2 transform -translate-x-1/2 bg-black/80 text-white text-sm px-3 py-1 rounded transition-opacity ${
             showControls ? 'opacity-100' : 'opacity-0'
           }`}>
-            Only the host can control playback
+            {language.watchParty.player.onlyHost}
           </div>
         )}
       </div>

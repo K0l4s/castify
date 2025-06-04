@@ -22,6 +22,7 @@ public class WatchPartyRoomEntity {
     private String roomName;
     private String hostUserId;
     private String podcastId;
+    private String podcastThumbnail;
 
     private List<WatchPartyParticipant> participants = new ArrayList<>();
     private int maxParticipants = 100;

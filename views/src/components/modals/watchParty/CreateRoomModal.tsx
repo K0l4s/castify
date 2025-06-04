@@ -3,7 +3,7 @@ import { Podcast } from '../../../models/PodcastModel';
 import { WatchPartyRoom } from '../../../models/WatchPartyModel';
 import CustomModal from '../../../components/UI/custom/CustomModal';
 import CustomButton from '../../../components/UI/custom/CustomButton';
-import { FiLoader } from 'react-icons/fi';
+import { FiImage, FiLoader } from 'react-icons/fi';
 // import { useLanguage } from '../../../context/LanguageContext';
 
 interface CreateRoomModalProps {
@@ -42,7 +42,7 @@ const CreateRoomModal: React.FC<CreateRoomModalProps> = ({
       isOpen={isOpen}
       onClose={onClose}
       title="Create Watch Party"
-      size="md"
+      size="lg"
     >
       {!podcast ? (
         <div className="p-4 text-center">
@@ -70,21 +70,61 @@ const CreateRoomModal: React.FC<CreateRoomModalProps> = ({
             />
           </div>
           
+          {/*Podcast Preview with Thumbnail */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-              Podcast
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              Selected Podcast
             </label>
-            <div className="flex items-center gap-3">
-              <img 
-                src={podcast.thumbnailUrl || "https://via.placeholder.com/60x60"} 
-                alt={podcast.title}
-                className="w-12 h-12 object-cover rounded"
-              />
-              <div className="truncate flex-1">
-                <p className="font-medium truncate">{podcast.title}</p>
-                <p className="text-sm text-gray-500 dark:text-gray-400 truncate">
-                  {podcast.user.fullname || podcast.user.username}
+            <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-4 border border-gray-200 dark:border-gray-600">
+              <div className="flex gap-4">
+                {/* Thumbnail */}
+                <div className="flex-shrink-0">
+                  {podcast.thumbnailUrl ? (
+                    <img 
+                      src={podcast.thumbnailUrl} 
+                      alt={podcast.title}
+                      className="w-64 h-32 object-cover rounded-lg border border-gray-300 dark:border-gray-600"
+                      onError={(e) => {
+                        e.currentTarget.src = "/TEST.png";
+                      }}
+                    />
+                  ) : (
+                    <div className="w-20 h-20 bg-gray-300 dark:bg-gray-600 rounded-lg flex items-center justify-center">
+                      <FiImage className="text-gray-500 dark:text-gray-400" size={24} />
+                    </div>
+                  )}
+                </div>
+                
+                {/* Podcast Info */}
+                <div className="flex-1 min-w-0">
+                  <h4 className="font-medium text-gray-900 dark:text-white mb-1 line-clamp-2" title={podcast.title}>
+                    {podcast.title} Watch Party Watch Party Watch Party
+                  </h4>
+                  <p className="text-sm text-blue-600 dark:text-blue-300 mb-2">
+                    by {podcast.user.fullname || podcast.user.username}
+                  </p>
+                  {podcast.content && (
+                    <p className="text-sm text-gray-700 dark:text-gray-300 line-clamp-2">
+                      {podcast.content.length > 100 
+                        ? `${podcast.content.substring(0, 100)}...` 
+                        : podcast.content
+                      }
+                    </p>
+                  )}
+                </div>
+              </div>
+              
+              {/* Room Preview */}
+              <div className="mt-3 pt-3 border-t border-gray-200 dark:border-gray-600">
+                <p className="text-sm text-gray-500 dark:text-gray-200 mb-1">
+                  This thumbnail will be used for your watch party room
                 </p>
+                <div className="flex items-center gap-2 text-sm">
+                  <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                  <span className="text-gray-600 dark:text-gray-300">
+                    Viewers will see this when browsing rooms
+                  </span>
+                </div>
               </div>
             </div>
           </div>
@@ -97,7 +137,7 @@ const CreateRoomModal: React.FC<CreateRoomModalProps> = ({
                 onChange={(e) => setPublish(e.target.checked)}
                 className="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
               />
-              <span className="ml-2 text-sm text-gray-700 dark:text-gray-300">
+              <span className="ml-2 text-md text-gray-700 dark:text-gray-300">
                 Make this room public (visible to everyone)
               </span>
             </label>
