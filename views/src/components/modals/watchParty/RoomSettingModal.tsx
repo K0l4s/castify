@@ -11,6 +11,7 @@ import { WatchPartyRoom } from '../../../models/WatchPartyModel';
 import CustomInput from '../../UI/custom/CustomInput';
 import ConfirmModal from '../utils/ConfirmDelete';
 import RoomExpirationTimer from './RoomExpirationTimer';
+import { useLanguage } from '../../../context/LanguageContext';
 
 interface BannedUser {
   id: string;
@@ -71,6 +72,7 @@ const RoomSettingsModal: React.FC<RoomSettingsModalProps> = ({
   onRoomUpdate,
   onRoomClosed
 }) => {
+  const { language } = useLanguage();
   const [activeTab, setActiveTab] = useState<string>('general');
   const [bannedUsers, setBannedUsers] = useState<BannedUser[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
@@ -192,7 +194,7 @@ const RoomSettingsModal: React.FC<RoomSettingsModalProps> = ({
     if (!isOpen) return;
 
     const expirationUpdateListener = (data: any) => {
-      console.log('📅 Settings modal received expiration update:', data);
+      // console.log('📅 Settings modal received expiration update:', data);
       
       if (data.roomId === room.id) {
         // Update parent component with new room data
@@ -235,10 +237,10 @@ const RoomSettingsModal: React.FC<RoomSettingsModalProps> = ({
     <div className="space-y-6">
       <div>
         <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
-          Room Expiration Settings
+          {language.watchParty.roomSettings.expiration.title}
         </h3>
         <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">
-          Manage when this room will automatically close
+          {language.watchParty.roomSettings.expiration.description}
         </p>
       </div>
 
@@ -255,15 +257,15 @@ const RoomSettingsModal: React.FC<RoomSettingsModalProps> = ({
       {isHost && (
         <div className="space-y-4">
           <h4 className="text-md font-medium text-gray-900 dark:text-white">
-            Extend Room Time
+            {language.watchParty.roomSettings.expiration.extendRoomTime}
           </h4>
           <p className="text-sm text-gray-500 dark:text-gray-400">
-            Add more time to keep the room active longer
+            {language.watchParty.roomSettings.expiration.extendRoomTimeDescription}
           </p>
           
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
             <CustomButton
-              text="+ 1 Hour"
+              text={language.watchParty.roomSettings.expiration._1Hour}
               variant="outline"
               size="sm"
               disabled={extending}
@@ -271,7 +273,7 @@ const RoomSettingsModal: React.FC<RoomSettingsModalProps> = ({
               className="text-blue-600 dark:text-blue-400"
             />
             <CustomButton
-              text="+ 2 Hours"
+              text={language.watchParty.roomSettings.expiration._2Hours}
               variant="outline"
               size="sm"
               disabled={extending}
@@ -279,7 +281,7 @@ const RoomSettingsModal: React.FC<RoomSettingsModalProps> = ({
               className="text-blue-600 dark:text-blue-400"
             />
             <CustomButton
-              text="+ 4 Hours"
+              text={language.watchParty.roomSettings.expiration._4Hours}
               variant="outline"
               size="sm"
               disabled={extending}
@@ -287,7 +289,7 @@ const RoomSettingsModal: React.FC<RoomSettingsModalProps> = ({
               className="text-blue-600 dark:text-blue-400"
             />
             <CustomButton
-              text="+ 8 Hours"
+              text={language.watchParty.roomSettings.expiration._8Hours}
               variant="outline"
               size="sm"
               disabled={extending}
@@ -299,7 +301,7 @@ const RoomSettingsModal: React.FC<RoomSettingsModalProps> = ({
           {extending && (
             <div className="flex items-center gap-2 text-blue-600 dark:text-blue-400">
               <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600"></div>
-              <span className="text-sm">Extending room time...</span>
+              <span className="text-sm">{language.watchParty.roomSettings.expiration.extendingRoomTime}</span>
             </div>
           )}
 
@@ -308,13 +310,13 @@ const RoomSettingsModal: React.FC<RoomSettingsModalProps> = ({
               <FiClock className="text-yellow-600 dark:text-yellow-400 mt-0.5" size={16} />
               <div>
                 <h5 className="font-medium text-yellow-800 dark:text-yellow-300">
-                  Auto-Expiration Policy
+                  {language.watchParty.roomSettings.expiration.policy.title}
                 </h5>
                 <p className="text-sm text-yellow-700 dark:text-yellow-400 mt-1">
-                  • Rooms automatically close after 8 hours by default<br/>
-                  • Maximum extension is 8 additional hours per request<br/>
-                  • All participants will be notified when room expires<br/>
-                  • Room data will be permanently deleted after closure
+                  • {language.watchParty.roomSettings.expiration.policy.d1}<br/>
+                  • {language.watchParty.roomSettings.expiration.policy.d2}<br/>
+                  • {language.watchParty.roomSettings.expiration.policy.d3}<br/>
+                  • {language.watchParty.roomSettings.expiration.policy.d4}
                 </p>
               </div>
             </div>
@@ -328,10 +330,10 @@ const RoomSettingsModal: React.FC<RoomSettingsModalProps> = ({
             <FiShield className="text-gray-500 dark:text-gray-400" size={16} />
             <div>
               <div className="font-medium text-gray-900 dark:text-white">
-                Host Only
+                {language.watchParty.roomSettings.expiration.policy.fallback.title}
               </div>
               <div className="text-sm text-gray-500 dark:text-gray-400">
-                Only the room host can extend the expiration time. If you are the host, please join the room to extend the time.
+                {language.watchParty.roomSettings.expiration.policy.fallback.description}
               </div>
             </div>
           </div>
@@ -345,10 +347,10 @@ const RoomSettingsModal: React.FC<RoomSettingsModalProps> = ({
       <div className="flex items-center justify-between">
         <div>
           <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
-            Banned Users ({bannedUsers.length})
+            {language.watchParty.roomSettings.banList.title} ({bannedUsers.length})
           </h3>
           <p className="text-sm text-gray-500 dark:text-gray-400">
-            Manage users who have been banned from this room
+            {language.watchParty.roomSettings.banList.description}
           </p>
         </div>
         <button
@@ -356,7 +358,7 @@ const RoomSettingsModal: React.FC<RoomSettingsModalProps> = ({
           disabled={loading}
           className="text-sm text-blue-600 dark:text-blue-400 hover:underline disabled:opacity-50 transition-colors"
         >
-          {loading ? 'Loading...' : 'Refresh'}
+          {loading ? 'Loading...' : `${language.watchParty.roomSettings.banList.refresh}`}
         </button>
       </div>
 
@@ -367,8 +369,8 @@ const RoomSettingsModal: React.FC<RoomSettingsModalProps> = ({
       ) : bannedUsers.length === 0 ? (
         <div className="text-center py-12 text-gray-500 dark:text-gray-400">
           <FiUserMinus size={48} className="mx-auto mb-4 opacity-50" />
-          <p className="text-lg font-medium">No banned users</p>
-          <p className="text-sm">Users who get banned will appear here</p>
+          <p className="text-lg font-medium">{language.watchParty.roomSettings.banList.noBannedUsers}</p>
+          <p className="text-sm">{language.watchParty.roomSettings.banList.noBannedUsersDescription}</p>
         </div>
       ) : (
         <div className="space-y-3 max-h-96 overflow-y-auto">
@@ -396,7 +398,7 @@ const RoomSettingsModal: React.FC<RoomSettingsModalProps> = ({
               </div>
               
               <CustomButton
-                text={unbanning === user.id ? 'Unbanning...' : 'Unban'}
+                text={unbanning === user.id ? 'Unbanning...' : `${language.watchParty.roomSettings.banList.unban}`}
                 variant="outline"
                 size="sm"
                 disabled={unbanning === user.id}
@@ -414,10 +416,10 @@ const RoomSettingsModal: React.FC<RoomSettingsModalProps> = ({
     <div className="space-y-6">
       <div>
         <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
-          Room Information
+          {language.watchParty.roomSettings.general.title}
         </h3>
         <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">
-          Basic room settings and information
+          {language.watchParty.roomSettings.general.description}
         </p>
       </div>
 
@@ -425,7 +427,7 @@ const RoomSettingsModal: React.FC<RoomSettingsModalProps> = ({
         {/* Room Name */}
         <div>
           <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-            Room Name
+            {language.watchParty.roomSettings.general.roomName}
           </label>
           <CustomInput
             type="text"
@@ -439,7 +441,7 @@ const RoomSettingsModal: React.FC<RoomSettingsModalProps> = ({
         {/* Room Visibility */}
         <div>
           <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
-            Room Visibility
+            {language.watchParty.roomSettings.general.roomVisibility}
           </label>
           <div className="space-y-3">
             <label className="flex items-center">
@@ -451,9 +453,9 @@ const RoomSettingsModal: React.FC<RoomSettingsModalProps> = ({
                 className="mr-3 text-blue-600"
               />
               <div>
-                <div className="font-medium text-gray-900 dark:text-white">Public</div>
+                <div className="font-medium text-gray-900 dark:text-white">{language.watchParty.roomSettings.general.visibility.public}</div>
                 <div className="text-sm text-gray-500 dark:text-gray-400">
-                  Anyone can find and join this room
+                  {language.watchParty.roomSettings.general.visibility.publicDescription}
                 </div>
               </div>
             </label>
@@ -467,9 +469,9 @@ const RoomSettingsModal: React.FC<RoomSettingsModalProps> = ({
                 className="mr-3 text-blue-600"
               />
               <div>
-                <div className="font-medium text-gray-900 dark:text-white">Private</div>
+                <div className="font-medium text-gray-900 dark:text-white">{language.watchParty.roomSettings.general.visibility.private}</div>
                 <div className="text-sm text-gray-500 dark:text-gray-400">
-                  Only people with room code can join
+                  {language.watchParty.roomSettings.general.visibility.privateDescription}
                 </div>
               </div>
             </label>
@@ -479,7 +481,7 @@ const RoomSettingsModal: React.FC<RoomSettingsModalProps> = ({
         {/* Chat Settings */}
         <div>
           <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
-            Chat Settings
+            {language.watchParty.roomSettings.general.chat.title}
           </label>
           <label className="flex items-center">
             <input
@@ -489,9 +491,9 @@ const RoomSettingsModal: React.FC<RoomSettingsModalProps> = ({
               className="mr-3 text-blue-600"
             />
             <div>
-              <div className="font-medium text-gray-900 dark:text-white">Allow Chat</div>
+              <div className="font-medium text-gray-900 dark:text-white">{language.watchParty.roomSettings.general.chat.allowChat}</div>
               <div className="text-sm text-gray-500 dark:text-gray-400">
-                Let participants send messages in chat
+                {language.watchParty.roomSettings.general.chat.allowChatDescription}
               </div>
             </div>
           </label>
@@ -500,13 +502,13 @@ const RoomSettingsModal: React.FC<RoomSettingsModalProps> = ({
         {/* Room Information */}
         <div className="pt-6 border-t border-gray-200 dark:border-gray-700">
           <h4 className="text-md font-medium text-gray-900 dark:text-white mb-4">
-            Room Information
+            {language.watchParty.roomSettings.general.roomInformation.title}
           </h4>
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="bg-gray-200 dark:bg-gray-700 rounded-lg p-4">
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                Room Code
+                {language.watchParty.roomSettings.general.roomInformation.roomCode}
               </label>
               <div className="text-gray-900 dark:text-white font-mono text-lg">
                 {room.roomCode}
@@ -523,7 +525,7 @@ const RoomSettingsModal: React.FC<RoomSettingsModalProps> = ({
 
             <div className="bg-gray-200 dark:bg-gray-700 rounded-lg p-4">
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                Participants
+                {language.watchParty.roomSettings.general.roomInformation.participants}
               </label>
               <div className="text-gray-900 dark:text-white font-medium">
                 {room.participants?.length || 0} / {room.maxParticipants || 100}
@@ -535,19 +537,19 @@ const RoomSettingsModal: React.FC<RoomSettingsModalProps> = ({
         {/* Danger Zone */}
         <div className="pt-6 border-t border-red-200 dark:border-red-700">
           <h4 className="text-md font-medium text-red-600 dark:text-red-400 mb-4">
-            Danger Zone
+            {language.watchParty.roomSettings.general.roomInformation.dangerZone.title}
           </h4>
           
           <div className="bg-red-50 dark:bg-red-900/30 p-4 rounded-lg">
             <div className="flex items-start justify-between">
               <div>
-                <h5 className="font-medium text-red-800 dark:text-red-300">Close Room</h5>
+                <h5 className="font-medium text-red-800 dark:text-red-300">{language.watchParty.roomSettings.general.roomInformation.dangerZone.section.closeRoom.title}</h5>
                 <p className="text-sm text-red-600 dark:text-red-400 mt-1">
-                  Permanently close this room. All participants will be removed and the room cannot be reopened.
+                  {language.watchParty.roomSettings.general.roomInformation.dangerZone.section.closeRoom.description}
                 </p>
               </div>
               <CustomButton
-                text={loading ? 'Closing...' : 'Close Room'}
+                text={loading ? language.watchParty.roomSettings.general.roomInformation.dangerZone.section.closeRoom.closing : language.watchParty.roomSettings.general.roomInformation.dangerZone.section.closeRoom.close}
                 variant="danger"
                 size="sm"
                 disabled={loading}
@@ -561,7 +563,7 @@ const RoomSettingsModal: React.FC<RoomSettingsModalProps> = ({
         {/* Save Button */}
         <div className="flex justify-end pt-4">
           <CustomButton
-            text={saving ? 'Saving...' : 'Save Changes'}
+            text={saving ? 'Saving...' : language.watchParty.roomSettings.general.saveChanges}
             icon={<FiSave />}
             variant="primary"
             onClick={handleSaveSettings}

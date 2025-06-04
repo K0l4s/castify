@@ -8,7 +8,7 @@ import { useClickOutside } from '../../../hooks/useClickOutside';
 import ReportModal from '../../../components/modals/report/ReportModal';
 import { ReportType } from '../../../models/Report';
 import KickBanUserModal from '../../../components/modals/watchParty/KickBanUserModal';
-// import { useLanguage } from '../../../context/LanguageContext';
+import { useLanguage } from '../../../context/LanguageContext';
 
 interface WatchPartyChatProps {
   messages: ChatMessage[];
@@ -36,6 +36,7 @@ const WatchPartyChat: React.FC<WatchPartyChatProps> = ({
   onBanUser,
   onDeleteMessage
 }) => {
+  const { language } = useLanguage();
   const [message, setMessage] = useState('');
   const [contextMenu, setContextMenu] = useState<{
     visible: boolean;
@@ -224,7 +225,7 @@ const WatchPartyChat: React.FC<WatchPartyChatProps> = ({
     }
     
     return {
-      placeholder: "Type a message...",
+      placeholder: `${language.watchParty.chat.placeholder}`,
       disabled: false
     };
   };
@@ -237,7 +238,7 @@ const WatchPartyChat: React.FC<WatchPartyChatProps> = ({
       <div className="p-3 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center">
           <h3 className="font-semibold text-gray-900 dark:text-white flex items-center gap-2">
             <FiMessageCircle size={16} />
-            Chat
+            {language.watchParty.chat.header}
           </h3>
           <div className="flex items-center gap-2">
             {/* Chat status indicator */}
@@ -246,7 +247,7 @@ const WatchPartyChat: React.FC<WatchPartyChatProps> = ({
                 ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200' 
                 : 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'
             }`}>
-              {isConnected ? 'Connected' : 'Disconnected'}
+              {isConnected ? language.watchParty.chat.status.connected : language.watchParty.chat.status.disconnected}
             </span>
           </div>
         </div>
@@ -254,8 +255,8 @@ const WatchPartyChat: React.FC<WatchPartyChatProps> = ({
       <div className="flex-1 overflow-y-auto p-3 space-y-3">
         {messages.length === 0 ? (
           <div className="flex flex-col items-center justify-center h-full text-gray-500 dark:text-gray-400">
-            <p className="text-center">No messages yet</p>
-            <p className="text-sm text-center">Start the conversation!</p>
+            <p className="text-center">{language.watchParty.chat.noMessages}</p>
+            <p className="text-sm text-center">{language.watchParty.chat.startChat}</p>
           </div>
         ) : (
           messages.map((msg, index) => (
@@ -282,7 +283,7 @@ const WatchPartyChat: React.FC<WatchPartyChatProps> = ({
               <div className="flex items-center gap-2 text-yellow-800 dark:text-yellow-300">
                 <FiMessageCircle size={14} />
                 <span className="text-xs font-medium">
-                  Chat has been disabled by the host
+                  {language.watchParty.chat.disabledChat}
                 </span>
               </div>
             </div>
@@ -337,7 +338,7 @@ const WatchPartyChat: React.FC<WatchPartyChatProps> = ({
                 className="w-full px-4 py-2 text-left text-sm text-red-600 dark:text-red-400 hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center gap-2"
               >
                 <FiTrash2 size={14} />
-                Delete Message
+                {language.watchParty.chat.deleteMessage}
               </button>
               <hr className="my-1 border-gray-200 dark:border-gray-700" />
             </>
@@ -351,7 +352,7 @@ const WatchPartyChat: React.FC<WatchPartyChatProps> = ({
                 className="w-full px-4 py-2 text-left text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center gap-2"
               >
                 <FiFlag size={14} />
-                Report User
+                {language.watchParty.chat.reportUser}
               </button>
             </>
           )}
@@ -365,14 +366,14 @@ const WatchPartyChat: React.FC<WatchPartyChatProps> = ({
                 className="w-full px-4 py-2 text-left text-sm text-orange-600 dark:text-orange-400 hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center gap-2"
               >
                 <FiUserX size={14} />
-                Kick User
+                {language.watchParty.chat.kickUser}
               </button>
               <button
                 onClick={handleBan}
                 className="w-full px-4 py-2 text-left text-sm text-red-600 dark:text-red-400 hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center gap-2"
               >
                 <FiUserX size={14} />
-                Ban User
+                {language.watchParty.chat.banUser}
               </button>
             </>
           )}
@@ -414,6 +415,7 @@ const ChatMessageItem: React.FC<ChatMessageItemProps> = ({
   showContextMenu = false,
   currentUserId
 }) => {
+  const {language} = useLanguage();
   const timeAgo = useTimeAgo(message.timestamp!);
   
   // Handle system messages differently
@@ -469,7 +471,7 @@ const ChatMessageItem: React.FC<ChatMessageItemProps> = ({
         <div className="flex items-baseline gap-2 mb-1">
           <span className="font-semibold text-sm text-gray-900 dark:text-white">
             {message.username || "Anonymous"}
-            {isOwnMessage && <span className="text-xs text-gray-500 ml-1">(You)</span>}
+            {isOwnMessage && <span className="text-xs text-gray-500 ml-1">({language.watchParty.chat.you})</span>}
           </span>
           {timeAgo && (
             <span className="text-xs text-gray-500 dark:text-gray-400">

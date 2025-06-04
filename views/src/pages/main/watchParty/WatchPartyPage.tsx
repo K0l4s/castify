@@ -10,7 +10,7 @@ import { FiAlertCircle, FiLoader, FiSettings } from 'react-icons/fi';
 import CustomButton from '../../../components/UI/custom/CustomButton';
 import { FaCopy, FaDoorOpen, FaEye, FaPlus, FaSignInAlt, FaVideo } from 'react-icons/fa';
 import { formatDistanceToNow } from 'date-fns';
-// import { useLanguage } from '../../../context/LanguageContext';
+import { useLanguage } from '../../../context/LanguageContext';
 import WatchPartyPlayer from './WatchPartyPlayer';
 import WatchPartyParticipants from './WatchPartyParticipants';
 import WatchPartyChat from './WatchPartyChat';
@@ -31,6 +31,7 @@ import RoomExpirationTimer from '../../../components/modals/watchParty/RoomExpir
 import RoomSettingsModal from '../../../components/modals/watchParty/RoomSettingModal';
 
 const WatchPartyPage: React.FC = () => {
+  const { language } = useLanguage();
   const [searchParams] = useSearchParams();
   const podcastId = searchParams.get('pid');
   const roomCode = searchParams.get('room');
@@ -826,7 +827,7 @@ const WatchPartyPage: React.FC = () => {
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center gap-4">
           <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
-            Watch Party: {room?.roomName || 'Watch Party'}
+            {language.watchParty.page.prefix}: {room?.roomName || 'Watch Party'}
           </h1>
         </div>
 
@@ -840,7 +841,7 @@ const WatchPartyPage: React.FC = () => {
             />
             {isHost && (
               <CustomButton
-                text="Settings"
+                text={language.watchParty.page.setting}
                 icon={<FiSettings />}
                 variant="outline"
                 size="sm"
@@ -862,32 +863,32 @@ const WatchPartyPage: React.FC = () => {
         <div className="bg-blue-50 dark:bg-blue-900/30 p-4 rounded-lg flex flex-col md:flex-row justify-between items-start md:items-center mb-6">
           <div>
             <div className="flex items-center gap-2 mb-1">
-              <span className="font-medium text-blue-800 dark:text-blue-300">Room Code:</span>
+              <span className="font-medium text-blue-800 dark:text-blue-300">{language.watchParty.page.roomCode}:</span>
               <span className="bg-blue-100 dark:bg-blue-800 px-2 py-0.5 rounded text-blue-800 dark:text-blue-200 font-mono">
                 {room.roomCode}
               </span>
             </div>
             <div className="flex flex-col sm:flex-row sm:items-center gap-x-4 gap-y-1 text-sm text-gray-700 dark:text-gray-300">
               <div>
-                <span className="font-medium">Host:</span> {getHostDisplayName()}
+                <span className="font-medium">{language.watchParty.page.host}:</span> {getHostDisplayName()}
               </div>
               <div>
-                <span className="font-medium">Created:</span> {formatDistanceToNow(new Date(room.createdAt || room.lastUpdated), { addSuffix: true })}
+                <span className="font-medium">{language.watchParty.page.created}:</span> {formatDistanceToNow(new Date(room.createdAt || room.lastUpdated), { addSuffix: true })}
               </div>
               <div>
-                <span className="font-medium">Participants:</span> {room.participants?.length || 0}
+                <span className="font-medium">{language.watchParty.page.participants}:</span> {room.participants?.length || 0}
               </div>
             </div>
           </div>
           <div className="flex gap-2 mt-3 md:mt-0">
             <CustomButton
-              text="Copy Invite Link"
+              text={language.watchParty.page.copyLink}
               icon={<FaCopy />}
               variant="outline"
               onClick={copyInviteLink}
             />
             <CustomButton
-              text="Leave Room"
+              text={language.watchParty.page.leaveRoom}
               icon={<FaDoorOpen />}
               variant="danger"
               onClick={handleLeaveRoom}
@@ -935,13 +936,13 @@ const WatchPartyPage: React.FC = () => {
                           {podcast.user.fullname}
                         </span>
                         <span className="text-sm text-gray-700 dark:text-gray-300">
-                          <CounterAnimation value={totalFollower} /> follower
+                          <CounterAnimation value={totalFollower} /> {language.watchParty.page.follower}
                         </span>
                       </div>
 
                       {podcast.user.id !== currentUser?.id && (
                         <CustomButton
-                          text={follow ? "Unfollow" : "Follow"}
+                          text={follow ? `${language.watchParty.page.unfollow}` : `${language.watchParty.page.follow}`}
                           variant="ghost"
                           rounded="full"
                           onClick={handleFollow}
@@ -969,7 +970,7 @@ const WatchPartyPage: React.FC = () => {
                       <button 
                         onClick={handleLike}
                         className="flex items-center gap-1 px-3 py-2 rounded-full bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors"
-                        title="Like this podcast"
+                        title={liked ? language.watchParty.page.unlike : language.watchParty.page.like}
                       >
                         <HeartIcon 
                           filled={liked} 
@@ -994,7 +995,7 @@ const WatchPartyPage: React.FC = () => {
                         onClick={toggleDescription}
                         className="text-blue-600 dark:text-blue-300 font-medium mt-2"
                       >
-                        {isDescriptionExpanded ? 'Show less' : 'Show more'}
+                        {isDescriptionExpanded ? language.watchParty.page.showLess : language.watchParty.page.showMore}
                       </button>
                     )}
                   </div>
@@ -1003,7 +1004,7 @@ const WatchPartyPage: React.FC = () => {
             ) : podcast && !room ? (
               <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 border border-gray-200 dark:border-gray-700">
                 <h2 className="text-xl font-semibold text-black dark:text-white mb-4">
-                  Selected Podcast: {podcast.title}
+                  {language.watchParty.page.selectedPodcast}: {podcast.title}
                 </h2>
                 <img 
                   src={podcast.thumbnailUrl || "/TEST.png"} 
@@ -1017,7 +1018,7 @@ const WatchPartyPage: React.FC = () => {
                 </p>
                 <div className="flex justify-center">
                   <CustomButton
-                    text="Create Watch Party"
+                    text={language.watchParty.page.create}
                     icon={<FaPlus />}
                     variant="primary"
                     onClick={() => setIsCreateModalOpen(true)}
@@ -1036,19 +1037,19 @@ const WatchPartyPage: React.FC = () => {
                 <div className="flex flex-col items-center text-center p-8">
                   <FaVideo className="text-gray-400 dark:text-gray-600 mb-4" size={64} />
                   <h2 className="text-xl font-semibold text-black dark:text-white mb-2">
-                    Start a Watch Party
+                    {language.watchParty.page.fallback.text1}
                   </h2>
                   <p className="text-gray-600 dark:text-gray-400 mb-6 max-w-md">
-                    Select a podcast to watch or join an existing watch party room
+                    {language.watchParty.page.fallback.text2}
                   </p>
                   <div className="flex flex-col sm:flex-row gap-3">
                     <CustomButton
-                      text="Browse Podcasts"
+                      text={language.watchParty.page.browse}
                       variant="primary"
                       onClick={() => navigate('/')}
                     />
                     <CustomButton
-                      text="Join Room"
+                      text={language.watchParty.page.join}
                       icon={<FaSignInAlt />}
                       variant="secondary"
                       onClick={() => setIsJoinModalOpen(true)}
@@ -1112,7 +1113,7 @@ const WatchPartyPage: React.FC = () => {
         onClose={handleKickBanModalClose}
       />
 
-      {/* ✅ Change Podcast Modal */}
+      {/* Change Podcast Modal */}
       <ChangePodcastModal
         isOpen={isChangePodcastModalOpen}
         onClose={() => setIsChangePodcastModalOpen(false)}
@@ -1128,7 +1129,7 @@ const WatchPartyPage: React.FC = () => {
               <div className="flex items-center gap-2">
                 <FiAlertCircle className="text-red-500" size={24} />
                 <h2 className="text-xl font-bold text-red-600 dark:text-red-400">
-                  Room Closed
+                  {language.watchParty.page.closedModal.title}
                 </h2>
               </div>
             </div>
@@ -1136,11 +1137,11 @@ const WatchPartyPage: React.FC = () => {
             <div className="space-y-4">
               <div className="bg-red-50 dark:bg-red-900/30 p-4 rounded-lg">
                 <p className="text-gray-900 dark:text-white mb-2">
-                  <strong>Room:</strong> {roomClosedNotification.roomName}
+                  <strong>{language.watchParty.page.closedModal.room}:</strong> {roomClosedNotification.roomName}
                 </p>
                 {roomClosedNotification.closedBy && (
                   <p className="text-gray-900 dark:text-white mb-2">
-                    <strong>Closed by:</strong> {roomClosedNotification.closedBy}
+                    <strong>{language.watchParty.page.closedModal.closedBy}:</strong> {roomClosedNotification.closedBy}
                   </p>
                 )}
                 <p className="text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 p-3 rounded border italic">
@@ -1151,7 +1152,7 @@ const WatchPartyPage: React.FC = () => {
 
             <div className="mt-6 flex justify-center">
               <CustomButton
-                text="Return to Home"
+                text={language.watchParty.page.closedModal.returnHome}
                 variant="primary"
                 onClick={handleRoomClosedModalClose}
               />

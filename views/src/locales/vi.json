@@ -123,5 +123,180 @@
         "createdAt": "Ngày tạo",
         "name": "Tên",
         "description": "Mô tả"
+    },
+    "watchParty": {
+        "page": {
+            "prefix": "Xem chung",
+            "roomCode": "Mã Phòng",
+            "host": "Chủ phòng",
+            "created": "Đã tạo",
+            "participants": "Thành viên",
+            "copyLink": "Sao chép liên kết mời",
+            "leaveRoom": "Rời phòng",
+            "roomExpires": "Phòng sẽ hết hạn trong",
+            "roomExpired": "Phòng đã hết hạn",
+            "settings": "Cài đặt",
+            "follower": "Người theo dõi",
+            "follow": "Theo dõi",
+            "unfollow": "Bỏ theo dõi",
+            "like": "Thích",
+            "unlike": "Bỏ thích",
+            "showMore": "Xem Thêm",
+            "showLess": "Xem Ít Hơn",
+            "selectedPodcast": "Podcast Đã Chọn",
+            "create": "Tạo Phòng Xem Chung",
+            "fallback": {
+                "text1": "Bắt đầu một phòng xem chung",
+                "text2": "Chọn một podcast để xem hoặc tham gia một phòng xem chung hiện có"
+            },
+            "browse": "Duyệt Podcast",
+            "join": "Tham gia phòng",
+            "closedModal": {
+                "title": "Phòng đã đóng",
+                "room": "Phòng",
+                "closedBy": "Đã đóng bởi",
+                "returnHome": "Trở về trang chủ"
+            },
+            "setting": "Cài đặt"
+        },
+        "participant": {
+            "header": "Thành viên",
+            "host": "Chủ phòng",
+            "you": "Bạn",
+            "reportUser": "Báo cáo",
+            "kickUser": "Mời ra khỏi phòng",
+            "banUser": "Cấm người dùng",
+            "note": "Chưa có thành viên :(. Chia sẻ mã phòng để mời bạn bè cùng xem nào!",
+            "joined": "Đã tham gia"
+
+        },
+        "chat": {
+            "header": "Trò chuyện",
+            "placeholder": "Nhập tin nhắn...",
+            "status": {
+                "connecting": "Đang kết nối...",
+                "connected": "Đã kết nối",
+                "disconnected": "Mất kết nối",
+                "reconnecting": "Đang kết nối lại..."
+            },
+            "you": "Bạn",
+            "deleteMessage": "Xóa tin nhắn",
+            "noMessages": "Chưa có tin nhắn nào",
+            "startChat": "Bắt đầu cuộc trò chuyện!",
+            "disabledChat": "Trò chuyện đã bị vô hiệu hóa bởi chủ phòng",
+            "reportUser": "Báo cáo",
+            "kickUser": "Mời ra khỏi phòng",
+            "banUser": "Cấm người dùng"
+        },
+        "player": {
+            "play": "Phát",
+            "pause": "Tạm dừng",
+            "stop": "Dừng",
+            "mute": "Tắt tiếng",
+            "unmute": "Bỏ tắt tiếng",
+            "fullscreen": "Toàn màn hình",
+            "exitFullscreen": "Thoát chế độ toàn màn hình",
+            "host": "Chủ phòng",
+            "changeSource": "Thay đổi nguồn",
+            "clickToStart": "Nhấp để bắt đầu xem",
+            "note": "Trình duyệt của bạn yêu cầu tương tác để phát video. Nhấp vào bất kỳ đâu để tham gia phiên.",
+            "startWatching": "Bắt đầu xem",
+            "onlyHost": "Chỉ chủ phòng mới có thể điều khiển phát lại"
+        },
+        "expireTimer": {
+            "roomExpiresIn": "Phòng sẽ hết hạn trong",
+            "expired": "Đã hết hạn",
+            "extend": "Kéo dài thời gian",
+            "extending": "Đang kéo dài thời gian phòng...",
+            "warning": "Phòng sẽ đóng sau khoảng 5 phút khi hết hạn."
+        },
+        "roomSettings": {
+            "title": "Cài đặt phòng",
+            "settingsSaved": "Cài đặt đã được lưu thành công",
+            "tab": {
+                "general": {
+                    "title": "Chung",
+                    "description": "Cài đặt phòng"
+                },
+                "expiration": {
+                    "title": "Quản lý thời gian",
+                    "description": "Cài đặt thời gian phòng"
+                },
+                "banList": {
+                    "title": "Danh sách cấm",
+                    "description": "Quản lý người dùng bị cấm"
+                }
+            },
+            "expiration": {
+                "title": "Quản lý thời gian phòng",
+                "description": "Quản lý thời gian tự động đóng phòng",
+                "extendRoomTime": "Kéo dài thời gian phòng",
+                "extendRoomTimeDescription": "Thêm thời gian để giữ cho phòng hoạt động lâu hơn",
+                "_1Hour": "+ 1 Giờ",
+                "_2Hours": "+ 2 Giờ",
+                "_4Hours": "+ 4 Giờ",
+                "_8Hours": "+ 8 Giờ",
+                "extending": "Đang kéo dài thời gian phòng...",
+                "policy": {
+                    "title": "Chính sách thời gian tự động",
+                    "d1": "Phòng sẽ tự động đóng sau 8 giờ theo mặc định",
+                    "d2": "Thời gian kéo dài tối đa là 8 giờ bổ sung cho mỗi yêu cầu",
+                    "d3": "Tất cả người tham gia sẽ được thông báo khi phòng hết thời gian",
+                    "d4": "Dữ liệu phòng sẽ bị xóa vĩnh viễn sau khi đóng",
+                    "fallback": {
+                        "title": "Chỉ dành cho chủ phòng",
+                        "description": "Chỉ có chủ phòng mới có thể kéo dài thời gian hết hạn. Nếu bạn là chủ phòng, vui lòng tham gia phòng để kéo dài thời gian."
+                    }
+                    
+                }
+            }, 
+            "banList": {
+                "title": "Danh sách người dùng bị cấm",
+                "description": "Quản lý người dùng bị cấm khỏi phòng này",
+                "noBannedUsers": "Chưa có người dùng nào bị cấm",
+                "noBannedUsersDescription": "Người dùng bị cấm sẽ xuất hiện ở đây",
+                "ban": "Cấm người dùng",
+                "unban": "Bỏ cấm",
+                "bannedBy": "Bị cấm bởi",
+                "bannedAt": "Bị cấm vào lúc",
+                "refresh": "Làm mới"
+            },
+            "general": {
+                "title": "Cài đặt chung",
+                "description": "Cấu hình cài đặt chung cho phòng xem của bạn",
+                "roomName": "Tên phòng",
+                "roomDescription": "Mô tả phòng",
+                "saveChanges": "Lưu thay đổi",
+                "changesSaved": "Thay đổi đã được lưu thành công",
+                "roomVisibility": "Quyền riêng tư",
+                "visibility": {
+                    "public": "Công khai",
+                    "publicDescription": "Bất kỳ ai cũng có thể tìm thấy và tham gia phòng này",
+                    "private": "Riêng tư",
+                    "privateDescription": "Chỉ người dùng được mời hoặc người có mã phòng mới có thể tham gia phòng này"
+                },
+                "chat": {
+                    "title": "Cài đặt trò chuyện",
+                    "allowChat": "Cho phép trò chuyện",
+                    "allowChatDescription": "Cho phép người tham gia gửi tin nhắn trong trò chuyện"
+                },
+                "roomInformation": {
+                    "title": "Thông tin phòng",
+                    "roomCode": "Mã phòng",
+                    "participants": "Người tham gia",
+                    "dangerZone": {
+                        "title": "Khu vực nguy hiểm",
+                        "section": {
+                            "closeRoom": {
+                                "title": "Đóng phòng xem chung",
+                                "description": "Đóng phòng này vĩnh viễn. Tất cả người tham gia sẽ bị xóa và phòng không thể được mở lại.",
+                                "closing": "Đang đóng",
+                                "close": "Đóng"
+                            }
+                        }
+                    }
+                }
+            }
+        }
     }
 }
