@@ -30,4 +30,16 @@ public class CreatorDashboardController {
         }
 //        return ResponseEntity.ok(dashboardService.getCreatorDashboard());
     }
+    @GetMapping("/graph")
+    private ResponseEntity<?> getGraphData(
+            @RequestParam(value = "startDate", required = false) LocalDateTime startDate,
+            @RequestParam(value = "endDate", required = false) LocalDateTime endDate
+    ) throws Exception {
+        try{
+            return ResponseEntity.ok(dashboardService.getPodcastStaticsGraphDataByDate(startDate,endDate));
+        }catch (Exception ex){
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Error"+ex.getMessage());
+        }
+//        return ResponseEntity.ok(dashboardService.getCreatorDashboard());
+    }
 }
