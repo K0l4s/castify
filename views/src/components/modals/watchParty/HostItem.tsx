@@ -2,6 +2,7 @@ import React from 'react';
 import { FaCrown, FaEllipsisV } from 'react-icons/fa';
 import Avatar from '../../UI/user/Avatar';
 import defaultAvatar from "../../../assets/images/default_avatar.jpg";
+import { useLanguage } from '../../../context/LanguageContext';
 
 interface HostItemProps {
   hostParticipant: any;
@@ -16,6 +17,8 @@ const HostItem: React.FC<HostItemProps> = ({
   onMenuClick,
   getDisplayName
 }) => {
+  const { language } = useLanguage();
+
   return (
     <div 
       className={`group flex items-center gap-2 p-2 rounded-lg ${
@@ -38,11 +41,11 @@ const HostItem: React.FC<HostItemProps> = ({
           </span>
           <FaCrown className="text-yellow-500" size={14} />
           <span className="text-xs bg-blue-100 dark:bg-blue-800 text-blue-800 dark:text-blue-100 px-2 py-0.5 rounded-full ml-1">
-            Host
+            {language.watchParty.participant.host}
           </span>
           {hostParticipant.userId === currentUserId && (
             <span className="text-xs bg-green-100 dark:bg-green-800 text-green-800 dark:text-green-100 px-2 py-0.5 rounded-full ml-1">
-              You
+              {language.watchParty.participant.you}
             </span>
           )}
         </div>

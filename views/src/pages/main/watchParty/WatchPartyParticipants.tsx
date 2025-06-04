@@ -9,6 +9,7 @@ import { ReportType } from '../../../models/Report';
 import ReportModal from '../../../components/modals/report/ReportModal';
 import KickBanUserModal from '../../../components/modals/watchParty/KickBanUserModal';
 import { FaUsers } from 'react-icons/fa';
+import { useLanguage } from '../../../context/LanguageContext';
 
 interface WatchPartyParticipantsProps {
   room: WatchPartyRoom;
@@ -26,6 +27,7 @@ const WatchPartyParticipants: React.FC<WatchPartyParticipantsProps> = ({
   onKickUser,
   onBanUser,
 }) => {
+  const { language } = useLanguage();
   const [isExpanded, setIsExpanded] = useState(false);
 
   const [contextMenu, setContextMenu] = useState<{
@@ -191,7 +193,7 @@ const WatchPartyParticipants: React.FC<WatchPartyParticipantsProps> = ({
           >
             <h3 className="font-semibold text-gray-900 dark:text-white flex items-center gap-2">
               <FaUsers size={16} />
-              Participants ({participants.length})
+              {language.watchParty.participant.header} ({participants.length})
               <span className={`transition-transform duration-300 ${isExpanded ? 'rotate-180' : 'rotate-0'}`}>
                 <FiChevronDown size={16} />
               </span>
@@ -252,7 +254,7 @@ const WatchPartyParticipants: React.FC<WatchPartyParticipantsProps> = ({
               
             {participants.length <= 1 && (
               <div className="text-center py-4 text-gray-500 dark:text-gray-400 text-sm">
-                No other participants yet. Share the room code to invite friends!
+                {language.watchParty.participant.note}
               </div>
             )}
           </div>
@@ -275,7 +277,7 @@ const WatchPartyParticipants: React.FC<WatchPartyParticipantsProps> = ({
             className="w-full px-4 py-2 text-left text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center gap-2"
           >
             <FiFlag size={14} />
-            Report User
+            {language.watchParty.participant.reportUser}
           </button>
 
           {/* Host options (only for hosts) */}
@@ -287,14 +289,14 @@ const WatchPartyParticipants: React.FC<WatchPartyParticipantsProps> = ({
                 className="w-full px-4 py-2 text-left text-sm text-orange-600 dark:text-orange-400 hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center gap-2"
               >
                 <FiUserX size={14} />
-                Kick User
+                {language.watchParty.participant.kickUser}
               </button>
               <button
                 onClick={handleBan}
                 className="w-full px-4 py-2 text-left text-sm text-red-600 dark:text-red-400 hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center gap-2"
               >
                 <FiUserX size={14} />
-                Ban User
+                {language.watchParty.participant.banUser}
               </button>
             </>
           )}

@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { FiClock, FiAlertTriangle } from 'react-icons/fi';
 import CustomButton from '../../UI/custom/CustomButton';
 import WatchPartyService from '../../../services/WatchPartyService';
+import { useLanguage } from '../../../context/LanguageContext';
 
 interface RoomExpirationTimerProps {
   roomId: string;
@@ -14,6 +15,8 @@ const RoomExpirationTimer: React.FC<RoomExpirationTimerProps> = ({
   isHost,
   onExtend
 }) => {
+  const {language} = useLanguage();
+
   const [expirationInfo, setExpirationInfo] = useState<{
     minutesRemaining: number;
     isExpiringSoon: boolean;
@@ -35,7 +38,7 @@ const RoomExpirationTimer: React.FC<RoomExpirationTimerProps> = ({
   // Handle real-time expiration updates
   useEffect(() => {
     const expirationUpdateListener = (data: any) => {
-      console.log('Expiration timer received update:', data);
+      // console.log('Expiration timer received update:', data);
       
       if (data.roomId === roomId) {
         // Calculate new minutes remaining
@@ -95,7 +98,7 @@ const RoomExpirationTimer: React.FC<RoomExpirationTimerProps> = ({
   const { minutesRemaining, isExpiringSoon, canExtend } = expirationInfo;
   
   const formatTimeRemaining = (minutes: number) => {
-    if (minutes <= 0) return "Expired";
+    if (minutes <= 0) return `${language.watchParty.expireTimer.expired}`;
     
     const hours = Math.floor(minutes / 60);
     const mins = minutes % 60;
@@ -124,24 +127,25 @@ const RoomExpirationTimer: React.FC<RoomExpirationTimerProps> = ({
               ? 'text-yellow-800 dark:text-yellow-300' 
               : 'text-blue-800 dark:text-blue-300'
           }`}>
-            Room expires in: <span className="font-mono">{formatTimeRemaining(minutesRemaining)}</span>
+            {language.watchParty.expireTimer.roomExpiresIn}: <span className="font-mono">{formatTimeRemaining(minutesRemaining)}</span>
           </span>
         </div>
         
         {isHost && canExtend && isExpiringSoon && (
           <CustomButton
-            text={extending ? "Extending..." : "Extend"}
+            text={extending ? language.watchParty.expireTimer.extending : language.watchParty.expireTimer.extend}
             size="sm"
             variant="outline"
             onClick={handleExtend}
             disabled={extending}
+            className='ml-2'
           />
         )}
       </div>
       
       {isExpiringSoon && (
         <p className="text-xs text-yellow-700 dark:text-yellow-300 mt-1">
-          ⚠️ Room will be closed about 5 minutes after time expires
+          ⚠️ {language.watchParty.expireTimer.warning}
         </p>
       )}
     </div>
