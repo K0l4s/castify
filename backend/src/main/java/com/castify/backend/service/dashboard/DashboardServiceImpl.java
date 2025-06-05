@@ -15,7 +15,6 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -193,5 +192,8 @@ public class DashboardServiceImpl implements IDashboardService{
 
         return result;
     }
-
+    @Override
+    public Map<String, Object> getAdminStaticsGraphDataByDate(LocalDateTime start, LocalDateTime end) throws Exception {
+        return dashboardTemplate.getPodcastStatisticsGraphDataByDateForAllUsers(start,end);
+    }
 }
