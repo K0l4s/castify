@@ -15,10 +15,18 @@ import defaultAvatar from "../../../assets/images/default_avatar.jpg";
 import { DateRange } from "react-date-range";
 import "react-date-range/dist/styles.css";
 import "react-date-range/dist/theme/default.css";
+import PodcastStatsChart from "../../creator/ladingPage/PodcastStatsChart";
 
 const AdminLadingPage = () => {
   const navigate = useNavigate();
   const toast = useToast();
+  const [stats, setStats] = useState<{
+    labels: string[];
+    views: number[];
+    likes: number[];
+    comments: number[];
+  } | null>(null);
+
   const [dashboard, setDashboard] = useState<DashboardModel>({
     newUsers: [],
     newPodcasts: [],
@@ -66,6 +74,20 @@ const AdminLadingPage = () => {
         formatLocalDateTime(endDate)
       );
       setDashboard(response.data);
+    } catch (error) {
+      console.error("Failed to fetch dashboard information", error);
+      toast.error("Failed to fetch dashboard information");
+    }
+  };
+  const fetchGraph = async (startDate: string, endDate: string) => {
+    try {
+      const response = await DashboardService.getAdminGraphDashboard(
+        formatLocalDateTime(startDate),
+        formatLocalDateTime(endDate)
+      );
+      console.log(response.data);
+      setStats(response.data)
+      // setDashboard(response.data);
     } catch (error) {
       console.error("Failed to fetch dashboard information", error);
       toast.error("Failed to fetch dashboard information");
@@ -131,6 +153,7 @@ const AdminLadingPage = () => {
 
     fetchDashboard(startDate.toISOString(), endDate.toISOString());
     fetchPrevDashboard(prevStartDate.toISOString(), prevEndDate.toISOString());
+    fetchGraph(startDate.toISOString(), endDate.toISOString());
     // eslint-disable-next-line
   }, [dateRange]);
 
@@ -148,13 +171,13 @@ const AdminLadingPage = () => {
             </p>
           </div>
           <div className="flex items-center gap-3">
-             <button
+            <button
               onClick={resetThisYear}
               className="px-5 py-2 bg-gradient-to-r from-blue-500 to-indigo-500 hover:from-blue-600 hover:to-indigo-600 text-white rounded-lg shadow-lg font-semibold transition-all duration-300"
             >
               This year
             </button>
-             <button
+            <button
               onClick={resetThisMonth}
               className="px-5 py-2 bg-gradient-to-r from-blue-500 to-indigo-500 hover:from-blue-600 hover:to-indigo-600 text-white rounded-lg shadow-lg font-semibold transition-all duration-300"
             >
@@ -294,7 +317,14 @@ const AdminLadingPage = () => {
             </div>
           </div>
         </div>
-
+        <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-xl transition-all duration-300 h-full">
+          <PodcastStatsChart
+            labels={stats?.labels ?? []}
+            views={stats?.views ?? []}
+            likes={stats?.likes ?? []}
+            comments={stats?.comments ?? []}
+          />
+        </div>
         {/* New Users & Podcasts */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mt-10">
           {/* New Users */}
