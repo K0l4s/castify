@@ -13,4 +13,7 @@ public interface IDashboardService {
     Map<String, Object> getCreatorDashboard(LocalDateTime start, LocalDateTime end) throws Exception;
 
     Map<String, Object> getPodcastStaticsGraphDataByDate(LocalDateTime start, LocalDateTime end) throws Exception;
+
+    Map<String, Object> getAdminStaticsGraphDataByDate(LocalDateTime start, LocalDateTime end) throws Exception;
+
 }
