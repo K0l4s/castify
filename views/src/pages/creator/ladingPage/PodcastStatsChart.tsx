@@ -175,7 +175,7 @@ const PodcastStatsChart: React.FC<PodcastStatsChartProps> = ({ labels, views, li
                     <option className="bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100" value="radar">Radar</option>
                     <option className="bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100" value="doughnut">Doughnut</option>
                 </select>
-                <div className="flex items-center ml-6 gap-2">
+                <div className="flex items-center ml-6 gap-2  text-black dark:text-white">
                     <input
                         type="checkbox"
                         id="check-all"
