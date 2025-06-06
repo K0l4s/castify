@@ -30,8 +30,8 @@ const FollowingSidebar: React.FC<FollowingSidebarProps> = ({ isOpen }) => {
   const [error, setError] = useState<string | null>(null);
   const [expanded, setExpanded] = useState<boolean>(false);
   const navigate = useNavigate();
-  const {language} = useLanguage();
-  
+  const { language } = useLanguage();
+
   const isAuthenticated = useSelector((state: RootState) => state.auth.isAuthenticated);
   const currentUser = useSelector((state: RootState) => state.auth.user);
 
@@ -41,18 +41,18 @@ const FollowingSidebar: React.FC<FollowingSidebarProps> = ({ isOpen }) => {
         setLoading(false);
         return;
       }
-      
+
       try {
         setLoading(true);
         const response = await userService.getFollowings(currentUser.username, 0, 10);
         setFollowingUsers(response.data.data);
         setLoading(false);
       } catch (err) {
-        console.error('Error fetching following users:', err);
         setError('Failed to load following users');
         setLoading(false);
       }
     };
+
 
     fetchFollowingUsers();
   }, [isAuthenticated, currentUser]);
@@ -66,7 +66,7 @@ const FollowingSidebar: React.FC<FollowingSidebarProps> = ({ isOpen }) => {
   };
 
   if (!isAuthenticated) return null;
-  
+
   if (loading) {
     return (
       <div className="mt-4">
@@ -115,8 +115,8 @@ const FollowingSidebar: React.FC<FollowingSidebarProps> = ({ isOpen }) => {
   const displayUsers = expanded ? followingUsers : followingUsers.slice(0, 5);
 
   return (
-    <div className="mt-4 px-2">
-      <div className="h-[1px] w-full bg-black dark:bg-gray-200 my-4"></div>
+    <div className=" px-2">
+      <div className="h-px w-full bg-gradient-to-r from-transparent via-gray-300 to-transparent dark:via-gray-600 my-4"></div>
 
       <div className="flex items-center justify-between mb-2">
         <p className="text-sm text-black dark:text-gray-200 font-medium">
@@ -148,7 +148,7 @@ const FollowingSidebar: React.FC<FollowingSidebarProps> = ({ isOpen }) => {
 
       {/* Only show the toggle button if there are more than 5 users and sidebar is open */}
       {isOpen && followingUsers.length > 5 && (
-        <button 
+        <button
           onClick={toggleExpand}
           className="w-full mt-2 py-1 text-xs text-blue-500 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 flex items-center justify-center"
         >
