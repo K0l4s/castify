@@ -120,7 +120,7 @@ const MainConversation = () => {
       const newMessage: Message = object;
       setMessages((prev) => [newMessage, ...prev]);
       // if (id)
-      console.log("Id"+id)
+      console.log("Id" + id)
       conversationService.readMsg(id?.toString() || "")
       window.scrollTo(0, document.body.scrollHeight);
     }
@@ -208,73 +208,93 @@ const MainConversation = () => {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
   return (
-    <div className="w-full min-h-full bg-gray-100 dark:bg-gray-800 relative flex">
-      <div className="flex-1">
-        <div className="flex items-center justify-between w-full px-4 py-2 bg-white border-b dark:bg-gray-900 dark:border-gray-700 sticky top-[65px] z-10">
-          <div className="flex items-center gap-2">
+    <div className="w-full min-h-screen bg-gray-100 dark:bg-gray-900 relative flex">
+      <div className="flex-1 flex flex-col">
+        {/* Header */}
+        <div className="flex items-center justify-between w-full px-6 py-3 bg-white dark:bg-gray-800 border-b dark:border-gray-700 sticky top-[65px] z-10 shadow-sm">
+          <div className="flex items-center gap-3">
             <img
-              src={chatDetail.imageUrl ? chatDetail.imageUrl : "https://img.freepik.com/free-photo/people-office-work-day_23-2150690162.jpg"}
+              src={chatDetail.imageUrl || "https://img.freepik.com/free-photo/people-office-work-day_23-2150690162.jpg"}
               alt=""
-              className="w-10 h-10 rounded-full object-cover"
+              className="w-11 h-11 rounded-full object-cover hover:scale-105 transition-transform duration-300 shadow-sm"
             />
             <h1 className="text-lg font-semibold text-gray-900 dark:text-white">{chatDetail.title}</h1>
           </div>
-          <div className="flex items-center gap-2">
-            <button
-              onClick={() => setShowInfo(!showInfo)}
-              className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-full"
-            >
-              <BsInfoCircle size={24} className="text-gray-500" />
-            </button>
-          </div>
+          <button
+            onClick={() => setShowInfo(!showInfo)}
+            className="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
+          >
+            <BsInfoCircle size={24} className="text-gray-500" />
+          </button>
         </div>
+
+        {/* Chat Messages */}
         <div
           id="chat-container"
-          className="flex flex-col gap-2 p-4 min-h-screen overflow-y-auto">
+          className="flex-1 flex flex-col gap-3 p-4 overflow-y-auto"
+        >
           {messages.slice().reverse().map((msg) => (
             <MessageItem
               key={msg.id}
               msg={msg}
               members={members}
               currentUser={currentUser}
-            />)
-          )}
-          {messages.length < 1 &&
-            <div className="flex flex-col items-center justify-center h-full absolute top-0 left-0 right-0 bottom-0">
+            />
+          ))}
+
+          {/* Empty State */}
+          {messages.length < 1 && (
+            <div className="flex flex-col items-center justify-center absolute inset-0">
               <img
                 src="https://cdn.pixabay.com/animation/2023/06/13/15/13/15-13-25-972_512.gif"
                 alt=""
-                className="w-32 h-32 rounded-full mb-4 animate-bounce"
+                className="w-32 h-32 rounded-full mb-6 animate-bounce"
               />
-              <h1 className="text-xl font-semibold text-gray-500 dark:text-gray-400 p-10 text-center">Ở đây hơi trống trải, hãy thử gửi tin nhắn đầu tiên xem nào!</h1>
+              <h1 className="text-xl font-medium text-gray-500 dark:text-gray-400 px-10 text-center">
+                Ở đây hơi trống trải, hãy thử gửi tin nhắn đầu tiên xem nào!
+              </h1>
             </div>
-          }
+          )}
         </div>
-        {isFeching && pageNumber > 1 && pageNumber <= totalPage &&
-          <div className="flex justify-center flex-col items-center fixed z-10 top-20 left-0 right-0">
-            <VscLoading className="animate-spin" color="gray" />
-            <p className="text-gray-500">Đang tải thêm...</p>
+
+        {/* Loading More */}
+        {isFeching && pageNumber > 1 && pageNumber <= totalPage && (
+          <div className="flex justify-center items-center fixed top-24 left-0 right-0 z-10">
+            <VscLoading className="animate-spin text-gray-500" size={24} />
+            <p className="text-gray-500 ml-2">Đang tải thêm...</p>
           </div>
-        }
-        <div className="sticky bottom-0 left-0 w-full bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 p-2 shadow-md">
-          <div className="flex items-center gap-2">
+        )}
+
+        {/* Input */}
+        <div className="sticky bottom-0 left-0 w-full bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 p-3 shadow-md z-10">
+          <div className="flex items-center gap-3">
             <textarea
               id="message"
-              placeholder="Type your message here..."
-              className="flex-1 p-3 rounded-lg border text-black dark:text-white bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400"
-              onKeyDown={(e) => e.key === "Enter" && sendMessage()}
+              placeholder="Nhập tin nhắn..."
+              className="flex-1 p-3 rounded-lg border text-gray-900 dark:text-white bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 resize-none"
+              rows={1}
+              onKeyDown={(e) => e.key === "Enter" && !e.shiftKey && sendMessage()}
             />
             <button
-              className="p-3 bg-blue-500 rounded-lg bg-transparent absolute right-5 text-blue-500"
+              className="p-3 rounded-full bg-blue-500 hover:bg-blue-600 text-white transition-colors"
               onClick={sendMessage}
             >
-              <TbSend size={24} />
+              <TbSend size={20} />
             </button>
           </div>
         </div>
       </div>
-      <ChatSettingSidebar isShow={showInfo} chatDetail={chatDetail} memberList={members} setChatDetail={setChatDetail} setMemberList={setMembers} />
+
+      {/* Sidebar */}
+      <ChatSettingSidebar
+        isShow={showInfo}
+        chatDetail={chatDetail}
+        memberList={members}
+        setChatDetail={setChatDetail}
+        setMemberList={setMembers}
+      />
     </div>
+
   );
 };
 

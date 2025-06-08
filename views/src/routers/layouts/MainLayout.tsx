@@ -14,14 +14,20 @@ const MainLayout = () => {
     trackService.trackVisitor(location.pathname);
   }, [location.pathname]); // Gửi request mỗi khi URL thay đổi
   return (
-    <>
-      <MainHeader />
-      <MainSidebar />
+   <div className="">
+  <MainHeader />
+  <div className="flex bg-gradient-to-br from-blue-50 via-white to-pink-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 overflow-x-hidden w-full">
+    <MainSidebar />
+    <div
+      className={`py-2 min-h-screen duration-300 ease-in-out px-4 sm:px-2 lg:px-3 max-w-full w-full ${
+        isOpenSideBar ? 'ml-60' : 'ml-10'
+      }`}
+    >
+      <Outlet />
+    </div>
+  </div>
+</div>
 
-      <div className={`bg-gray-50 dark:bg-gray-900 py-2 min-h-screen duration-300 ease-in-out ${isOpenSideBar ? "ml-60" : "ml-[20px]"}  mx-auto px-4 sm:px-6 lg:px-11`}>
-        <Outlet />
-      </div>
-    </>
   )
 }
 
