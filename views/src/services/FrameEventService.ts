@@ -1,5 +1,5 @@
 import { CreateFrameEventModel } from "../models/FrameModel";
-import { axiosInstanceAuth } from "../utils/axiosInstance";
+import { axiosInstance, axiosInstanceAuth } from "../utils/axiosInstance";
 
 export const createFrameEvent = async (data: CreateFrameEventModel, images: File[]) => {
   const formData = new FormData();
@@ -10,6 +10,16 @@ export const createFrameEvent = async (data: CreateFrameEventModel, images: File
     const response = await axiosInstanceAuth.post("/api/admin/v1/frame/event/create", formData, {
       headers: { "Content-Type": "multipart/form-data" }
     });
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};
+
+export const getCurrentActiveFrame = async () => {
+
+  try {
+    const response = await axiosInstance.get("/api/v1/frame/event",);
     return response.data;
   } catch (error) {
     throw error;

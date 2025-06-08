@@ -4,6 +4,7 @@ import com.castify.backend.models.frame.FrameModel;
 import com.castify.backend.models.frame.UploadFrameRequest;
 import com.castify.backend.models.ErrorResponse;
 import com.castify.backend.models.frame.VoucherModelRequest;
+import com.castify.backend.service.frame.FrameEventServiceImpl;
 import com.castify.backend.service.frame.IFrameService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -25,6 +26,8 @@ public class FrameController {
 //    private static final Logger logger = LoggerFactory.getLogger(FrameController.class);
     @Autowired
     private IFrameService frameService;
+    @Autowired
+    private FrameEventServiceImpl frameEventServiceImpl;
 
     // For BlankShop
     // Get all accepted frames for public view
@@ -132,5 +135,15 @@ public class FrameController {
         }
     }
 
+    @GetMapping("/event")
+    public ResponseEntity<?> findFrame(
+    ) {
+        try {
+//            frameService.cancelCurrentFrame();
+            return new ResponseEntity<>(frameEventServiceImpl.getActiveFrameEvent(), HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<>(new ErrorResponse(e.getMessage()), HttpStatus.BAD_REQUEST);
+        }
+    }
 
 }
