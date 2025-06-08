@@ -15,9 +15,15 @@ interface PlaylistItemProps {
   playlist: PlaylistModel;
   onEdit?: (playlist: PlaylistModel) => void;
   onDelete?: (playlistId: string) => void;
+  showMenu?: boolean;
 }
 
-const PlaylistItem: React.FC<PlaylistItemProps> = ({ playlist, onEdit, onDelete }) => {
+const PlaylistItem: React.FC<PlaylistItemProps> = ({ 
+  playlist,
+  onEdit,
+  onDelete,
+  showMenu = true
+}) => {
   const [menuOpen, setMenuOpen] = useState(false);
   const menuRef = useRef(null);
   const navigate = useNavigate();
@@ -93,7 +99,7 @@ const PlaylistItem: React.FC<PlaylistItemProps> = ({ playlist, onEdit, onDelete 
           </p>
         </div>
         {/* Only show menu button if the current user is the owner */}
-        {isOwner && (
+        {showMenu && isOwner && (
           <div className="p-2 z-30" ref={menuRef}>
             {/* Menu Button */}
             <button

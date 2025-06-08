@@ -814,7 +814,7 @@ public class WatchPartyServiceImpl implements IWatchPartyService {
                         WatchPartyRoomModel model = modelMapper.map(room, WatchPartyRoomModel.class);
 
                         // Add additional info
-                        model.setMaxParticipants(room.getParticipants().size());
+                        model.setMaxParticipants(100);
                         model.setHostUserId(room.getHostUserId());
                         model.setHostUsername(getHostUsername(room.getHostUserId()));
 
