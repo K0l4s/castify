@@ -9,6 +9,13 @@ import { useToast } from "../../../context/ToastProvider";
 import FramePreviewModal from "./FramePreviewModal";
 import PurchaseConfirmationModal from "./PurchaseConfirmationModal";
 import Payment from "./Payment";
+import { getCurrentActiveFrame } from "../../../services/FrameEventService";
+import { EventFrame } from "../../../models/Event";
+import { Swiper, SwiperSlide } from "swiper/react";
+import { Pagination, Autoplay } from "swiper/modules";
+import "swiper/css";
+import "swiper/css/pagination";
+import CustomCarousel from "../../../components/UI/carousel/CustomeCarousel";
 
 const BlankShop = () => {
     const [frames, setFrames] = useState<Frame[]>([]);
@@ -20,7 +27,20 @@ const BlankShop = () => {
     const user = useSelector((state: RootState) => state.auth.user);
     const toast = useToast();
     const navigate = useNavigate();
+    const [event, setEvent] = useState<EventFrame | null>(null);
 
+    useEffect(() => {
+        fetchCurrentEvent();
+    }, []);
+
+    const fetchCurrentEvent = async () => {
+        try {
+            const res = await getCurrentActiveFrame();
+            setEvent(res);
+        } catch (error) {
+            console.error("Failed to fetch current event", error);
+        }
+    };
     useEffect(() => {
         fetchAcceptedFrames();
     }, []);
@@ -90,6 +110,33 @@ const BlankShop = () => {
     }
     return (
         <div className="container mx-auto px-4 py-8">
+            {event && event.showEvent && (
+                <div className="mb-8">
+                    <div className="w-full mx-auto rounded-2xl  overflow-hidden relative">
+                        {/* Layer phủ nội dung tiêu đề + mô tả */}
+                        {/* <div className="absolute inset-0 z-10 flex items-center justify-center pointer-events-none">
+                            <div className="bg-black/50 text-white text-center px-6 py-4 rounded-xl shadow-xl max-w-[90%]">
+                                <h2 className="text-2xl md:text-4xl font-bold mb-2">{event.name}</h2>
+                                <p className="text-lg md:text-2xl font-semibold">
+                                    Sale lên tới {event.percent * 100}% cho tất cả các frames
+                                </p>
+                            </div>
+                        </div> */}
+
+                        {/* Carousel nằm bên dưới layer */}
+                        <CustomCarousel
+                            slides={event.bannersUrl.map((bannerUrl) => ({
+                                imageUrl: bannerUrl,
+                                title: event.name,
+                                descript: event.description
+                                // content: "Sale lên tới "+event.percent*100+"% tất cả các frame!"
+                            }))}
+                        />
+                    </div>
+                </div>
+
+            )}
+
             <div className="flex justify-between items-center mb-6">
                 <h1 className="text-2xl font-bold text-black dark:text-white">Frame Shop</h1>
                 <div className="flex gap-4">
@@ -138,15 +185,26 @@ const BlankShop = () => {
                             </div>
                         </div>
 
-                        <div className="p-4 border-t dark:border-gray-700">
-                            <div className="flex justify-between items-start mb-2">
-                                <h2 className="text-lg font-semibold text-black dark:text-white">{frame.name}</h2>
-                                <div className="text-blue-600 dark:text-blue-400 text-xl flex gap-1 items-center font-bold">
-                                    {frame.price}
-                                    <div className="w-5 h-5">
-                                        <img src={coin} alt="coin" className="w-full" />
+                        <div className="flex justify-between items-start mb-2">
+                            <h2 className="text-lg font-semibold text-black dark:text-white">{frame.name}</h2>
+                            <div className="text-right">
+                                {event && event.percent > 0 ? (
+                                    <>
+                                        <div className="line-through text-sm text-gray-400 flex gap-1 items-center">
+                                            {frame.price}
+                                            <img src={coin} alt="coin" className="w-4 h-4" />
+                                        </div>
+                                        <div className="text-blue-600 dark:text-blue-400 text-xl font-bold flex gap-1 items-center">
+                                            {Math.round(frame.price * (1 - event.percent))}
+                                            <img src={coin} alt="coin" className="w-5 h-5" />
+                                        </div>
+                                    </>
+                                ) : (
+                                    <div className="text-blue-600 dark:text-blue-400 text-xl font-bold flex gap-1 items-center">
+                                        {frame.price}
+                                        <img src={coin} alt="coin" className="w-5 h-5" />
                                     </div>
-                                </div>
+                                )}
                             </div>
                         </div>
 

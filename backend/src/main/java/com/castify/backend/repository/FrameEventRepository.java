@@ -19,5 +19,7 @@ public interface FrameEventRepository extends MongoRepository<FrameEventEntity,S
             "{ 'startDate': { $lt: ?1 } } " + // startDate < endDate mới
             "] }")
     List<FrameEventEntity> findConflictingEvents(LocalDateTime newStartDate, LocalDateTime newEndDate);
-
+    FrameEventEntity findFrameEventEntityById(String id);
+    @Query("{ 'startDate': { $lte: ?0 }, 'endDate': { $gte: ?0 }, 'active': true }")
+    FrameEventEntity findOngoingEvents(LocalDateTime now);
 }

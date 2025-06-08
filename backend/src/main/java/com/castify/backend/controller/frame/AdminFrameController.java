@@ -9,6 +9,7 @@ import com.castify.backend.models.frame.FrameModel;
 import com.castify.backend.models.frame.VoucherModelRequest;
 import com.castify.backend.service.frame.FrameEventServiceImpl;
 import com.castify.backend.service.frame.FrameServiceImpl;
+import com.castify.backend.service.frame.IFrameEventService;
 import com.castify.backend.service.frame.IFrameService;
 import com.castify.backend.service.uploadFile.UploadFileServiceImpl;
 import org.modelmapper.ModelMapper;
@@ -34,7 +35,7 @@ public class AdminFrameController {
     @Autowired
     private IFrameService frameService;
     @Autowired
-    private FrameEventServiceImpl frameEventService;
+    private IFrameEventService frameEventService;
 
     @Autowired
     private UploadFileServiceImpl uploadFileService;
