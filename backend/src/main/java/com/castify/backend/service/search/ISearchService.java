@@ -11,9 +11,14 @@ public interface ISearchService {
     // Main search
     SearchResultModel search(String keyword, String userId);
 
-    // Get recent search history
+    // Get recent search history & trending
     List<SearchKeywordModel> getRecentHistory(String userId);
+    List<SearchKeywordModel> getTrendingKeywords();
 
     // Get search suggestions based on prefix
     List<SearchKeywordModel> getSuggestions(String prefix, String userId);
+
+    // Delete history
+    void deleteHistoryItem(String userId, String keyword);
+    void clearAllHistory(String userId);
 }

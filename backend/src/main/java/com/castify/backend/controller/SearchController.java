@@ -14,10 +14,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -78,12 +75,35 @@ public class SearchController {
         return ResponseEntity.ok(history);
     }
 
+    @GetMapping("/trending")
+    @Operation(summary = "Get 5 trending keywords globally (no duplicates)")
+    public ResponseEntity<List<SearchKeywordModel>> getTrending() {
+        List<SearchKeywordModel> trending = searchService.getTrendingKeywords();
+        return ResponseEntity.ok(trending);
+    }
+
     @GetMapping("/suggestions")
     @Operation(summary = "Get search suggestions - for debounced input typing")
     public ResponseEntity<List<SearchKeywordModel>> getSuggestions(@RequestParam String prefix) {
         String userId = SecurityUtils.getCurrentUser().getId();
         List<SearchKeywordModel> suggestions = searchService.getSuggestions(prefix, userId);
         return ResponseEntity.ok(suggestions);
+    }
+
+    @DeleteMapping("/history")
+    @Operation(summary = "Delete a specific search history item")
+    public ResponseEntity<String> deleteHistoryItem(@RequestParam String keyword) {
+        String userId = SecurityUtils.getCurrentUser().getId();
+        searchService.deleteHistoryItem(userId, keyword);
+        return ResponseEntity.ok("History item deleted successfully");
+    }
+
+    @DeleteMapping("/history/all")
+    @Operation(summary = "Clear all search history for current user")
+    public ResponseEntity<String> clearAllHistory() {
+        String userId = SecurityUtils.getCurrentUser().getId();
+        searchService.clearAllHistory(userId);
+        return ResponseEntity.ok("All search history cleared successfully");
     }
 
 }

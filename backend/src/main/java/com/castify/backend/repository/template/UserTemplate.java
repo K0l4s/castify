@@ -104,29 +104,193 @@ public class UserTemplate {
 
 
     public Page<UserEntity> findByKeywordWithAggregation(String keyword, Pageable pageable) {
-        Aggregation aggregation = Aggregation.newAggregation(
-                Aggregation.match(
-                        new Criteria().orOperator(
-                                // Tìm kiếm cho các trường đầu tên, giữa tên, và cuối tên riêng biệt
-                                Criteria.where("firstName").regex(keyword, "i"),
-                                Criteria.where("middleName").regex(keyword, "i"),
-                                Criteria.where("lastName").regex(keyword, "i"),
-                                Criteria.where("ward").regex(keyword, "i"),
-                                Criteria.where("provinces").regex(keyword, "i"),
-                                Criteria.where("district").regex(keyword, "i"),
-                                Criteria.where("username").regex(keyword,"i"),
-                                // Kết hợp lastName + middleName + firstName để tìm kiếm với chuỗi đầy đủ
-                                Criteria.where("lastName").regex(".*" + keyword + ".*", "i")
-                                        .and("middleName").regex(".*" + keyword + ".*", "i")
-                                        .and("firstName").regex(".*" + keyword + ".*", "i")
-                        )
-                ),
-                Aggregation.skip((long) pageable.getOffset()),
-                Aggregation.limit(pageable.getPageSize())
+        // ✅ Cải thiện search để handle multi-word better
+        List<UserEntity> allResults = new ArrayList<>();
+        Set<String> addedIds = new HashSet<>();
+
+        // 1. Exact username match (highest priority)
+        Query exactUsernameQuery = new Query(Criteria.where("username").is(keyword));
+        List<UserEntity> exactUsername = mongoTemplate.find(exactUsernameQuery, UserEntity.class);
+        exactUsername.forEach(user -> {
+            allResults.add(user);
+            addedIds.add(user.getId());
+        });
+
+        // 2. Get all users that might match any part of the keyword
+        String[] keywords = keyword.toLowerCase().trim().split("\\s+");
+
+        // Build OR criteria for each word in the search term
+        List<Criteria> orCriteria = new ArrayList<>();
+        for (String word : keywords) {
+            orCriteria.add(Criteria.where("firstName").regex(".*" + word + ".*", "i"));
+            orCriteria.add(Criteria.where("middleName").regex(".*" + word + ".*", "i"));
+            orCriteria.add(Criteria.where("lastName").regex(".*" + word + ".*", "i"));
+            orCriteria.add(Criteria.where("username").regex(".*" + word + ".*", "i"));
+        }
+
+        Query broadQuery = new Query(
+                new Criteria().orOperator(orCriteria.toArray(new Criteria[0]))
+                        .and("_id").nin(addedIds)
         );
 
-        AggregationResults<UserEntity> results = mongoTemplate.aggregate(aggregation, "user", UserEntity.class);
-        return new PageImpl<>(results.getMappedResults(), pageable, results.getMappedResults().size());
+        List<UserEntity> candidates = mongoTemplate.find(broadQuery, UserEntity.class);
+
+        // ✅ Filter candidates using improved matching logic
+        List<UserEntity> matchedUsers = candidates.stream()
+                .filter(user -> advancedMatchesKeyword(user, keyword))
+                .sorted((u1, u2) -> {
+                    // Sort by relevance
+                    int score1 = calculateMatchScore(u1, keyword);
+                    int score2 = calculateMatchScore(u2, keyword);
+
+                    if (score1 != score2) {
+                        return Integer.compare(score2, score1); // Higher score first
+                    }
+
+                    return u1.getUsername().compareToIgnoreCase(u2.getUsername());
+                })
+                .collect(Collectors.toList());
+
+        allResults.addAll(matchedUsers);
+
+        // Apply pagination
+        int totalElements = allResults.size();
+        int start = (int) pageable.getOffset();
+        int end = Math.min(start + pageable.getPageSize(), totalElements);
+
+        List<UserEntity> paginatedUsers = allResults.subList(start, end);
+
+        return new PageImpl<>(paginatedUsers, pageable, totalElements);
+    }
+
+    // ✅ Improved matching logic for multi-word search
+    private boolean advancedMatchesKeyword(UserEntity user, String keyword) {
+        String lowerKeyword = keyword.toLowerCase().trim();
+
+        // 1. Check exact match with any single field
+        if (containsIgnoreCase(user.getFirstName(), lowerKeyword) ||
+                containsIgnoreCase(user.getMiddleName(), lowerKeyword) ||
+                containsIgnoreCase(user.getLastName(), lowerKeyword) ||
+                containsIgnoreCase(user.getUsername(), lowerKeyword)) {
+            return true;
+        }
+
+        // 2. Check full name exact match
+        String fullName = user.getFullname();
+        if (containsIgnoreCase(fullName, lowerKeyword)) {
+            return true;
+        }
+
+        // ✅ 3. Check if all words in keyword exist somewhere in user's name
+        String[] searchWords = lowerKeyword.split("\\s+");
+        if (searchWords.length > 1) {
+            String combinedText = (
+                    (user.getFirstName() != null ? user.getFirstName() : "") + " " +
+                            (user.getMiddleName() != null ? user.getMiddleName() : "") + " " +
+                            (user.getLastName() != null ? user.getLastName() : "") + " " +
+                            (user.getUsername() != null ? user.getUsername() : "") + " " +
+                            (fullName != null ? fullName : "")
+            ).toLowerCase();
+
+            // Check if ALL words from search exist in combined text
+            for (String word : searchWords) {
+                if (!combinedText.contains(word)) {
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        return false;
+    }
+
+    // ✅ Calculate match score for better sorting
+    private int calculateMatchScore(UserEntity user, String keyword) {
+        String lowerKeyword = keyword.toLowerCase().trim();
+        int score = 0;
+
+        // Exact username match = highest score
+        if (user.getUsername() != null && user.getUsername().toLowerCase().equals(lowerKeyword)) {
+            score += 100;
+        }
+
+        // Full name exact match = high score
+        String fullName = user.getFullname();
+        if (fullName != null && fullName.toLowerCase().equals(lowerKeyword)) {
+            score += 90;
+        }
+
+        // Full name contains = medium score
+        if (fullName != null && fullName.toLowerCase().contains(lowerKeyword)) {
+            score += 50;
+        }
+
+        // Individual field exact matches
+        if (user.getFirstName() != null && user.getFirstName().toLowerCase().equals(lowerKeyword)) {
+            score += 80;
+        }
+        if (user.getLastName() != null && user.getLastName().toLowerCase().equals(lowerKeyword)) {
+            score += 80;
+        }
+
+        // Individual field contains
+        if (containsIgnoreCase(user.getFirstName(), lowerKeyword)) score += 30;
+        if (containsIgnoreCase(user.getLastName(), lowerKeyword)) score += 30;
+        if (containsIgnoreCase(user.getMiddleName(), lowerKeyword)) score += 20;
+        if (containsIgnoreCase(user.getUsername(), lowerKeyword)) score += 40;
+
+        // ✅ Multi-word bonus: if all words match, add bonus points
+        String[] searchWords = lowerKeyword.split("\\s+");
+        if (searchWords.length > 1) {
+            String combinedText = (
+                    (user.getFirstName() != null ? user.getFirstName() : "") + " " +
+                            (user.getMiddleName() != null ? user.getMiddleName() : "") + " " +
+                            (user.getLastName() != null ? user.getLastName() : "") + " " +
+                            fullName
+            ).toLowerCase();
+
+            int wordMatches = 0;
+            for (String word : searchWords) {
+                if (combinedText.contains(word)) {
+                    wordMatches++;
+                }
+            }
+
+            if (wordMatches == searchWords.length) {
+                score += 60; // Bonus for matching all words
+            }
+        }
+
+        return score;
+    }
+
+    // ✅ Helper method to build full name manually (backup)
+    private String buildFullName(UserEntity user) {
+        StringBuilder fullName = new StringBuilder();
+
+        if (user.getLastName() != null && !user.getLastName().trim().isEmpty()) {
+            fullName.append(user.getLastName().trim());
+        }
+
+        if (user.getMiddleName() != null && !user.getMiddleName().trim().isEmpty()) {
+            if (fullName.length() > 0) fullName.append(" ");
+            fullName.append(user.getMiddleName().trim());
+        }
+
+        if (user.getFirstName() != null && !user.getFirstName().trim().isEmpty()) {
+            if (fullName.length() > 0) fullName.append(" ");
+            fullName.append(user.getFirstName().trim());
+        }
+
+        return fullName.toString().trim();
+    }
+
+    // ✅ Safe string contains check
+    private boolean containsIgnoreCase(String text, String keyword) {
+        if (text == null || keyword == null) {
+            return false;
+        }
+        return text.toLowerCase().contains(keyword);
     }
 
 

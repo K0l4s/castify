@@ -68,12 +68,23 @@ export class SearchService {
   }
 
   // Get recent search history
-  static async getSearchHistory(): Promise<SearchKeyword[]> {
+   static async getSearchHistory(): Promise<SearchKeyword[]> {
     try {
       const response = await axiosInstanceAuth.get('/api/v1/search/history');
       return response.data;
     } catch (error) {
       console.error('Error getting search history:', error);
+      return [];
+    }
+  }
+
+  // Get trending keywords (5 items, global)
+  static async getTrendingKeywords(): Promise<SearchKeyword[]> {
+    try {
+      const response = await axiosInstanceAuth.get('/api/v1/search/trending');
+      return response.data;
+    } catch (error) {
+      console.error('Error getting trending keywords:', error);
       return [];
     }
   }
@@ -89,6 +100,26 @@ export class SearchService {
     } catch (error) {
       console.error('Error getting search suggestions:', error);
       return [];
+    }
+  }
+
+  // Delete specific history item
+  static async deleteHistoryItem(keyword: string): Promise<void> {
+    try {
+      await axiosInstanceAuth.delete(`/api/v1/search/history?keyword=${encodeURIComponent(keyword)}`);
+    } catch (error) {
+      console.error('Error deleting history item:', error);
+      throw new Error('Failed to delete history item');
+    }
+  }
+
+  // Clear all search history
+  static async clearAllHistory(): Promise<void> {
+    try {
+      await axiosInstanceAuth.delete('/api/v1/search/history/all');
+    } catch (error) {
+      console.error('Error clearing all history:', error);
+      throw new Error('Failed to clear history');
     }
   }
 }

@@ -19,9 +19,17 @@ public interface SearchHistoryRepository extends MongoRepository<SearchHistoryEn
     @Query("{ 'userId': ?0, 'lastSearched': { $gte: ?1 } }")
     List<SearchHistoryEntity> findRecentByUserId(String userId, LocalDateTime since, Pageable pageable);
 
+    @Query("{ 'lastSearched': { $gte: ?0 } }")
+    List<SearchHistoryEntity> findTrendingKeywords(LocalDateTime since, Pageable pageable);
+
     // Tìm suggestions dựa trên prefix (cả user và global)
     @Query("{ 'normalizedKeyword': { $regex: '^?0', $options: 'i' } }")
     List<SearchHistoryEntity> findSuggestionsByPrefix(String prefix, Pageable pageable);
+
+    @Query(value = "{ 'userId': ?0, 'normalizedKeyword': ?1 }", delete = true)
+    void deleteByUserIdAndNormalizedKeyword(String userId, String normalizedKeyword);
+
+    void deleteByUserId(String userId);
 
     // Cleanup old records
     void deleteByLastSearchedBefore(LocalDateTime cutoffDate);

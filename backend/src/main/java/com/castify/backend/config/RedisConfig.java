@@ -116,6 +116,7 @@ public class RedisConfig {
                 .withCacheConfiguration("recentHistory", recentHistoryCacheConfiguration(jsonSerializer))
                 .withCacheConfiguration("suggestions", suggestionsCacheConfiguration(jsonSerializer))
                 .withCacheConfiguration("searchResults", searchResultsCacheConfiguration(jsonSerializer))
+                .withCacheConfiguration("trendingKeywords", trendingCacheConfiguration(jsonSerializer))
                 .build();
     }
 
@@ -128,7 +129,7 @@ public class RedisConfig {
                         .fromSerializer(jsonSerializer));
     }
 
-    // ✅ Cache for recent search history - 2 minutes TTL
+    // Cache for recent search history - 2 minutes TTL
     private RedisCacheConfiguration recentHistoryCacheConfiguration(GenericJackson2JsonRedisSerializer jsonSerializer) {
         return RedisCacheConfiguration.defaultCacheConfig()
                 .entryTtl(Duration.ofMinutes(2))
@@ -138,7 +139,7 @@ public class RedisConfig {
                         .fromSerializer(jsonSerializer));
     }
 
-    // ✅ Cache for search suggestions - 5 minutes TTL
+    // Cache for search suggestions - 5 minutes TTL
     private RedisCacheConfiguration suggestionsCacheConfiguration(GenericJackson2JsonRedisSerializer jsonSerializer) {
         return RedisCacheConfiguration.defaultCacheConfig()
                 .entryTtl(Duration.ofMinutes(5))
@@ -148,10 +149,20 @@ public class RedisConfig {
                         .fromSerializer(jsonSerializer));
     }
 
-    // ✅ Cache for search results - 30 secs TTL (shorter vì results change frequently)
+    // Cache for search results - 30 secs TTL (shorter vì results change frequently)
     private RedisCacheConfiguration searchResultsCacheConfiguration(GenericJackson2JsonRedisSerializer jsonSerializer) {
         return RedisCacheConfiguration.defaultCacheConfig()
                 .entryTtl(Duration.ofMillis(30000))
+                .serializeKeysWith(RedisSerializationContext.SerializationPair
+                        .fromSerializer(new StringRedisSerializer()))
+                .serializeValuesWith(RedisSerializationContext.SerializationPair
+                        .fromSerializer(jsonSerializer));
+    }
+
+    // Cache for trending keywords - 1 minutes TTL
+    private RedisCacheConfiguration trendingCacheConfiguration(GenericJackson2JsonRedisSerializer jsonSerializer) {
+        return RedisCacheConfiguration.defaultCacheConfig()
+                .entryTtl(Duration.ofMinutes(1))
                 .serializeKeysWith(RedisSerializationContext.SerializationPair
                         .fromSerializer(new StringRedisSerializer()))
                 .serializeValuesWith(RedisSerializationContext.SerializationPair

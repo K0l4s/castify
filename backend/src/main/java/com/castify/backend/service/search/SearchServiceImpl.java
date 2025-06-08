@@ -13,6 +13,7 @@ import com.castify.backend.service.watchParty.IWatchPartyService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -99,7 +100,7 @@ public class SearchServiceImpl implements ISearchService {
     public List<SearchKeywordModel> getRecentHistory(String userId) {
         try {
             LocalDateTime thirtyDaysAgo = LocalDateTime.now().minusDays(30);
-            Pageable pageable = PageRequest.of(0, 10, Sort.by("lastSearched").descending());
+            Pageable pageable = PageRequest.of(0, 5, Sort.by("lastSearched").descending());
 
             List<SearchHistoryEntity> recentHistory = searchHistoryRepository
                     .findRecentByUserId(userId, thirtyDaysAgo, pageable);
@@ -110,6 +111,37 @@ public class SearchServiceImpl implements ISearchService {
 
         } catch (Exception e) {
             log.error("Error getting recent history for user: {}", userId, e);
+            return new ArrayList<>();
+        }
+    }
+
+    @Override
+    @Cacheable(value = "trendingKeywords")
+    public List<SearchKeywordModel> getTrendingKeywords() {
+        try {
+            LocalDateTime sevenDaysAgo = LocalDateTime.now().minusDays(7);
+            Pageable pageable = PageRequest.of(0, 50, Sort.by("searchCount").descending());
+
+            List<SearchHistoryEntity> allTrending = searchHistoryRepository
+                    .findTrendingKeywords(sevenDaysAgo, pageable);
+
+            // ✅ Remove duplicates by normalizedKeyword, keep highest searchCount
+            return allTrending.stream()
+                    .collect(Collectors.groupingBy(
+                            SearchHistoryEntity::getNormalizedKeyword,
+                            Collectors.maxBy((h1, h2) -> h1.getSearchCount().compareTo(h2.getSearchCount()))
+                    ))
+                    .values()
+                    .stream()
+                    .filter(Optional::isPresent)
+                    .map(Optional::get)
+                    .sorted((h1, h2) -> h2.getSearchCount().compareTo(h1.getSearchCount()))
+                    .limit(5)
+                    .map(history -> new SearchKeywordModel(history.getKeyword(), history.getSearchCount()))
+                    .collect(Collectors.toList());
+
+        } catch (Exception e) {
+            log.error("Error getting trending keywords", e);
             return new ArrayList<>();
         }
     }
@@ -136,6 +168,29 @@ public class SearchServiceImpl implements ISearchService {
         } catch (Exception e) {
             log.error("Error getting suggestions for prefix: {}", prefix, e);
             return new ArrayList<>();
+        }
+    }
+
+    @Override
+    @CacheEvict(value = "recentHistory", key = "#userId")
+    public void deleteHistoryItem(String userId, String keyword) {
+        try {
+            String normalizedKeyword = normalizeKeyword(keyword);
+            searchHistoryRepository.deleteByUserIdAndNormalizedKeyword(userId, normalizedKeyword);
+            log.info("Deleted history item for user: {} keyword: {}", userId, keyword);
+        } catch (Exception e) {
+            log.error("Error deleting history item for user: {} keyword: {}", userId, keyword, e);
+        }
+    }
+
+    @Override
+    @CacheEvict(value = "recentHistory", key = "#userId")
+    public void clearAllHistory(String userId) {
+        try {
+            searchHistoryRepository.deleteByUserId(userId);
+            log.info("Cleared all history for user: {}", userId);
+        } catch (Exception e) {
+            log.error("Error clearing all history for user: {}", userId, e);
         }
     }
 

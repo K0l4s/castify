@@ -2,7 +2,7 @@ import { useState, useEffect, useRef, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { useLanguage } from "../../context/LanguageContext";
 import { SearchService, SearchKeyword } from "../../services/SearchService";
-import { FiClock, FiTrendingUp, FiX } from "react-icons/fi";
+import { FiClock, FiTrendingUp, FiX, FiTrash2 } from "react-icons/fi";
 
 const MainSearchBar = () => {
     const { language } = useLanguage();
@@ -10,7 +10,8 @@ const MainSearchBar = () => {
     
     const [searchQuery, setSearchQuery] = useState('');
     const [showDropdown, setShowDropdown] = useState(false);
-    const [searchHistory, setSearchHistory] = useState<SearchKeyword[]>([]);
+    const [recentHistory, setRecentHistory] = useState<SearchKeyword[]>([]);
+    const [trendingKeywords, setTrendingKeywords] = useState<SearchKeyword[]>([]);
     const [suggestions, setSuggestions] = useState<SearchKeyword[]>([]);
     const [isLoading, setIsLoading] = useState(false);
     
@@ -46,13 +47,18 @@ const MainSearchBar = () => {
         []
     );
 
-    // Load search history when input is focused
-    const loadSearchHistory = async () => {
+    // Load search data separately
+    const loadSearchData = async () => {
         try {
-            const history = await SearchService.getSearchHistory();
-            setSearchHistory(history);
+            const [history, trending] = await Promise.all([
+                SearchService.getSearchHistory(),
+                SearchService.getTrendingKeywords()
+            ]);
+            
+            setRecentHistory(history);
+            setTrendingKeywords(trending);
         } catch (error) {
-            console.error('Error loading search history:', error);
+            console.error('Error loading search data:', error);
         }
     };
 
@@ -72,7 +78,7 @@ const MainSearchBar = () => {
     const handleSearchFocus = async () => {
         setShowDropdown(true);
         if (searchQuery.trim().length < 2) {
-            await loadSearchHistory();
+            await loadSearchData();
         }
     };
 
@@ -103,6 +109,28 @@ const MainSearchBar = () => {
     // Handle suggestion/history click
     const handleItemClick = (keyword: string) => {
         performSearch(keyword);
+    };
+
+    // Handle delete history item
+    const handleDeleteHistoryItem = async (e: React.MouseEvent, keyword: string) => {
+        e.stopPropagation(); // Prevent triggering search
+        try {
+            await SearchService.deleteHistoryItem(keyword);
+            // Remove item from local state
+            setRecentHistory(prev => prev.filter(item => item.keyword !== keyword));
+        } catch (error) {
+            console.error('Error deleting history item:', error);
+        }
+    };
+
+    // Handle clear all history
+    const handleClearAllHistory = async () => {
+        try {
+            await SearchService.clearAllHistory();
+            setRecentHistory([]);
+        } catch (error) {
+            console.error('Error clearing all history:', error);
+        }
     };
 
     // Clear search input
@@ -189,46 +217,97 @@ const MainSearchBar = () => {
                                                 {suggestion.keyword}
                                             </span>
                                         </div>
-                                        {suggestion.searchCount > 1 && (
-                                            <span className="text-xs text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded-full">
-                                                {suggestion.searchCount}
-                                            </span>
-                                        )}
                                     </div>
                                 ))}
                             </div>
                         </div>
                     )}
 
-                    {/* Recent searches (when not typing or no suggestions) */}
-                    {!isLoading && searchQuery.trim().length < 2 && searchHistory.length > 0 && (
+                    {/* Recent searches + Trending (when not typing) */}
+                    {!isLoading && searchQuery.trim().length < 2 && (
                         <div className="p-4">
-                            <div className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-3 flex items-center gap-2">
-                                <FiClock size={14} />
-                                Recent searches
-                            </div>
-                            <div className="space-y-1">
-                                {searchHistory.map((item, index) => (
-                                    <div
-                                        key={index}
-                                        onClick={() => handleItemClick(item.keyword)}
-                                        className="flex items-center justify-between p-2.5 hover:bg-gray-50 dark:hover:bg-gray-700/50 rounded-lg cursor-pointer transition-colors duration-200"
-                                        data-testid="search-history-item"
-                                    >
-                                        <div className="flex items-center gap-3">
-                                            <FiClock className="w-4 h-4 text-gray-500 dark:text-gray-400" />
-                                            <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                                                {item.keyword}
-                                            </span>
+                            {/* Recent searches section */}
+                            {recentHistory.length > 0 && (
+                                <div className="mb-6">
+                                    <div className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-3 flex items-center justify-between">
+                                        <div className="flex items-center gap-2">
+                                            <FiClock size={14} />
+                                            Recent searches
                                         </div>
-                                        {item.searchCount > 1 && (
-                                            <span className="text-xs text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded-full">
-                                                {item.searchCount}
-                                            </span>
-                                        )}
+                                        {/* Clear all button */}
+                                        <button
+                                            onClick={handleClearAllHistory}
+                                            className="text-xs text-blue-500 hover:text-blue-600 dark:text-blue-400 dark:hover:text-blue-300 font-medium"
+                                        >
+                                            Clear all
+                                        </button>
                                     </div>
-                                ))}
-                            </div>
+                                    <div className="space-y-1">
+                                        {recentHistory.map((item, index) => (
+                                            <div
+                                                key={`recent-${index}`}
+                                                className="flex items-center justify-between p-2.5 hover:bg-gray-50 dark:hover:bg-gray-700/50 rounded-lg group transition-colors duration-200"
+                                                data-testid="search-history-item"
+                                            >
+                                                <div 
+                                                    className="flex items-center gap-3 flex-1 cursor-pointer"
+                                                    onClick={() => handleItemClick(item.keyword)}
+                                                >
+                                                    <FiClock className="w-4 h-4 text-gray-500 dark:text-gray-400" />
+                                                    <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                                                        {item.keyword}
+                                                    </span>
+                                                </div>
+                                                {/* Delete button */}
+                                                <button
+                                                    onClick={(e) => handleDeleteHistoryItem(e, item.keyword)}
+                                                    className="opacity-0 group-hover:opacity-100 p-1 hover:bg-red-100 dark:hover:bg-red-900/20 rounded transition-all duration-200"
+                                                    title="Remove from history"
+                                                >
+                                                    <FiTrash2 size={14} className="text-red-500 dark:text-red-400" />
+                                                </button>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+                            )}
+
+                            {/* Trending keywords section */}
+                            {trendingKeywords.length > 0 && (
+                                <div>
+                                    <div className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-3 flex items-center gap-2">
+                                        <FiTrendingUp size={14} />
+                                        Trending searches
+                                    </div>
+                                    <div className="space-y-1">
+                                        {trendingKeywords.map((item, index) => (
+                                            <div
+                                                key={`trending-${index}`}
+                                                onClick={() => handleItemClick(item.keyword)}
+                                                className="flex items-center justify-between p-2.5 hover:bg-gray-50 dark:hover:bg-gray-700/50 rounded-lg cursor-pointer transition-colors duration-200"
+                                                data-testid="search-trending-item"
+                                            >
+                                                <div className="flex items-center gap-3">
+                                                    <FiTrendingUp className="w-4 h-4 text-orange-500 dark:text-orange-400" />
+                                                    <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                                                        {item.keyword}
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+                            )}
+
+                            {/* Empty state cho user mới */}
+                            {recentHistory.length === 0 && trendingKeywords.length === 0 && (
+                                <div className="text-center py-8">
+                                    <FiTrendingUp size={32} className="mx-auto text-gray-400 dark:text-gray-500 mb-3" />
+                                    <div className="text-sm text-gray-500 dark:text-gray-400">
+                                        Start typing to search podcasts, users, and more...
+                                    </div>
+                                </div>
+                            )}
                         </div>
                     )}
 
@@ -236,13 +315,6 @@ const MainSearchBar = () => {
                     {!isLoading && searchQuery.trim().length >= 2 && suggestions.length === 0 && (
                         <div className="p-4 text-center">
                             <div className="text-sm text-gray-500 dark:text-gray-400">No suggestions found</div>
-                        </div>
-                    )}
-
-                    {/* Empty state */}
-                    {!isLoading && searchQuery.trim().length < 2 && searchHistory.length === 0 && (
-                        <div className="p-4 text-center">
-                            <div className="text-sm text-gray-500 dark:text-gray-400">Start typing to search...</div>
                         </div>
                     )}
                 </div>
