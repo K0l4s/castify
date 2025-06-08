@@ -133,6 +133,11 @@ const SearchResults = () => {
 
   // Join watch party room
   const handleJoinRoom = (roomCode: string) => {
+    if (!isAuthenticated) {
+      toast.error('Please login to join watch party');
+      return;
+    }
+    
     navigate(`/watch-party?room=${roomCode}`);
   };
 

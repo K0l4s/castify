@@ -56,8 +56,10 @@ public class SearchServiceImpl implements ISearchService {
         long startTime = System.currentTimeMillis();
 
         try {
-            // Record search history
-            recordSearchHistory(keyword, userId);
+            // Record search history only if user is authenticated
+            if (userId != null) {
+                recordSearchHistory(keyword, userId);
+            }
 
             SearchResultModel result = new SearchResultModel();
             result.setKeyword(keyword);
@@ -98,6 +100,10 @@ public class SearchServiceImpl implements ISearchService {
     @Override
     @Cacheable(value = "recentHistory", key = "#userId")
     public List<SearchKeywordModel> getRecentHistory(String userId) {
+        if (userId == null) {
+            return new ArrayList<>();
+        }
+
         try {
             LocalDateTime thirtyDaysAgo = LocalDateTime.now().minusDays(30);
             Pageable pageable = PageRequest.of(0, 5, Sort.by("lastSearched").descending());
@@ -174,6 +180,10 @@ public class SearchServiceImpl implements ISearchService {
     @Override
     @CacheEvict(value = "recentHistory", key = "#userId")
     public void deleteHistoryItem(String userId, String keyword) {
+        if (userId == null) {
+            throw new IllegalArgumentException("User must be authenticated to clear history");
+        }
+        
         try {
             String normalizedKeyword = normalizeKeyword(keyword);
             searchHistoryRepository.deleteByUserIdAndNormalizedKeyword(userId, normalizedKeyword);
@@ -186,6 +196,10 @@ public class SearchServiceImpl implements ISearchService {
     @Override
     @CacheEvict(value = "recentHistory", key = "#userId")
     public void clearAllHistory(String userId) {
+        if (userId == null) {
+            throw new IllegalArgumentException("User must be authenticated to clear history");
+        }
+
         try {
             searchHistoryRepository.deleteByUserId(userId);
             log.info("Cleared all history for user: {}", userId);
@@ -196,6 +210,10 @@ public class SearchServiceImpl implements ISearchService {
 
     // Helper method to record search history
     private void recordSearchHistory(String keyword, String userId) {
+        if (userId == null) {
+            return;
+        }
+
         try {
             String normalizedKeyword = normalizeKeyword(keyword);
 

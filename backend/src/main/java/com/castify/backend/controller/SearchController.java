@@ -62,7 +62,13 @@ public class SearchController {
     @GetMapping
     @Operation(summary = "Main search endpoint - returns top 20 results from each category")
     public ResponseEntity<SearchResultModel> search(@RequestParam String keyword) {
-        String userId = SecurityUtils.getCurrentUser().getId();
+        // Handle anonymous user
+        String userId = null;
+        try {
+            userId = SecurityUtils.getCurrentUser().getId();
+        } catch (Exception e) {
+            // Anonymous user - continue without userId
+        }
         SearchResultModel results = searchService.search(keyword, userId);
         return ResponseEntity.ok(results);
     }
@@ -85,7 +91,12 @@ public class SearchController {
     @GetMapping("/suggestions")
     @Operation(summary = "Get search suggestions - for debounced input typing")
     public ResponseEntity<List<SearchKeywordModel>> getSuggestions(@RequestParam String prefix) {
-        String userId = SecurityUtils.getCurrentUser().getId();
+        String userId = null;
+        try {
+            userId = SecurityUtils.getCurrentUser().getId();
+        } catch (Exception e) {
+            // Anonymous user - continue without userId
+        }
         List<SearchKeywordModel> suggestions = searchService.getSuggestions(prefix, userId);
         return ResponseEntity.ok(suggestions);
     }

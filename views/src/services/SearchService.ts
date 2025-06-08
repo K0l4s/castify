@@ -1,8 +1,9 @@
-import { axiosInstanceAuth } from '../utils/axiosInstance';
+import { axiosInstance, axiosInstanceAuth } from '../utils/axiosInstance';
 import { Podcast } from '../models/PodcastModel';
 import { UserSimple } from '../models/User';
 import { PlaylistItem, PlaylistModel } from '../models/PlaylistModel';
 import { WatchPartyRoom } from '../models/WatchPartyModel';
+import { store } from '../redux/store';
 
 export interface SearchKeyword {
   keyword: string;
@@ -19,11 +20,18 @@ export interface SearchResult {
 }
 
 export class SearchService {
-  
+  // Helper method to get correct axios instance based on auth status
+  private static getAxiosInstance() {
+    const state = store.getState();
+    const isAuthenticated = state.auth.isAuthenticated;
+    return isAuthenticated ? axiosInstanceAuth : axiosInstance;
+  }
+
   // Main search - returns all categories
   static async search(keyword: string): Promise<SearchResult> {
     try {
-      const response = await axiosInstanceAuth.get(`/api/v1/search?keyword=${encodeURIComponent(keyword)}`);
+      const axiosClient = this.getAxiosInstance();
+      const response = await axiosClient.get(`/api/v1/search?keyword=${encodeURIComponent(keyword)}`);
       const rawData = response.data;
 
       const mappedResult: SearchResult = {
@@ -81,7 +89,7 @@ export class SearchService {
   // Get trending keywords (5 items, global)
   static async getTrendingKeywords(): Promise<SearchKeyword[]> {
     try {
-      const response = await axiosInstanceAuth.get('/api/v1/search/trending');
+      const response = await axiosInstance.get('/api/v1/search/trending');
       return response.data;
     } catch (error) {
       console.error('Error getting trending keywords:', error);
@@ -95,7 +103,7 @@ export class SearchService {
       if (!prefix || prefix.trim().length < 2) {
         return [];
       }
-      const response = await axiosInstanceAuth.get(`/api/v1/search/suggestions?prefix=${encodeURIComponent(prefix)}`);
+      const response = await axiosInstance.get(`/api/v1/search/suggestions?prefix=${encodeURIComponent(prefix)}`);
       return response.data;
     } catch (error) {
       console.error('Error getting search suggestions:', error);

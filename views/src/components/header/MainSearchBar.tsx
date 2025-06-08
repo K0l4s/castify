@@ -3,11 +3,15 @@ import { useNavigate } from "react-router-dom";
 import { useLanguage } from "../../context/LanguageContext";
 import { SearchService, SearchKeyword } from "../../services/SearchService";
 import { FiClock, FiTrendingUp, FiX, FiTrash2 } from "react-icons/fi";
+import { RootState } from "../../redux/store";
+import { useSelector } from "react-redux";
 
 const MainSearchBar = () => {
     const { language } = useLanguage();
     const navigate = useNavigate();
     
+    const isAuthenticated = useSelector((state: RootState) => state.auth.isAuthenticated);
+
     const [searchQuery, setSearchQuery] = useState('');
     const [showDropdown, setShowDropdown] = useState(false);
     const [recentHistory, setRecentHistory] = useState<SearchKeyword[]>([]);
@@ -50,13 +54,16 @@ const MainSearchBar = () => {
     // Load search data separately
     const loadSearchData = async () => {
         try {
-            const [history, trending] = await Promise.all([
-                SearchService.getSearchHistory(),
-                SearchService.getTrendingKeywords()
-            ]);
-            
-            setRecentHistory(history);
+            const trending = await SearchService.getTrendingKeywords();
             setTrendingKeywords(trending);
+
+            // Only load history if user is authenticated
+            if (isAuthenticated) {
+                const history = await SearchService.getSearchHistory();
+                setRecentHistory(history);
+            } else {
+                setRecentHistory([]);
+            }
         } catch (error) {
             console.error('Error loading search data:', error);
         }
@@ -114,6 +121,7 @@ const MainSearchBar = () => {
     // Handle delete history item
     const handleDeleteHistoryItem = async (e: React.MouseEvent, keyword: string) => {
         e.stopPropagation(); // Prevent triggering search
+        if (!isAuthenticated) return;
         try {
             await SearchService.deleteHistoryItem(keyword);
             // Remove item from local state
@@ -125,6 +133,7 @@ const MainSearchBar = () => {
 
     // Handle clear all history
     const handleClearAllHistory = async () => {
+        if (!isAuthenticated) return;
         try {
             await SearchService.clearAllHistory();
             setRecentHistory([]);
@@ -227,7 +236,7 @@ const MainSearchBar = () => {
                     {!isLoading && searchQuery.trim().length < 2 && (
                         <div className="p-4">
                             {/* Recent searches section */}
-                            {recentHistory.length > 0 && (
+                            {isAuthenticated && recentHistory.length > 0 && (
                                 <div className="mb-6">
                                     <div className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-3 flex items-center justify-between">
                                         <div className="flex items-center gap-2">
@@ -300,7 +309,7 @@ const MainSearchBar = () => {
                             )}
 
                             {/* Empty state cho user mới */}
-                            {recentHistory.length === 0 && trendingKeywords.length === 0 && (
+                            {(!isAuthenticated || recentHistory.length === 0) && trendingKeywords.length === 0 && (
                                 <div className="text-center py-8">
                                     <FiTrendingUp size={32} className="mx-auto text-gray-400 dark:text-gray-500 mb-3" />
                                     <div className="text-sm text-gray-500 dark:text-gray-400">
