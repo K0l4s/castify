@@ -1,0 +1,53 @@
+version: '3.8'
+
+services:
+  mongodb:
+    image: mongo:7.0
+    container_name: castify-mongodb
+    restart: unless-stopped
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb_data:/data/db
+    networks:
+      - castify-network
+
+  # Redis service
+  redis:
+    image: redis:7.2-alpine
+    container_name: castify-redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    command: redis-server --appendonly yes
+    volumes:
+      - redis_data:/data
+    networks:
+      - castify-network
+
+  # Spring Boot application
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: castify-backend
+    restart: unless-stopped
+    ports:
+      - "9090:9090"
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+    depends_on:
+      - mongodb
+      - redis
+    networks:
+      - castify-network
+    volumes:
+      - ./castify_resources:/app/castify_resources
+
+volumes:
+  mongodb_data:
+  redis_data:
+
+networks:
+  castify-network:
+    driver: bridge
