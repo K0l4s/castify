@@ -18,13 +18,11 @@ import com.castify.backend.service.uploadFile.UploadFileServiceImpl;
 import com.castify.backend.service.user.IUserService;
 import com.castify.backend.service.userActivity.UserActivityServiceImpl;
 import com.castify.backend.utils.SecurityUtils;
+import lombok.extern.slf4j.Slf4j;
 import org.bson.types.ObjectId;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.*;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
@@ -38,6 +36,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
+@Slf4j
 public class PodcastServiceImpl implements IPodcastService {
     @Autowired
     private ModelMapper modelMapper;
@@ -790,6 +789,33 @@ public class PodcastServiceImpl implements IPodcastService {
                 .map(this::convertToPodcastModel)
                 .collect(Collectors.toList()).get(0);
     }
+
+    @Override
+    public Page<PodcastModel> searchPodcasts(String keyword, Pageable pageable) {
+        try {
+            // Sử dụng method có sẵn từ repository
+            Page<PodcastEntity> podcastEntities = podcastRepository.searchPodcastByFields(keyword, pageable);
+
+            // Convert entities to models
+            List<PodcastModel> podcastModels = podcastEntities.getContent().stream()
+                    .map(podcast -> {
+                        PodcastModel podcastModel = modelMapper.map(podcast, PodcastModel.class);
+                        podcastModel.setTotalComments(commentRepository.countByPodcastId(podcast.getId()));
+                        podcastModel.setTotalLikes(podcastLikeRepository.countByPodcastEntityId(podcast.getId()));
+                        podcastModel.setUsername(podcast.getUser().getUsername());
+                        return podcastModel;
+                    })
+                    .collect(Collectors.toList());
+
+            // Create new Page with converted content
+            return new PageImpl<>(podcastModels, pageable, podcastEntities.getTotalElements());
+
+        } catch (Exception e) {
+            log.error("Error searching podcasts with keyword: {}", keyword, e);
+            return Page.empty(pageable);
+        }
+    }
+
     private PodcastModel convertToPodcastModel(PodcastEntity entity) {
         PodcastModel model = new PodcastModel();
         model.setId(entity.getId());

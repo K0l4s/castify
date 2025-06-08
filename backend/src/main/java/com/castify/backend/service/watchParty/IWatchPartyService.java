@@ -5,6 +5,9 @@ import com.castify.backend.entity.watchParty.WatchPartyRoomEntity;
 import com.castify.backend.enums.SyncEventType;
 import com.castify.backend.models.PageDTO;
 import com.castify.backend.models.watchParty.EditWatchPartyRoomDTO;
+import com.castify.backend.models.watchParty.WatchPartyRoomModel;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 import java.util.List;
 import java.util.Map;
@@ -31,5 +34,5 @@ public interface IWatchPartyService {
 
     WatchPartyRoomEntity extendRoomExpiration(String roomId, int additionalHours);
     Map<String, Object> getRoomExpirationInfo(String roomId);
-
+    Page<WatchPartyRoomModel> searchRooms(String keyword, Pageable pageable);
 }

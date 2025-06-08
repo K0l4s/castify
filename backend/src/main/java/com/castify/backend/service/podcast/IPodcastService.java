@@ -7,6 +7,8 @@ import com.castify.backend.models.comment.CommentModel;
 import com.castify.backend.models.podcast.CreatePodcastModel;
 import com.castify.backend.models.podcast.EditPodcastDTO;
 import com.castify.backend.models.podcast.PodcastModel;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 import java.util.List;
 import java.util.Map;
@@ -36,4 +38,5 @@ public interface IPodcastService {
     PageDTO<PodcastModel> getFollowingPodcastsByUsername(String username, int page, int size);
 
     PodcastModel getSuggestedPodcasts(String currentPodcastId);
+    Page<PodcastModel> searchPodcasts(String keyword, Pageable pageable);
 }

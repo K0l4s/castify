@@ -12,7 +12,14 @@ import com.castify.backend.repository.PlaylistRepository;
 import com.castify.backend.repository.PodcastRepository;
 import com.castify.backend.utils.SecurityUtils;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.rest.webmvc.ResourceNotFoundException;
 import org.springframework.stereotype.Service;
 
@@ -25,10 +32,12 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class PlaylistServiceImpl implements IPlaylistService {
     private final PlaylistRepository playlistRepository;
     private final ModelMapper modelMapper;
     private final PodcastRepository podcastRepository;
+    private final MongoTemplate mongoTemplate;
 
     @Override
     public PlaylistModel getPlaylistById(String id) {
@@ -290,5 +299,48 @@ public class PlaylistServiceImpl implements IPlaylistService {
         playlist.setLastUpdated(LocalDateTime.now());
 
         return modelMapper.map(playlistRepository.save(playlist), PlaylistModel.class);
+    }
+
+    @Override
+    public Page<PlaylistModel> searchPlaylists(String keyword, Pageable pageable) {
+        try {
+            // Tạo query tìm kiếm theo name và description
+            Criteria criteria = new Criteria().orOperator(
+                    Criteria.where("name").regex(keyword, "i"),
+                    Criteria.where("description").regex(keyword, "i")
+            ).and("publish").is(true); // Chỉ search public playlists
+
+            Query query = new Query(criteria);
+
+            // Count total elements
+            long totalElements = mongoTemplate.count(query, PlaylistEntity.class);
+
+            // Apply pagination
+            query.with(pageable);
+            List<PlaylistEntity> playlistEntities = mongoTemplate.find(query, PlaylistEntity.class);
+
+            // Convert to models
+            List<PlaylistModel> playlistModels = playlistEntities.stream()
+                    .map(playlist -> {
+                        PlaylistModel model = modelMapper.map(playlist, PlaylistModel.class);
+
+                        // Filter active items
+                        List<PlaylistItem> activeItems = playlist.getItems().stream()
+                                .filter(item -> podcastRepository.findByIdAndIsActiveTrue(item.getPodcastId()).isPresent())
+                                .collect(Collectors.toList());
+
+                        model.setItems(activeItems);
+                        model.setHiddenCount(playlist.getItems().size() - activeItems.size());
+
+                        return model;
+                    })
+                    .collect(Collectors.toList());
+
+            return new PageImpl<>(playlistModels, pageable, totalElements);
+
+        } catch (Exception e) {
+            log.error("Error searching playlists with keyword: {}", keyword, e);
+            return Page.empty(pageable);
+        }
     }
 }

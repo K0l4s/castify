@@ -219,9 +219,9 @@ public class TrendingPodcastService {
 
         if (Boolean.TRUE.equals(lockAcquired)) {
             try {
-                log.info("Starting scheduled trending podcasts cache update");
+//                log.info("Starting scheduled trending podcasts cache update");
                 calculateAndCacheTrendingPodcasts();
-                log.info("Completed scheduled trending podcasts cache update");
+//                log.info("Completed scheduled trending podcasts cache update");
             } catch (Exception e) {
                 log.error("Error updating trending podcasts cache", e);
             } finally {

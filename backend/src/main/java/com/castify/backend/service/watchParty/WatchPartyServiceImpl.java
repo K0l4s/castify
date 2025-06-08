@@ -10,6 +10,7 @@ import com.castify.backend.enums.MessageType;
 import com.castify.backend.enums.SyncEventType;
 import com.castify.backend.models.PageDTO;
 import com.castify.backend.models.watchParty.EditWatchPartyRoomDTO;
+import com.castify.backend.models.watchParty.WatchPartyRoomModel;
 import com.castify.backend.repository.PodcastRepository;
 import com.castify.backend.repository.UserRepository;
 import com.castify.backend.repository.WatchPartyMessageRepository;
@@ -18,15 +19,18 @@ import com.castify.backend.utils.SecurityUtils;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
+import org.modelmapper.ModelMapper;
+import org.springframework.data.domain.*;
+import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -39,6 +43,8 @@ public class WatchPartyServiceImpl implements IWatchPartyService {
 
     private final Map<String, WatchPartyRoomEntity> activeRooms = new ConcurrentHashMap<>();
     private final UserRepository userRepository;
+    private final MongoTemplate mongoTemplate;
+    private final ModelMapper modelMapper;
 
     @Override
     public WatchPartyRoomEntity createRoom(String podcastId, String roomName, boolean isPublic) {
@@ -783,6 +789,47 @@ public class WatchPartyServiceImpl implements IWatchPartyService {
         );
     }
 
+    @Override
+    public Page<WatchPartyRoomModel> searchRooms(String keyword, Pageable pageable) {
+        try {
+            // Tạo query tìm kiếm theo roomName và roomCode
+            Criteria criteria = new Criteria().orOperator(
+                            Criteria.where("roomName").regex(keyword, "i"),
+                            Criteria.where("roomCode").regex(keyword, "i")
+                    ).and("isActive").is(true)
+                    .and("publish").is(true); // Chỉ search public rooms
+
+            Query query = new Query(criteria);
+
+            // Count total elements
+            long totalElements = mongoTemplate.count(query, WatchPartyRoomEntity.class);
+
+            // Apply pagination and sort by creation date
+            query.with(pageable);
+            List<WatchPartyRoomEntity> roomEntities = mongoTemplate.find(query, WatchPartyRoomEntity.class);
+
+            // Convert to models
+            List<WatchPartyRoomModel> roomModels = roomEntities.stream()
+                    .map(room -> {
+                        WatchPartyRoomModel model = modelMapper.map(room, WatchPartyRoomModel.class);
+
+                        // Add additional info
+                        model.setMaxParticipants(room.getParticipants().size());
+                        model.setHostUserId(room.getHostUserId());
+                        model.setHostUsername(getHostUsername(room.getHostUserId()));
+
+                        return model;
+                    })
+                    .collect(Collectors.toList());
+
+            return new PageImpl<>(roomModels, pageable, totalElements);
+
+        } catch (Exception e) {
+            log.error("Error searching watch party rooms with keyword: {}", keyword, e);
+            return Page.empty(pageable);
+        }
+    }
+
     private void sendExpirationUpdateNotification(String roomId, LocalDateTime newExpiration, int additionalHours, String hostUsername) {
         try {
             Map<String, Object> expirationUpdate = Map.of(
@@ -799,6 +846,16 @@ public class WatchPartyServiceImpl implements IWatchPartyService {
             log.info("Sent expiration update notification for room: {} - New expiration: {}", roomId, newExpiration);
         } catch (Exception e) {
             log.error("Failed to send expiration update notification for room: {}", roomId, e);
+        }
+    }
+
+    // Helper method to get host username
+    private String getHostUsername(String hostUserId) {
+        try {
+            UserEntity host = userRepository.findById(hostUserId).orElse(null);
+            return host != null ? host.getUsername() : "Unknown";
+        } catch (Exception e) {
+            return "Unknown";
         }
     }
 }
