@@ -308,35 +308,43 @@ public class PlaylistServiceImpl implements IPlaylistService {
             Criteria criteria = new Criteria().orOperator(
                     Criteria.where("name").regex(keyword, "i"),
                     Criteria.where("description").regex(keyword, "i")
-            ).and("publish").is(true); // Chỉ search public playlists
+            )
+                    .and("publish").is(true) // Chỉ search public playlists
+                    .and("items").exists(true).not().size(0);
 
             Query query = new Query(criteria);
-
-            // Count total elements
-            long totalElements = mongoTemplate.count(query, PlaylistEntity.class);
-
-            // Apply pagination
-            query.with(pageable);
             List<PlaylistEntity> playlistEntities = mongoTemplate.find(query, PlaylistEntity.class);
 
-            // Convert to models
+            // Filter và convert to models - loại bỏ playlist không có active items
             List<PlaylistModel> playlistModels = playlistEntities.stream()
                     .map(playlist -> {
-                        PlaylistModel model = modelMapper.map(playlist, PlaylistModel.class);
-
-                        // Filter active items
+                        // Filter active items trước
                         List<PlaylistItem> activeItems = playlist.getItems().stream()
                                 .filter(item -> podcastRepository.findByIdAndIsActiveTrue(item.getPodcastId()).isPresent())
                                 .collect(Collectors.toList());
 
+                        // Chỉ trả về playlist nếu có ít nhất 1 active item
+                        if (activeItems.isEmpty()) {
+                            return null;
+                        }
+
+                        PlaylistModel model = modelMapper.map(playlist, PlaylistModel.class);
                         model.setItems(activeItems);
                         model.setHiddenCount(playlist.getItems().size() - activeItems.size());
 
                         return model;
                     })
+                    .filter(model -> model != null) // Loại bỏ các playlist null (không có active items)
                     .collect(Collectors.toList());
 
-            return new PageImpl<>(playlistModels, pageable, totalElements);
+            // Apply pagination manually sau khi filter
+            int start = (int) pageable.getOffset();
+            int end = Math.min(start + pageable.getPageSize(), playlistModels.size());
+
+            List<PlaylistModel> pagedResults = start < playlistModels.size() ?
+                    playlistModels.subList(start, end) : new ArrayList<>();
+
+            return new PageImpl<>(pagedResults, pageable, playlistModels.size());
 
         } catch (Exception e) {
             log.error("Error searching playlists with keyword: {}", keyword, e);

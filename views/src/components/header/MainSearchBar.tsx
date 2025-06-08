@@ -167,7 +167,7 @@ const MainSearchBar = () => {
                     onBlur={handleSearchBlur}
                     onKeyDown={handleEnter}
                     placeholder={language.navbar.search}
-                    className="w-full bg-transparent text-black dark:text-white outline-none text-sm placeholder-gray-500 focus:placeholder-gray-400 transition-colors duration-200"
+                    className="w-full bg-transparent text-black dark:text-white outline-none text-sm placeholder-gray-500 focus:placeholder-gray-400 transition-colors duration-200 [&::-webkit-search-cancel-button]:appearance-none [&::-webkit-search-decoration]:appearance-none"
                     aria-label="Search"
                     data-testid="search-input"
                 />
