@@ -28,9 +28,9 @@ const ConversationLayout = () => {
                         <MainConversation />
                     ) : (
                         <div className="min-h-screen h-full w-full ">
-                            <div className="grid place-items-center">
+                            <div className="grid place-items-center m-auto">
                                 <img
-                                    src="https://cdni.iconscout.com/illustration/premium/thumb/conversation-illustration-download-in-svg-png-gif-file-formats--like-logo-love-discussion-romantic-comment-social-media-reaction-communication-pack-network-illustrations-4705280.png?f=webp"
+                                    src="https://media.tenor.com/1r_7_6EtapgAAAAj/rolling-roll.gif"
                                     alt="Please select a conversation"
                                 />
                                 <h1 className="text-3xl font-semibold text-gray-500 dark:text-gray-400">

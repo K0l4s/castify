@@ -1,62 +1,32 @@
 import React, { useState, useEffect, useRef } from "react";
 import { FaChevronLeft, FaChevronRight } from "react-icons/fa";
-import Banner from "./Banner";
 
 interface Slide {
     title?: string;
+    descript?: string;
     content?: JSX.Element;
     imageUrl?: string;
     button1Text?: string;
 }
 
-const slides: Slide[] = [
-    {
-        content: (
-            <Banner
-                title="Blankcil is a platform for podcast lovers"
-                linkTo="/certificate"
-                buttonText="See All Certifications"
-                imageUrl="https://images3.alphacoders.com/103/1038857.jpg"
-            />
-        ),
-    },
-    {
-        content: (
-            <Banner
-                title="You can create your own podcast"
-                linkTo="/courses"
-                imageUrl="https://www.skyweaver.net/images/media/wallpapers/wallpaper1.jpg"
-                buttonText="Enroll now"
-            />
-        ),
-    },
-    {
-        content: (
-            <Banner
-                title="Register to become a creator"
-                linkTo="/job"
-                imageUrl="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSlfxps-j1QZ0F36RZ8PnlC9FCEe5npD_fX7qKLk6u1ICB1YCJkJz2fr4JWi6ghgt-TVYY&usqp=CAU"
-                buttonText="See Pathway"
-            />
-        ),
-    },
-];
+interface CustomCarouselProps {
+    slides: Slide[];
+}
 
-const CustomCarousel: React.FC = () => {
+const CustomCarousel: React.FC<CustomCarouselProps> = ({ slides }) => {
     const [currentIndex, setCurrentIndex] = useState(0);
-    const delay = 3000;
+    const delay = 4000;
 
-    // Kéo chuột
+    // Drag
     const startX = useRef<number | null>(null);
     const isDragging = useRef(false);
-    const containerRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
         const interval = setInterval(() => {
             nextSlide();
         }, delay);
         return () => clearInterval(interval);
-    }, [currentIndex]);
+    }, [currentIndex, slides.length]);
 
     const nextSlide = () => {
         setCurrentIndex((prevIndex) => (prevIndex + 1) % slides.length);
@@ -93,72 +63,110 @@ const CustomCarousel: React.FC = () => {
 
     return (
         <div
-            className="relative w-full h-50 mx-auto rounded-lg overflow-hidden mb-2 select-none"
-            ref={containerRef}
+            className="relative w-full h-[420px] mx-auto rounded-3xl overflow-hidden mb-8 select-none shadow-2xl bg-gradient-to-br from-blue-50 via-white to-purple-100"
             onMouseDown={handleMouseDown}
             onMouseMove={handleMouseMove}
             onMouseUp={handleMouseUp}
             onMouseLeave={handleMouseUp}
         >
-            <div className="overflow-hidden relative">
+            {/* Slides */}
+            <div className="overflow-hidden relative w-full h-full">
                 <div
-                    className="flex w-full transition-transform duration-700"
+                    className="flex w-full h-full transition-transform duration-700 ease-in-out"
                     style={{ transform: `translateX(-${currentIndex * 100}%)` }}
                 >
                     {slides.map((slide, index) => (
                         <div
                             key={index}
-                            className="min-w-full flex flex-col items-center bg-gray-100 rounded-lg"
+                            className="min-w-full h-full relative flex flex-col items-center justify-center"
                         >
-                            {slide.content ? (
-                                slide.content
-                            ) : (
-                                <>
-                                    <h2 className="text-3xl font-bold mb-4">{slide.title}</h2>
-                                    {slide.button1Text && (
-                                        <button className="bg-blue-500 text-white px-6 py-2 rounded-lg mr-2">
-                                            {slide.button1Text}
-                                        </button>
-                                    )}
-                                    {slide.imageUrl && (
-                                        <img
-                                            src={slide.imageUrl}
-                                            alt={slide.title}
-                                            className="mt-6 max-w-full h-auto rounded-lg"
-                                        />
-                                    )}
-                                </>
+                            {/* Background Image */}
+                            {slide.imageUrl && (
+                                <img
+                                    src={slide.imageUrl}
+                                    alt={slide.title || `slide-${index}`}
+                                    className="absolute inset-0 w-full object-cover z-0 blur-[2px] brightness-90"
+                                />
                             )}
+                            {/* Overlay */}
+                            <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent z-10" />
+                            {/* Content */}
+                            <div className="relative z-20 w-full h-full flex flex-col items-center justify-center px-8">
+                                {slide.content ? (
+                                    <div className="w-full h-full flex items-center justify-center">
+                                        {slide.content}
+                                    </div>
+                                ) : (
+                                    <div className="flex flex-col items-center gap-4">
+                                        {slide.title && (
+                                            <h2 className="text-4xl font-bold text-white drop-shadow-lg text-center animate-fade-in-up">
+                                                {slide.title}
+                                            </h2>
+                                        )}
+                                        {slide.descript && (
+                                            <p className="text-lg text-white/90 text-center max-w-xl animate-fade-in-up delay-100">
+                                                {slide.descript}
+                                            </p>
+                                        )}
+                                        {slide.button1Text && (
+                                            <button className="mt-4 px-7 py-3 rounded-full bg-gradient-to-r from-blue-600 to-purple-600 text-white font-semibold shadow-lg hover:scale-105 hover:from-blue-700 hover:to-purple-700 transition-all duration-200 animate-fade-in-up delay-200">
+                                                {slide.button1Text}
+                                            </button>
+                                        )}
+                                    </div>
+                                )}
+                            </div>
                         </div>
                     ))}
                 </div>
             </div>
 
-            {/* Buttons */}
+            {/* Left Arrow */}
             <button
-                className="absolute top-1/2 left-2 transform -translate-y-1/2 text-white py-2 rounded-l-lg hover:bg-gray-700/50"
+                className="absolute top-1/2 left-6 -translate-y-1/2 bg-white/70 hover:bg-white/90 text-blue-700 shadow-lg p-3 rounded-full z-30 transition-all border border-blue-200 backdrop-blur"
                 onClick={prevSlide}
+                aria-label="Previous Slide"
             >
-                <FaChevronLeft />
+                <FaChevronLeft size={22} />
             </button>
 
+            {/* Right Arrow */}
             <button
-                className="absolute top-1/2 right-2 transform -translate-y-1/2 text-white py-2 rounded-r-lg hover:bg-gray-700/50"
+                className="absolute top-1/2 right-6 -translate-y-1/2 bg-white/70 hover:bg-white/90 text-blue-700 shadow-lg p-3 rounded-full z-30 transition-all border border-blue-200 backdrop-blur"
                 onClick={nextSlide}
+                aria-label="Next Slide"
             >
-                <FaChevronRight />
+                <FaChevronRight size={22} />
             </button>
 
             {/* Dots */}
-            <div className="absolute bottom-2 left-1/2 transform -translate-x-1/2 flex space-x-2">
+            <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex space-x-3 z-30">
                 {slides.map((_, index) => (
                     <button
                         key={index}
-                        className={`w-2 h-2 rounded-full ${currentIndex === index ? "bg-blue-500" : "bg-gray-300"}`}
+                        className={`w-4 h-4 rounded-full border-2 border-white shadow transition-all duration-200
+                            ${currentIndex === index
+                                ? "bg-gradient-to-r from-blue-500 to-purple-500 scale-125 border-blue-400"
+                                : "bg-white/60 hover:bg-blue-200"
+                            }`}
                         onClick={() => setCurrentIndex(index)}
+                        aria-label={`Go to slide ${index + 1}`}
                     ></button>
                 ))}
             </div>
+
+            {/* Animations */}
+            <style>{`
+                @keyframes fade-in-up {
+                    0% { opacity: 0; transform: translateY(30px);}
+                    100% { opacity: 1; transform: translateY(0);}
+                }
+                .animate-fade-in-up {
+                    animation: fade-in-up 0.7s cubic-bezier(.4,0,.2,1) both;
+                }
+                .delay-100 { animation-delay: 0.1s; }
+                .delay-200 { animation-delay: 0.2s; }
+            `}</style>
         </div>
     );
 };

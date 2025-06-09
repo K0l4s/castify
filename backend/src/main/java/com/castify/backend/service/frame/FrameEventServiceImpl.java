@@ -41,6 +41,7 @@ public class FrameEventServiceImpl implements IFrameEventService {
     private MongoTemplate mongoTemplate;
 
     //    Get all event
+    @Override
     public List<FrameEventEntity> searchFrameEvent(
             String keyword,
             LocalDateTime fromDate,
@@ -91,5 +92,10 @@ public class FrameEventServiceImpl implements IFrameEventService {
         return mongoTemplate.find(query, FrameEventEntity.class);
     }
 
+    @Override
+    public FrameEventEntity getActiveFrameEvent(){
+        LocalDateTime now = LocalDateTime.now();
+        return frameEventRepository.findOngoingEvents(now);
+    }
 
 }

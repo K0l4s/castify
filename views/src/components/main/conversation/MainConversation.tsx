@@ -246,7 +246,7 @@ const MainConversation = () => {
           {messages.length < 1 && (
             <div className="flex flex-col items-center justify-center absolute inset-0">
               <img
-                src="https://cdn.pixabay.com/animation/2023/06/13/15/13/15-13-25-972_512.gif"
+                src="https://media.tenor.com/1r_7_6EtapgAAAAj/rolling-roll.gif"
                 alt=""
                 className="w-32 h-32 rounded-full mb-6 animate-bounce"
               />
