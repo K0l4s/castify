@@ -113,7 +113,7 @@ const RoomExpirationTimer: React.FC<RoomExpirationTimerProps> = ({
     <div className={`p-3 rounded-lg border transition-colors duration-300 ${
       isExpiringSoon 
         ? 'bg-yellow-50 dark:bg-yellow-900/30 border-yellow-200 dark:border-yellow-700' 
-        : 'bg-blue-50 dark:bg-blue-900/30 border-blue-200 dark:border-blue-700'
+        : 'bg-blue-500/10 dark:bg-blue-900/30 border-blue-200 dark:border-blue-700'
     }`}>
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">

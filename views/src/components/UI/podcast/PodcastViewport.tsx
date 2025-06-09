@@ -414,7 +414,13 @@ const PodcastViewport: React.FC = () => {
               icon={<FaUsers size={20}/>}
               variant="primary"
               rounded="full"
-              onClick={() => navigate(`/watch-party?pid=${podcast.id}`)}
+              onClick={() => { 
+                if (!isAuthenticated) {
+                  toast.warning("Please login to do this action");
+                  return;
+                }
+                navigate(`/watch-party?pid=${podcast.id}`)
+              }}
               className="bg-purple-600 hover:bg-purple-500 dark:bg-purple-600 hover:dark:bg-purple-500"
             />
             <div className="relative">
@@ -436,7 +442,14 @@ const PodcastViewport: React.FC = () => {
                       <FaBookmark className="inline-block mb-1 mr-2" />
                       Save
                     </li>
-                    <li className="px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer" onClick={() => toggleAddToPlaylistModal(podcast.id)}>
+                    <li className="px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer" 
+                      onClick={() => { 
+                        if (!isAuthenticated) {
+                          toast.warning("Please login to do this action");
+                          return;
+                        }
+                        toggleAddToPlaylistModal(podcast.id);
+                      }}>
                       <FaBookmark className="inline-block mb-1 mr-2" />
                       Add to playlist
                     </li>

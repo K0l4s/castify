@@ -860,7 +860,7 @@ const WatchPartyPage: React.FC = () => {
 
       {/* Room Info Banner (if in a room) */}
       {room && (
-        <div className="bg-blue-50 dark:bg-blue-900/30 p-4 rounded-lg flex flex-col md:flex-row justify-between items-start md:items-center mb-6">
+        <div className="bg-blue-500/10 dark:bg-blue-900/30 p-4 rounded-lg flex flex-col md:flex-row justify-between items-start md:items-center mb-6">
           <div>
             <div className="flex items-center gap-2 mb-1">
               <span className="font-medium text-blue-800 dark:text-blue-300">{language.watchParty.page.roomCode}:</span>
