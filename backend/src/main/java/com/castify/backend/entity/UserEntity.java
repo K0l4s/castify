@@ -72,6 +72,8 @@ public class UserEntity implements UserDetails {
     private FrameEntity usedFrame;
     private List<String> favoriteGenreIds = new ArrayList<>();
 
+    // Genres that user may interest
+    private List<String> suggestedGenreIds = new ArrayList<>();
 //    public FrameEntity getUsedFrame(){
 //        if(usedFrame.getStatus().equals(FrameStatus.ACCEPTED))
 //            return usedFrame;

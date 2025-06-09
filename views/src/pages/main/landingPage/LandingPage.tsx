@@ -1,73 +1,117 @@
 
 // import PodcastPlayer from "../../../components/UI/podcast/PodcastPlayer";
-import { useEffect, useState } from "react";
-import RecentPodcast from "./RecentPodcast";
-import { getGenres } from "../../../services/GenreService";
-import TabNavigation from "./TabNavigation";
-import GenresPodcast from "./GenresPodcast";
-import { useLocation, useNavigate } from "react-router-dom";
-import PopularPodcast from "./PopularPodcast";
+// import { useEffect, useState } from "react";
+// import { getGenres } from "../../../services/GenreService";
+// import { useLocation, useNavigate } from "react-router-dom";
 import TrendingCarousel from "./TrendingCarousel";
 import SEO from "../../../context/SEO";
-import { useLanguage } from "../../../context/LanguageContext";
-import en from "../../../locales/en.json";
+// import { useLanguage } from "../../../context/LanguageContext";
+// import en from "../../../locales/en.json";
 import { CardItem } from "./CardItem";
 import SuggestFollow from "./SuggestFollow";
 import IntroVideoPage from "./IntroVideoPage";
 import { useDocumentTitle } from "../../../hooks/useDocumentTitle";
+import GenresPodcastList from "./GenresPodcastList";
+import { ReportType } from "../../../models/Report";
+import { useState } from "react";
+import ReportModal from "../../../components/modals/report/ReportModal";
+import ShareModal from "../../../components/modals/podcast/ShareModal";
+import AddToPlaylistModal from "../playlistPage/AddToPlaylistModal";
+import { useSelector } from "react-redux";
+import { RootState } from "../../../redux/store";
+import { useToast } from "../../../context/ToastProvider";
 // import FancyCard from "../../../components/UI/custom/FancyCard";
 
 const LandingPage = () => {
-  const [selectedTab, setSelectedTab] = useState('Popular');
-  const [genres, setGenres] = useState<{ id: string; name: string }[]>([]);
-  const navigate = useNavigate();
-  const location = useLocation();
+  // const navigate = useNavigate();
   useDocumentTitle(null, 'Castify - Chill with your audience');
-  useEffect(() => {
-    const fetchGenres = async () => {
-      try {
-        const response = await getGenres();
-        setGenres(response);
-      } catch (error) {
-        console.error('Failed to fetch genres:', error);
-      }
-    };
+  const isAuthenticated = useSelector((state: RootState) => state.auth.isAuthenticated);
+  // const { language } = useLanguage();
+  const toast = useToast();
 
-    fetchGenres();
-  }, []);
+  // Modal states
+  const [reportModal, setReportModal] = useState({
+    isOpen: false,
+    targetId: '',
+    reportType: ReportType.P
+  });
+  
+  const [shareModal, setShareModal] = useState({
+    isOpen: false,
+    podcastLink: ''
+  });
+  
+  const [playlistModal, setPlaylistModal] = useState({
+    isOpen: false,
+    podcastId: ''
+  });
 
-  useEffect(() => {
-    const params = new URLSearchParams(location.search);
-    const tab = params.get('tab');
-    if (tab) {
-      setSelectedTab(decodeURIComponent(tab));
+  // Current selected podcast for actions
+  const [, setSelectedPodcast] = useState<{
+    id: string;
+    title?: string;
+  } | null>(null);
+
+  const handleReport = (podcastId: string) => {
+    if (!isAuthenticated) {
+      toast.warning("Please log in to do this action.");
+      return;
     }
-  }, [location.search]);
-  const { language } = useLanguage();
-  const handleTabSelect = (tab: string) => {
-    setSelectedTab(tab);
-    if (tab === language.tabNav.popular) {
-      navigate(`?tab=${(en.tabNav.popular)}`);
-    }
-    else if (tab === language.tabNav.recent) {
-      navigate(`?tab=${(en.tabNav.recent)}`);
-    }
-    // console.log('Selected tab:', tab);
-    else
-      navigate(`?tab=${encodeURIComponent(tab)}`);
+    setSelectedPodcast({ id: podcastId });
+    setReportModal({
+      isOpen: true,
+      targetId: podcastId,
+      reportType: ReportType.P
+    });
   };
 
-  const renderContent = () => {
-    switch (selectedTab) {
-      case 'Popular':
-        return <PopularPodcast />;
-      case 'Recent':
-        return <RecentPodcast />;
-      default:
-        const selectedGenre = genres.find((genre) => genre.name === selectedTab);
-        return selectedGenre ? <GenresPodcast genreId={selectedGenre.id} /> : <RecentPodcast />;
+  const handleAddToPlaylist = (podcastId: string) => {
+    if (!isAuthenticated) {
+      toast.warning("Please log in to do this action.");
+      return;
     }
+    setSelectedPodcast({ id: podcastId });
+    setPlaylistModal({
+      isOpen: true,
+      podcastId: podcastId
+    });
   };
+
+  const handleShare = (podcastId: string, podcastTitle?: string) => {
+    setSelectedPodcast({ id: podcastId, title: podcastTitle });
+    const podcastLink = `${window.location.origin}/watch?pid=${podcastId}`;
+    setShareModal({
+      isOpen: true,
+      podcastLink: podcastLink
+    });
+  };
+
+  // Close modal handlers
+  const closeReportModal = () => {
+    setReportModal({
+      isOpen: false,
+      targetId: '',
+      reportType: ReportType.P
+    });
+    setSelectedPodcast(null);
+  };
+
+  const closeShareModal = () => {
+    setShareModal({
+      isOpen: false,
+      podcastLink: ''
+    });
+    setSelectedPodcast(null);
+  };
+
+  const closePlaylistModal = () => {
+    setPlaylistModal({
+      isOpen: false,
+      podcastId: ''
+    });
+    setSelectedPodcast(null);
+  };
+
   <SEO
     title="Castify - Homepage"
     description="Discover the latest and most popular podcasts on Castify. Explore a wide range of genres and find your next favorite show."
@@ -94,6 +138,7 @@ const LandingPage = () => {
     ]}
   />
   return (
+    <>
     <div className="px-8 py-4">
       <IntroVideoPage />
       {/* New Trending Carousel */}
@@ -119,13 +164,37 @@ const LandingPage = () => {
         </div>
       </div>
       <SuggestFollow />
-      {/* Tab Navigation */}
-      <TabNavigation selectedTab={selectedTab} onSelectTab={handleTabSelect} genres={genres} />
-      {/* Content */}
-      <div className="m-auto">
-        {renderContent()}
+
+      {/* Podcast Sections */}
+      <div className="px-8 py-4">
+        <GenresPodcastList
+          onReport={handleReport}
+          onAddToPlaylist={handleAddToPlaylist}
+          onShare={handleShare}
+        />
       </div>
     </div>
+
+    {/* Modals */}
+      <ReportModal
+        isOpen={reportModal.isOpen}
+        onClose={closeReportModal}
+        targetId={reportModal.targetId}
+        reportType={reportModal.reportType}
+      />
+
+      <ShareModal
+        isOpen={shareModal.isOpen}
+        onClose={closeShareModal}
+        podcastLink={shareModal.podcastLink}
+      />
+
+      <AddToPlaylistModal
+        isOpen={playlistModal.isOpen}
+        onClose={closePlaylistModal}
+        podcastId={playlistModal.podcastId}
+      />
+    </>
   )
 }
 

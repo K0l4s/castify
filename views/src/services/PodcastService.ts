@@ -1,4 +1,5 @@
 import { Podcast, PodcastResponse } from "../models/PodcastModel";
+import { store } from "../redux/store";
 import { axiosInstance, axiosInstanceAuth, axiosInstanceFile, BaseApi } from "../utils/axiosInstance";
 
 interface CreatePodcastPayload {
@@ -7,6 +8,12 @@ interface CreatePodcastPayload {
   video: File;
   thumbnail?: File;
   genreIds: string[];
+}
+
+const getAxiosInstance = () => {
+  const state = store.getState();
+  const isAuthenticated = state.auth.isAuthenticated;
+  return isAuthenticated ? axiosInstanceAuth : axiosInstance;
 }
 
 export const createPodcast = async (payload: CreatePodcastPayload) => {
@@ -258,7 +265,8 @@ export const getSuggestedPodcastsByGenres = async (
 
 export const incrementPodcastViews = async (podcastId: string) => {
   try {
-    const response = await axiosInstance.post(`/api/v1/podcast/${podcastId}/inc-views`);
+    const axiosClient = getAxiosInstance();
+    const response = await axiosClient.post(`/api/v1/podcast/${podcastId}/inc-views`);
     return response.data;
   } catch (error) {
     throw error;

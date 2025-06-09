@@ -24,6 +24,10 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 
+import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -51,6 +55,8 @@ public class UserServiceImpl implements IUserService {
     UserTemplate userRepositoryTemplate;
     @Autowired
     private INotificationService notificationService = new NotificationServiceImpl();
+    @Autowired
+    private MongoTemplate mongoTemplate;
 
     @Override
     public UserModel getUserByUsername(String username) throws Exception {
@@ -616,6 +622,29 @@ public class UserServiceImpl implements IUserService {
         } catch (Exception e) {
             log.error("Error searching users with keyword: {}", keyword, e);
             return Page.empty(pageable);
+        }
+    }
+
+    @Override
+    public void updateSuggestedGenres(String userId, List<String> genreIds) {
+        try {
+            UserEntity user = userRepository.findById(userId)
+                    .orElseThrow(() -> new RuntimeException("User not found"));
+
+            // Lọc ra những genre chưa có trong favoriteGenreIds và suggestedGenreIds
+            List<String> newSuggestedGenres = genreIds.stream()
+                    .filter(genreId -> !user.getFavoriteGenreIds().contains(genreId))
+                    .filter(genreId -> !user.getSuggestedGenreIds().contains(genreId))
+                    .toList();
+
+            if (!newSuggestedGenres.isEmpty()) {
+                // Sử dụng MongoDB update để thêm vào suggestedGenreIds
+                Query query = new Query(Criteria.where("_id").is(userId));
+                Update update = new Update().addToSet("suggestedGenreIds").each(newSuggestedGenres.toArray());
+                mongoTemplate.updateFirst(query, update, UserEntity.class);
+            }
+        } catch (Exception e) {
+            log.error("Error updating suggested genres for user {}: {}", userId, e.getMessage());
         }
     }
 

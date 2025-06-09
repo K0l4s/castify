@@ -1,11 +1,11 @@
 import React, { useEffect, useState, useRef, useCallback } from "react";
-import { getUserActivities, removeUserActivity, removeAllUserActivities, searchUserActivities } from "../../../services/UserActivityService";
+import { getUserActivities, removeUserActivity, removeAllUserActivities } from "../../../services/UserActivityService";
 import CustomButton from "../../../components/UI/custom/CustomButton";
-import { FiLoader, FiSettings } from "react-icons/fi";
+import { FiLoader } from "react-icons/fi";
 import PodcastHistory from "../../../components/UI/podcast/PodcastHistory";
 import { useToast } from "../../../context/ToastProvider";
 import { FaRegTrashCan } from "react-icons/fa6";
-import { IoCloseOutline } from "react-icons/io5";
+// import { IoCloseOutline } from "react-icons/io5";
 import { useSelector } from "react-redux";
 import { RootState } from "../../../redux/store";
 import ConfirmModal from "../../../components/modals/utils/ConfirmDelete";
@@ -17,8 +17,8 @@ const HistoryPage: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [page, setPage] = useState<number>(0);
   const [totalPages, setTotalPages] = useState<number>(0);
-  const [searchTerm, setSearchTerm] = useState<string>("");
-  const [isSearching, setIsSearching] = useState<boolean>(false);
+  // const [searchTerm, setSearchTerm] = useState<string>("");
+  const [isSearching, ] = useState<boolean>(false);
   const [isConfirmModalOpen, setIsConfirmModalOpen] = useState<boolean>(false);
 
   // Refs for infinite scrolling
@@ -158,43 +158,43 @@ const HistoryPage: React.FC = () => {
     };
   }, [loadMoreActivities, loadingMore, page, totalPages, isSearching]);
 
-  const searchActivities = async () => {
-    if (!searchTerm.trim()) {
-      clearSearch();
-      return;
-    }
+  // const searchActivities = async () => {
+  //   if (!searchTerm.trim()) {
+  //     clearSearch();
+  //     return;
+  //   }
     
-    setLoading(true);
-    setIsSearching(true);
+  //   setLoading(true);
+  //   setIsSearching(true);
     
-    try {
-      const data = await searchUserActivities(searchTerm);
-      const groups = groupActivitiesByDate(data);
-      setActivities(groups);
-    } catch (error) {
-      console.error('Error searching activities:', error);
-      setError('Failed to search activities');
-    } finally {
-      setLoading(false);
-    }
-  };
+  //   try {
+  //     const data = await searchUserActivities(searchTerm);
+  //     const groups = groupActivitiesByDate(data);
+  //     setActivities(groups);
+  //   } catch (error) {
+  //     console.error('Error searching activities:', error);
+  //     setError('Failed to search activities');
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // };
 
-  const handleSearch = (event: React.KeyboardEvent<HTMLInputElement>) => {
-    if (event.key === 'Enter') {
-      searchActivities();
-    }
-  };
+  // const handleSearch = (event: React.KeyboardEvent<HTMLInputElement>) => {
+  //   if (event.key === 'Enter') {
+  //     searchActivities();
+  //   }
+  // };
 
-  const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setSearchTerm(event.target.value);
-  };
+  // const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+  //   setSearchTerm(event.target.value);
+  // };
 
-  const clearSearch = () => {
-    setSearchTerm("");
-    setIsSearching(false);
-    setPage(0);
-    setActivities([]);
-  };
+  // const clearSearch = () => {
+  //   setSearchTerm("");
+  //   setIsSearching(false);
+  //   setPage(0);
+  //   setActivities([]);
+  // };
 
   const openConfirmModal = () => {
     setIsConfirmModalOpen(true);
@@ -264,13 +264,13 @@ const HistoryPage: React.FC = () => {
       <div className="w-full lg:w-1/4 lg:pl-4 mb-6 lg:mb-0 order-first lg:order-last">
         <div className="rounded-lg p-3 md:p-4 mb-4 bg-white/5 backdrop-blur-sm border border-gray-200 dark:border-gray-700">
           <h2 className="text-lg md:text-xl text-black dark:text-white font-semibold mb-2">Search History</h2>
-          <div className="relative">
+          {/* <div className="relative">
             <input
               type="text"
               value={searchTerm}
               onChange={handleInputChange}
               onKeyDown={handleSearch}
-              className="w-full p-2 text-sm md:text-base border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800"
+              className="w-full p-2 text-black dark:text-white text-sm md:text-base border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800"
               placeholder="Search by podcast title"
             />
             {searchTerm && (
@@ -281,7 +281,7 @@ const HistoryPage: React.FC = () => {
                 <IoCloseOutline size={20} className="md:w-6 md:h-6" />
               </button>
             )}
-          </div>
+          </div> */}
           <CustomButton
             text="Clear all viewed history"
             icon={<FaRegTrashCan className="w-4 h-4 md:w-5 md:h-5" />}
@@ -289,12 +289,12 @@ const HistoryPage: React.FC = () => {
             onClick={openConfirmModal}
             className="mt-2 w-full text-sm md:text-base text-gray-700 dark:text-gray-300 hover:text-red-600 dark:hover:text-red-400"
           />
-          <CustomButton
+          {/* <CustomButton
             text="Manage your comment"
             icon={<FiSettings className="w-4 h-4 md:w-5 md:h-5" />}
             variant="ghost"
             className="mt-2 w-full text-sm md:text-base text-gray-700 dark:text-gray-300"
-          />
+          /> */}
         </div>
       </div>
       <div className="w-full lg:w-3/4 lg:pr-4">
