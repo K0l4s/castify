@@ -14,4 +14,6 @@ public interface GenreRepository extends MongoRepository<GenreEntity, String> {
     @Query("{ '_id': { $in: ?0 } }")
     List<GenreEntity> findAllById(List<String> ids);
     long countByIsActiveTrue();
+    List<GenreEntity> findByIsActiveTrue();
+    List<GenreEntity> findByIdInAndIsActiveTrue(List<String> ids);
 }

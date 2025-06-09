@@ -78,4 +78,5 @@ public interface IUserService {
     PaginatedResponse<UserSimple> getFriendList(String keyword,Integer pageNumber, Integer pageSize) throws Exception;
     void updateFavoriteGenres(List<String> genreIds);
     Page<UserSimple> searchUsers(String keyword, Pageable pageable);
+    void updateSuggestedGenres(String userId, List<String> genreIds);
 }

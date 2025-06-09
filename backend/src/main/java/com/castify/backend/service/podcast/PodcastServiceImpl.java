@@ -470,9 +470,34 @@ public class PodcastServiceImpl implements IPodcastService {
 
     @Override
     public void incrementPodcastViews(String podcastId) {
-        Query query = new Query(Criteria.where("_id").is(podcastId));
-        Update update = new Update().inc("views", 1);
-        mongoTemplate.updateFirst(query, update, PodcastEntity.class);
+        try {
+            // Tăng view count
+            Query query = new Query(Criteria.where("_id").is(podcastId));
+            Update update = new Update().inc("views", 1);
+            mongoTemplate.updateFirst(query, update, PodcastEntity.class);
+
+            log.info("isAuthenticated: " + SecurityUtils.isAuthenticated());
+            // Cập nhật suggested genres cho user hiện tại (nếu đã đăng nhập)
+            if (SecurityUtils.isAuthenticated()) {
+                UserEntity currentUser = SecurityUtils.getCurrentUser();
+
+                // Lấy thông tin podcast để có được genres
+                PodcastEntity podcast = podcastRepository.findById(podcastId)
+                        .orElse(null);
+
+                if (podcast != null && podcast.getGenres() != null && !podcast.getGenres().isEmpty()) {
+                    List<String> genreIds = podcast.getGenres().stream()
+                            .map(GenreEntity::getId)
+                            .collect(Collectors.toList());
+
+                    log.info(genreIds.toString());
+                    // Cập nhật suggested genres
+                    userService.updateSuggestedGenres(currentUser.getId(), genreIds);
+                }
+            }
+        } catch (Exception e) {
+            log.error("Error incrementing podcast views for podcast {}: {}", podcastId, e.getMessage());
+        }
     }
 
     @Override

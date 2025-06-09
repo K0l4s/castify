@@ -10,6 +10,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.data.mongodb.repository.Query;
+import org.springframework.data.mongodb.repository.Update;
 import org.springframework.stereotype.Repository;
 
 @Repository
@@ -77,4 +78,7 @@ public interface UserRepository extends MongoRepository<UserEntity, String> {
 
     List<UserEntity> findByUsedFrameId(String frameId);
 //    boolean existsByUsername(String username);
+    @Query("{ '_id': ?0 }")
+    @Update("{ '$addToSet': { 'suggestedGenreIds': { '$each': ?1 } } }")
+    void addSuggestedGenres(String userId, List<String> genreIds);
 }

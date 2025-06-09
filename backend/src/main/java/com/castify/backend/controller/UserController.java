@@ -1,11 +1,14 @@
 package com.castify.backend.controller;
 
+import com.castify.backend.entity.GenreEntity;
+import com.castify.backend.entity.UserEntity;
 import com.castify.backend.enums.Permission;
 import com.castify.backend.enums.Role;
 import com.castify.backend.models.user.GenrePreferenceRequest;
 import com.castify.backend.models.user.UpdateUserModel;
 import com.castify.backend.models.user.UserModel;
 import com.castify.backend.models.user.UserSimple;
+import com.castify.backend.repository.GenreRepository;
 import com.castify.backend.service.uploadFile.IUploadFileService;
 import com.castify.backend.service.uploadFile.UploadFileServiceImpl;
 import com.castify.backend.service.user.IUserService;
@@ -19,6 +22,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.logging.Logger;
 
@@ -29,6 +33,9 @@ public class UserController {
     @Autowired
     private IUserService userService = new UserServiceImpl();
     private static final Logger logger = Logger.getLogger(PodcastController.class.getName());
+    @Autowired
+    private GenreRepository genreRepository;
+
     @GetMapping("/list/follower")
     private ResponseEntity<?> getFollowersList(
             @RequestParam(value = "username") String username,
@@ -192,6 +199,54 @@ public class UserController {
     public ResponseEntity<?> updateFavoriteGenres(@RequestBody GenrePreferenceRequest request) {
         userService.updateFavoriteGenres(request.getGenreIds());
         return ResponseEntity.ok().build();
+    }
+
+    @GetMapping("/suggested-genres")
+    public ResponseEntity<?> getSuggestedGenres() {
+        try {
+            // Kiểm tra xem user đã đăng nhập chưa
+            UserEntity currentUser = null;
+            try {
+                currentUser = userService.getUserByAuthentication();
+            } catch (Exception e) {
+                // User chưa đăng nhập
+                List<GenreEntity> allGenres = genreRepository.findByIsActiveTrue();
+                return ResponseEntity.ok(allGenres);
+            }
+
+            // User đã đăng nhập
+            List<String> suggestedGenreIds = currentUser.getSuggestedGenreIds();
+
+            if (suggestedGenreIds.isEmpty()) {
+                return ResponseEntity.ok(Collections.emptyList());
+            }
+
+            List<GenreEntity> suggestedGenres = genreRepository.findByIdInAndIsActiveTrue(suggestedGenreIds);
+
+            return ResponseEntity.ok(suggestedGenres);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Error: " + e.getMessage());
+        }
+    }
+
+    @GetMapping("/favorite-genres")
+    public ResponseEntity<?> getFavoriteGenres() {
+        try {
+            UserEntity currentUser = userService.getUserByAuthentication();
+            List<String> favoriteGenreIds = currentUser.getFavoriteGenreIds();
+
+            if (favoriteGenreIds.isEmpty()) {
+                return ResponseEntity.ok(Collections.emptyList());
+            }
+
+            List<GenreEntity> favoriteGenres = genreRepository.findByIdInAndIsActiveTrue(favoriteGenreIds);
+
+            return ResponseEntity.ok(favoriteGenres);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body("Error: " + e.getMessage());
+        }
     }
 
     @ExceptionHandler(MalformedJwtException.class)

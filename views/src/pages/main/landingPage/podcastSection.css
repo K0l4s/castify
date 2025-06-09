@@ -1,0 +1,21 @@
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
+/* Fix group hover behavior */
+.podcast-row-container:hover .row-nav-arrow {
+  opacity: 1;
+}
+
+.podcast-row-container {
+  @apply relative;
+}
+
+.podcast-row-container .opacity-0 {
+  transition: opacity 0.3s ease-in-out;
+}

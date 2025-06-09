@@ -1,6 +1,14 @@
 import { updateUser } from "../models/User";
+import { store } from "../redux/store";
 import { axiosInstance, axiosInstanceAuth, axiosInstanceFile } from "../utils/axiosInstance";
 import Cookies from 'js-cookie';
+
+const getAxiosInstance = () => {
+  const state = store.getState();
+  const isAuthenticated = state.auth.isAuthenticated;
+  return isAuthenticated ? axiosInstanceAuth : axiosInstance;
+}
+
 export const userService = {
     getUserByToken: async (token:string) => {
 
@@ -93,5 +101,12 @@ export const userService = {
     updateGenreFavorites: async (genreIds:string[]) => {
         return await axiosInstanceAuth.post(`/api/v1/user/favorite-genres`, { genreIds });
     },
+    getFavoriteGenres: async () => {
+        return await axiosInstanceAuth.get(`/api/v1/user/favorite-genres`);
+    },
 
+    getSuggestedGenres: async () => {
+        const axiosClient = getAxiosInstance();
+        return await axiosClient.get(`/api/v1/user/suggested-genres`);
+    },
 };
