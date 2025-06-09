@@ -43,9 +43,10 @@ public class FrameController {
 
     // Purchase a frame
     @PostMapping("/purchase/{frameId}")
-    public ResponseEntity<?> purchaseFrame(@PathVariable String frameId,@RequestParam(required = false) String voucherCode) {
+    public ResponseEntity<?> purchaseFrame(@PathVariable String frameId,@RequestParam(required = false) String voucherCode,
+                                           @RequestParam(required = false) String eventId) {
         try {
-            FrameModel purchasedFrame = frameService.purchaseFrame(frameId,voucherCode);
+            FrameModel purchasedFrame = frameService.purchaseFrame(frameId,voucherCode,eventId);
             return new ResponseEntity<>(purchasedFrame, HttpStatus.OK);
         } catch (Exception e) {
 //            logger.error("Error purchasing frame: " + e.getMessage());
@@ -142,6 +143,28 @@ public class FrameController {
 //            frameService.cancelCurrentFrame();
             return new ResponseEntity<>(frameEventServiceImpl.getActiveFrameEvent(), HttpStatus.OK);
         } catch (Exception e) {
+            return new ResponseEntity<>(new ErrorResponse(e.getMessage()), HttpStatus.BAD_REQUEST);
+        }
+    }
+    @GetMapping("/voucher")
+    public ResponseEntity<?> findVoucherByCode(
+            @RequestParam() String code
+    ) {
+        try {
+//            frameService.cancelCurrentFrame();
+            return new ResponseEntity<>(frameService.getVoucherByCode(code) , HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<>(new ErrorResponse(e.getMessage()), HttpStatus.BAD_REQUEST);
+        }
+    }
+    @PostMapping("/gift")
+    public ResponseEntity<?> giftFrame(@RequestParam String awareeId,@RequestParam String frameId,@RequestParam(required = false) String voucherCode,
+    @RequestParam(required = false) String eventId) {
+        try {
+            FrameModel purchasedFrame = frameService.giftFrame(awareeId,frameId,voucherCode,eventId);
+            return new ResponseEntity<>(purchasedFrame, HttpStatus.OK);
+        } catch (Exception e) {
+//            logger.error("Error purchasing frame: " + e.getMessage());
             return new ResponseEntity<>(new ErrorResponse(e.getMessage()), HttpStatus.BAD_REQUEST);
         }
     }

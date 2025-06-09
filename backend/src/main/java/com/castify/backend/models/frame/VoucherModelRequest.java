@@ -22,7 +22,7 @@ public class VoucherModelRequest {
     private LocalDateTime voucherEndDate;
     private String voucherDescription;
     private boolean isActive = true;
-    private List<String> frameEventIds;
+//    private List<String> frameEventIds;
     private Integer voucherAmount;
     @NotNull
     private Double percent;

@@ -9,5 +9,5 @@ import java.util.List;
 public interface VoucherRepository extends MongoRepository<VoucherEntity, String> {
 //    VoucherEntity findByVoucherId(String voucherId);
     VoucherEntity findByVoucherCode(String voucherCode);
-    List<VoucherEntity> findByFrameEventIdsContaining(String frameEventId);
+//    List<VoucherEntity> findByFrameEventIdsContaining(String frameEventId);
 }

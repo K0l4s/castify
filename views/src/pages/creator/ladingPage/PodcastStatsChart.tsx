@@ -63,9 +63,27 @@ const DATASET_KEYS = [
 
 type DatasetKey = typeof DATASET_KEYS[number]['key'];
 
+// Helper to detect dark mode (using Tailwind's dark class on html)
+const useDarkMode = () => {
+    const [isDark, setIsDark] = React.useState(
+        typeof window !== 'undefined'
+            ? document.documentElement.classList.contains('dark')
+            : false
+    );
+    React.useEffect(() => {
+        const observer = new MutationObserver(() => {
+            setIsDark(document.documentElement.classList.contains('dark'));
+        });
+        observer.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
+        return () => observer.disconnect();
+    }, []);
+    return isDark;
+};
+
 const PodcastStatsChart: React.FC<PodcastStatsChartProps> = ({ labels, views, likes, comments }) => {
     const [chartType, setChartType] = useState<ChartType>('line');
     const [visibleDatasets, setVisibleDatasets] = useState<DatasetKey[]>(['views', 'likes', 'comments']);
+    const isDark = useDarkMode();
 
     const handleCheckboxChange = (key: DatasetKey) => {
         setVisibleDatasets((prev) =>
@@ -124,13 +142,13 @@ const PodcastStatsChart: React.FC<PodcastStatsChartProps> = ({ labels, views, li
             legend: {
                 position: 'top',
                 labels: {
-                    color: '#374151',
+                    color: isDark ? '#d1d5db' : '#374151',
                 },
             },
             title: {
                 display: true,
                 text: 'Podcast Statistics by Day',
-                color: '#1f2937',
+                color: isDark ? '#f3f4f6' : '#1f2937',
                 font: {
                     size: 18,
                 },
@@ -149,11 +167,17 @@ const PodcastStatsChart: React.FC<PodcastStatsChartProps> = ({ labels, views, li
         },
         scales: chartType !== 'doughnut' ? {
             x: {
-                ticks: { color: '#6b7280' },
+                ticks: { color: isDark ? '#9ca3af' : '#6b7280' },
+                grid: {
+                    color: isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.05)',
+                },
             },
             y: {
                 beginAtZero: true,
-                ticks: { color: '#6b7280' },
+                ticks: { color: isDark ? '#9ca3af' : '#6b7280' },
+                grid: {
+                    color: isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.05)',
+                },
             },
         } : {},
     };
@@ -161,9 +185,9 @@ const PodcastStatsChart: React.FC<PodcastStatsChartProps> = ({ labels, views, li
     const ChartComponent = chartComponentMap[chartType];
 
     return (
-        <div className="bg-white rounded-2xl p-4 w-full" style={{ minHeight: 460 }}>
+        <div className="bg-white dark:bg-gray-900 rounded-2xl p-4 w-full" style={{ minHeight: 460 }}>
             <div className="mb-4 flex items-center gap-2">
-                <label htmlFor="chart-type" className="text-sm font-medium text-gray-700">Chart Type:</label>
+                <label htmlFor="chart-type" className="text-sm font-medium text-gray-700 dark:text-gray-200">Chart Type:</label>
                 <select
                     id="chart-type"
                     className="border border-gray-300 dark:border-gray-600 rounded-md px-3 py-2 text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors"
@@ -175,7 +199,7 @@ const PodcastStatsChart: React.FC<PodcastStatsChartProps> = ({ labels, views, li
                     <option className="bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100" value="radar">Radar</option>
                     <option className="bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100" value="doughnut">Doughnut</option>
                 </select>
-                <div className="flex items-center ml-6 gap-2  text-black dark:text-white">
+                <div className="flex items-center ml-6 gap-2 text-black dark:text-white">
                     <input
                         type="checkbox"
                         id="check-all"

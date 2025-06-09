@@ -11,9 +11,9 @@ import java.util.List;
 public interface UserFrameRepository extends MongoRepository<UserFrameEntity, String> {
     @Query("{ 'user.id': ?0 }")
     List<UserFrameEntity> findByUserId(String userId);
-
-    @Query(value = "{ 'user.id': ?0, 'frames.id': ?1 }", exists = true)
-    boolean existsByUserIdAndFrameId(String userId, String frameId);
+    UserFrameEntity findUserByUserId(String userId);
+//    @Query(value = "{ 'user.$id': ?0, 'frames': ?1 }", exists = true)
+    boolean existsByUserIdAndFramesContains(String userId, String frameId);
 
     @Query("{ 'frames.id': ?0 }")
     List<UserFrameEntity> findByFrameId(String frameId);
