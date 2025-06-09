@@ -148,6 +148,12 @@ const PurchaseConfirmationModal = ({
               Get Voucher Info
             </CustomButton>
           </div>
+          {/* Error message */}
+          {error && (
+            <div className="text-red-600 dark:text-red-400 text-sm">
+              {error}
+            </div>
+          )}
           {/* Action buttons */}
           <div className="pt-2 flex justify-end gap-3">
             <button

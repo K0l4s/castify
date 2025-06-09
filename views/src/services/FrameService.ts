@@ -1,8 +1,4 @@
 import { axiosInstanceAuth, axiosInstanceFile } from '../utils/axiosInstance';
-import {
-  Frame
-  //, FrameCreateUpdate 
-} from '../models/FrameModel';
 
 // For BlankShop
 //  Get all accepted frames for public view
