@@ -6,16 +6,16 @@ import { RootState } from "../../../redux/store";
 import { Frame } from "../../../models/FrameModel";
 import { getAcceptedFrames, purchaseFrame } from "../../../services/FrameService";
 import { useToast } from "../../../context/ToastProvider";
-import FramePreviewModal from "./FramePreviewModal";
+// import FramePreviewModal from "./FramePreviewModal";
 import PurchaseConfirmationModal from "./PurchaseConfirmationModal";
 import Payment from "./Payment";
 import { getCurrentActiveFrame } from "../../../services/FrameEventService";
 import { EventFrame } from "../../../models/Event";
-import { Swiper, SwiperSlide } from "swiper/react";
-import { Pagination, Autoplay } from "swiper/modules";
 import "swiper/css";
 import "swiper/css/pagination";
 import CustomCarousel from "../../../components/UI/carousel/CustomeCarousel";
+import Avatar from "../../../components/UI/user/Avatar";
+import GiftFrameModal from "./GiftFrameModal";
 
 const BlankShop = () => {
     const [frames, setFrames] = useState<Frame[]>([]);
@@ -28,7 +28,8 @@ const BlankShop = () => {
     const toast = useToast();
     const navigate = useNavigate();
     const [event, setEvent] = useState<EventFrame | null>(null);
-
+    const [isGiftModalOpen, setGiftModalOpen] = useState(false);
+    const currentUser = useSelector((state: RootState) => state.auth.user);
     useEffect(() => {
         fetchCurrentEvent();
     }, []);
@@ -49,6 +50,7 @@ const BlankShop = () => {
         try {
             const data = await getAcceptedFrames();
             setFrames(data);
+            console.log("Fetched frames:", data);
         } catch (error) {
             toast.error('Failed to fetch frames');
         } finally {
@@ -91,13 +93,14 @@ const BlankShop = () => {
         }
     };
 
-    const handleGift = async (frameId: string) => {
-        // TODO: Implement gift functionality
-        toast.info(`Gift feature for frame ${frameId} coming soon!`);
-    };
-
-    const handlePreview = (frame: Frame) => {
-        setSelectedFrame(frame);
+    const handleGift = (frameId: string) => {
+        const foundFrame = frames.find(frame => frame.id === frameId) || null;
+        setSelectedFrame(foundFrame);
+        if (!foundFrame) {
+            toast.error('Frame not found for gifting');
+            return;
+        }
+        setGiftModalOpen(true);
     };
 
     const [isOpenPayment, setIsOpenPayment] = useState(false);
@@ -109,98 +112,84 @@ const BlankShop = () => {
         );
     }
     return (
-        <div className="container mx-auto px-4 py-8">
-            {event && event.showEvent && (
-                <div className="mb-8">
-                    <div className="w-full mx-auto rounded-2xl  overflow-hidden relative">
-                        {/* Layer phủ nội dung tiêu đề + mô tả */}
-                        {/* <div className="absolute inset-0 z-10 flex items-center justify-center pointer-events-none">
-                            <div className="bg-black/50 text-white text-center px-6 py-4 rounded-xl shadow-xl max-w-[90%]">
-                                <h2 className="text-2xl md:text-4xl font-bold mb-2">{event.name}</h2>
-                                <p className="text-lg md:text-2xl font-semibold">
-                                    Sale lên tới {event.percent * 100}% cho tất cả các frames
-                                </p>
-                            </div>
-                        </div> */}
-
-                        {/* Carousel nằm bên dưới layer */}
+        <div className="container mx-auto px-4 py-10">
+            {event?.showEvent && (
+                <div className="mb-10">
+                    <div className="w-full mx-auto rounded-3xl overflow-hidden relative shadow-xl ring-1 ring-black/5">
                         <CustomCarousel
                             slides={event.bannersUrl.map((bannerUrl) => ({
                                 imageUrl: bannerUrl,
                                 title: event.name,
-                                descript: event.description
-                                // content: "Sale lên tới "+event.percent*100+"% tất cả các frame!"
+                                descript: event.description,
                             }))}
                         />
                     </div>
                 </div>
-
             )}
 
-            <div className="flex justify-between items-center mb-6">
-                <h1 className="text-2xl font-bold text-black dark:text-white">Frame Shop</h1>
-                <div className="flex gap-4">
+            <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-4 mb-8">
+                <h1 className="text-3xl font-extrabold text-gray-900 dark:text-white">🎨 Frame Shop</h1>
+                <div className="flex gap-3 flex-wrap">
                     <button
                         onClick={() => navigate('/purchased-frames')}
-                        className="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors"
+                        className="flex items-center gap-2 px-5 py-2.5 bg-emerald-500 hover:bg-emerald-600 text-white rounded-xl transition-all shadow-md"
                     >
-                        My Purchased Frames
+                        🖼️ My Purchased
                     </button>
-                    {/* nạp tiền */}
                     <button
                         onClick={() => setIsOpenPayment(true)}
-                        className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
+                        className="flex items-center gap-2 px-5 py-2.5 bg-blue-500 hover:bg-blue-600 text-white rounded-xl transition-all shadow-md"
                     >
-                        Add Coins
+                        💰 Add Coins
                     </button>
                 </div>
             </div>
 
-            <div className="text-center mb-8">
-                <p className="text-black dark:text-gray-400">
-                    Browse our collection of beautiful frames
-                </p>
-                <p className="text-xl font-semibold mt-2 mb-4 text-black dark:text-white">
-                    Your current balance: {user?.coin} <img src={coin} alt="coin" className="w-5 h-5 inline-block" />
+            <div className="text-center mb-10">
+                <p className="text-gray-600 dark:text-gray-300">Explore our curated collection of high-quality frames!</p>
+                <p className="text-2xl font-bold mt-3 text-gray-900 dark:text-white">
+                    Balance: {user?.coin}
+                    <img src={coin} alt="coin" className="inline-block w-6 h-6 ml-1 align-middle" />
                 </p>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-8">
                 {frames.map((frame) => (
-                    <div key={frame.id} className="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden">
-                        <div className="relative aspect-square">
-                            <img
-                                src={frame.imageURL}
+                    <div
+                        key={frame.id}
+                        className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg hover:shadow-2xl transition-shadow duration-300 overflow-hidden flex flex-col"
+                    >
+                        <div className="relative aspect-square w-10/12 m-auto p-5">
+                            <Avatar
+                                usedFrame={{
+                                    id: frame.id,
+                                    imageURL: frame.imageURL,
+                                    name: frame.name,
+                                    price: frame.price,
+                                }}
+                                avatarUrl={currentUser?.avatarUrl}
                                 alt={frame.name}
-                                className="w-full h-full object-contain p-4"
+                                width="w-full"
+                                height="h-full"
                             />
-                            {/* Preview overlay */}
-                            <div className="absolute inset-0 bg-black bg-opacity-0 hover:bg-opacity-50 transition-opacity flex items-center justify-center opacity-0 hover:opacity-100">
-                                <button
-                                    onClick={() => handlePreview(frame)}
-                                    className="px-4 py-2 bg-white dark:bg-gray-800 text-black dark:text-white rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
-                                >
-                                    Preview
-                                </button>
-                            </div>
                         </div>
 
-                        <div className="flex justify-between items-start mb-2">
-                            <h2 className="text-lg font-semibold text-black dark:text-white">{frame.name}</h2>
+                        <div className="px-4 mb-2 flex justify-between items-start">
+                            <h2 className="text-lg font-semibold text-gray-900 dark:text-white truncate">{frame.name}</h2>
                             <div className="text-right">
-                                {event && event.percent > 0 ? (
+                                {(event?.percent ?? 0) > 0 ? (
                                     <>
-                                        <div className="line-through text-sm text-gray-400 flex gap-1 items-center">
+                                        <div className="line-through text-sm text-gray-400 flex items-center gap-1">
                                             {frame.price}
                                             <img src={coin} alt="coin" className="w-4 h-4" />
                                         </div>
-                                        <div className="text-blue-600 dark:text-blue-400 text-xl font-bold flex gap-1 items-center">
-                                            {Math.round(frame.price * (1 - event.percent))}
+                                        <div className="text-xl font-bold text-blue-600 dark:text-blue-400 flex items-center gap-1">
+                                            {event ? Math.round(frame.price * (1 - event.percent)) : frame.price}
                                             <img src={coin} alt="coin" className="w-5 h-5" />
                                         </div>
                                     </>
                                 ) : (
-                                    <div className="text-blue-600 dark:text-blue-400 text-xl font-bold flex gap-1 items-center">
+                                    <div className="text-xl font-bold text-blue-600 dark:text-blue-400 flex items-center gap-1">
                                         {frame.price}
                                         <img src={coin} alt="coin" className="w-5 h-5" />
                                     </div>
@@ -208,18 +197,19 @@ const BlankShop = () => {
                             </div>
                         </div>
 
-                        <div className="p-4 bg-gray-50 dark:bg-gray-900/50 flex justify-between items-center">
+                        <div className="mt-auto px-4 py-3 bg-gray-50 dark:bg-gray-900/40 flex gap-3">
                             <button
                                 onClick={() => handleGift(frame.id)}
-                                className="w-full bg-blue-500 text-white py-2 rounded hover:bg-blue-600 transition-colors mr-2"
+                                className="w-full bg-indigo-500 hover:bg-indigo-600 text-white font-medium py-2 rounded-xl transition-colors"
                             >
-                                GIFT
+                                🎁 Gift
                             </button>
                             <button
                                 onClick={() => handlePurchase(frame)}
-                                className="w-full bg-blue-500 text-white py-2 rounded hover:bg-blue-600 transition-colors ml-2"
+                                disabled={frame.buy}
+                                className={`w-full ${!frame.buy? 'bg-blue-500 hover:bg-blue-600':'bg-gray-500'}  disabled:cursor-not-allowed  text-white font-medium py-2 rounded-xl transition-colors`}
                             >
-                                BUY NOW
+                                🛒 Buy
                             </button>
                         </div>
                     </div>
@@ -227,20 +217,19 @@ const BlankShop = () => {
             </div>
 
             {frames.length === 0 && (
-                <div className="text-center text-black dark:text-gray-400 mt-8">
-                    No frames available at the moment.
+                <div className="text-center text-gray-500 dark:text-gray-400 mt-10 text-lg">
+                    No frames available at the moment. 🚫
                 </div>
             )}
 
-            {/* Frame Preview Modal */}
-            <FramePreviewModal
+            {/* Modals */}
+            {/* <FramePreviewModal
                 isOpen={!!selectedFrame}
                 onClose={() => setSelectedFrame(null)}
                 frameImage={selectedFrame?.imageURL || ''}
                 frameName={selectedFrame?.name || ''}
-            />
+            /> */}
 
-            {/* Purchase Confirmation Modal */}
             <PurchaseConfirmationModal
                 isOpen={!!frameToPurchase}
                 onClose={() => setFrameToPurchase(null)}
@@ -252,12 +241,26 @@ const BlankShop = () => {
                 voucherCode={voucher}
                 setVoucherCode={setVoucher}
             />
+            {/* <GiftFrameModal
+                isOpen={isGiftModalOpen} */}
+            <GiftFrameModal
+                isOpen={isGiftModalOpen}
+                onClose={() => setGiftModalOpen(false)}
+                frameId={selectedFrame?.id || ''}
+                frameName={selectedFrame?.name || ''}
+                frameImage={selectedFrame?.imageURL || ''}
+                framePrice={selectedFrame?.price || 0}
+                voucherCode={voucher}
+                setVoucherCode={setVoucher}
+                // gifting={isGifting}
+                onSuccess={() => toast.success('Gift sent successfully!')}
+            />
             <Payment
                 isOpen={isOpenPayment}
                 onClose={() => setIsOpenPayment(false)}
             />
-
         </div>
+
     );
 };
 

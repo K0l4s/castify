@@ -1,6 +1,5 @@
 package com.castify.backend.service.frame;
 
-import com.castify.backend.controller.ConversationController;
 import com.castify.backend.entity.FrameEntity;
 import com.castify.backend.entity.UserFrameEntity;
 import com.castify.backend.entity.UserEntity;
@@ -20,7 +19,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
@@ -82,10 +83,27 @@ public class FrameServiceImpl implements IFrameService{
     @Override
     public List<FrameModel> getAllAcceptedFrames() throws Exception {
         List<FrameEntity> frames = frameRepository.findAllByStatus(FrameStatus.ACCEPTED);
-        return frames.stream().map(frameEntity -> modelMapper.map(frameEntity, FrameModel.class)).collect(Collectors.toList());
+        UserEntity currentUser = userService.getUserByAuthentication();
+
+        // Nếu repo trả về List<UserFrameEntity>
+        List<UserFrameEntity> usedFramesList = userFrameRepository.findByUserId(currentUser.getId());
+        UserFrameEntity usedFrames = usedFramesList.isEmpty() ? null : usedFramesList.get(0);
+
+        Set<String> boughtFrameIds = new HashSet<>();
+        if (usedFrames != null && usedFrames.getFrames() != null) {
+            boughtFrameIds.addAll(usedFrames.getFrames());
+        }
+
+        return frames.stream().map(frameEntity -> {
+            FrameModel model = modelMapper.map(frameEntity, FrameModel.class);
+            model.setBuy(boughtFrameIds.contains(frameEntity.getId()));
+            return model;
+        }).collect(Collectors.toList());
     }
 
-//   Get all uploads by one user currently login (MyShop)
+
+
+    //   Get all uploads by one user currently login (MyShop)
     @Override
     public List<FrameModel> getUserUploadedFrames() throws Exception {
         UserEntity currentUser = userService.getUserByAuthentication();
@@ -101,6 +119,8 @@ public class FrameServiceImpl implements IFrameService{
     @Override
     public List<FrameModel> getAllFrames() throws Exception {
         List<FrameEntity> frames = frameRepository.findAll();
+        UserEntity currentUser = userService.getUserByAuthentication();
+
         return frames.stream().map(frameEntity -> modelMapper.map(frameEntity, FrameModel.class)).collect(Collectors.toList());
     }
 
@@ -119,7 +139,7 @@ public class FrameServiceImpl implements IFrameService{
             throw new Exception("Insufficient coins. You need " + frame.getPrice() + " coins to purchase this frame.");
         }
 
-        boolean alreadyOwned = userFrameRepository.existsByUserIdAndFrameId(currentUser.getId(), frameId);
+        boolean alreadyOwned = userFrameRepository.existsByUserIdAndFramesContains(currentUser.getId(), frameId);
         if (alreadyOwned) {
             throw new Exception("You already own this frame");
         }
@@ -288,5 +308,53 @@ public class FrameServiceImpl implements IFrameService{
         VoucherEntity newVou = modelMapper.map(voucher, VoucherEntity.class);
         VoucherEntity savedVou = voucherRepository.save(newVou);
         return modelMapper.map(savedVou,VoucherModelRequest.class);
+    }
+    @Override
+    public FrameModel giftFrame(String awardeeId, String frameId, String voucherCode) throws Exception {
+        UserEntity currentUser = userService.getUserByAuthentication();
+
+        FrameEntity frame = frameRepository.findById(frameId)
+                .orElseThrow(() -> new Exception("Frame not found"));
+
+        if (frame.getStatus() != FrameStatus.ACCEPTED) {
+            throw new Exception("Frame is not available for purchase");
+        }
+
+        if (currentUser.getCoin() < frame.getPrice()) {
+            throw new Exception("Insufficient coins. You need " + frame.getPrice() + " coins to gift this frame.");
+        }
+
+        boolean alreadyOwned = userFrameRepository.existsByUserIdAndFramesContains(awardeeId, frameId);
+        if (alreadyOwned) {
+            throw new Exception("This user already own this frame");
+        }
+
+        try {
+//            long price = frame.getPrice();
+            // Deduct coins from buyer
+
+
+            long price = calculateDiscountedPrice(frame, voucherCode);
+            logger.info(" "+price);
+
+            currentUser.setCoin(currentUser.getCoin() - price);
+            userRepository.save(currentUser);
+
+            // Add coins to seller
+            UserEntity seller = frame.getUser();
+            seller.setCoin(seller.getCoin() + price);
+            userRepository.save(seller);
+
+            UserFrameEntity userFrame = new UserFrameEntity();
+            UserEntity awardee = userRepository.findUserEntityById(awardeeId);
+            userFrame.setUser(awardee);
+            userFrame.addFrame(frame);
+            userFrame.setPurchasedAt(LocalDateTime.now());
+            userFrameRepository.save(userFrame);
+
+            return modelMapper.map(frame, FrameModel.class);
+        } catch (Exception e) {
+            throw new Exception("Failed to process gift: " + e.getMessage());
+        }
     }
 }

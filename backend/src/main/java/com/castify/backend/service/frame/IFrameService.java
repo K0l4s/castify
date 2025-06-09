@@ -23,4 +23,6 @@ public interface IFrameService {
     void cancelCurrentFrame() throws Exception;
 
     VoucherModelRequest createVoucher(VoucherModelRequest voucher);
+
+    FrameModel giftFrame(String awardeeId, String frameId, String voucherCode) throws Exception;
 }

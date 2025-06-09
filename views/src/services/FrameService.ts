@@ -1,4 +1,4 @@
-import { axiosInstance, axiosInstanceAuth, axiosInstanceFile } from '../utils/axiosInstance';
+import { axiosInstanceAuth, axiosInstanceFile } from '../utils/axiosInstance';
 import {
   Frame
   //, FrameCreateUpdate 
@@ -8,7 +8,7 @@ import {
 //  Get all accepted frames for public view
 export const getAcceptedFrames = async () => {
   try {
-    const response = await axiosInstance.get('/api/v1/frame/all');
+    const response = await axiosInstanceAuth.get('/api/v1/frame/all');
     return response.data;
   } catch (error) {
     throw error;
@@ -110,6 +110,20 @@ export const applyFrame = async (id: string) => {
 export const cancelCurrentFrame = async () => {
   try {
     const response = await axiosInstanceAuth.delete(`/api/v1/frame/cancel`);
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};
+
+// Gift frame
+export const giftFrame = async (awardeeId: string, frameId: string, voucherCode?: string): Promise<Frame> => {
+  try {
+    let response;
+    if (voucherCode)
+      response = await axiosInstanceAuth.post(`/api/v1/frame/gift?awareeId=${awardeeId}&frameId=${frameId}&voucherCode=${voucherCode}`);
+    else
+      response = await axiosInstanceAuth.post(`/api/v1/frame/gift?awareeId=${awardeeId}&frameId=${frameId}`);
     return response.data;
   } catch (error) {
     throw error;

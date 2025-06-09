@@ -4,6 +4,7 @@ export interface Frame {
     status: 'PROCESSING' | 'ACCEPTED' | 'REJECTED';
     imageURL: string;
     price: number;
+    buy:boolean;
     createdAt: string;
     lastEditedAt: string;
 }

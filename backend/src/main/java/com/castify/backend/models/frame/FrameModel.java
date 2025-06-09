@@ -18,6 +18,7 @@ public class FrameModel {
     private FrameStatus status;
     private String imageURL;
     private Integer price;
+    private boolean isBuy;
 //    private UserEntity user;
     @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS")
     private LocalDateTime createdAt;

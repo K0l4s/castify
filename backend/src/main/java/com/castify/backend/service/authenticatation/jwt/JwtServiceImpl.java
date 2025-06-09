@@ -22,14 +22,14 @@ import org.springframework.stereotype.Service;
 @Service
 public class JwtServiceImpl implements IJwtService{
 
-    @Value("${application.security.jwt.secret-key}")
+    @Value("${application.security.jwt.secret-key:D}")
     private String secretKey;
     @Value("${application.security.jwt.expiration}")
     private long jwtExpiration;
     @Value("${application.security.jwt.refresh-token.expiration}")
     private long refreshExpiration;
-    @Value("${JWT_VALID_EXPIRATION}")
-    private long validExpiration;
+//    @Value("${JWT_VALID_EXPIRATION}")
+    private long validExpiration = 86400000;
 
     @Autowired
     private TokenRepository tokenRepository;

@@ -146,4 +146,15 @@ public class FrameController {
         }
     }
 
+    @PostMapping("/gift")
+    public ResponseEntity<?> giftFrame(@RequestParam String awareeId,@RequestParam String frameId,@RequestParam(required = false) String voucherCode) {
+        try {
+            FrameModel purchasedFrame = frameService.giftFrame(awareeId,frameId,voucherCode);
+            return new ResponseEntity<>(purchasedFrame, HttpStatus.OK);
+        } catch (Exception e) {
+//            logger.error("Error purchasing frame: " + e.getMessage());
+            return new ResponseEntity<>(new ErrorResponse(e.getMessage()), HttpStatus.BAD_REQUEST);
+        }
+    }
+
 }
