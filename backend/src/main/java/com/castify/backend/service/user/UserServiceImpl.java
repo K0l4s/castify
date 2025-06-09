@@ -15,10 +15,12 @@ import com.castify.backend.service.notification.INotificationService;
 import com.castify.backend.service.notification.NotificationServiceImpl;
 import com.castify.backend.service.uploadFile.IUploadFileService;
 import com.castify.backend.utils.SecurityUtils;
+import lombok.extern.slf4j.Slf4j;
 import org.bson.types.ObjectId;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 
@@ -33,6 +35,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
+@Slf4j
 public class UserServiceImpl implements IUserService {
     @Autowired
     private UserRepository userRepository;
@@ -595,6 +598,25 @@ public class UserServiceImpl implements IUserService {
         UserEntity user = SecurityUtils.getCurrentUser();
         user.setFavoriteGenreIds(genreIds);
         userRepository.save(user);
+    }
+
+    @Override
+    public Page<UserSimple> searchUsers(String keyword, Pageable pageable) {
+        try {
+            // Sử dụng method có sẵn
+            Page<UserEntity> userEntities = userRepositoryTemplate.findByKeywordWithAggregation(keyword, pageable);
+
+            // Convert to UserSimple
+            List<UserSimple> userSimples = userEntities.getContent().stream()
+                    .map(this::mapToUserSimpleAnonymous)
+                    .collect(Collectors.toList());
+
+            return new PageImpl<>(userSimples, pageable, userEntities.getTotalElements());
+
+        } catch (Exception e) {
+            log.error("Error searching users with keyword: {}", keyword, e);
+            return Page.empty(pageable);
+        }
     }
 
 }

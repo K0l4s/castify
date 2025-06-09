@@ -21,4 +21,9 @@ public class GenreSimple {
         this.color = color;
         this.textColor = "#ffffff"; // Default text color
     }
+
+    public GenreSimple(String id, String name) {
+        this.id = id;
+        this.name = name;
+    }
 }

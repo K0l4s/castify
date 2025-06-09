@@ -12,7 +12,14 @@ import com.castify.backend.repository.PlaylistRepository;
 import com.castify.backend.repository.PodcastRepository;
 import com.castify.backend.utils.SecurityUtils;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.rest.webmvc.ResourceNotFoundException;
 import org.springframework.stereotype.Service;
 
@@ -25,10 +32,12 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class PlaylistServiceImpl implements IPlaylistService {
     private final PlaylistRepository playlistRepository;
     private final ModelMapper modelMapper;
     private final PodcastRepository podcastRepository;
+    private final MongoTemplate mongoTemplate;
 
     @Override
     public PlaylistModel getPlaylistById(String id) {
@@ -290,5 +299,56 @@ public class PlaylistServiceImpl implements IPlaylistService {
         playlist.setLastUpdated(LocalDateTime.now());
 
         return modelMapper.map(playlistRepository.save(playlist), PlaylistModel.class);
+    }
+
+    @Override
+    public Page<PlaylistModel> searchPlaylists(String keyword, Pageable pageable) {
+        try {
+            // Tạo query tìm kiếm theo name và description
+            Criteria criteria = new Criteria().orOperator(
+                    Criteria.where("name").regex(keyword, "i"),
+                    Criteria.where("description").regex(keyword, "i")
+            )
+                    .and("publish").is(true) // Chỉ search public playlists
+                    .and("items").exists(true).not().size(0);
+
+            Query query = new Query(criteria);
+            List<PlaylistEntity> playlistEntities = mongoTemplate.find(query, PlaylistEntity.class);
+
+            // Filter và convert to models - loại bỏ playlist không có active items
+            List<PlaylistModel> playlistModels = playlistEntities.stream()
+                    .map(playlist -> {
+                        // Filter active items trước
+                        List<PlaylistItem> activeItems = playlist.getItems().stream()
+                                .filter(item -> podcastRepository.findByIdAndIsActiveTrue(item.getPodcastId()).isPresent())
+                                .collect(Collectors.toList());
+
+                        // Chỉ trả về playlist nếu có ít nhất 1 active item
+                        if (activeItems.isEmpty()) {
+                            return null;
+                        }
+
+                        PlaylistModel model = modelMapper.map(playlist, PlaylistModel.class);
+                        model.setItems(activeItems);
+                        model.setHiddenCount(playlist.getItems().size() - activeItems.size());
+
+                        return model;
+                    })
+                    .filter(model -> model != null) // Loại bỏ các playlist null (không có active items)
+                    .collect(Collectors.toList());
+
+            // Apply pagination manually sau khi filter
+            int start = (int) pageable.getOffset();
+            int end = Math.min(start + pageable.getPageSize(), playlistModels.size());
+
+            List<PlaylistModel> pagedResults = start < playlistModels.size() ?
+                    playlistModels.subList(start, end) : new ArrayList<>();
+
+            return new PageImpl<>(pagedResults, pageable, playlistModels.size());
+
+        } catch (Exception e) {
+            log.error("Error searching playlists with keyword: {}", keyword, e);
+            return Page.empty(pageable);
+        }
     }
 }

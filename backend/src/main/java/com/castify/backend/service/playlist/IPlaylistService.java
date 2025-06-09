@@ -2,6 +2,8 @@ package com.castify.backend.service.playlist;
 
 import com.castify.backend.models.playlist.CreatePlaylistDTO;
 import com.castify.backend.models.playlist.PlaylistModel;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 import java.util.List;
 
@@ -15,4 +17,5 @@ public interface IPlaylistService {
     List<PlaylistModel> getCurrentUserPlaylists(String sortBy, String order);
     List<PlaylistModel> getUserPublicPlaylists(String username);
     PlaylistModel reorder(String playlistId, List<String> newOrderPodcastIds);
+    Page<PlaylistModel> searchPlaylists(String keyword, Pageable pageable);
 }

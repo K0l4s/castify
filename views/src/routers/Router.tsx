@@ -26,7 +26,6 @@ import PodcastViewport from '../components/UI/podcast/PodcastViewport'
 import HistoryPage from '../pages/main/historyPage/HistoryPage'
 import DetailPodcastPage from '../pages/creator/ladingPage/DetailPodcastPage'
 import AdminReportPage from '../pages/admin/reportPage/AdminReportPage'
-import SearchPage from '../pages/main/searchPage/SearchPage'
 import CreatorFollower from '../pages/creator/creatorFollower/CreatorFollower'
 import FollowingPage from '../pages/main/followingPodcast/FollowingPage'
 import { RequireAuth } from './RequireAuth'
@@ -51,6 +50,7 @@ import WatchPartyPage from '../pages/main/watchParty/WatchPartyPage'
 import GenrePodcastsPage from '../pages/genre/GenrePodcastsPage'
 import BrowseRoomsPage from '../pages/main/watchParty/BrowseRoomsPage'
 import AdminEventFramePage from '../pages/admin/framePage/AdminEventFramePage'
+import SearchResults from '../components/main/search/SearchResult'
 // import CreateFrameEventForm from '../components/admin/event/CreateFrameEventForm'
 // import IntroVideoPage from '../pages/main/landingPage/IntroVideoPage'
 
@@ -142,7 +142,8 @@ const Router = () => {
                     <Route path='/playlist' element={<RequireAuth><PlaylistPage /></RequireAuth>} />
                     <Route path="/playlist/:id" element={<RequireAuth><DetailPlaylistPage /></RequireAuth>} />
                     <Route path='/watch' element={<PodcastViewport />} />
-                    <Route path='/search' element={<SearchPage />} />
+                    {/* <Route path='/search' element={<SearchPage />} /> */}
+                    <Route path="/search" element={<SearchResults />} />
                     <Route path='/profile' element={<ProfilePage />} />
                     <Route path='/profile/:username' element={<ProfilePage />} />
                     <Route path='/shop' element={<BlankShop />} />

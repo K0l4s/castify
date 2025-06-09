@@ -7,11 +7,13 @@ import PodcastTag from "./PodcastTag";
 import { getGenresByList } from "../../../services/GenreService";
 import { IoChevronBackOutline, IoChevronForwardOutline } from "react-icons/io5";
 import { useNavigate } from "react-router-dom";
-// import { useToast } from "../../../context/ToastProvider";
+import { useToast } from "../../../context/ToastProvider";
 import ShareModal from "../../modals/podcast/ShareModal";
 import ReportModal from "../../modals/report/ReportModal";
 import { ReportType } from "../../../models/Report";
 import AddToPlaylistModal from "../../../pages/main/playlistPage/AddToPlaylistModal";
+import { useSelector } from "react-redux";
+import { RootState } from "../../../redux/store";
 
 interface SuggestedPodcastProps {
   genreIds: string[];
@@ -30,7 +32,8 @@ const SuggestedPodcast: React.FC<SuggestedPodcastProps> = ({ genreIds, currentPo
   const [isReportModalOpen, setIsReportModalOpen] = useState(false);
   const [selectedPodcastId, setSelectedPodcastId] = useState<string | null>(null);
   const [openOptionMenuId, setOpenOptionMenuId] = useState<string | null>(null);
-  // const toast = useToast();
+  const toast = useToast();
+  const isAuthenticated = useSelector((state: RootState) => state.auth.isAuthenticated);
 
   const navigate = useNavigate();
 
@@ -93,6 +96,10 @@ const SuggestedPodcast: React.FC<SuggestedPodcastProps> = ({ genreIds, currentPo
   };
 
   const toggleAddToPlaylistModal = (podcastId: string) => {
+    if (!isAuthenticated) {
+      toast.warning("Please login to do this action");
+      return;
+    }
     setSelectedPodcastId(podcastId);
     setIsPlaylistModalOpen(!isPlaylistModalOpen);
   };

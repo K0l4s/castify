@@ -1,6 +1,7 @@
 package com.castify.backend.models.user;
 
 import com.castify.backend.models.frame.UserFrameModel;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -8,6 +9,7 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class UserSimple {
     private String id;
 //    private String firstName;

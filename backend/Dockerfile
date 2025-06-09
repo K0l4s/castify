@@ -1,11 +1,16 @@
 # Dùng OpenJDK image làm base
 FROM openjdk:17-jdk-slim
 
+# Tạo thư mục app
+WORKDIR /app
+
 # Copy file JAR vào container
 COPY target/backend-0.0.1-SNAPSHOT.jar /app/myapp.jar
-COPY .env /app/.env
-WORKDIR /app
-# Expose cổng 8080 (hoặc cổng ứng dụng của mày)
+
+# Tạo thư mục cho resources
+RUN mkdir -p /app/castify_resources/user
+
+# Expose cổng 9090
 EXPOSE 9090
 
 # Lệnh để chạy ứng dụng Spring Boot

@@ -226,6 +226,10 @@ const ProfilePage: React.FC = () => {
   };
 
   const toggleAddToPlaylistModal = (podcastId: string) => {
+    if (!isAuthenticated) {
+      toast.warning("Please login to do this action");
+      return;
+    }
     setSelectedPodcastId(podcastId);
     setIsPlaylistModalOpen(!isPlaylistModalOpen);
   };

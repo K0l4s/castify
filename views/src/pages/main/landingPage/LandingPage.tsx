@@ -14,6 +14,7 @@ import en from "../../../locales/en.json";
 import { CardItem } from "./CardItem";
 import SuggestFollow from "./SuggestFollow";
 import IntroVideoPage from "./IntroVideoPage";
+import { useDocumentTitle } from "../../../hooks/useDocumentTitle";
 // import FancyCard from "../../../components/UI/custom/FancyCard";
 
 const LandingPage = () => {
@@ -21,7 +22,7 @@ const LandingPage = () => {
   const [genres, setGenres] = useState<{ id: string; name: string }[]>([]);
   const navigate = useNavigate();
   const location = useLocation();
-
+  useDocumentTitle(null, 'Castify - Chill with your audience');
   useEffect(() => {
     const fetchGenres = async () => {
       try {

@@ -21,8 +21,12 @@ import Tooltip from '../../../components/UI/custom/Tooltip';
 import { useToast } from '../../../context/ToastProvider';
 import { useClickOutside } from '../../../hooks/useClickOutside';
 import { formatTimeDuration } from '../../../components/UI/podcast/video';
+import { useSelector } from 'react-redux';
+import { RootState } from '../../../redux/store';
 
 const TrendingList: React.FC = () => {
+  const isAuthenticated = useSelector((state: RootState) => state.auth.isAuthenticated);
+
   const [podcasts, setPodcasts] = useState<Podcast[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
@@ -125,6 +129,10 @@ const TrendingList: React.FC = () => {
   }, [loadMorePodcasts, hasMore, loadingMore, loading]);
 
   const toggleAddToPlaylistModal = (podcastId: string) => {
+    if (!isAuthenticated) {
+      toast.warning("Please login to do this action");
+      return;
+    }
     setSelectedPodcastId(podcastId);
     setIsPlaylistModalOpen(!isPlaylistModalOpen);
     setOpenMenuId(null);
