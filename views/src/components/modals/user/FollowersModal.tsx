@@ -3,7 +3,6 @@ import CustomModal from '../../UI/custom/CustomModal';
 import { userCard } from '../../../models/User';
 import { userService } from '../../../services/UserService';
 import { useNavigate } from 'react-router-dom';
-import { EventFrame } from '../../../models/Event';
 interface FollowersModalProps {
     isOpen: boolean;
     onClose: () => void;

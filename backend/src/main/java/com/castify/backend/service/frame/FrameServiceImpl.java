@@ -1,17 +1,12 @@
 package com.castify.backend.service.frame;
 
-import com.castify.backend.entity.FrameEntity;
-import com.castify.backend.entity.UserFrameEntity;
-import com.castify.backend.entity.UserEntity;
-import com.castify.backend.entity.VoucherEntity;
+import com.castify.backend.entity.*;
 import com.castify.backend.enums.FrameStatus;
 import com.castify.backend.models.frame.FrameModel;
 import com.castify.backend.models.frame.UploadFrameRequest;
+import com.castify.backend.models.frame.VoucherModel;
 import com.castify.backend.models.frame.VoucherModelRequest;
-import com.castify.backend.repository.FrameRepository;
-import com.castify.backend.repository.UserFrameRepository;
-import com.castify.backend.repository.UserRepository;
-import com.castify.backend.repository.VoucherRepository;
+import com.castify.backend.repository.*;
 import com.castify.backend.service.uploadFile.IUploadFileService;
 import com.castify.backend.service.user.IUserService;
 import org.modelmapper.ModelMapper;
@@ -48,6 +43,10 @@ public class FrameServiceImpl implements IFrameService{
 
     @Autowired
     private VoucherRepository voucherRepository;
+
+    @Autowired
+    private FrameEventRepository frameEventRepository;
+
     private static final Logger logger = Logger.getLogger(FrameServiceImpl.class.getName());
 
     @Override
@@ -85,21 +84,25 @@ public class FrameServiceImpl implements IFrameService{
         List<FrameEntity> frames = frameRepository.findAllByStatus(FrameStatus.ACCEPTED);
         UserEntity currentUser = userService.getUserByAuthentication();
 
-        // Nếu repo trả về List<UserFrameEntity>
+        // Lấy tất cả các bản ghi UserFrameEntity của user
         List<UserFrameEntity> usedFramesList = userFrameRepository.findByUserId(currentUser.getId());
-        UserFrameEntity usedFrames = usedFramesList.isEmpty() ? null : usedFramesList.get(0);
 
+        // Tập hợp tất cả các frameId mà người dùng đã mua
         Set<String> boughtFrameIds = new HashSet<>();
-        if (usedFrames != null && usedFrames.getFrames() != null) {
-            boughtFrameIds.addAll(usedFrames.getFrames());
+        for (UserFrameEntity userFrame : usedFramesList) {
+            if (userFrame.getFrames() != null) {
+                boughtFrameIds.addAll(userFrame.getFrames());
+            }
         }
 
+        // Map sang FrameModel và gán trạng thái "buy"
         return frames.stream().map(frameEntity -> {
             FrameModel model = modelMapper.map(frameEntity, FrameModel.class);
             model.setBuy(boughtFrameIds.contains(frameEntity.getId()));
             return model;
         }).collect(Collectors.toList());
     }
+
 
 
 
@@ -125,7 +128,7 @@ public class FrameServiceImpl implements IFrameService{
     }
 
     @Override
-    public FrameModel purchaseFrame(String frameId,String voucherCode) throws Exception {
+    public FrameModel purchaseFrame(String frameId,String voucherCode, String eventId) throws Exception {
         UserEntity currentUser = userService.getUserByAuthentication();
 
         FrameEntity frame = frameRepository.findById(frameId)
@@ -149,7 +152,7 @@ public class FrameServiceImpl implements IFrameService{
             // Deduct coins from buyer
 
 
-            long price = calculateDiscountedPrice(frame, voucherCode);
+            long price = calculateDiscountedPrice(frame, voucherCode, eventId);
             logger.info(" "+price);
 
             currentUser.setCoin(currentUser.getCoin() - price);
@@ -171,13 +174,18 @@ public class FrameServiceImpl implements IFrameService{
             throw new Exception("Failed to process purchase: " + e.getMessage());
         }
     }
-    private long calculateDiscountedPrice(FrameEntity frame, String code) {
+    private long calculateDiscountedPrice(FrameEntity frame, String code,String eventId) {
         long price = frame.getPrice();
         if (code != null) {
             VoucherEntity voucher = voucherRepository.findByVoucherCode(code);
-            if (voucher!=null && voucher.checkValidAmount() && voucher.checkValidDate()
-                    && voucher.checkValidFrameIds(frame.getId())) {
+            if (voucher!=null && voucher.checkValidAmount() && voucher.checkValidDate()) {
                 price -= Math.round(price * voucher.getPercent());
+            }
+        }
+        if (eventId != null) {
+            FrameEventEntity event = frameEventRepository.findFrameEventEntityById(eventId);
+            if (event!=null && event.getShowEvent()) {
+                price -= Math.round(price * event.getPercent());
             }
         }
         return price;
@@ -310,7 +318,16 @@ public class FrameServiceImpl implements IFrameService{
         return modelMapper.map(savedVou,VoucherModelRequest.class);
     }
     @Override
-    public FrameModel giftFrame(String awardeeId, String frameId, String voucherCode) throws Exception {
+    public VoucherModel getVoucherByCode(String code) throws Exception {
+            VoucherEntity voucher = voucherRepository.findByVoucherCode(code);
+            if (voucher!=null && voucher.checkValidAmount() && voucher.checkValidDate()
+                    ) {
+                return modelMapper.map(voucher, VoucherModel.class);
+            }else{
+                throw new Exception("Not found this voucher!");}
+    }
+    @Override
+    public FrameModel giftFrame(String awardeeId, String frameId, String voucherCode,String eventId) throws Exception {
         UserEntity currentUser = userService.getUserByAuthentication();
 
         FrameEntity frame = frameRepository.findById(frameId)
@@ -334,7 +351,7 @@ public class FrameServiceImpl implements IFrameService{
             // Deduct coins from buyer
 
 
-            long price = calculateDiscountedPrice(frame, voucherCode);
+            long price = calculateDiscountedPrice(frame, voucherCode,eventId);
             logger.info(" "+price);
 
             currentUser.setCoin(currentUser.getCoin() - price);

@@ -16,18 +16,29 @@ export const getAcceptedFrames = async () => {
 };
 
 // Purchase frame
-export const purchaseFrame = async (frameId: string, voucherCode?: string): Promise<Frame> => {
+export const purchaseFrame = async (
+  frameId: string,
+  voucherCode?: string,
+  eventId?: string
+) => {
   try {
-    let response;
-    if (voucherCode)
-      response = await axiosInstanceAuth.post(`/api/v1/frame/purchase/${frameId}?voucherCode=${voucherCode}`);
-    else
-      response = await axiosInstanceAuth.post(`/api/v1/frame/purchase/${frameId}`);
+    const queryParams = new URLSearchParams();
+
+    if (voucherCode) queryParams.append("voucherCode", voucherCode);
+    if (eventId) queryParams.append("eventId", eventId);
+
+    const url =
+      queryParams.toString().length > 0
+        ? `/api/v1/frame/purchase/${frameId}?${queryParams.toString()}`
+        : `/api/v1/frame/purchase/${frameId}`;
+
+    const response = await axiosInstanceAuth.post(url);
     return response.data;
   } catch (error) {
     throw error;
   }
 };
+
 
 
 // For MyShop
@@ -116,14 +127,42 @@ export const cancelCurrentFrame = async () => {
   }
 };
 
-// Gift frame
-export const giftFrame = async (awardeeId: string, frameId: string, voucherCode?: string): Promise<Frame> => {
+export const giftFrame = async (
+  awardeeId: string,
+  frameId: string,
+  voucherCode?: string,
+  eventId?: string
+) => {
   try {
-    let response;
-    if (voucherCode)
-      response = await axiosInstanceAuth.post(`/api/v1/frame/gift?awareeId=${awardeeId}&frameId=${frameId}&voucherCode=${voucherCode}`);
-    else
-      response = await axiosInstanceAuth.post(`/api/v1/frame/gift?awareeId=${awardeeId}&frameId=${frameId}`);
+    console.log('Gifting frame:', {
+      awardeeId,
+      frameId,
+      voucherCode,
+      eventId,
+    });
+    const response = await axiosInstanceAuth.post(
+      `/api/v1/frame/gift`,
+      {}, // body rỗng
+      {
+        params: {
+          awareeId: awardeeId,
+          frameId: frameId,
+          voucherCode: voucherCode,
+          eventId: eventId,
+        },
+      }
+    );
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};
+
+export const getVoucher = async (code: string) => {
+  try {
+    const response = await axiosInstanceAuth.get(`/api/v1/frame/voucher`,
+      { params: { code } }
+    );
     return response.data;
   } catch (error) {
     throw error;

@@ -67,21 +67,17 @@ const BlankShop = () => {
 
         try {
             setPurchasing(true);
-            // const response = await purchaseFrame(frameToPurchase.id);
             const response = await purchaseFrame(
                 frameToPurchase.id,
                 voucher?.trim() ? voucher.trim() : undefined
+                , event?.id ? event.id : undefined
             );
             if (response) {
                 toast.success(`Frame ${frameToPurchase.name} purchased successfully!`);
 
-                // Refresh frames list
                 fetchAcceptedFrames();
 
-                // Close modal
                 setFrameToPurchase(null);
-
-                // Navigate to purchased frames page
                 navigate('/purchased-frames');
             }
         } catch (error: any) {
@@ -238,6 +234,7 @@ const BlankShop = () => {
                 frameImage={frameToPurchase?.imageURL || ''}
                 framePrice={frameToPurchase?.price || 0}
                 purchasing={purchasing}
+                event={event?? undefined}
                 voucherCode={voucher}
                 setVoucherCode={setVoucher}
             />
@@ -252,6 +249,7 @@ const BlankShop = () => {
                 framePrice={selectedFrame?.price || 0}
                 voucherCode={voucher}
                 setVoucherCode={setVoucher}
+                event={event ?? undefined}
                 // gifting={isGifting}
                 onSuccess={() => toast.success('Gift sent successfully!')}
             />
