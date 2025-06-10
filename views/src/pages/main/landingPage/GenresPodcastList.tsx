@@ -136,15 +136,6 @@ const GenresPodcastList: React.FC<GenresPodcastListProps> = ({
           onShare={onShare}
         />
       )}
-      
-      {/* Show more link for authenticated users */}
-      {isAuthenticated && (hasFavorites || hasSuggested) && (
-        <div className="text-center py-8">
-          <button className="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition-colors">
-            Explore All Genres
-          </button>
-        </div>
-      )}
     </div>
   );
 };

@@ -20,6 +20,15 @@
         "logout": "Logout",
         "language": "Language"
     },
+    "searchbar": {
+        "recentSearches": "Recent Searches",
+        "trendingSearches": "Trending Searches",
+        "suggestions": "Suggestions",
+        "removeFromHistory": "Remove from History",
+        "clearAll": "Clear All",
+        "noSuggestions": "No suggestions found",
+        "searchContentPlaceholder": "Start typing to search podcasts, users, and more..."
+    },
     "profile": {
         "followers": "Followers",
         "following": "Following",
@@ -124,14 +133,86 @@
         "lastUpdated": "Last updated",
         "createdAt": "Created",
         "name": "Name",
-        "description": "Description"
+        "description": "Description",
+        "edit": "Edit playlist",
+        "delete": "Delete playlist",
+        "create": "Create New",
+        "title": "Playlist",
+        "deleteTitle": "Are you sure you want to delete this playlist?",
+        "namePlaceholder": "Enter playlist name",
+        "descriptionPlaceholder": "Enter playlist description"
     },
 
     "common": {
-        "loading": "Loading..."
-},
+        "loading": "Loading...",
+        "report": "Report",
+        "share": "Share",
+        "addToPlaylist": "Add to Playlist",
+        "save": "Save",
+        "removeFromHistory": "Remove from History",
+        "views": "Views",
+        "more": "More",
+        "watchLater": "Watch Later",
+        "edit": "Edit",
+        "delete": "Delete",
+        "saveChanges": "Save Changes",
+        "cancel": "Cancel",
+        "refresh": "Refresh",
+        "showMore": "Show More",
+        "showLess": "Show Less",
+        "comments": "Comments",
+        "filter": "Filter",
+        "watchParty": "Watch Party",
+        "follow": "Follow",
+        "unfollow": "Unfollow",
+        "followers": "Followers",
+        "latest": "Latest",
+        "oldest": "Oldest",
+        "like": "Reaction",
+        "loadMore":"Load More",
+        "sureToDelete": "Are you sure you want to delete this?"
+    },
 
     "watchParty": {
+        "browse": {
+            "title": "Watch Party Rooms",
+            "description": "Join public watch parties and discover new podcasts with others, or manage your own rooms",
+            "noResults": "No podcasts found",
+            "loadMore": "Load More",
+            "joinRoom": "Join Room",
+            "myRooms": "My Rooms",
+            "publicRooms": "Public Rooms",
+            "createRoom": "Create Room",
+            "noRoomAvailable": "No rooms available",
+            "noRoomAvailableDescription": "Check back later or create your own room!"
+        },
+        "roomCard": {
+            "host": "Host",
+            "created": "Created",
+            "live": "Live",
+            "participants": "Participants",
+            "roomCode": "Room Code",
+            "joinRoom": "Join Room",
+            "viewRoom": "View Room",
+            "publicRoom": "Public Room",
+            "privateRoom": "Private Room",
+            "expired": "Expired",
+            "expiredDescription": "This room has expired and is no longer available",
+            "isFull": "This room is full"
+        },
+        "joinRoomModal": {
+            "title": "Join Watch Party Room",
+            "description": "Room Code or Invite Link",
+            "placeholder": "Enter room code or paste invite link",
+            "askHost": "Ask the host for the room code or link",
+            "roomCode": "Room Code",
+            "join": "Join Room",
+            "cancel": "Cancel",
+            "error": {
+                "invalidCode": "Invalid room code. Please check and try again.",
+                "roomNotFound": "Room not found. It may have expired or been closed."
+            }
+        },
         "page": {
             "prefix": "Watch Party",
             "roomCode": "Room Code",
@@ -305,5 +386,72 @@
             }
         }
 
+    }, 
+    "trending": {
+        "title": "Trending Podcasts",
+        "description": "Discover what's hot and popular in the podcast world right now",
+        "noResults": "No trending podcasts found",
+        "loadMore": "Load More"
+    },
+    "follow": {
+        "title": "Following Feed",
+        "all": "All",
+        "noResults": "No followed podcasts found",
+        "loadMore": "Load More",
+        "latestAll": "Latest from everyone you follow",
+        "latestFrom": "Latest from",
+        "noFollowYet": "You're not following anyone yet"
+    },
+    "history": {
+        "title": "Watched podcasts",
+        "description": "Your recently watched podcasts",
+        "noResults": "No history found",
+        "loadMore": "Load More",
+        "searchHistory": "Search History",
+        "clearAllHistory": "Clear all viewed podcasts",
+        "viewed": "Viewed"
+    },
+    "likedPodcast": {
+        "title": "Liked Podcasts",
+        "description": "Your liked podcasts",
+        "noResults": "No liked podcasts found",
+        "loadMore": "Load More",
+        "searchLiked": "Search Liked Podcasts",
+        "searchPlaceholder": "Search by title or content...",
+        "noLikedYet": "You haven't liked any podcasts yet",
+        "likeThisPodcast": "Like this podcast",
+        "unlikeThisPodcast": "Unlike this podcast"
+    },
+    "genrePodcast": {
+        "title": "Genre",
+        "description": "Discover amazing podcasts in this category",
+        "noResults": "No podcasts found in this genre",
+        "loadMore": "Load More",
+        "searchPlaceholder": "Search podcasts in this genre...",
+        "viewAll": "View All Genres",
+        "genreNotFound": "Genre not found",
+        "totalViews": "Total Views",
+        "allPodcasts": "All Podcasts",
+        "noPodcastYet": "No podcasts yet",
+        "noPodcastYetDescription": "This genre doesn't have any podcasts yet. Be the first to create one!",
+        "createPodcast": "Create Podcast"
+    },
+    "podcastView": {
+        "uploaded": "Uploaded",
+        "share": "Share",
+        "watchParty": "Watch Party"
+    },
+    "commentSection": {
+        "reply": "Reply",
+        "replies": "Replies",
+        "addAReply": "Add a reply",
+        "addAComment": "Add a comment",
+        "pleaseLogin": "Please log in to add a comment",
+        "breakLine": "Press Shift + Enter to break a line",
+        "edited": "Edited",
+        "editYourComment": "Edit your comment..."
+    },
+    "suggestedPodcasts": {
+        "title": "Suggested for You"
     }
 }

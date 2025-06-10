@@ -14,6 +14,8 @@ import Avatar from "../user/Avatar";
 import { formatTimeDuration } from "./video";
 import { formatDistanceToNow } from "date-fns";
 import AddToPlaylistModal from "../../../pages/main/playlistPage/AddToPlaylistModal";
+import { useLanguage } from "../../../context/LanguageContext";
+import { MdOutlineWatchLater } from "react-icons/md";
 
 interface PodcastHistoryProps {
   podcast: Podcast;
@@ -26,6 +28,7 @@ const PodcastHistory: React.FC<PodcastHistoryProps> = ({
   onDelete,
   timestamp,
 }) => {
+  const {language} = useLanguage();
   const [isShareModalOpen, setIsShareModalOpen] = useState(false);
   const [isReportModalOpen, setIsReportModalOpen] = useState(false);
   const [isPlaylistModalOpen, setIsPlaylistModalOpen] = useState(false);
@@ -77,7 +80,9 @@ const PodcastHistory: React.FC<PodcastHistoryProps> = ({
       </Link>
       <div className="flex-grow sm:ml-4">
         <Link to={`/watch?pid=${podcast.id}`} className="block">
-          <h3 className="text-lg sm:text-xl font-semibold line-clamp-2 text-black dark:text-white hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
+          <h3 className="text-lg sm:text-xl font-semibold line-clamp-2 text-black dark:text-white hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+            title={podcast.title} 
+          >
             {podcast.title}
           </h3>
         </Link>
@@ -97,12 +102,12 @@ const PodcastHistory: React.FC<PodcastHistoryProps> = ({
           </Link>
           <p className="text-sm sm:text-base font-medium text-gray-600 dark:text-gray-300 flex items-center">
             <FaEye className="mr-1" />
-            {podcast.views} views
+            {podcast.views} {language.common.views || "views"}
           </p>
           {viewedAtFormatted && (
             <p className="text-sm sm:text-base font-medium text-gray-600 dark:text-gray-300 flex items-center">
               <FaClock className="mr-1" />
-              Viewed {viewedAtFormatted}
+              {language.history.viewed} {viewedAtFormatted}
             </p>
           )}
         </div>
@@ -127,7 +132,7 @@ const PodcastHistory: React.FC<PodcastHistoryProps> = ({
           onClick={onDelete}
           className="text-gray-600 dark:text-gray-400 hover:bg-gray-100 hover:dark:bg-gray-700 p-2 rounded-full transition duration-200"
           aria-label="Remove from history"
-          title="Remove from history"
+          title={language.common.removeFromHistory}
         >
           <IoCloseOutline className="w-5 h-5 sm:w-6 sm:h-6" />
         </button>
@@ -142,19 +147,19 @@ const PodcastHistory: React.FC<PodcastHistoryProps> = ({
           <ul className="py-1 text-sm">
             <li className="px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer" onClick={toggleReportModal}>
               <FaFlag className="inline-block mr-2" />
-              Report
+              {language.common.report}
             </li>
             <li className="px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer" onClick={handleSave}>
-              <FaBookmark className="inline-block mr-2" />
-              Save
+              <MdOutlineWatchLater className="inline-block mr-2" />
+              {language.common.watchLater}
             </li>
             <li className="px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer" onClick={toggleAddToPlaylistModal}>
               <FaBookmark className="inline-block mr-2" />
-              Add to playlist
+              {language.common.addToPlaylist}
             </li>
             <li className="px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer" onClick={toggleShareModal}>
               <FaShareAlt className="inline-block mr-2" />
-              Share
+              {language.common.share}
             </li>
           </ul>
         </CustomOptionMenu>

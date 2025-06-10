@@ -5,7 +5,7 @@ import { Podcast } from "../../../models/PodcastModel";
 import defaultAvatar from "../../../assets/images/default_avatar.jpg";
 import CustomButton from "../custom/CustomButton";
 import { HeartIcon } from "../custom/SVG_Icon";
-import { FaBookmark, FaEye, FaFlag, FaShareAlt, FaUsers } from "react-icons/fa";
+import { FaEye, FaFlag, FaShareAlt, FaUsers } from "react-icons/fa";
 import { TfiMoreAlt } from "react-icons/tfi";
 import CommentSection from "./CommentSection";
 import Tooltip from "../custom/Tooltip";
@@ -30,8 +30,12 @@ import CounterAnimation from "../custom/animations/CounterAnimation";
 import AddToPlaylistModal from "../../../pages/main/playlistPage/AddToPlaylistModal";
 import { useTrackPodcastProgress } from "../../../hooks/useTrackPodcastProgress";
 import { BaseApi } from "../../../utils/axiosInstance";
+import { useLanguage } from "../../../context/LanguageContext";
+import { BsClockHistory } from "react-icons/bs";
+import { RiPlayListAddFill } from "react-icons/ri";
 
 const PodcastViewport: React.FC = () => {
+  const {language} = useLanguage();
   const location = useLocation();
   const queryParams = new URLSearchParams(location.search);
   const id = queryParams.get("pid") as string | "";
@@ -354,12 +358,12 @@ const PodcastViewport: React.FC = () => {
                 {userInfo}
               </span>
               <span className="text-sm text-gray-700 dark:text-gray-300">
-                <CounterAnimation value={totalFollower} /> follower
+                {totalFollower} {language.common.followers}
               </span>
             </div>
             {podcast.user.id !== userRedux?.id ? (
               <CustomButton
-                text={`${follow ? "Unfollow" : "Follow"} `}
+                text={`${follow ? language.common.unfollow : language.common.follow} `}
                 variant="ghost"
                 rounded="full"
                 onClick={() => handleFollow(podcast.user.username)}
@@ -393,7 +397,7 @@ const PodcastViewport: React.FC = () => {
             <Tooltip text="Reaction">
               <CustomButton
                 text={totalLikes.toString()}
-                icon={<HeartIcon filled={liked} color={liked ? "white" : "gray"} strokeColor="white" />}
+                icon={<HeartIcon filled={liked} color={liked ? "red" : "gray"} strokeColor="white" />}
                 variant="primary"
                 rounded="full"
                 size="sm"
@@ -402,7 +406,7 @@ const PodcastViewport: React.FC = () => {
               />
             </Tooltip>
             <CustomButton
-              text="Share"
+              text={language.common.share || "Share"}
               icon={<FaShareAlt size={20} />}
               variant="primary"
               rounded="full"
@@ -410,7 +414,7 @@ const PodcastViewport: React.FC = () => {
               className="bg-gray-600 hover:bg-gray-500 dark:bg-gray-600 hover:dark:bg-gray-500"
             />
             <CustomButton
-              text="Watch Party"
+              text={language.podcastView.watchParty || "Watch Party"}
               icon={<FaUsers size={20}/>}
               variant="primary"
               rounded="full"
@@ -436,11 +440,11 @@ const PodcastViewport: React.FC = () => {
                   <ul className="py-1">
                     <li className="px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer" onClick={toggleReportModal}>
                       <FaFlag className="inline-block mb-1 mr-2" />
-                      Report
+                      {language.common.report || "Report"}
                     </li>
                     <li className="px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer" onClick={handleSave}>
-                      <FaBookmark className="inline-block mb-1 mr-2" />
-                      Save
+                      <BsClockHistory className="inline-block mb-1 mr-2" />
+                      {language.common.watchLater || "Watch Later"}
                     </li>
                     <li className="px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer" 
                       onClick={() => { 
@@ -450,8 +454,8 @@ const PodcastViewport: React.FC = () => {
                         }
                         toggleAddToPlaylistModal(podcast.id);
                       }}>
-                      <FaBookmark className="inline-block mb-1 mr-2" />
-                      Add to playlist
+                      <RiPlayListAddFill className="inline-block mb-1 mr-2" />
+                      {language.common.addToPlaylist || "Add to playlist"}
                     </li>
                   </ul>
                 </div>
@@ -463,7 +467,7 @@ const PodcastViewport: React.FC = () => {
         {/* Description */}
         <div className="p-4 rounded-lg bg-gray-200 dark:bg-gray-800">
           <p className="text-gray-700 dark:text-white text-base font-bold mb-2">
-            Uploaded:
+            {language.podcastView.uploaded}:
             {/* {" " + formatDateTime(podcast.createdDay)} */}
             {" " + formatDistanceToNow(new Date(podcast.createdDay), { addSuffix: true })}
           </p>
@@ -472,7 +476,7 @@ const PodcastViewport: React.FC = () => {
           </pre>
           {showDescToggle && (
             <button onClick={toggleDescription} className="text-blue-600 dark:text-blue-300 font-medium mt-2">
-              {isDescriptionExpanded ? 'Show less' : 'Show more'}
+              {isDescriptionExpanded ? language.common.showLess : language.common.showMore}
             </button>
           )}
         </div>

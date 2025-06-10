@@ -13,6 +13,7 @@ import { formatTimeDuration } from "./video";
 import { FaClock, FaPlay } from "react-icons/fa";
 import Tooltip from "../custom/Tooltip";
 import { useClickOutside } from "../../../hooks/useClickOutside";
+import { useLanguage } from "../../../context/LanguageContext";
 
 interface PodcastListItemProps {
   podcast: Podcast;
@@ -33,7 +34,7 @@ const PodcastListItem: React.FC<PodcastListItemProps> = ({
 }) => {
   const navigate = useNavigate();
   const menuRef = useRef<HTMLDivElement>(null);
-
+  const {language} = useLanguage();
   useClickOutside(menuRef, () => {
     if (isOptionMenuOpen) {
       onToggleOptionMenu(podcast.id, new MouseEvent("click") as unknown as React.MouseEvent);
@@ -128,7 +129,7 @@ const PodcastListItem: React.FC<PodcastListItemProps> = ({
       
       {/* Action buttons */}
       <div className="flex md:flex-col items-center gap-2 relative">
-        <Tooltip text="Add to Playlist">
+        <Tooltip text={language.common.addToPlaylist || "Add to Playlist"}>
           <button 
             onClick={(e) => {
               e.stopPropagation();
@@ -140,7 +141,7 @@ const PodcastListItem: React.FC<PodcastListItemProps> = ({
           </button>
         </Tooltip>
         
-        <Tooltip text="Share">
+        <Tooltip text={language.common.share || "Share"}>
           <button 
             onClick={(e) => {
               e.stopPropagation();
@@ -153,7 +154,7 @@ const PodcastListItem: React.FC<PodcastListItemProps> = ({
         </Tooltip>
         
         <div className="relative">
-          <Tooltip text="More">
+          <Tooltip text={language.common.more || "More"}>
             <button 
               onClick={(e) => {
                 e.stopPropagation();
@@ -177,7 +178,7 @@ const PodcastListItem: React.FC<PodcastListItemProps> = ({
                   onReport();
                 }}
               >
-                <MdOutlineFlag className="mr-2" /> Report
+                <MdOutlineFlag className="mr-2" /> {language.common.report || "Report"}
               </button>
               <button
                 className="flex w-full items-center px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
@@ -186,7 +187,7 @@ const PodcastListItem: React.FC<PodcastListItemProps> = ({
                   // You can add watch later functionality here
                 }}
               >
-                <MdOutlineWatchLater className="mr-2" /> Watch Later
+                <MdOutlineWatchLater className="mr-2" /> {language.common.watchLater || "Watch Later"}
               </button>
             </div>
           )}

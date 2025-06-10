@@ -43,6 +43,12 @@ public class GenreServiceImpl implements IGenreService {
     }
 
     @Override
+    public GenreSimple getGenreById(String id) {
+        GenreEntity genreEntity = genreRepository.findByIdAndIsActiveTrue(id);
+        return modelMapper.map(genreEntity, GenreSimple.class);
+    }
+
+    @Override
     public List<GenreModel> getALlGenre() {
         List<GenreEntity> genres = genreRepository.findAll();
         return genres.stream()

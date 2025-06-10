@@ -14,6 +14,7 @@ import defaultAvatar from "../../../assets/images/default_avatar.jpg";
 import { useSelector } from "react-redux";
 import { RootState } from "../../../redux/store";
 import { BsGrid3X3Gap, BsListUl } from "react-icons/bs";
+import { useLanguage } from "../../../context/LanguageContext";
 // import { useToast } from "../../../context/ToastProvider";
 
 interface FollowedUser {
@@ -44,7 +45,8 @@ const FollowingPage: React.FC = () => {
   const [loadingMore, setLoadingMore] = useState<boolean>(false);
   const [activeUser, setActiveUser] = useState<string | null>(null);
   const [viewMode, setViewMode] = useState<'grid' | 'list'>(activeUser ? 'list' : 'grid');
-  
+
+  const { language } = useLanguage();
   // Refs for infinite scrolling
   const observerRef = useRef<IntersectionObserver | null>(null);
   const loadMoreRef = useRef<HTMLDivElement>(null);
@@ -226,7 +228,7 @@ const FollowingPage: React.FC = () => {
     <div className="px-8 py-4">
       {/* Header */}
       <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-medium text-black dark:text-white">Following Feed</h1>
+        <h1 className="text-2xl font-medium text-black dark:text-white">{language.follow.title}</h1>
         
         {/* View mode toggle - only show when not in specific user view */}
         {activeUser === null && (
@@ -261,7 +263,7 @@ const FollowingPage: React.FC = () => {
               <span className="text-lg font-bold">All</span>
             </div>
             <span className="text-sm text-gray-700 dark:text-gray-300 text-center max-w-[80px] truncate">
-              All
+              {language.follow.all}
             </span>
           </div>
           
@@ -276,7 +278,7 @@ const FollowingPage: React.FC = () => {
           ) : followingUsers.length === 0 ? (
             <div className="flex items-center justify-center min-w-[200px]">
               <p className="text-sm text-gray-500 dark:text-gray-400">
-                You're not following anyone yet
+                {language.follow.noFollowYet}
               </p>
             </div>
           ) : (
@@ -312,8 +314,8 @@ const FollowingPage: React.FC = () => {
       <div className="mb-6">
         <h2 className="text-xl font-medium text-black dark:text-white">
           {activeUser 
-            ? `Latest from ${followingUsers.find(u => u.username === activeUser)?.fullname || activeUser}`
-            : 'Latest from everyone you follow'
+            ? `${language.follow.latestFrom} ${followingUsers.find(u => u.username === activeUser)?.fullname || activeUser}`
+            : language.follow.latestAll
           }
         </h2>
       </div>
@@ -327,7 +329,7 @@ const FollowingPage: React.FC = () => {
             className="w-32 h-32 mb-4 opacity-60"
           />
           <h3 className="text-xl font-medium text-gray-700 dark:text-gray-300 mb-2">
-            No podcasts found
+            {language.follow.noResults}
           </h3>
           <p className="text-gray-600 dark:text-gray-400 text-center max-w-md">
             {activeUser 

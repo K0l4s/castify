@@ -4,6 +4,7 @@ import defaultAvatar from "../../../assets/images/default_avatar.jpg";
 import { WatchPartyRoom } from '../../../models/WatchPartyModel';
 import Avatar from '../../UI/user/Avatar';
 import CustomButton from '../../UI/custom/CustomButton';
+import { useLanguage } from '../../../context/LanguageContext';
 
 interface RoomCardProps {
   room: WatchPartyRoom;
@@ -21,6 +22,7 @@ const RoomCard: React.FC<RoomCardProps> = ({
   onJoinRoom,
   onSettingsClick,
 }) => {
+  const {language} = useLanguage();
   // Format time ago
   const formatTimeAgo = (dateString: string) => {
     const now = new Date();
@@ -54,19 +56,19 @@ const RoomCard: React.FC<RoomCardProps> = ({
           {/* Live indicator overlay */}
           <div className="absolute top-3 left-3 flex items-center gap-2 bg-black/60 backdrop-blur-sm px-3 py-1.5 rounded-full">
             <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse"></div>
-            <span className="text-xs font-medium text-white">LIVE</span>
+            <span className="text-xs font-medium text-white">{language.watchParty.roomCard.live}</span>
           </div>
           {/* Room type indicator */}
           <div className="absolute top-3 right-3 bg-black/60 backdrop-blur-sm px-2 py-1 rounded-full">
             {room.publish ? (
               <div className="flex items-center gap-1 text-white">
                 <FiGlobe size={12} />
-                <span className="text-xs">Public</span>
+                <span className="text-xs">{language.watchParty.roomCard.publicRoom}</span>
               </div>
             ) : (
               <div className="flex items-center gap-1 text-white">
                 <FiLock size={12} />
-                <span className="text-xs">Private</span>
+                <span className="text-xs">{language.watchParty.roomCard.privateRoom}</span>
               </div>
             )}
           </div>
@@ -86,7 +88,7 @@ const RoomCard: React.FC<RoomCardProps> = ({
           <FiImage size={32} className="text-white/60" />
           <div className="absolute top-3 left-3 flex items-center gap-2 bg-black/40 backdrop-blur-sm px-3 py-1.5 rounded-full">
             <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse"></div>
-            <span className="text-xs font-medium text-white">LIVE</span>
+            <span className="text-xs font-medium text-white">{language.watchParty.roomCard.live}</span>
           </div>
         </div>
       )}
@@ -97,13 +99,13 @@ const RoomCard: React.FC<RoomCardProps> = ({
           <div className="flex items-center gap-2">
             <div className="w-3 h-3 bg-green-500 rounded-full animate-pulse"></div>
             <span className="text-sm font-medium text-green-600 dark:text-green-400">
-              Live
+              {language.watchParty.roomCard.live}
             </span>
-            {isMyRoom && (
+            {/* {isMyRoom && (
               <span className="text-xs px-2 py-1 bg-blue-100 dark:bg-blue-900 text-blue-600 dark:text-blue-400 rounded-full font-medium">
                 Your Room
               </span>
-            )}
+            )} */}
           </div>
           <div className="flex items-center gap-1 text-gray-500 dark:text-gray-400">
             <FiClock size={14} />
@@ -132,7 +134,7 @@ const RoomCard: React.FC<RoomCardProps> = ({
                 {hostParticipant.username || hostParticipant.username}
               </div>
               <div className="text-xs text-gray-500 dark:text-gray-400">
-                Host
+                {language.watchParty.roomCard.host}
               </div>
             </div>
           </div>
@@ -147,12 +149,12 @@ const RoomCard: React.FC<RoomCardProps> = ({
             {room.publish ? (
               <>
                 <FiGlobe size={16} />
-                <span>Public</span>
+                <span>{language.watchParty.roomCard.publicRoom}</span>
               </>
             ) : (
               <>
                 <FiLock size={16} />
-                <span>Private</span>
+                <span>{language.watchParty.roomCard.privateRoom}</span>
               </>
             )}
           </div>
@@ -160,7 +162,7 @@ const RoomCard: React.FC<RoomCardProps> = ({
 
         {/* Room Code */}
         <div className="bg-gray-100 dark:bg-gray-700 rounded-lg p-3 mb-4">
-          <div className="text-xs text-gray-500 dark:text-gray-400 mb-1">Room Code</div>
+          <div className="text-xs text-gray-500 dark:text-gray-400 mb-1">{language.watchParty.roomCard.roomCode}</div>
           <div className="font-mono text-lg font-bold text-gray-900 dark:text-white">
             {room.roomCode}
           </div>
@@ -172,7 +174,7 @@ const RoomCard: React.FC<RoomCardProps> = ({
         {isMyRoom ? (
           <div className="flex gap-2">
             <CustomButton
-              text="Join Room"
+              text={language.watchParty.roomCard.joinRoom}
               icon={<FiArrowRight />}
               variant="primary"
               size="sm"
@@ -203,7 +205,7 @@ const RoomCard: React.FC<RoomCardProps> = ({
         
         {isRoomFull && (
           <p className="text-xs text-red-500 dark:text-red-400 mt-2 text-center">
-            Room is full
+            {language.watchParty.roomCard.isFull}
           </p>
         )}
       </div>

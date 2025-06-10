@@ -89,13 +89,13 @@ const PlaylistItem: React.FC<PlaylistItemProps> = ({
           <h2 className="font-semibold text-lg text-black dark:text-white truncate">{playlist.name}</h2>
           <p className="text-sm text-gray-600 dark:text-gray-300 line-clamp-2">{playlist.description}</p>
           <p className="text-sm text-gray-800 dark:text-gray-200 mt-1">
-            {playlist.publish ? "Public" : "Private"}
+            {playlist.publish ? language.playlist.public : language.playlist.private}
           </p>
           <p className="text-sm text-gray-800 dark:text-gray-200 mt-1">
-            Last updated: {formatLastUpdatedFromNow(playlist.lastUpdated)}
+            {language.playlist.lastUpdated}: {formatLastUpdatedFromNow(playlist.lastUpdated)}
           </p>
           <p className="text-sm text-gray-800 dark:text-gray-200 mt-1">
-            Created day: {formatDateTime(playlist.createdAt)}
+            {language.playlist.createdAt}: {formatDateTime(playlist.createdAt)}
           </p>
         </div>
         {/* Only show menu button if the current user is the owner */}
@@ -114,13 +114,13 @@ const PlaylistItem: React.FC<PlaylistItemProps> = ({
                   onClick={handleEdit}
                   className="w-full text-left px-4 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-700 text-black dark:text-white"
                 >
-                  Edit
+                  {language.common.edit || "Edit"}
                 </button>
                 <button
                   onClick={handleDelete}
                   className="w-full text-left px-4 py-2 text-sm text-red-500 hover:bg-gray-100 dark:hover:bg-gray-700"
                 >
-                  Delete
+                  {language.common.delete || "Delete"}
                 </button>
               </div>
             )}

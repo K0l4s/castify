@@ -9,8 +9,10 @@ import { FaRegTrashCan } from "react-icons/fa6";
 import { useSelector } from "react-redux";
 import { RootState } from "../../../redux/store";
 import ConfirmModal from "../../../components/modals/utils/ConfirmDelete";
+import { useLanguage } from "../../../context/LanguageContext";
 
 const HistoryPage: React.FC = () => {
+  const {language} = useLanguage();
   const [activities, setActivities] = useState<any[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [loadingMore, setLoadingMore] = useState<boolean>(false);
@@ -263,7 +265,7 @@ const HistoryPage: React.FC = () => {
     <div className="container mx-auto p-4 flex flex-col lg:flex-row rounded-lg">
       <div className="w-full lg:w-1/4 lg:pl-4 mb-6 lg:mb-0 order-first lg:order-last">
         <div className="rounded-lg p-3 md:p-4 mb-4 bg-white/5 backdrop-blur-sm border border-gray-200 dark:border-gray-700">
-          <h2 className="text-lg md:text-xl text-black dark:text-white font-semibold mb-2">Search History</h2>
+          <h2 className="text-lg md:text-xl text-black dark:text-white font-semibold mb-2">{language.history.searchHistory}</h2>
           {/* <div className="relative">
             <input
               type="text"
@@ -283,7 +285,7 @@ const HistoryPage: React.FC = () => {
             )}
           </div> */}
           <CustomButton
-            text="Clear all viewed history"
+            text={language.history.clearAllHistory}
             icon={<FaRegTrashCan className="w-4 h-4 md:w-5 md:h-5" />}
             variant="ghost"
             onClick={openConfirmModal}
@@ -298,8 +300,8 @@ const HistoryPage: React.FC = () => {
         </div>
       </div>
       <div className="w-full lg:w-3/4 lg:pr-4">
-        <h1 className="text-2xl md:text-3xl font-bold mb-4 text-black dark:text-white">Viewing History</h1>
-        
+        <h1 className="text-2xl md:text-3xl font-bold mb-4 text-black dark:text-white">{language.history.title}</h1>
+
         {error && (
           <div className="bg-red-100 dark:bg-red-900 text-red-700 dark:text-red-200 p-4 rounded-lg mb-4">
             {error}
@@ -364,7 +366,7 @@ const HistoryPage: React.FC = () => {
       {/* Confirm Clear History Modal */}
       <ConfirmModal
         isOpen={isConfirmModalOpen}
-        title="Clear all viewing history?"
+        title={`${language.history.clearAllHistory}?`}
         onConfirm={clearHistory}
         onClose={() => setIsConfirmModalOpen(false)}
       />

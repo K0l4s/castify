@@ -4,6 +4,7 @@ import RoomCard from './RoomCard';
 import { WatchPartyRoom } from '../../../models/WatchPartyModel';
 import { useToast } from '../../../context/ToastProvider';
 import CustomButton from '../../UI/custom/CustomButton';
+import { useLanguage } from '../../../context/LanguageContext';
 
 interface RoomSectionProps {
   title: string;
@@ -35,6 +36,7 @@ const RoomSection = forwardRef<RoomSectionRef, RoomSectionProps>(({
   joining,
   currentUserId
 }, ref) => {
+  const {language} = useLanguage();
   const [rooms, setRooms] = useState<WatchPartyRoom[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
   const [currentPage, setCurrentPage] = useState<number>(0);
@@ -121,7 +123,7 @@ const RoomSection = forwardRef<RoomSectionRef, RoomSectionProps>(({
           </h2>
         </div>
         <CustomButton
-          text="Refresh"
+          text={language.common.refresh}
           icon={<FiRefreshCw />}
           variant="outline"
           size="sm"
@@ -135,13 +137,10 @@ const RoomSection = forwardRef<RoomSectionRef, RoomSectionProps>(({
         <div className="text-center py-12 bg-gray-50 dark:bg-gray-800 rounded-xl">
           <FiUsers className="mx-auto text-4xl text-gray-400 mb-3" />
           <h3 className="text-lg font-semibold text-gray-500 dark:text-gray-400 mb-1">
-            No {title} Available
+            {language.watchParty.browse.noRoomAvailable}
           </h3>
           <p className="text-gray-400 dark:text-gray-500 text-sm">
-            {isMyRooms 
-              ? "You haven't created any rooms yet!" 
-              : "Check back later or create your own room!"
-            }
+            {language.watchParty.browse.noRoomAvailableDescription}
           </p>
         </div>
       ) : (
