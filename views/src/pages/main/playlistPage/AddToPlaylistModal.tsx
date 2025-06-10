@@ -7,6 +7,7 @@ import CustomButton from '../../../components/UI/custom/CustomButton';
 import CustomModal from '../../../components/UI/custom/CustomModal';
 import { FaPlus } from 'react-icons/fa';
 import CreatePlaylistModal from './CreatePlaylistModal';
+import { useLanguage } from '../../../context/LanguageContext';
 
 interface AddToPlaylistModalProps {
   isOpen: boolean;
@@ -21,6 +22,7 @@ const AddToPlaylistModal: React.FC<AddToPlaylistModalProps> = ({ isOpen, onClose
   const [selectedPlaylists, setSelectedPlaylists] = useState<{ [key: string]: boolean }>({});
   const [isCreateModalOpen, setIsCreateModalOpen] = useState<boolean>(false);
   const toast = useToast();
+  const {language} = useLanguage();
 
   const fetchUserPlaylists = async () => {
     setLoading(true);
@@ -78,16 +80,16 @@ const AddToPlaylistModal: React.FC<AddToPlaylistModalProps> = ({ isOpen, onClose
   return (
     <>
       <CustomModal
-        title="Add to Playlist"
+        title={language.playlist.addToPlaylist.header}
         isOpen={isOpen}
         onClose={onClose}
         size="md"
       >
         <div className="flex flex-col p-4 max-h-96 overflow-y-auto">
           <div className="flex justify-between items-center mb-4">
-            <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100">Your Playlists</h3>
+            <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100">{language.playlist.addToPlaylist.title}</h3>
             <CustomButton
-              text="Create New"
+              text={language.playlist.addToPlaylist.createNew}
               icon={<FaPlus />}
               variant="primary"
               size="sm"
@@ -115,7 +117,7 @@ const AddToPlaylistModal: React.FC<AddToPlaylistModalProps> = ({ isOpen, onClose
                   <div className="flex-1">
                     <h3 className="text-md font-medium text-gray-800 dark:text-gray-200">{playlist.name}</h3>
                     <p className="text-sm text-gray-600 dark:text-gray-400">
-                      {playlist.publish ? 'Public' : 'Private'}
+                      {playlist.publish ? language.common.public : language.common.private}
                     </p>
                   </div>
                   <div>
@@ -131,7 +133,7 @@ const AddToPlaylistModal: React.FC<AddToPlaylistModalProps> = ({ isOpen, onClose
             </>
           )}
           <div className="flex justify-end mt-4">
-            <CustomButton text="Close" variant="ghost" onClick={onClose} />
+            <CustomButton text={language.common.close} variant="ghost" onClick={onClose} />
           </div>
         </div>
       </CustomModal>

@@ -13,6 +13,7 @@ public class WatchPartyParticipant {
     private String userId;
     private String username;
     private String avatarUrl;
+    private String userFrameUrl;
     private LocalDateTime joinedAt = LocalDateTime.now();
     private boolean isOnline = true;
     private LocalDateTime lastSeen = LocalDateTime.now();

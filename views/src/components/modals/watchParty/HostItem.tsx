@@ -31,8 +31,8 @@ const HostItem: React.FC<HostItemProps> = ({
         width="w-8"
         height="h-8"
         avatarUrl={hostParticipant?.avatarUrl || defaultAvatar}
-        usedFrame={hostParticipant?.usedFrame}
         alt={getDisplayName(hostParticipant)}
+        userFrameUrl={hostParticipant?.userFrameUrl}
       />
       <div className="flex-1">
         <div className="flex items-center gap-1">

@@ -1,5 +1,6 @@
 package com.castify.backend.service.watchParty;
 
+import com.castify.backend.entity.FrameEntity;
 import com.castify.backend.entity.PodcastEntity;
 import com.castify.backend.entity.UserEntity;
 import com.castify.backend.entity.watchParty.PlaybackSyncEvent;
@@ -11,10 +12,7 @@ import com.castify.backend.enums.SyncEventType;
 import com.castify.backend.models.PageDTO;
 import com.castify.backend.models.watchParty.EditWatchPartyRoomDTO;
 import com.castify.backend.models.watchParty.WatchPartyRoomModel;
-import com.castify.backend.repository.PodcastRepository;
-import com.castify.backend.repository.UserRepository;
-import com.castify.backend.repository.WatchPartyMessageRepository;
-import com.castify.backend.repository.WatchPartyRoomRepository;
+import com.castify.backend.repository.*;
 import com.castify.backend.utils.SecurityUtils;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -45,6 +43,7 @@ public class WatchPartyServiceImpl implements IWatchPartyService {
     private final UserRepository userRepository;
     private final MongoTemplate mongoTemplate;
     private final ModelMapper modelMapper;
+    private final FrameRepository frameRepository;
 
     @Override
     public WatchPartyRoomEntity createRoom(String podcastId, String roomName, boolean isPublic) {
@@ -68,6 +67,9 @@ public class WatchPartyServiceImpl implements IWatchPartyService {
         hostParticipant.setUserId(host.getId());
         hostParticipant.setUsername(host.getUsername());
         hostParticipant.setAvatarUrl(host.getAvatarUrl());
+        if (host.getUsername() != null) {
+            hostParticipant.setUserFrameUrl(host.getUsedFrame().getImageURL());
+        }
         room.getParticipants().add(hostParticipant);
 
         // Save to DB and cache
@@ -180,6 +182,9 @@ public class WatchPartyServiceImpl implements IWatchPartyService {
             participant.setUserId(user.getId());
             participant.setUsername(user.getUsername());
             participant.setAvatarUrl(user.getAvatarUrl());
+            if (user.getUsedFrame() != null) {
+                participant.setUserFrameUrl(user.getUsedFrame().getImageURL());
+            }
             room.getParticipants().add(participant);
         }
 
@@ -379,6 +384,7 @@ public class WatchPartyServiceImpl implements IWatchPartyService {
     @Override
     public WatchPartyMessageEntity sendMessage(String roomId, String message, String username) {
         UserEntity user = userRepository.findByUsername(username).orElseThrow(() -> new RuntimeException("User not found"));
+        FrameEntity usedFrame = user.getUsedFrame();
 
         WatchPartyMessageEntity chatMessage = new WatchPartyMessageEntity();
         chatMessage.setRoomId(roomId);
@@ -387,6 +393,12 @@ public class WatchPartyServiceImpl implements IWatchPartyService {
         chatMessage.setAvatarUrl(user.getAvatarUrl());
         chatMessage.setMessage(message);
         chatMessage.setType(MessageType.CHAT);
+
+        if (usedFrame != null) {
+            chatMessage.setUserFrameUrl(usedFrame.getImageURL());
+        } else {
+            log.info("User {} has no frame", username);
+        }
 
         messageRepository.save(chatMessage);
         return chatMessage;

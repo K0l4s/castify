@@ -34,7 +34,7 @@ const ParticipantItem: React.FC<ParticipantItemProps> = ({
         width="w-8"
         height="h-8"
         avatarUrl={participant?.avatarUrl || defaultAvatar}
-        usedFrame={participant?.usedFrame}
+        userFrameUrl={participant?.userFrameUrl}
         alt={getDisplayName(participant)}
       />
       <div className="flex-1">

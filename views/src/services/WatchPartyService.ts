@@ -559,7 +559,7 @@ export default class WatchPartyService {
     }
 
     const chatRequest: ChatMessageRequest = { message };
-    // console.log(`Sending chat message to room ${roomId}: ${message}`);
+    console.log(`Sending chat message to room ${roomId}: ${message}`);
 
     try {
       this.stompClient.publish({

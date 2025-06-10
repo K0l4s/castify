@@ -140,7 +140,13 @@
         "title": "Playlist",
         "deleteTitle": "Are you sure you want to delete this playlist?",
         "namePlaceholder": "Enter playlist name",
-        "descriptionPlaceholder": "Enter playlist description"
+        "descriptionPlaceholder": "Enter playlist description",
+        "addToPlaylist": {
+            "header": "Add to Playlist",
+            "title": "Your Playlists",
+            "createNew": "Create New",
+        "noPlaylists": "You don't have any playlists yet"
+        }
     },
 
     "common": {
@@ -170,7 +176,11 @@
         "oldest": "Oldest",
         "like": "Reaction",
         "loadMore":"Load More",
-        "sureToDelete": "Are you sure you want to delete this?"
+        "sureToDelete": "Are you sure you want to delete this?",
+        "close": "Close",
+        "public": "Public",
+        "private": "Private",
+        "send": "Send"
     },
 
     "watchParty": {
@@ -453,5 +463,12 @@
     },
     "suggestedPodcasts": {
         "title": "Suggested for You"
+    },
+    "reportModal": {
+        "header": "Report",
+        "title": "Title",
+        "titlePlaceholder": "Please provide a title of the report",
+        "content": "Content",
+        "contentPlaceholder": "Please provide more details about the issue"
     }
 }

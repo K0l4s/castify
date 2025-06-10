@@ -1,5 +1,7 @@
 package com.castify.backend.entity.watchParty;
 
+import com.castify.backend.entity.FrameEntity;
+import com.castify.backend.entity.UserFrameEntity;
 import com.castify.backend.enums.MessageType;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -23,6 +25,7 @@ public class WatchPartyMessageEntity {
     private String userId;
     private String username;
     private String avatarUrl;
+    private String userFrameUrl;
     private String message;
     private MessageType type = MessageType.CHAT;
     private LocalDateTime timestamp = LocalDateTime.now();
