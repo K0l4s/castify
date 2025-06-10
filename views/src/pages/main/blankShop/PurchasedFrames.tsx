@@ -4,6 +4,9 @@ import { Frame } from '../../../models/FrameModel';
 import { applyFrame, cancelCurrentFrame, getPurchasedFrames } from '../../../services/FrameService';
 import { BiXCircle } from 'react-icons/bi';
 import FramePreviewModal from './FramePreviewModal';
+import Avatar from '../../../components/UI/user/Avatar';
+import { useSelector } from 'react-redux';
+import { RootState } from '../../../redux/store';
 
 const PurchasedFrames = () => {
   const [frames, setFrames] = useState<Frame[]>([]);
@@ -45,10 +48,10 @@ const PurchasedFrames = () => {
       toast.error('Failed to cancel frame');
     }
   };
-
-  const handlePreview = (frame: Frame) => {
-    setSelectedFrameForPreview(frame);
-  };
+  const currentUser = useSelector((state: RootState) => state.auth.user);
+  // const handlePreview = (frame: Frame) => {
+  //   setSelectedFrameForPreview(frame);
+  // };
 
   if (loading) {
     return (
@@ -86,19 +89,33 @@ const PurchasedFrames = () => {
             className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow"
           >
             <div className="relative aspect-square group">
-              <img
+              {/* <img
                 src={frame.imageURL}
                 alt={frame.name}
                 className="w-full h-full object-contain p-4"
-              />
-              <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-50 transition duration-300 flex items-center justify-center opacity-0 group-hover:opacity-100">
+              /> */}
+              <div className="relative aspect-square w-10/12 m-auto p-5">
+                <Avatar
+                  usedFrame={{
+                    id: frame.id,
+                    imageURL: frame.imageURL,
+                    name: frame.name,
+                    price: frame.price,
+                  }}
+                  avatarUrl={currentUser?.avatarUrl}
+                  alt={frame.name}
+                  width="w-full"
+                  height="h-full"
+                />
+              </div>
+              {/* <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-50 transition duration-300 flex items-center justify-center opacity-0 group-hover:opacity-100">
                 <button 
                   onClick={() => handlePreview(frame)}
                   className="px-4 py-2 bg-white text-black rounded-lg hover:bg-gray-100 dark:bg-gray-700 dark:text-white dark:hover:bg-gray-600 transition-colors"
                 >
                   Preview
                 </button>
-              </div>
+              </div> */}
             </div>
 
             <div className="p-4 border-t dark:border-gray-700 space-y-2">
