@@ -6,6 +6,9 @@ import { getMyUploads, deleteFrame, updateFrame } from '../../../services/FrameS
 import FramePreviewModal from './FramePreviewModal';
 import FrameUploadModal from '../../../components/modals/frame/FrameUploadModal';
 import coin from '../../../assets/images/coin.png';
+import { useSelector } from 'react-redux';
+import { RootState } from '../../../redux/store';
+import Avatar from '../../../components/UI/user/Avatar';
 
 const getStatusBadge = (status: string) => {
   const statusConfig = {
@@ -62,11 +65,11 @@ const EditModal: React.FC<EditModalProps> = ({ isOpen, onClose, onSave, frame })
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
       <div className="bg-white dark:bg-gray-800 rounded-lg p-6 w-[480px] max-h-[90vh] overflow-y-auto">
         <h2 className="text-xl font-bold mb-4 text-black dark:text-white">Edit Frame</h2>
-        
+
         {/* Frame Image and Status */}
         <div className="mb-6">
           <div className="relative aspect-square mb-4 bg-gray-100 dark:bg-gray-700 rounded-lg overflow-hidden">
-            <img 
+            <img
               src={frame.imageURL || defaultFrame}
               alt={frame.name}
               className="w-full h-full object-contain p-4"
@@ -192,6 +195,7 @@ const MyShop = () => {
     setEditingFrame(frame);
     setIsEditModalOpen(true);
   };
+  const currentUser = useSelector((state: RootState) => state.auth.user);
 
   const handleSaveEdit = async (name: string, price: number) => {
     if (!editingFrame) return;
@@ -205,9 +209,9 @@ const MyShop = () => {
     }
   };
 
-  const handlePreview = (frame: Frame) => {
-    setSelectedFrame(frame);
-  };
+  // const handlePreview = (frame: Frame) => {
+  //   setSelectedFrame(frame);
+  // };
 
   if (loading) {
     return (
@@ -216,13 +220,12 @@ const MyShop = () => {
       </div>
     );
   }
-
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl font-bold text-black dark:text-white">My Frames</h1>
         <div className="flex gap-4">
-          <button 
+          <button
             onClick={() => setIsUploadModalOpen(true)}
             className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
           >
@@ -230,27 +233,41 @@ const MyShop = () => {
           </button>
         </div>
       </div>
-      
+
       <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6">
         {frames.map((frame) => (
           <div key={frame.id} className="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden">
             <div className="relative aspect-square">
-              <img 
+              {/* <img 
                 src={frame.imageURL || defaultFrame}
                 alt={frame.name}
                 className="w-full h-full object-contain p-4"
-              />
+              /> */}
+              <div className="relative aspect-square w-10/12 m-auto p-5">
+                <Avatar
+                  usedFrame={{
+                    id: frame.id,
+                    imageURL: frame.imageURL,
+                    name: frame.name,
+                    price: frame.price,
+                  }}
+                  avatarUrl={currentUser?.avatarUrl}
+                  alt={frame.name}
+                  width="w-full"
+                  height="h-full"
+                />
+              </div>
               {/* Preview overlay */}
-              <div className="absolute inset-0 bg-black bg-opacity-0 hover:bg-opacity-50 transition-opacity flex items-center justify-center opacity-0 hover:opacity-100">
+              {/* <div className="absolute inset-0 bg-black bg-opacity-0 hover:bg-opacity-50 transition-opacity flex items-center justify-center opacity-0 hover:opacity-100">
                 <button 
                   onClick={() => handlePreview(frame)}
                   className="px-4 py-2 bg-white dark:bg-gray-800 text-black dark:text-white rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
                 >
                   Preview
                 </button>
-              </div>
+              </div> */}
             </div>
-            
+
             <div className="p-4 border-t dark:border-gray-700">
               <div className="flex justify-between items-start mb-2">
                 <h2 className="text-lg font-semibold text-black dark:text-white">{frame.name}</h2>
@@ -261,7 +278,7 @@ const MyShop = () => {
                   </div>
                 </div>
               </div>
-              
+
               <div className="flex justify-between items-center">
                 <span className="text-sm text-black dark:text-gray-300">
                   {new Date(frame.createdAt).toLocaleDateString()}
@@ -271,13 +288,13 @@ const MyShop = () => {
             </div>
 
             <div className="p-4 bg-gray-50 dark:bg-gray-900/50 flex justify-between items-center">
-              <button 
+              <button
                 onClick={() => handleEdit(frame)}
                 className="text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300"
               >
                 Edit
               </button>
-              <button 
+              <button
                 onClick={() => handleDelete(frame.id)}
                 className="text-red-600 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300"
               >
