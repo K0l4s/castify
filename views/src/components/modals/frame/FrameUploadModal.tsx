@@ -6,6 +6,9 @@ import { uploadFrame } from "../../../services/FrameService";
 import { validateFileType } from "../../../utils/FileValidation";
 import CustomButton from "../../UI/custom/CustomButton";
 import coinIcon from "../../../assets/images/coin.png";
+import Avatar from "../../UI/user/Avatar";
+import { useSelector } from "react-redux";
+import { RootState } from "../../../redux/store";
 
 interface FrameUploadModalProps {
   isOpen: boolean;
@@ -26,7 +29,7 @@ const FrameUploadModal: React.FC<FrameUploadModalProps> = ({
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [imageFilename, setImageFilename] = useState<string | null>(null);
-
+  const currentUser = useSelector((state: RootState) => state.auth.user);
   const toast = useToast();
 
   const handleImageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -61,7 +64,7 @@ const FrameUploadModal: React.FC<FrameUploadModalProps> = ({
   const handlePriceChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value.replace(/^0+/, ''); // Remove leading zeros
     const numValue = parseInt(value || '0');
-    
+
     if (numValue >= 0) {
       setPrice(numValue);
       setPriceError(numValue === 0 ? "Price must be greater than 0" : "");
@@ -121,9 +124,8 @@ const FrameUploadModal: React.FC<FrameUploadModalProps> = ({
         <div className="flex flex-col">
           {/* Name */}
           <label
-            className={`mb-1 text-sm font-medium text-gray-700 dark:text-gray-300 ${
-              nameError ? "text-red-600 dark:text-red-600" : ""
-            }`}
+            className={`mb-1 text-sm font-medium text-gray-700 dark:text-gray-300 ${nameError ? "text-red-600 dark:text-red-600" : ""
+              }`}
           >
             Name (required)
           </label>
@@ -132,17 +134,15 @@ const FrameUploadModal: React.FC<FrameUploadModalProps> = ({
             placeholder="Enter frame name"
             value={name}
             onChange={handleNameChange}
-            className={`mb-1 w-full p-2 border border-gray-300 rounded bg-white dark:bg-gray-800 ${
-              nameError ? "border-red-500" : ""
-            }`}
+            className={`mb-1 w-full p-2 border border-gray-300 rounded bg-white dark:bg-gray-800 ${nameError ? "border-red-500" : ""
+              }`}
           />
           {nameError && <div className="text-sm text-red-500">{nameError}</div>}
 
           {/* Price */}
           <label
-            className={`mt-4 mb-1 text-sm font-medium text-gray-700 dark:text-gray-300 ${
-              priceError ? "text-red-600 dark:text-red-600" : ""
-            }`}
+            className={`mt-4 mb-1 text-sm font-medium text-gray-700 dark:text-gray-300 ${priceError ? "text-red-600 dark:text-red-600" : ""
+              }`}
           >
             Price (required)
           </label>
@@ -152,9 +152,8 @@ const FrameUploadModal: React.FC<FrameUploadModalProps> = ({
               placeholder="Enter frame price"
               value={price || ''}
               onChange={handlePriceChange}
-              className={`mb-1 w-full p-2 pr-10 border border-gray-300 rounded bg-white dark:bg-gray-800 ${
-                priceError ? "border-red-500" : ""
-              }`}
+              className={`mb-1 w-full p-2 pr-10 border border-gray-300 rounded bg-white dark:bg-gray-800 ${priceError ? "border-red-500" : ""
+                }`}
             />
             <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center">
               <img src={coinIcon} alt="coin" className="w-5 h-5" />
@@ -166,7 +165,21 @@ const FrameUploadModal: React.FC<FrameUploadModalProps> = ({
         <div className="flex flex-col">
           {imagePreview && (
             <div className="mb-4">
-              <img src={imagePreview} alt="Frame Preview" className="w-full rounded" />
+              {/* <img src={imagePreview} alt="Frame Preview" className="w-full rounded" /> */}
+              <div className="relative aspect-square w-10/12 m-auto p-5">
+                <Avatar
+                  usedFrame={{
+                    id: "123",
+                    imageURL: imagePreview,
+                    name: name || "New Frame",
+                    price: price || 0,
+                  }}
+                  avatarUrl={currentUser?.avatarUrl}
+                  alt={imageFilename || "Frame Preview"}
+                  width="w-full"
+                  height="h-full"
+                />
+              </div>
             </div>
           )}
           {imagePreview && (

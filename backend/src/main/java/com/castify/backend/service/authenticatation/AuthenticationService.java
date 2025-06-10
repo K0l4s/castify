@@ -145,17 +145,19 @@ public class AuthenticationService implements IAuthenticationService {
         var accessToken = jwtService.generateToken(user);
         String refreshToken = jwtService.generateRefreshToken(user);
         saveUserToken(user, accessToken, TokenType.BEARER);
+        emailService.sendWelcomeMessage(user.getEmail(),user.getFullname());
         return AuthenticationResponse.builder().accessToken(accessToken).refreshToken(refreshToken).build();
     }
     @Override
-    public void sendRequest(ResetPasswordRequest request) throws IOException {
+    public void sendRequest(String email) throws IOException {
 //        authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword()));
 //
-        var user = repository.findByEmailOrUsername(request.getEmail()).orElseThrow();
+        var user = repository.findByEmailOrUsername(email).orElseThrow();
         var jwtToken = jwtService.generateToken(user);
         var refreshToken = jwtService.generateRefreshToken(user);
         revokeAllUserTokens(user);
         saveUserToken(user, jwtToken, TokenType.RESET_PASS);
+        emailService.sendRefreshMessage(user.getEmail(), jwtToken);
 //        return true;
 //        return AuthenticationResponse.builder().accessToken(jwtToken).refreshToken(refreshToken).build();
 
@@ -177,12 +179,16 @@ public class AuthenticationService implements IAuthenticationService {
         if (!jwtService.isTokenValid(validToken, user)) {
             throw new IOException(("Your token isn't valid"));
         }
-
+        TokenEntity token = tokenRepository.findByToken(validToken).orElseThrow();
+        if(token.isExpired()||token.isRevoked())
+            throw new RuntimeException("Your token isn't valid!");
 //        user.setActive(true);
         user.setPassword(passwordEncoder.encode(newPassword));
         repository.save(user);
-
-        revokeAllUserTokens(user);
+        token.setExpired(true);
+        token.setRevoked(true);
+        tokenRepository.save(token);
+//        revokeAllUserTokens(user);
         var accessToken = jwtService.generateToken(user);
         String refreshToken = jwtService.generateRefreshToken(user);
         saveUserToken(user, accessToken, TokenType.BEARER);
@@ -212,7 +218,36 @@ public class AuthenticationService implements IAuthenticationService {
 //                new ObjectMapper().writeValue(response.getOutputStream(), authResponse);
         saveUserToken(user, accessToken, TokenType.BEARER);
         return AuthenticationResponse.builder().accessToken(accessToken).refreshToken(refreshToken).build();
+    }
+    @Override
+    public void changePassword(HttpServletRequest request, HttpServletResponse response, ChangePssReq req) throws Exception {
+        final String authHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
+        final String validToken;
+        final String userEmail;
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            throw new IOException("Authenticate Error, please try again!");
+        }
+        validToken = authHeader.substring(7);
+        userEmail = jwtService.extractUsername(validToken);
+        if (userEmail == null) {
+            throw new IOException("Not found user"+validToken);
+        }
+        var user = this.repository.findByEmailOrUsername(userEmail).orElseThrow();
+        if (!jwtService.isTokenValid(validToken, user)) {
+            throw new IOException(("Your token isn't valid"));
+        }
 
+        if (!passwordEncoder.matches(req.getOldPassword(), user.getPassword())) {
+            throw new RuntimeException("Your old password is wrong!");
+
+        }
+        if(!req.getNewPassword().equals(req.getRepeatNewPassword()))
+        {
+            throw new RuntimeException("Your new password not match!");
+        }
+
+        user.setPassword(passwordEncoder.encode(req.getNewPassword()));
+        userRepository.save(user);
 
     }
 }

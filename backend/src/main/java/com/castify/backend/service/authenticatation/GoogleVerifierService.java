@@ -75,7 +75,7 @@ public class GoogleVerifierService implements IGoogleVertifier{
         if(currentUsers.isEmpty()) {
             UserEntity userEntity = new UserEntity();
             userEntity.setEmail(user.getEmail());
-            userEntity.setPassword(passwordEncoder.encode(RandomUtil.generateRandomString()));
+//            userEntity.setPassword(passwordEncoder.encode(RandomUtil.generateRandomString()));
 //            userEntity.setFirstName("Name");
 //            userEntity.setLastName("User");
 //            userEntity.setLastName("Castify");

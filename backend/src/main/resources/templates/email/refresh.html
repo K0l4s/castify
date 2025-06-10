@@ -1,0 +1,81 @@
+<!-- email/refresh.html -->
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Reset Your Password</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f1f4f9;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            max-width: 600px;
+            margin: 40px auto;
+            background-color: #ffffff;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+        .header {
+            background: linear-gradient(90deg, #4a90e2, #007bff);
+            padding: 30px;
+            color: white;
+            text-align: center;
+        }
+        .header h1 {
+            margin: 0;
+            font-size: 24px;
+            letter-spacing: 1px;
+        }
+        .content {
+            padding: 30px;
+            color: #333;
+            line-height: 1.6;
+        }
+        .content p {
+            margin: 20px 0;
+        }
+        .btn {
+            display: inline-block;
+            padding: 14px 24px;
+            background-color: #007bff;
+            color: #ffffff;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: bold;
+            margin: 20px 0;
+        }
+        .footer {
+            padding: 20px;
+            font-size: 12px;
+            color: #aaa;
+            text-align: center;
+            background-color: #f9fafc;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="header">
+        <h1>Reset Your Password</h1>
+    </div>
+    <div class="content">
+        <p>Hello,</p>
+        <p>We received a request to reset your password for your <strong>Blankcil</strong> account.</p>
+        <p>Click the button below to choose a new password. This link is only valid for a limited time:</p>
+        <p style="text-align: center;">
+            <a class="btn" th:href="${verificationUrl}" target="_blank">Reset Password</a>
+        </p>
+        <p>If you didn’t request a password reset, you can safely ignore this email.</p>
+        <p>Thank you,<br>The Blankcil Team</p>
+    </div>
+    <div class="footer">
+        &copy; 2025 Blankcil. All rights reserved.<br>
+        This email was sent to you because you have an account with us.
+    </div>
+</div>
+</body>
+</html>

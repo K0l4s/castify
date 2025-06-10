@@ -22,7 +22,7 @@ public interface IAuthenticationService {
             HttpServletResponse response
     ) throws IOException;
 
-    void sendRequest(ResetPasswordRequest request) throws IOException;
+    void sendRequest(String email) throws IOException;
 
     AuthenticationResponse resetPassword(HttpServletRequest request, HttpServletResponse response, String newPassword) throws IOException;
 
@@ -31,4 +31,6 @@ public interface IAuthenticationService {
             HttpServletRequest request,
             HttpServletResponse response
     ) throws IOException;
+
+    void changePassword(HttpServletRequest request, HttpServletResponse response, ChangePssReq req) throws Exception;
 }
