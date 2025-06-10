@@ -51,6 +51,7 @@ import GenrePodcastsPage from '../pages/genre/GenrePodcastsPage'
 import BrowseRoomsPage from '../pages/main/watchParty/BrowseRoomsPage'
 import AdminEventFramePage from '../pages/admin/framePage/AdminEventFramePage'
 import SearchResults from '../components/main/search/SearchResult'
+import PaymentResultPage from '../pages/main/blankShop/PaymentResultPage'
 // import CreateFrameEventForm from '../components/admin/event/CreateFrameEventForm'
 // import IntroVideoPage from '../pages/main/landingPage/IntroVideoPage'
 
@@ -93,6 +94,7 @@ const Router = () => {
             <Routes>
                 {/* <Route> */}
                 {/* <Route path="test" element={<CreateFrameEventForm/>}/> */}
+                <Route path='/payment/result' element={<PaymentResultPage />} />
                 <Route path='/login' element={<LandingPage />} />
                 <Route path='/register' element={<LandingPage />} />
                 <Route path='/forgot-password' element={<LandingPage />} />

@@ -8,12 +8,14 @@ import com.castify.backend.models.payment.PaymentResponse;
 import com.castify.backend.service.notification.INotificationService;
 import com.castify.backend.service.payment.vnPay.VNPayPaymentService;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.IOException;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -45,8 +47,7 @@ public class PaymentController {
     }
 
     @GetMapping("/payment_callback")
-    public ResponseEntity<String> handlePaymentCallback(HttpServletRequest request) {
-        try {
+    public void handlePaymentCallback(HttpServletRequest request, HttpServletResponse response) throws IOException {        try {
             TransactionEntity trans = vnPayPaymentService.callbackTransaction(request);
 
             if (trans != null && trans.getUserId() != null) {
@@ -64,25 +65,27 @@ public class PaymentController {
                                 .timestamp(new Date())
                                 .build()
                 );
-                if(trans.getStatus()== TransactionStatus.SUCCESS)
-                    notificationService.saveNotification(
-                            trans.getUserId(),
-                            NotiType.PAYMENT,
-                            "Thanh toán thành công!",
-                            "Bạn vừa thanh toán thành công "+trans.getAmount() / 1000+" vào tài khoản.",
-                            ""
-                    );
+//                if(trans.getStatus()== TransactionStatus.SUCCESS)
+//                    notificationService.saveNotification(
+//                            trans.getUserId(),
+//                            NotiType.PAYMENT,
+//                            "Thanh toán thành công!",
+//                            "Bạn vừa thanh toán thành công "+trans.getAmount() / 1000+" vào tài khoản.",
+//                            ""
+//                    );
                 logger.info(trans.getUserId());
-                return ResponseEntity.ok("Payment status updated: " + trans.getStatus());
+                String redirectUrl = "http://localhost:5000/payment/result"
+                        + "?status=" + trans.getStatus().toString()
+                        + "&amount=" + trans.getAmount();
+
+                response.sendRedirect(redirectUrl);
             } else {
-                logger.warning("Invalid transaction data received");
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid transaction data");
+                response.sendRedirect("http://localhost:5000/payment/result?status=FAILED");
             }
-        } catch (Exception e) {
-            logger.severe("Error during callback handling: " + e.getMessage());
-            e.printStackTrace();
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Callback processing failed");
-        }
+    } catch (Exception e) {
+        logger.info(e.getMessage());
+        response.sendRedirect("http://localhost:5000/payment/result?status=ERROR");
+    }
     }
 
 
