@@ -28,7 +28,7 @@ public class VoucherEntity {
     private LocalDateTime voucherEndDate;
     private String voucherDescription;
     private boolean isActive;
-    private List<String> frameEventIds = new ArrayList<>(); //Apply for frameEvent, if it is null - Apply all
+//    private List<String> frameEventIds = new ArrayList<>(); //Apply for frameEvent, if it is null - Apply all
     private Integer voucherAmount;
     private Double percent;
 
@@ -53,11 +53,11 @@ public class VoucherEntity {
         return true;
     }
 
-    public boolean checkValidEventIds(String eventId){
-        if(frameEventIds.isEmpty())
-            return true;
-        return frameEventIds.contains(eventId);
-    }
+//    public boolean checkValidEventIds(String eventId){
+//        if(frameEventIds.isEmpty())
+//            return true;
+//        return frameEventIds.contains(eventId);
+//    }
 
 //    public boolean checkValidVoucher(){}
 }

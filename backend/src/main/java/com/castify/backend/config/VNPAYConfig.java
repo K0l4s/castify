@@ -15,16 +15,16 @@ import java.security.NoSuchAlgorithmException;
 import java.util.*;
 
 public class VNPAYConfig {
-    @Value("${vnpay.tmn-code}")
+    @Value("${vnpay.tmn-code:d}")
     public String tmnCode;
 
-    @Value("${vnpay.hash-secret}")
+    @Value("${vnpay.hash-secret:d}")
     public static String hashSecret;
 
     @Value("${vnpay.pay-url}")
     public String payUrl;
 
-    @Value("${vnpay.return-url}")
+    @Value("${vnpay.return-url:d}")
     public String returnUrl;
     private static final Logger logger = LoggerFactory.getLogger(VNPAYConfig.class);
 
