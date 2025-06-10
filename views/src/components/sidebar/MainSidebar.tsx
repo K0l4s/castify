@@ -1,4 +1,4 @@
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import { Link, useLocation } from "react-router-dom";
 import { RootState } from "../../redux/store";
 import { SiYoutubestudio } from "react-icons/si";
@@ -7,22 +7,36 @@ import { useLanguage } from "../../context/LanguageContext";
 import { BsFire } from "react-icons/bs";
 import FollowingSidebar from "./FollowingSidebar";
 import { MdLiveTv } from "react-icons/md";
+import { useClickOutside } from "../../hooks/useClickOutside";
+import { useRef, useCallback } from "react";
+import { toggleSidebar } from "../../redux/slice/sidebarSlice";
 
 const MainSidebar = () => {
   const location = useLocation();
   const pathname = location.pathname;
   const { language } = useLanguage();
+  const dispatch = useDispatch();
+  const sidebarRef = useRef<HTMLDivElement>(null);
 
   const isOpenSideBar = useSelector((state: RootState) => state.sidebar.isOpen);
   const isAuthenticated = useSelector((state: RootState) => state.auth.isAuthenticated);
 
   const toast = useToast();
 
+  // Close sidebar when click outside - Apply for all devices
+  const handleClickOutside = useCallback(() => {
+    if (isOpenSideBar) {
+      dispatch(toggleSidebar());
+    }
+  }, [isOpenSideBar, dispatch]);
+
+  useClickOutside(sidebarRef, handleClickOutside);
+  
+
   const getLinkClass = (path: string) => {
     const isActive = pathname === path;
     return ` ${isActive ? 'text-red-500 dark:text-red-500 border-b-0 border-red-500' : ' border-black dark:border-white'} font-semibold text-sm flex items-center left-0 relative transition-all p-2`;
   };
-  // fixed top-0 left-0
 
   const handleClick = (e: React.MouseEvent<HTMLAnchorElement, MouseEvent>) => {
     if (!isAuthenticated) {
@@ -31,15 +45,31 @@ const MainSidebar = () => {
     }
   };
 
+  const handleLinkClick = () => {
+    // Close sidebar when clicking a link (all devices)
+    if (isOpenSideBar) {
+      dispatch(toggleSidebar());
+    }
+  };
+
   return (
     <>
+      {/* Overlay - Show on all devices when sidebar is open */}
+      {isOpenSideBar && (
+        <div 
+          className="fixed inset-0 bg-black/30 backdrop-blur-sm z-40"
+          onClick={() => dispatch(toggleSidebar())}
+        />
+      )}
+
       {/* Sidebar */}
       <aside
+        ref={sidebarRef}
         id="logo-sidebar"
-        className={`fixed top-0 left-0 h-screen z-40 shadow-lg transition-all duration-300
-      ${isOpenSideBar ? 'w-56' : 'w-20'}
-      bg-gradient-to-b from-white via-gray-50 to-gray-200 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900
-      border-r border-gray-200 dark:border-gray-700 text-black dark:text-white`}
+        className={`fixed top-0 left-0 h-screen z-50 shadow-2xl transition-all duration-300 ease-in-out
+        ${isOpenSideBar ? 'w-64 translate-x-0' : 'w-20 -translate-x-full lg:translate-x-0'}
+        bg-gradient-to-b from-white via-gray-50 to-gray-200 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900
+        border-r border-gray-200 dark:border-gray-700 text-black dark:text-white`}
         aria-label="Sidebar"
       >
         <div className="h-full px-4 pb-4 overflow-y-auto pt-20 flex flex-col">
@@ -47,6 +77,7 @@ const MainSidebar = () => {
             <li>
               <Link
                 to="/"
+                onClick={handleLinkClick}
                 className={
                   getLinkClass("/") +
                   " group hover:bg-red-50 dark:hover:bg-gray-700 rounded-lg"
@@ -69,6 +100,7 @@ const MainSidebar = () => {
             <li>
               <Link
                 to="/feed/trend"
+                onClick={handleLinkClick}
                 className={
                   getLinkClass("/feed/trend") +
                   " group hover:bg-red-50 dark:hover:bg-gray-700 rounded-lg"
@@ -91,7 +123,10 @@ const MainSidebar = () => {
                   getLinkClass("/feed/follow") +
                   " group hover:bg-red-50 dark:hover:bg-gray-700 rounded-lg"
                 }
-                onClick={handleClick}
+                onClick={(e) => {
+                  handleClick(e);
+                  handleLinkClick();
+                }}
               >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -116,7 +151,10 @@ const MainSidebar = () => {
                   getLinkClass("/feed/history") +
                   " group hover:bg-red-50 dark:hover:bg-gray-700 rounded-lg"
                 }
-                onClick={handleClick}
+                onClick={(e) => {
+                  handleClick(e);
+                  handleLinkClick();
+                }}
               >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -139,7 +177,10 @@ const MainSidebar = () => {
                   getLinkClass("/feed/liked") +
                   " group hover:bg-red-50 dark:hover:bg-gray-700 rounded-lg"
                 }
-                onClick={handleClick}
+                onClick={(e) => {
+                  handleClick(e);
+                  handleLinkClick();
+                }}
               >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -162,7 +203,10 @@ const MainSidebar = () => {
                   getLinkClass("/playlist") +
                   " group hover:bg-red-50 dark:hover:bg-gray-700 rounded-lg"
                 }
-                onClick={handleClick}
+                onClick={(e) => {
+                  handleClick(e);
+                  handleLinkClick();
+                }}
               >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -186,7 +230,10 @@ const MainSidebar = () => {
                   getLinkClass("/browse-rooms") +
                   " group hover:bg-red-50 dark:hover:bg-gray-700 rounded-lg"
                 }
-                onClick={handleClick}
+                onClick={(e) => {
+                  handleClick(e);
+                  handleLinkClick();
+                }}
               >
                 <MdLiveTv
                   className={`w-6 h-6 mb-1 ${isOpenSideBar ? "mr-4" : "mx-auto"} group-hover:text-indigo-500 dark:group-hover:text-indigo-400 transition`}
@@ -209,7 +256,10 @@ const MainSidebar = () => {
                   getLinkClass("/creator/dashboard") +
                   " group hover:bg-red-50 dark:hover:bg-gray-700 rounded-lg"
                 }
-                onClick={handleClick}
+                onClick={(e) => {
+                  handleClick(e);
+                  handleLinkClick();
+                }}
               >
                 <SiYoutubestudio
                   className={`w-5 h-5 ${isOpenSideBar ? "mr-4" : "mx-auto"} group-hover:text-red-600 dark:group-hover:text-red-500 transition`}
