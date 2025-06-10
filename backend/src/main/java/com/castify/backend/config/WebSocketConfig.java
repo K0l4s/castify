@@ -1,6 +1,8 @@
 package com.castify.backend.config;
 
 import com.castify.backend.controller.PaymentController;
+import com.castify.backend.entity.UserEntity;
+import com.castify.backend.repository.UserRepository;
 import com.castify.backend.service.authenticatation.jwt.IJwtService;
 import com.castify.backend.service.authenticatation.jwt.JwtServiceImpl;
 import com.castify.backend.utils.SocketJwtAuthenticationToken;
@@ -39,6 +41,7 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
     private final JwtServiceImpl jwtService; // Dùng JwtService của mày
     private final UserDetailsService userDetailsService;
+    private final UserRepository userRepository;
 
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
@@ -70,15 +73,24 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
                         try {
                             // Trích xuất email từ JWT
                             String userEmail = jwtService.extractUsername(token);
-                            if (userEmail != null) {
-                                UserDetails userDetails = userDetailsService.loadUserByUsername(userEmail);
-                                if (jwtService.isTokenValid(token, userDetails)) {
-                                    UsernamePasswordAuthenticationToken authentication =
-                                            new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
-                                    SecurityContextHolder.getContext().setAuthentication(authentication);
-                                    accessor.setUser(authentication);
-                                    logger.info("✅ WebSocket Authentication successful for user: " + userEmail);
-                                }
+                            if (userEmail != null && jwtService.isTokenValid(token)) {
+                                // ✅ Load only basic info without DBRef
+                                UserEntity user = userRepository.findBasicInfoByUsername(userEmail)
+                                        .orElseThrow(() -> new RuntimeException("User not found"));
+
+                                // ✅ Create simple UserDetails without DBRef dependencies
+                                SimpleUserDetails simpleUser = new SimpleUserDetails(
+                                        user.getUsername(),
+                                        user.getPassword(),
+                                        user.getAuthorities(),
+                                        user.getId()
+                                );
+
+                                UsernamePasswordAuthenticationToken authentication =
+                                        new UsernamePasswordAuthenticationToken(simpleUser, null, simpleUser.getAuthorities());
+
+                                accessor.setUser(authentication);
+                                logger.info("✅ WebSocket Authentication successful for user: " + userEmail);
                             }
                         } catch (Exception e) {
                             logger.info("❌ WebSocket Authentication failed: " + e.getMessage());

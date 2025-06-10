@@ -68,7 +68,7 @@ public class UserEntity implements UserDetails {
     private Role role;
     private List<FollowInfo> following = new ArrayList<>();
     private long coin;
-    @DBRef
+    @DBRef(lazy = true)
     private FrameEntity usedFrame;
     private List<String> favoriteGenreIds = new ArrayList<>();
 

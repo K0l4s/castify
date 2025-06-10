@@ -29,6 +29,7 @@ import { BaseApi } from '../../../utils/axiosInstance';
 import ChangePodcastModal from '../../../components/modals/watchParty/ChangePodcastModal';
 import RoomExpirationTimer from '../../../components/modals/watchParty/RoomExpirationTimer';
 import RoomSettingsModal from '../../../components/modals/watchParty/RoomSettingModal';
+import { useDocumentTitle } from '../../../hooks/useDocumentTitle';
 
 const WatchPartyPage: React.FC = () => {
   const { language } = useLanguage();
@@ -273,6 +274,8 @@ const WatchPartyPage: React.FC = () => {
       fetchPodcast();
     }
   }, [podcastId, isAuthenticated]);
+
+  useDocumentTitle(null, `${room?.roomName} - Castify Watch Party`);
 
   // Add auto-refresh every 30 seconds like PodcastViewport
   useEffect(() => {

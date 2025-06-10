@@ -3,6 +3,7 @@ import { ReportRequest, ReportType } from '../../../models/Report';
 import { reportService } from '../../../services/ReportService';
 import CustomModal from '../../UI/custom/CustomModal';
 import { useToast } from '../../../context/ToastProvider';
+import { useLanguage } from '../../../context/LanguageContext';
 
 interface ReportModalProps {
   isOpen: boolean;
@@ -17,6 +18,7 @@ const ReportModal: React.FC<ReportModalProps> = ({ isOpen, onClose, targetId, re
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const toast = useToast();
+  const {language} = useLanguage();
   const handleSubmit = async () => {
     if (!title || !detail) {
       setError('Please fill in all fields');
@@ -48,27 +50,27 @@ const ReportModal: React.FC<ReportModalProps> = ({ isOpen, onClose, targetId, re
     <CustomModal
       isOpen={isOpen}
       onClose={onClose}
-      title="Report"
+      title={language.reportModal.header}
       size="md"
     >
       <div className="space-y-4">
         <div>
-          <label htmlFor="report-title" className="block text-sm font-semibold text-gray-700 dark:text-gray-300">Title</label>
+          <label htmlFor="report-title" className="block text-sm font-semibold text-gray-700 dark:text-gray-300">{language.reportModal.title}</label>
           <input
             id="report-title"
             type="text"
             className="w-full px-4 py-2 mt-1 border rounded-md bg-white dark:bg-gray-700 dark:text-gray-100"
-            placeholder="Please provide a title for the report"
+            placeholder={language.reportModal.titlePlaceholder}
             value={title}
             onChange={(e) => setTitle(e.target.value)}
           />
         </div>
         <div>
-          <label htmlFor="report-detail" className="block text-sm font-semibold text-gray-700 dark:text-gray-300">Content</label>
+          <label htmlFor="report-detail" className="block text-sm font-semibold text-gray-700 dark:text-gray-300">{language.reportModal.content}</label>
           <textarea
             id="report-detail"
             className="w-full px-4 py-2 mt-1 border rounded-md bg-white dark:bg-gray-700 dark:text-gray-100 h-32 resize-none"
-            placeholder="Please provide more details about the report"
+            placeholder={language.reportModal.contentPlaceholder}
             value={detail}
             onChange={(e) => setDetail(e.target.value)}
           />
@@ -79,14 +81,14 @@ const ReportModal: React.FC<ReportModalProps> = ({ isOpen, onClose, targetId, re
             className="px-4 py-2 bg-gray-200 rounded-md hover:bg-gray-300 dark:bg-gray-600 dark:hover:bg-gray-500"
             onClick={onClose}
           >
-            Cancel
+            {language.common.cancel}
           </button>
           <button
             className={`px-4 py-2 text-white rounded-md ${isLoading ? 'bg-gray-500' : 'bg-blue-600 hover:bg-blue-700'}`}
             onClick={handleSubmit}
             disabled={isLoading}
           >
-            {isLoading ? 'Sending...' : 'Send your report'}
+            {isLoading ? "loading ..." : language.common.send}
           </button>
         </div>
       </div>

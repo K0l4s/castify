@@ -81,4 +81,6 @@ public interface UserRepository extends MongoRepository<UserEntity, String> {
     @Query("{ '_id': ?0 }")
     @Update("{ '$addToSet': { 'suggestedGenreIds': { '$each': ?1 } } }")
     void addSuggestedGenres(String userId, List<String> genreIds);
+    @Query(value = "{ 'username': ?0 }", fields = "{ 'id': 1, 'username': 1, 'password': 1, 'role': 1, 'isActive': 1, 'isNonLocked': 1, 'isNonBanned': 1 }")
+    Optional<UserEntity> findBasicInfoByUsername(String username);
 }

@@ -56,6 +56,7 @@ export interface ChatMessage {
   userId?: string;
   username?: string;
   avatarUrl?: string;
+  userFrameUrl: string;
   message: string;
   timestamp?: string;
   type?: MessageType;
