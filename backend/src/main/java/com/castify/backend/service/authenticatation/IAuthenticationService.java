@@ -31,4 +31,6 @@ public interface IAuthenticationService {
             HttpServletRequest request,
             HttpServletResponse response
     ) throws IOException;
+
+    void changePassword(HttpServletRequest request, HttpServletResponse response, ChangePssReq req) throws Exception;
 }

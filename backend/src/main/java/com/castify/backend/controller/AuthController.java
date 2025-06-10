@@ -144,7 +144,20 @@ public class AuthController {
         return ResponseEntity.ok(Map.of("valid", isValid));
     }
 
+    @PostMapping("/password")
+    public ResponseEntity<?> changePassword(
+            HttpServletRequest request,
+            HttpServletResponse response,
+            @RequestBody ChangePssReq changePsw
+    ){
 
+        try {
+            service.changePassword(request,response,changePsw);
+            return ResponseEntity.ok("OK!");
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Error: " + e.getMessage());
+        }
+    }
 
     @PostMapping("/google")
     public ResponseEntity<?> googleLogin(@RequestBody Map<String, String> payload) {

@@ -3,7 +3,7 @@
 import { LoginInput } from "../models/Authentication";
 // import { userRegister } from "../models/User";
 // import Cookies from 'js-cookie';
-import { axiosInstance } from "../utils/axiosInstance";
+import { axiosInstance, axiosInstanceAuth } from "../utils/axiosInstance";
 
 export const authenticateApi = {
     login: async (loginValue: LoginInput) => {
@@ -47,7 +47,21 @@ export const authenticateApi = {
                 }
             }
         );
-    }
+    },
+    changePassword: async (
+        oldPassword: string,
+        newPassword: string,
+        repeatNewPassword: string
+    ) => {
+        return axiosInstanceAuth.post(
+            `/api/v1/auth/password`,
+            {
+                oldPassword,
+                newPassword,
+                repeatNewPassword
+            },
+        );
+    },
 
 
 

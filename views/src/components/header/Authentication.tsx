@@ -274,6 +274,14 @@ const Authentication = () => {
                 <img src={coin} alt="coin" className="w-5 h-5" />
               </div>
             </li>
+             <li>
+                <Link
+                  to="/change-password"
+                  className="flex items-center px-4 hover:dark:bg-white/10 hover:bg-black/10 py-2.5 text-sm text-gray-700  dark:text-gray-300 hover:border-l-4 border-red-300 ease-in-out transition-colors duration-300"
+                >
+                  {language.navbar.changePassword}
+                </Link>
+              </li>
             <li>
               <button
                 onClick={handleLogout}

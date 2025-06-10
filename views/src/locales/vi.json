@@ -18,7 +18,8 @@
         "login": "Đăng nhập",
         "register": "Đăng ký",
         "logout": "Đăng xuất",
-        "language": "Ngôn ngữ"
+        "language": "Ngôn ngữ",
+        "changePassword": "Đổi mật khẩu"
     },
     "searchbar": {
         "recentSearches": "Tìm kiếm gần đây",
