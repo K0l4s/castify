@@ -10,8 +10,9 @@ import { HiDotsVertical } from 'react-icons/hi';
 import { useSelector } from 'react-redux';
 import { RootState } from '../../../redux/store';
 import Avatar from '../user/Avatar';
-import { BsClock } from 'react-icons/bs';
-import { RiAddBoxLine } from 'react-icons/ri';
+import { BsClock, BsEye } from 'react-icons/bs';
+import { useLanguage } from '../../../context/LanguageContext';
+import { MdPlaylistAdd } from 'react-icons/md';
 
 interface PodcastTagProps {
   podcast: Podcast;
@@ -24,7 +25,7 @@ interface PodcastTagProps {
 
 const PodcastTag: React.FC<PodcastTagProps> = ({ podcast, onReport, onAddToPlaylist, onShare, onToggleOptionMenu, isOptionMenuOpen }) => {
   const author = podcast.user.fullname;
-
+  const {language} = useLanguage();
   const createdDay = podcast.createdDay
     ? formatDistanceToNow(new Date(podcast.createdDay), { addSuffix: true })
     : 'Unknown Date';
@@ -120,11 +121,11 @@ const PodcastTag: React.FC<PodcastTagProps> = ({ podcast, onReport, onAddToPlayl
         </div>
 
         {/* Meta Info */}
-        <div className="m-auto flex items-center gap-3 text-xs text-gray-600 dark:text-gray-400 mt-1">
+        <div className="m-auto flex items-center gap-3 text-sm text-gray-600 dark:text-gray-300 mt-1">
           <span className="flex items-center gap-1">
-            {/* <CgEyeAlt className="text-base" /> */}
+            <BsEye className="text-base" />
             {formatViewsToShortly(podcast.views) + " "}
-            views
+            {language.common.views || "views"}
           </span>
           <span>•</span>
           <span className="flex items-center gap-1">
@@ -154,31 +155,31 @@ const PodcastTag: React.FC<PodcastTagProps> = ({ podcast, onReport, onAddToPlayl
                 <Link to={`/creator/podcast/${podcast.id}`}>
                   <li className="px-4 py-3 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer text-gray-700 dark:text-gray-300 flex items-center gap-3">
                     <FaEdit />
-                    Edit podcast
+                    {language.common.edit || "Edit Podcast"}
                   </li>
                 </Link>
                 <li onClick={onAddToPlaylist} className="px-4 py-3 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer text-gray-700 dark:text-gray-300 flex items-center gap-3">
-                  <RiAddBoxLine />
-                  Add to playlist
+                  <MdPlaylistAdd size={20} className='inline-block'/>
+                  {language.common.addToPlaylist || "Add to Playlist"}
                 </li>
                 <li onClick={onReport} className="px-4 py-3 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer text-gray-700 dark:text-gray-300 flex items-center gap-3">
                   <FaFlag />
-                  Report issue
+                  {language.common.report || "Report Issue"}
                 </li>
               </>
             ) : (
               <>
                 <li onClick={onReport} className="px-4 py-3 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer text-gray-700 dark:text-gray-300 flex items-center gap-3">
                   <FaFlag />
-                  Report content
+                  {language.common.report || "Report Content"}
                 </li>
                 <li onClick={onAddToPlaylist} className="px-4 py-3 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer text-gray-700 dark:text-gray-300 flex items-center gap-3">
-                  <RiAddBoxLine />
-                  Add to playlist
+                  <MdPlaylistAdd size={20} className='inline-block'/>
+                  {language.common.addToPlaylist || "Add to Playlist"}
                 </li>
                 <li onClick={onShare} className="px-4 py-3 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer text-gray-700 dark:text-gray-300 flex items-center gap-3">
                   <FaShareAlt />
-                  Share podcast
+                  {language.common.share || "Share Podcast"}
                 </li>
               </>
             )}

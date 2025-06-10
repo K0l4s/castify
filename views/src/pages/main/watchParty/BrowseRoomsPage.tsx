@@ -10,6 +10,7 @@ import RoomSettingsModal from '../../../components/modals/watchParty/RoomSetting
 import { RootState } from '../../../redux/store';
 import RoomSection from '../../../components/modals/watchParty/RoomSection';
 import JoinRoomModal from '../../../components/modals/watchParty/JoinRoomModal';
+import { useLanguage } from '../../../context/LanguageContext';
 
 const BrowseRoomsPage: React.FC = () => {
   const [joining, setJoining] = useState<string | null>(null);
@@ -19,6 +20,7 @@ const BrowseRoomsPage: React.FC = () => {
 
   const navigate = useNavigate();
   const toast = useToast();
+  const {language} = useLanguage();
   const currentUser = useSelector((state: RootState) => state.auth.user);
 
   const myRoomsRef = useRef<any>(null);
@@ -103,24 +105,24 @@ const BrowseRoomsPage: React.FC = () => {
             <div className="flex items-center gap-3 mb-2">
               <FiUsers className="text-2xl text-blue-600 dark:text-blue-400" />
               <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
-                Watch Party Rooms
+                {language.watchParty.browse.title}
               </h1>
             </div>
             <CustomButton
-              text="Join Room"
+              text={language.watchParty.browse.joinRoom}
               icon={<FiLogIn />}
               variant="primary"
               onClick={() => setJoinModalOpen(true)}
             />
           </div>
           <p className="text-gray-600 dark:text-gray-400">
-            Join public watch parties and discover new podcasts with others, or manage your own rooms
+            {language.watchParty.browse.description}
           </p>
         </div>
 
         {/* My Rooms Section */}
         <RoomSection
-          title="My Rooms"
+          title={language.watchParty.browse.myRooms}
           ref={myRoomsRef}
           icon={<FiHome className="text-xl text-purple-600 dark:text-purple-400" />}
           loadRooms={loadMyRooms}
@@ -133,7 +135,7 @@ const BrowseRoomsPage: React.FC = () => {
 
         {/* Public Rooms Section */}
         <RoomSection
-          title="Public Rooms"
+          title={language.watchParty.browse.publicRooms}
           ref={publicRoomsRef}
           icon={<FiGlobe className="text-xl text-green-600 dark:text-green-400" />}
           loadRooms={loadPublicRooms}

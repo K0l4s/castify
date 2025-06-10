@@ -20,6 +20,15 @@
         "logout": "Đăng xuất",
         "language": "Ngôn ngữ"
     },
+    "searchbar": {
+        "recentSearches": "Tìm kiếm gần đây",
+        "trendingSearches": "Xu hướng tìm kiếm",
+        "suggestions": "Gợi ý",
+        "removeFromHistory": "Xóa khỏi lịch sử",
+        "clearAll": "Xóa tất cả",
+        "noSuggestions": "Không tìm thấy gợi ý",
+        "searchContentPlaceholder": "Bắt đầu gõ để tìm kiếm podcast, người dùng và nhiều hơn nữa..."
+    },
     "profile": {
         "followers": "Người theo dõi",
         "following": "Đang theo dõi",
@@ -124,12 +133,84 @@
         "lastUpdated": "Cập nhật lần cuối",
         "createdAt": "Ngày tạo",
         "name": "Tên",
-        "description": "Mô tả"
+        "description": "Mô tả",
+        "edit": "Chỉnh sửa danh sách phát",
+        "delete": "Xóa danh sách phát",
+        "create": "Tạo mới",
+        "title": "Danh sách phát",
+        "deleteTitle": "Bạn có chắc muốn xóa danh sách phát này không?",
+        "namePlaceholder": "Nhập tên danh sách phát",
+        "descriptionPlaceholder": "Nhập mô tả danh sách phát"
     },
     "common": {
-        "loading": "Đang tải dữ liệu..."
-},
+        "loading": "Đang tải dữ liệu...",
+        "report": "Báo cáo",
+        "share": "Chia sẻ",
+        "addToPlaylist": "Thêm vào danh sách phát",
+        "save": "Lưu",
+        "removeFromHistory": "Xóa khỏi lịch sử",
+        "views": "Lượt xem",
+        "more": "Xem thêm",
+        "watchLater": "Xem sau",
+        "edit": "Chỉnh sửa",
+        "delete": "Xóa",
+        "saveChanges": "Lưu thay đổi",
+        "cancel": "Hủy",
+        "refresh": "Tải lại",
+        "showMore": "Xem thêm",
+        "showLess": "Xem ít hơn",
+        "comments": "Bình luận",
+        "filter": "Lọc",
+        "watchParty": "Xem chung",
+        "follow":"Theo dõi",
+        "unfollow":"Bỏ theo dõi",
+        "followers": "Người theo dõi",
+        "latest": "Mới nhất",
+        "oldest": "Cũ nhất",
+        "like": "Yêu thích",
+        "loadMore":"Tải thêm",
+        "sureToDelete": "Bạn có chắc muốn xóa không?"
+    },
     "watchParty": {
+        "browse": {
+            "title": "Xem chung",
+            "description": "Tham gia các phòng xem chung công khai và khám phá các podcast mới với những người khác, hoặc quản lý các phòng của riêng bạn",
+            "noResults": "Không tìm thấy podcast nào",
+            "loadMore": "Tải thêm",
+            "joinRoom": "Tham gia phòng",
+            "myRooms": "Phòng của tôi",
+            "publicRooms": "Phòng công khai",
+            "createRoom": "Tạo phòng",
+            "noRoomAvailable": "Không có phòng nào khả dụng",
+            "noRoomAvailableDescription": "Kiểm tra lại sau hoặc tạo phòng của riêng bạn!"
+        },
+        "roomCard": {
+            "host": "Chủ phòng",
+            "created": "Đã tạo",
+            "live": "Trực tuyến",
+            "participants": "Thành viên",
+            "roomCode": "Mã phòng",
+            "joinRoom": "Tham gia phòng",
+            "viewRoom": "Xem phòng",
+            "publicRoom": "Phòng công khai",
+            "privateRoom": "Phòng riêng tư",
+            "expired": "Hết hạn",
+            "expiredDescription": "Phòng này đã hết hạn và không còn khả dụng",
+            "isFull": "Phòng đã đầy"
+        },
+        "joinRoomModal": {
+            "title": "Tham gia phòng xem chung",
+            "description": "Mã phòng hoặc liên kết mời",
+            "placeholder": "Nhập mã phòng hoặc dán liên kết mời",
+            "askHost": "Hỏi chủ phòng để lấy mã hoặc liên kết",
+            "roomCode": "Mã phòng",
+            "join": "Tham gia phòng",
+            "cancel": "Hủy",
+            "error": {
+                "invalidCode": "Mã phòng không hợp lệ. Vui lòng kiểm tra và thử lại.",
+                "roomNotFound": "Không tìm thấy phòng. Nó có thể đã hết hạn hoặc bị đóng."
+            }
+        },
         "page": {
             "prefix": "Xem chung",
             "roomCode": "Mã Phòng",
@@ -303,5 +384,72 @@
                 }
             }
         }
+    },
+    "trending": {
+        "title": "Podcast thịnh hành",
+        "description": "Khám phá những gì đang hot và phổ biến trong thế giới podcast ngay bây giờ",
+        "noResults": "Không tìm thấy podcast nào đang thịnh hành",
+        "loadMore": "Tải thêm"
+    },
+    "follow": {
+        "title": "Danh sách theo dõi",
+        "all": "Tất cả",
+        "noResults": "Không tìm thấy podcast nào",
+        "loadMore": "Tải thêm",
+        "latestAll": "Mới nhất từ tất cả những người bạn theo dõi",
+        "latestFrom": "Mới nhất từ",
+        "noFollowYet": "Bạn chưa theo dõi ai cả"
+    },
+    "history": {
+        "title": "Podcast đã xem",
+        "description": "Podcast bạn đã xem gần đây",
+        "noResults": "Không tìm thấy lịch sử nào",
+        "loadMore": "Tải thêm",
+        "searchHistory": "Tìm kiếm lịch sử",
+        "clearAllHistory": "Xóa tất cả podcast đã xem",
+        "viewed": "Đã xem"
+    },
+    "likedPodcast": {
+        "title": "Podcast đã thích",
+        "description": "Podcast bạn đã thích",
+        "noResults": "Không tìm thấy podcast nào đã thích",
+        "loadMore": "Tải thêm",
+        "searchLiked": "Tìm kiếm podcast đã thích",
+        "searchPlaceholder": "Tìm kiếm theo tiêu đề hoặc nội dung...",
+        "noLikedYet": "Bạn chưa thích podcast nào",
+        "likeThisPodcast": "Thích podcast này",
+        "unlikeThisPodcast": "Bỏ thích podcast này"
+    },
+    "genrePodcast": {
+        "title": "Thể loại",
+        "description": "Khám phá những podcast tuyệt vời trong thể loại",
+        "noResults": "Không tìm thấy podcast nào trong thể loại",
+        "loadMore": "Tải thêm",
+        "searchPlaceholder": "Tìm kiếm podcast trong thể loại này...",
+        "viewAll": "Xem tất cả thể loại",
+        "genreNotFound": "Không tìm thấy thể loại",
+        "totalViews": "Tổng số lượt xem",
+        "allPodcasts": "Tất cả podcast",
+        "noPodcastYet": "Chưa có podcast nào được tìm thấy",
+        "noPodcastYetDescription": "Thể loại này chưa có podcast nào. Hãy là người đầu tiên tạo cho nó!",
+        "createPodcast": "Tạo ngay"
+    },
+    "podcastView": {
+        "uploaded": "Đã tải lên",
+        "share": "Chia sẻ",
+        "watchParty": "Xem chung"
+    },
+    "commentSection": {
+        "reply": "Trả lời",
+        "replies": "Phản hồi",
+        "addAReply": "Thêm phản hồi",
+        "addAComment": "Thêm bình luận",
+        "pleaseLogin": "Vui lòng đăng nhập để bình luận",
+        "breakLine": "Nhấn Shift + Enter để xuống dòng",
+        "edited": "Đã chỉnh sửa",
+        "editYourComment": "Chỉnh sửa bình luận của bạn..."
+    },
+    "suggestedPodcasts": {
+        "title": "Đề xuất cho bạn"
     }
 }

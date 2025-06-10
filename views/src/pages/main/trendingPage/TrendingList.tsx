@@ -23,8 +23,10 @@ import { useClickOutside } from '../../../hooks/useClickOutside';
 import { formatTimeDuration } from '../../../components/UI/podcast/video';
 import { useSelector } from 'react-redux';
 import { RootState } from '../../../redux/store';
+import { useLanguage } from '../../../context/LanguageContext';
 
 const TrendingList: React.FC = () => {
+  const {language} = useLanguage();
   const isAuthenticated = useSelector((state: RootState) => state.auth.isAuthenticated);
 
   const [podcasts, setPodcasts] = useState<Podcast[]>([]);
@@ -304,7 +306,7 @@ const TrendingList: React.FC = () => {
                   <BsDot className="text-gray-500" />
                   <span className="text-base text-gray-600 dark:text-gray-200 flex items-center">
                     <CgEyeAlt className="mr-1" />
-                    {formatViewsToShortly(podcast.views)} views
+                    {formatViewsToShortly(podcast.views)} {language.common.views || "views"}
                   </span>
                   <BsDot className="text-gray-500" />
                   <span className="text-base text-gray-600 dark:text-gray-200 flex items-center">
@@ -341,7 +343,7 @@ const TrendingList: React.FC = () => {
               
               {/* Action buttons - rest remains the same */}
               <div className="flex md:flex-col items-center gap-2 relative">
-                <Tooltip text="Add to Playlist">
+                <Tooltip text={language.common.addToPlaylist}>
                   <button 
                     onClick={(e) => {
                       e.stopPropagation();
@@ -353,7 +355,7 @@ const TrendingList: React.FC = () => {
                   </button>
                 </Tooltip>
                 
-                <Tooltip text="Share">
+                <Tooltip text={language.common.share}>
                   <button 
                     onClick={(e) => {
                       e.stopPropagation();
@@ -366,7 +368,7 @@ const TrendingList: React.FC = () => {
                 </Tooltip>
                 
                 <div className="relative">
-                  <Tooltip text="More">
+                  <Tooltip text={language.common.more}>
                     <button 
                       onClick={(e) => toggleMenu(podcast.id, e)}
                       className="p-2 text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full"
@@ -384,13 +386,13 @@ const TrendingList: React.FC = () => {
                           toggleReportModal(podcast.id);
                         }}
                       >
-                        <MdOutlineFlag className="mr-2" /> Report
+                        <MdOutlineFlag className="mr-2" /> {language.common.report}
                       </button>
                       <button
                         className="flex w-full items-center px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
                         onClick={(e) => onWatchLaterClick(e)}
                       >
-                        <MdOutlineWatchLater className="mr-2" /> Watch Later
+                        <MdOutlineWatchLater className="mr-2" /> {language.common.watchLater}
                       </button>
                     </div>
                   )}

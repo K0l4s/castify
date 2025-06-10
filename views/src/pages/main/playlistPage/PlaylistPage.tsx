@@ -10,8 +10,10 @@ import ConfirmModal from "../../../components/modals/utils/ConfirmDelete";
 import { FaPlus } from "react-icons/fa";
 import CreatePlaylistModal from "./CreatePlaylistModal";
 import { useToast } from "../../../context/ToastProvider";
+import { useLanguage } from "../../../context/LanguageContext";
 
 const PlaylistPage: React.FC = () => {
+  const {language} = useLanguage();
   const [playlists, setPlaylists] = useState<PlaylistModel[]>([]);
   const [loading, setLoading] = useState(true);
   
@@ -120,10 +122,10 @@ const PlaylistPage: React.FC = () => {
     <div className="container mx-auto p-4 flex flex-col lg:flex-row rounded-lg">
       <div className="w-full">
         <div className="flex justify-between items-center mb-8">
-          <h1 className="text-2xl md:text-3xl font-bold text-black dark:text-white">Playlist</h1>
+          <h1 className="text-2xl md:text-3xl font-bold text-black dark:text-white">{language.playlist.title}</h1>
 
           <CustomButton
-            text="Create New"
+            text={language.playlist.create || "Create Playlist"}
             icon={<FaPlus />}
             variant="primary"
             size="sm"
@@ -136,7 +138,7 @@ const PlaylistPage: React.FC = () => {
               onClick={() => setDropdownOpen(!dropdownOpen)}
               className="flex items-center gap-1 px-3 py-2 border rounded-md bg-white dark:bg-gray-800 text-black dark:text-white"
             >
-              {sortBy === "updatedAt" ? "Last updated" : "Created day"}
+              {sortBy === "updatedAt" ? language.playlist.lastUpdated || "Last updated" : language.playlist.createdAt || "Created day"}
               <IoChevronDownSharp />
             </button>
 
@@ -148,7 +150,7 @@ const PlaylistPage: React.FC = () => {
                     sortBy === "updatedAt" ? "font-semibold" : ""
                   }`}
                 >
-                  Last updated
+                  {language.playlist.lastUpdated || "Last updated"}
                 </button>
                 <button
                   onClick={() => handleSortChange("createdAt")}
@@ -156,7 +158,7 @@ const PlaylistPage: React.FC = () => {
                     sortBy === "createdAt" ? "font-semibold" : ""
                   }`}
                 >
-                  Created day
+                  {language.playlist.createdAt || "Created day"}
                 </button>
               </div>
             )}
@@ -178,7 +180,7 @@ const PlaylistPage: React.FC = () => {
       {isDeleteModalOpen && (
         <ConfirmModal
           isOpen={isDeleteModalOpen}
-          title="Are you sure you want to delete this playlist?"
+          title={language.playlist.deleteTitle || "Delete Playlist"}
           onClose={() => setIsDeleteModalOpen(false)}
           onConfirm={confirmDelete}
         />
@@ -186,7 +188,7 @@ const PlaylistPage: React.FC = () => {
 
       {isEditModalOpen && (
         <CustomModal
-          title="Edit Playlist"
+          title={ language.playlist.edit || "Edit Playlist"}
           isOpen={isEditModalOpen}
           onClose={() => setIsEditModalOpen(false)}
           size="md"
@@ -194,7 +196,7 @@ const PlaylistPage: React.FC = () => {
           <div className="flex flex-col gap-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                Name
+                {language.playlist.name || "Playlist Name"}
               </label>
               <input
                 type="text"
@@ -206,7 +208,7 @@ const PlaylistPage: React.FC = () => {
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                Description
+                {language.playlist.description || "Description"}
               </label>
               <textarea
                 name="description"
@@ -218,7 +220,7 @@ const PlaylistPage: React.FC = () => {
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                Visibility
+                {language.playlist.visibility}
               </label>
               <div className="flex gap-4 mt-2">
                 <label className="flex items-center gap-2">
@@ -230,7 +232,7 @@ const PlaylistPage: React.FC = () => {
                     onChange={() => setEditForm((prev) => ({ ...prev, publish: true }))}
                     className="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600"
                   />
-                  <span className="text-sm text-gray-700 dark:text-gray-300">Public</span>
+                  <span className="text-sm text-gray-700 dark:text-gray-300">{language.playlist.public}</span>
                 </label>
                 <label className="flex items-center gap-2">
                   <input
@@ -241,18 +243,18 @@ const PlaylistPage: React.FC = () => {
                     onChange={() => setEditForm((prev) => ({ ...prev, publish: false }))}
                     className="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600"
                   />
-                  <span className="text-sm text-gray-700 dark:text-gray-300">Private</span>
+                  <span className="text-sm text-gray-700 dark:text-gray-300">{language.playlist.private}</span>
                 </label>
               </div>
             </div>
             <div className="flex justify-end gap-4">
               <CustomButton
-                text="Cancel"
+                text={language.common.cancel || "Cancel"}
                 variant="ghost"
                 onClick={() => setIsEditModalOpen(false)}
               />
               <CustomButton
-                text="Save Changes"
+                text={language.common.saveChanges || "Save Changes"}
                 variant="primary"
                 onClick={handleSaveChanges}
               />

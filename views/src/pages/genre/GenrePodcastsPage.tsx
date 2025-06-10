@@ -15,6 +15,7 @@ import { useSelector } from 'react-redux';
 import { RootState } from '../../redux/store';
 import { useToast } from '../../context/ToastProvider';
 import { getGenreById } from '../../services/GenreService';
+import { useLanguage } from '../../context/LanguageContext';
 
 const PAGE_SIZE = 8;
 
@@ -23,7 +24,7 @@ const GenrePodcastsPage = () => {
   const navigate = useNavigate();
   const toast = useToast();
   const isAuthenticated = useSelector((state: RootState) => state.auth.isAuthenticated);
-  
+  const {language} = useLanguage();
   // Data states
   const [genre, setGenre] = useState<Genre | null>(null);
   const [podcasts, setPodcasts] = useState<Podcast[]>([]);
@@ -220,7 +221,7 @@ const GenrePodcastsPage = () => {
 
   return (
     <>
-      <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-blue-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
+      <div className="lg:ml-10 min-h-screen bg-gradient-to-br from-gray-50 via-white to-blue-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
         {/* Header Section */}
         <div className="relative overflow-hidden">
           {/* Background with genre color */}
@@ -274,7 +275,7 @@ const GenrePodcastsPage = () => {
               <div className="flex-1 text-center md:text-left">
                 <div className="mb-4">
                   <span className="inline-block px-4 py-2 bg-white/20 dark:bg-gray-800/20 backdrop-blur-sm rounded-full text-sm font-medium text-gray-700 dark:text-gray-300 border border-white/30 dark:border-gray-700/30">
-                    Genre
+                    {language.genrePodcast.title || 'Genre'}
                   </span>
                 </div>
                 
@@ -288,9 +289,8 @@ const GenrePodcastsPage = () => {
                   {genre?.name || 'Unknown Genre'}
                 </h1>
                 
-                <p className="text-xl text-gray-600 dark:text-gray-300 mb-6 max-w-2xl">
-                  Discover amazing podcasts in the {genre?.name} category. 
-                  {podcasts.length > 0 && ` Featuring ${podcasts.length}${hasMore ? '+' : ''} episodes.`}
+                <p className="text-xl text-gray-600 dark:text-gray-300 mb-6 max-w-4xl">
+                  {language.genrePodcast.description || `Discover amazing podcasts in the ${genre?.name} category.`} {genre?.name}
                 </p>
 
                 {/* Stats */}
@@ -305,7 +305,7 @@ const GenrePodcastsPage = () => {
                     <div className="text-2xl font-bold text-gray-900 dark:text-white">
                       {podcasts.reduce((acc, p) => acc + p.views, 0).toLocaleString()}
                     </div>
-                    <div className="text-sm text-gray-500 dark:text-gray-400">Total Views</div>
+                    <div className="text-sm text-gray-500 dark:text-gray-400">{language.genrePodcast.totalViews}</div>
                   </div>
                 </div>
               </div>
@@ -321,16 +321,16 @@ const GenrePodcastsPage = () => {
               <div className="max-w-md mx-auto">
                 <div className="text-6xl mb-6">🎧</div>
                 <h3 className="text-2xl font-bold text-gray-700 dark:text-gray-300 mb-4">
-                  No podcasts yet
+                  {language.genrePodcast.noPodcastYet || 'No Podcasts Found'}
                 </h3>
                 <p className="text-gray-500 dark:text-gray-400 mb-8">
-                  This genre doesn't have any podcasts yet. Be the first to create one!
+                  {language.genrePodcast.noPodcastYetDescription || "This genre doesn't have any podcasts yet. Be the first to create one!"}
                 </p>
                 <button 
-                  onClick={() => navigate('/creator/upload')}
+                  onClick={() => navigate('/creator/contents')}
                   className="px-8 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition-colors"
                 >
-                  Create Podcast
+                  {language.genrePodcast.createPodcast || 'Create Podcast'}
                 </button>
               </div>
             </div>
@@ -339,11 +339,11 @@ const GenrePodcastsPage = () => {
             <>
               <div className="mb-8">
                 <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
-                  All Podcasts
+                  {language.genrePodcast.allPodcasts || 'All Podcasts'}
                 </h2>
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-10">
                 {podcasts.map((podcast, index) => (
                   <div key={`${podcast.id}-${index}`} className="flex-shrink-0">
                     <PodcastTag
@@ -375,7 +375,6 @@ const GenrePodcastsPage = () => {
               {!hasMore && podcasts.length > 0 && (
                 <div className="text-center py-12">
                   <div className="inline-flex items-center gap-2 px-6 py-3 bg-gray-100 dark:bg-gray-800 rounded-full text-gray-600 dark:text-gray-400">
-                    <span>🎉</span>
                     <span>You've reached the end of this genre!</span>
                   </div>
                 </div>

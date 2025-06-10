@@ -14,6 +14,7 @@ import { ReportType } from "../../../models/Report";
 import AddToPlaylistModal from "../../../pages/main/playlistPage/AddToPlaylistModal";
 import { useSelector } from "react-redux";
 import { RootState } from "../../../redux/store";
+import { useLanguage } from "../../../context/LanguageContext";
 
 interface SuggestedPodcastProps {
   genreIds: string[];
@@ -21,6 +22,7 @@ interface SuggestedPodcastProps {
 }
 
 const SuggestedPodcast: React.FC<SuggestedPodcastProps> = ({ genreIds, currentPodcastId }) => {
+  const {language} = useLanguage();
   const [suggestedPodcasts, setSuggestedPodcasts] = useState<Podcast[]>([]);
   const [genres, setGenres] = useState<{ id: string; name: string }[]>([]);
   const [page, setPage] = useState(0);
@@ -91,8 +93,8 @@ const SuggestedPodcast: React.FC<SuggestedPodcastProps> = ({ genreIds, currentPo
     }
   };
 
-  const handleGenreClick = (genreName: string) => {
-    navigate(`/?tab=${encodeURIComponent(genreName)}`);
+  const handleGenreClick = (genreId: string) => {
+    navigate(`/genres/${encodeURIComponent(genreId)}`);
   };
 
   const toggleAddToPlaylistModal = (podcastId: string) => {
@@ -120,7 +122,7 @@ const SuggestedPodcast: React.FC<SuggestedPodcastProps> = ({ genreIds, currentPo
 
   return (
     <div className="w-full mt-8 lg:mt-0">
-      <h2 className="text-xl font-semibold mb-4">Suggested for you</h2>
+      <h2 className="text-xl font-semibold mb-4">{language.suggestedPodcasts.title || "Suggested for You"}</h2>
       <div className="relative mb-4">
         <button
           className="absolute left-0 top-1/2 transform -translate-y-1/2 bg-gray-300 dark:bg-gray-700 p-2 rounded-full
@@ -136,7 +138,7 @@ const SuggestedPodcast: React.FC<SuggestedPodcastProps> = ({ genreIds, currentPo
           {genres.map((genre) => (
             <button
               key={genre.id}
-              onClick={() => handleGenreClick(genre.name)}
+              onClick={() => handleGenreClick(genre.id)}
               className="px-4 py-2 bg-gray-200 dark:bg-gray-800 text-black dark:text-white rounded-full whitespace-nowrap
                 hover:bg-gray-400 hover:dark:bg-gray-700 transition duration-200"
             >
@@ -170,7 +172,7 @@ const SuggestedPodcast: React.FC<SuggestedPodcastProps> = ({ genreIds, currentPo
       )}
       {hasMore && !loading && (
         <div className="text-center my-4">
-          <CustomButton text="Load More" onClick={handleLoadMore} />
+          <CustomButton text={language.common.loadMore || "Load More"} onClick={handleLoadMore} />
         </div>
       )}
 

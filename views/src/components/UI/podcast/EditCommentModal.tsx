@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 import CustomModal from '../../UI/custom/CustomModal';
 import CustomCommentInput from '../../UI/custom/CustomCommentInput';
 import { useToast } from '../../../context/ToastProvider';
+import { useLanguage } from '../../../context/LanguageContext';
 
 interface EditCommentModalProps {
   isOpen: boolean;
@@ -19,6 +20,7 @@ const EditCommentModal: React.FC<EditCommentModalProps> = ({
   initialContent,
   onSave
 }) => {
+  const {language} = useLanguage();
   const [, setIsSubmitting] = useState(false);
   const toast = useToast();
 
@@ -47,7 +49,7 @@ const EditCommentModal: React.FC<EditCommentModalProps> = ({
 
   return (
     <CustomModal
-      title="Edit Comment"
+      title={language.common.edit}
       isOpen={isOpen}
       onClose={onClose}
       size="md"
@@ -56,7 +58,7 @@ const EditCommentModal: React.FC<EditCommentModalProps> = ({
         <CustomCommentInput
           initialContent={initialContent}
           onSubmit={handleSubmit}
-          placeholder="Edit your comment..."
+          placeholder={language.commentSection.editYourComment || 'Edit your comment...'}
           maxLength={2000}
           autoFocus
         />

@@ -208,7 +208,7 @@ const MainSearchBar = () => {
                         <div className="p-4">
                             <div className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-3 flex items-center gap-2">
                                 <FiTrendingUp size={14} />
-                                Suggestions
+                                {language.searchbar.suggestions || "Suggestions"}
                             </div>
                             <div className="space-y-1">
                                 {suggestions.map((suggestion, index) => (
@@ -241,14 +241,14 @@ const MainSearchBar = () => {
                                     <div className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-3 flex items-center justify-between">
                                         <div className="flex items-center gap-2">
                                             <FiClock size={14} />
-                                            Recent searches
+                                            {language.searchbar.recentSearches || "Recent searches"}
                                         </div>
                                         {/* Clear all button */}
                                         <button
                                             onClick={handleClearAllHistory}
                                             className="text-xs text-blue-500 hover:text-blue-600 dark:text-blue-400 dark:hover:text-blue-300 font-medium"
                                         >
-                                            Clear all
+                                            {language.searchbar.clearAll || "Clear all"}
                                         </button>
                                     </div>
                                     <div className="space-y-1">
@@ -271,7 +271,7 @@ const MainSearchBar = () => {
                                                 <button
                                                     onClick={(e) => handleDeleteHistoryItem(e, item.keyword)}
                                                     className="opacity-0 group-hover:opacity-100 p-1 hover:bg-red-100 dark:hover:bg-red-900/20 rounded transition-all duration-200"
-                                                    title="Remove from history"
+                                                    title={language.searchbar.removeFromHistory || "Remove from History"}
                                                 >
                                                     <FiTrash2 size={14} className="text-red-500 dark:text-red-400" />
                                                 </button>
@@ -286,7 +286,7 @@ const MainSearchBar = () => {
                                 <div>
                                     <div className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-3 flex items-center gap-2">
                                         <FiTrendingUp size={14} />
-                                        Trending searches
+                                        {language.searchbar.trendingSearches || "Trending searches"}
                                     </div>
                                     <div className="space-y-1">
                                         {trendingKeywords.map((item, index) => (
@@ -313,7 +313,7 @@ const MainSearchBar = () => {
                                 <div className="text-center py-8">
                                     <FiTrendingUp size={32} className="mx-auto text-gray-400 dark:text-gray-500 mb-3" />
                                     <div className="text-sm text-gray-500 dark:text-gray-400">
-                                        Start typing to search podcasts, users, and more...
+                                        {language.searchbar.searchContentPlaceholder || "Start typing to search podcasts, users, and more..."}
                                     </div>
                                 </div>
                             )}
@@ -323,7 +323,7 @@ const MainSearchBar = () => {
                     {/* No results */}
                     {!isLoading && searchQuery.trim().length >= 2 && suggestions.length === 0 && (
                         <div className="p-4 text-center">
-                            <div className="text-sm text-gray-500 dark:text-gray-400">No suggestions found</div>
+                            <div className="text-sm text-gray-500 dark:text-gray-400">{language.searchbar.noSuggestions || "No suggestions found"}</div>
                         </div>
                     )}
                 </div>

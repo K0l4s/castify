@@ -239,7 +239,7 @@ const MainSidebar = () => {
                   className={`w-6 h-6 mb-1 ${isOpenSideBar ? "mr-4" : "mx-auto"} group-hover:text-indigo-500 dark:group-hover:text-indigo-400 transition`}
                 />
                 {isOpenSideBar && (
-                  <span className="truncate">Watch Party</span>
+                  <span className="truncate">{language.common.watchParty}</span>
                 )}
               </Link>
             </li>

@@ -12,6 +12,8 @@ import ShareModal from "../../../components/modals/podcast/ShareModal";
 import ReportModal from "../../../components/modals/report/ReportModal";
 import { formatTimeDuration } from "../../../components/UI/podcast/video";
 import AddToPlaylistModal from "../playlistPage/AddToPlaylistModal";
+import { useLanguage } from "../../../context/LanguageContext";
+import { MdOutlineWatchLater } from "react-icons/md";
 
 interface PodcastLikedProps {
   podcast: Podcast;
@@ -22,6 +24,7 @@ const PodcastLiked: React.FC<PodcastLikedProps> = ({
   podcast,
   onUnlike,
 }) => {
+  const {language} = useLanguage();
   const [isShareModalOpen, setIsShareModalOpen] = useState(false);
   const [isReportModalOpen, setIsReportModalOpen] = useState(false);
   const [isPlaylistModalOpen, setIsPlaylistModalOpen] = useState(false);
@@ -95,7 +98,7 @@ const PodcastLiked: React.FC<PodcastLikedProps> = ({
           </Link>
           <p className="text-sm sm:text-base font-medium text-gray-600 dark:text-gray-300 flex items-center">
             <FaEye className="mr-1" />
-            {podcast.views} views
+            {podcast.views} {language.common.views || "views"}
           </p>
         </div>
         <p className="text-sm sm:text-base text-gray-800 dark:text-gray-300 mt-2 line-clamp-2">
@@ -122,7 +125,7 @@ const PodcastLiked: React.FC<PodcastLikedProps> = ({
               : 'text-gray-400 hover:text-red-500 dark:text-gray-500 dark:hover:text-red-400'
             } hover:bg-gray-100 hover:dark:bg-gray-700 p-2 rounded-full transition duration-200`}
           aria-label={isLiked ? "Unlike" : "Like"}
-          title={isLiked ? "Unlike this podcast" : "Like this podcast"}
+          title={isLiked ? language.likedPodcast.unlikeThisPodcast : language.likedPodcast.likeThisPodcast}
         >
           {isLiked ? (
             <FaHeart className="w-5 h-5 sm:w-6 sm:h-6" />
@@ -141,19 +144,19 @@ const PodcastLiked: React.FC<PodcastLikedProps> = ({
           <ul className="py-1 text-sm">
             <li className="px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer" onClick={toggleReportModal}>
               <FaFlag className="inline-block mr-2" />
-              Report
+              {language.common.report}
             </li>
             <li className="px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer" onClick={handleSave}>
-              <FaBookmark className="inline-block mr-2" />
-              Save
+              <MdOutlineWatchLater className="inline-block mr-2" />
+              {language.common.watchLater}
             </li>
             <li className="px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer" onClick={toggleAddToPlaylistModal}>
               <FaBookmark className="inline-block mr-2" />
-              Add to playlist
+              {language.common.addToPlaylist}
             </li>
             <li className="px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer" onClick={toggleShareModal}>
               <FaShareAlt className="inline-block mr-2" />
-              Share
+              {language.common.share}
             </li>
           </ul>
         </CustomOptionMenu>

@@ -22,6 +22,7 @@ import Avatar from "../user/Avatar";
 import "./comment.css";
 import CustomCommentInput from "../custom/CustomCommentInput";
 import EditCommentModal from "./EditCommentModal";
+import { useLanguage } from "../../../context/LanguageContext";
 
 interface CommentSectionProps {
   podcastId: string;
@@ -30,6 +31,7 @@ interface CommentSectionProps {
 }
 
 const CommentSection: React.FC<CommentSectionProps> = ({ podcastId, totalComments, currentUserId }) => {
+  const {language} = useLanguage();
   const [replyContent, setReplyContent] = useState<{ [key: string]: string }>({});
   const [replyingTo, setReplyingTo] = useState<string | null>(null);
   const [expandedComments, setExpandedComments] = useState<{ [key: string]: boolean }>({});
@@ -352,10 +354,10 @@ const CommentSection: React.FC<CommentSectionProps> = ({ podcastId, totalComment
   return (
     <div className="mt-4 min-h-screen">
       <div className="flex items-center gap-4 my-2">
-        <h2 className="text-xl text-black dark:text-white font-semibold mb-2">{totalComments} comments</h2>
+        <h2 className="text-xl text-black dark:text-white font-semibold mb-2">{totalComments} {language.common.comments}</h2>
         <div className="relative">
           <CustomButton 
-            text="Filter"
+            text={language.common.filter || "Filter"}
             variant="ghost"
             rounded="lg"
             icon={<IoFilter size={24} />}  
@@ -367,11 +369,11 @@ const CommentSection: React.FC<CommentSectionProps> = ({ podcastId, totalComment
               <ul className="py-1">
                 <li className="px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer"
                   onClick={() => handleFilterChange('latest')}>
-                  Latest
+                  {language.common.latest || "Latest"}
                 </li>
                 <li className="px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer"
                   onClick={() => handleFilterChange('oldest')}>
-                  Oldest
+                  {language.common.oldest || "Oldest"}
                 </li>
               </ul>
             </div>
@@ -380,9 +382,9 @@ const CommentSection: React.FC<CommentSectionProps> = ({ podcastId, totalComment
         {/* How to use*/}
         <div className="mb-2 text-black dark:text-white ml-auto hover:text-blue-600 dark:hover:text-blue-600">
           <Tooltip 
-            text="Press Shift+Enter to break a line"
+            text={language.commentSection.breakLine || "How to use comments"}
             position="left"
-            maxWidth="220px"
+            maxWidth="240px"
             backgroundColor="#374151"
             textColor="white"
             fontSize="0.875rem"
@@ -416,14 +418,14 @@ const CommentSection: React.FC<CommentSectionProps> = ({ podcastId, totalComment
             onSubmit={(content) => {
               dispatch(addNewComment({ podcastId, content }));
             }}
-            placeholder="Add a comment..."
+            placeholder={language.commentSection.addAComment || "Add a comment..."}
             maxLength={2000}
           />
         </div>
       ) : (
         <div className="mx-auto my-2 text-center">
           <CustomButton 
-            text="Please login to add a comment" 
+            text={language.commentSection.pleaseLogin || "Login to comment"}
             variant="ghost"
           />
         </div>
@@ -460,7 +462,7 @@ const CommentSection: React.FC<CommentSectionProps> = ({ podcastId, totalComment
               @{comment.user.username}
             </span>
             {comment.lastModified ? (
-              <span className="ml-auto text-black dark:text-white">Edited {formatLastUpdatedFromNow(comment.lastModified)}</span>
+              <span className="ml-auto text-black dark:text-white">{language.commentSection.edited || "Edited"} {formatLastUpdatedFromNow(comment.lastModified)}</span>
             ) : (
               <span className="ml-auto text-black dark:text-white">{formatLastUpdatedFromNow(comment.timestamp)}</span>
             )}
@@ -480,12 +482,12 @@ const CommentSection: React.FC<CommentSectionProps> = ({ podcastId, totalComment
                       <li className="px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer" 
                         onClick={() => handleEdit(comment.id, comment.content)}>
                           <MdEdit className="inline-block mb-1 mr-2" />
-                          Edit
+                          {language.common.edit || "Edit"}
                       </li>
                       <li className="px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer" 
                         onClick={() => handleDelete(comment.id)}>
                           <RiDeleteBin6Line className="inline-block mb-1 mr-2" />
-                          Delete
+                          {language.common.delete || "Delete"}
                       </li>
                     </>
                   ) : (
@@ -493,7 +495,7 @@ const CommentSection: React.FC<CommentSectionProps> = ({ podcastId, totalComment
                       onClick={() => toggleCommentReportModal(comment.id)} 
                       >
                         <FaFlag className="inline-block mb-1 mr-2" />
-                        Report
+                        {language.common.report || "Report"}
                     </li>
                   )}
                 </ul>
@@ -509,11 +511,11 @@ const CommentSection: React.FC<CommentSectionProps> = ({ podcastId, totalComment
           </pre>
           {showCommentToggle[comment.id] && (
             <button onClick={() => toggleCommentExpansion(comment.id)} className="text-blue-600 dark:text-blue-300 font-medium mt-2">
-              {expandedComments[comment.id] ? 'Show less' : 'Show more'}
+              {expandedComments[comment.id] ? language.common.showLess || "Show less" : language.common.showMore || "Show more"}
             </button>
           )}
           <div className="flex items-center text-gray-600 dark:text-gray-400 mt-2">
-            <Tooltip text="Reaction">
+            <Tooltip text={language.common.like || "Like"}>
               <CustomButton 
                 icon={<HeartIcon filled={comment.liked} color={comment.liked ? "#991f00" : "gray"} strokeColor="#991f00" />}
                 variant="ghost"
@@ -524,7 +526,7 @@ const CommentSection: React.FC<CommentSectionProps> = ({ podcastId, totalComment
             </Tooltip>
             <span className="text-black dark:text-white font-medium">{comment.totalLikes}</span>
             <CustomButton 
-              text="Reply"
+              text={language.commentSection.reply || "Reply"}
               variant="ghost"
               rounded="full"
               className="ml-2 dark:hover:bg-gray-900"
@@ -534,7 +536,7 @@ const CommentSection: React.FC<CommentSectionProps> = ({ podcastId, totalComment
           
           {comment.totalReplies > 0 && (
             <CustomButton 
-              text={`${comment.totalReplies} replies`}
+              text={`${comment.totalReplies} ${language.commentSection.replies || "Replies"}`}
               icon={expandedReplies[comment.id] ? <FaAngleUp size={20} /> : <FaAngleDown size={20} />}
               rounded="full"
               variant="ghost"
@@ -588,19 +590,19 @@ const CommentSection: React.FC<CommentSectionProps> = ({ podcastId, totalComment
                           <li className="px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer" 
                             onClick={() => handleEdit(reply.id, reply.content)}>
                               <MdEdit className="inline-block mb-1 mr-2" />
-                              Edit
+                              {language.common.edit || "Edit"}
                           </li>
                           <li className="px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer" 
                             onClick={() => handleDelete(reply.id)}>
                               <RiDeleteBin6Line className="inline-block mb-1 mr-2" />
-                              Delete
+                              {language.common.delete || "Delete"}
                           </li>
                         </>
                       ) : (
                         <li className="px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer" 
                           onClick={() => toggleCommentReportModal(reply.id)}>
                             <FaFlag className="inline-block mb-1 mr-2" />
-                            Report
+                            {language.common.report || "Report"}
                         </li>
                       )}
                     </ul>
@@ -614,7 +616,7 @@ const CommentSection: React.FC<CommentSectionProps> = ({ podcastId, totalComment
                 {renderContentWithMentions(reply.content)}
               </pre>
               <div className="flex items-center text-gray-600 dark:text-gray-400 mt-2">
-                <Tooltip text="Reaction">
+                <Tooltip text={language.common.like || "Like"}>
                   <CustomButton 
                     icon={<HeartIcon filled={reply.liked} color={reply.liked ? "#991f00" : "gray"} strokeColor="#991f00" />}
                     variant="ghost"
@@ -625,7 +627,7 @@ const CommentSection: React.FC<CommentSectionProps> = ({ podcastId, totalComment
                 </Tooltip>
                 <span className="text-black dark:text-white font-medium">{reply.totalLikes}</span>
                 <CustomButton 
-                  text="Reply"
+                  text={language.commentSection.reply || "Reply"}
                   variant="ghost"
                   rounded="full"
                   className="ml-2 dark:hover:bg-gray-900"
@@ -648,7 +650,7 @@ const CommentSection: React.FC<CommentSectionProps> = ({ podcastId, totalComment
                     onSubmit={(content) => {
                       handleReplySubmit(reply.id, content);
                     }}
-                    placeholder="Add a reply..."
+                    placeholder={language.commentSection.addAReply || "Add a reply..."}
                     maxLength={2000}
                     mentionedUser={mentionedUser[reply.id]}
                     onRemoveMention={() => handleRemoveMention(reply.id)}
@@ -675,7 +677,7 @@ const CommentSection: React.FC<CommentSectionProps> = ({ podcastId, totalComment
                 onSubmit={(content) => {
                   handleReplySubmit(comment.id, content);
                 }}
-                placeholder="Add a reply..."
+                placeholder={language.commentSection.addAReply || "Add a reply..."}
                 maxLength={2000}
                 mentionedUser={mentionedUser[comment.id]}
                 onRemoveMention={() => handleRemoveMention(comment.id)}
@@ -695,7 +697,7 @@ const CommentSection: React.FC<CommentSectionProps> = ({ podcastId, totalComment
           </div>
         ) : (
           <CustomButton 
-            text="Load more comments"
+            text={language.common.loadMore || "Load more comments"}
             variant="primary" 
             onClick={handleLoadMore} 
           />
@@ -713,7 +715,7 @@ const CommentSection: React.FC<CommentSectionProps> = ({ podcastId, totalComment
       <ConfirmModal
         isOpen={isConfirmDeleteOpen}
         onClose={() => setIsConfirmDeleteOpen(false)}
-        title="Are you sure to delete?"
+        title={language.common.sureToDelete || "Confirm Delete"}
         onConfirm={confirmDelete}
       />
       {commentToEdit && (

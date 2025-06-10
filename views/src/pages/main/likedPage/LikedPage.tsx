@@ -7,8 +7,10 @@ import { IoCloseOutline } from "react-icons/io5";
 import { useSelector } from "react-redux";
 import { RootState } from "../../../redux/store";
 import PodcastLiked from "./PodcastLiked";
+import { useLanguage } from "../../../context/LanguageContext";
 
 const LikedPage: React.FC = () => {
+  const {language} = useLanguage();
   const [likedPodcasts, setLikedPodcasts] = useState<Podcast[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [loadingMore, setLoadingMore] = useState<boolean>(false);
@@ -163,14 +165,14 @@ const LikedPage: React.FC = () => {
     <div className="container mx-auto p-4 flex flex-col lg:flex-row rounded-lg">
       <div className="w-full lg:w-1/4 lg:pl-4 mb-6 lg:mb-0 order-first lg:order-last">
         <div className="rounded-lg p-3 md:p-4 mb-4 bg-white/5 backdrop-blur-sm border border-gray-200 dark:border-gray-700">
-          <h2 className="text-lg md:text-xl text-black dark:text-white font-semibold mb-2">Search Liked Podcasts</h2>
+          <h2 className="text-lg md:text-xl text-black dark:text-white font-semibold mb-2">{language.likedPodcast.searchLiked}</h2>
           <div className="relative">
             <input
               type="text"
               value={searchTerm}
               onChange={handleSearchChange}
               className="w-full p-2 text-sm md:text-base border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800"
-              placeholder="Search by title or content"
+              placeholder={language.likedPodcast.searchPlaceholder || "Search liked podcasts..."}
             />
             {searchTerm && (
               <button
@@ -184,8 +186,7 @@ const LikedPage: React.FC = () => {
         </div>
       </div>
       <div className="w-full lg:w-3/4 lg:pr-4">
-        <h1 className="text-2xl md:text-3xl font-bold mb-4 text-black dark:text-white">Liked Podcasts</h1>
-        
+        <h1 className="text-2xl md:text-3xl font-bold mb-4 text-black dark:text-white">{language.likedPodcast.title || "Liked Podcasts"}</h1>
         {error && (
           <div className="bg-red-100 dark:bg-red-900 text-red-700 dark:text-red-200 p-4 rounded-lg mb-4">
             {error}
@@ -200,10 +201,10 @@ const LikedPage: React.FC = () => {
               className="w-32 h-32 mb-6 opacity-60"
             />
             <h3 className="text-xl font-semibold text-gray-700 dark:text-gray-300 mb-3">
-              No liked podcasts found
+              {language.likedPodcast.noResults}
             </h3>
             <p className="text-gray-600 dark:text-gray-400 text-center max-w-md">
-              {searchTerm ? "No podcasts match your search" : "You haven't liked any podcasts yet"}
+              {searchTerm ? language.likedPodcast.noResults : language.likedPodcast.noLikedYet}
             </p>
           </div>
         ) : (
