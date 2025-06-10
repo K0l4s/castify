@@ -27,10 +27,10 @@ const Payment = (p: PaymentProps) => {
             const status = object.status;
             if (status === 'SUCCESS') {
                 setPaymentStatus('SUCCESS');
-                toast.success('Thanh toán thành công.');
+                // toast.success('Thanh toán thành công.');
             } else if (status === 'FAILED') {
                 setPaymentStatus('FAILED');
-                toast.error('Thanh toán thất bại.');
+                // toast.error('Thanh toán thất bại.');
             } else {
                 // setPaymentStatus(null);
             }
@@ -60,7 +60,7 @@ const Payment = (p: PaymentProps) => {
         setCustomAmount(value);
         setAmount(Number(value));
     };
-
+    
     const methods = [
         { id: 'vnpay', name: 'VNPay', logo: 'https://stcd02206177151.cloud.edgevnpay.vn/assets/images/logo-icon/logo-primary.svg' },
         // { id: 'zalopay', name: 'ZaloPay', logo: 'https://simg.zalopay.com.vn/zlp-website/assets/new_logo_6c5db2d21b.svg' },

@@ -5,6 +5,7 @@ import com.castify.backend.repository.TranscriptRepository;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -25,7 +26,8 @@ import java.util.List;
 public class VideoTranscribeService implements IVideoTranscribe {
 
     private final String ffmpegPath = "ffmpeg"; // nếu là Windows: "C:\\ffmpeg\\bin\\ffmpeg.exe"
-    private final String flaskUrl = "http://localhost:5001/transcribe";
+    @Value("${vnpay.tmn-code:http://localhost:5001}")
+    private String flaskUrl;
     @Autowired
     private TranscriptRepository transcriptRepository;
 //    @PostMapping("/transcribe")
@@ -64,7 +66,7 @@ public ResponseEntity<?> transcribeVideo(File videoFile, String podcastId) {
         HttpEntity<MultiValueMap<String, Object>> requestEntity = new HttpEntity<>(body, headers);
         RestTemplate restTemplate = new RestTemplate();
 
-        ResponseEntity<String> response = restTemplate.postForEntity(flaskUrl, requestEntity, String.class);
+        ResponseEntity<String> response = restTemplate.postForEntity(flaskUrl+"/transcribe", requestEntity, String.class);
 
         // 4. Phân tích JSON response
         ObjectMapper mapper = new ObjectMapper();
