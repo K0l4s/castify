@@ -9,6 +9,7 @@ import java.util.List;
 
 public interface IGenreService {
     List<GenreSimple> getAllGenreName();
+    GenreSimple getGenreById(String id);
     List<GenreModel> getALlGenre();
     GenreModel createGenre(String name, MultipartFile image);
     GenreModel createGenre(String name, MultipartFile image, String color);

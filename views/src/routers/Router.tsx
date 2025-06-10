@@ -106,8 +106,7 @@ const Router = () => {
                 <Route path="/msg" element={<ConversationLayout />} />
                 <Route path="/msg/:id" element={<ConversationLayout />} />
                 <Route path='video-editor' element={<VideoEditor />} />
-                <Route path='/genres' element={<GenrePage />} />
-                <Route path='/genres/:genreId' element={<GenrePodcastsPage />} />
+                
                 {/* <Route path="/info" element={<IntroVideoPage/>}/> */}
 
                 {/* <Route path='test' element={<Test/>}/> */}
@@ -151,6 +150,8 @@ const Router = () => {
                     <Route path='/purchased-frames' element={<RequireAuth><PurchasedFrames /></RequireAuth>} />
                     <Route path='/watch-party' element={<RequireAuth><WatchPartyPage /></RequireAuth>} />
                     <Route path='/browse-rooms' element={<RequireAuth><BrowseRoomsPage /></RequireAuth>} />
+                    <Route path='/genres' element={<GenrePage />} />
+                    <Route path='/genres/:genreId' element={<GenrePodcastsPage />} />
                 </Route>
                 <Route element={<ProfileLayout />}>
 

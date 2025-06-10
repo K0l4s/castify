@@ -1,5 +1,5 @@
 import { axiosInstance, axiosInstanceAuth } from '../utils/axiosInstance';
-import { genreCreateUpdate } from '../models/GenreModel';
+import { Genre, genreCreateUpdate } from '../models/GenreModel';
 
 export const getGenres = async () => {
   try {
@@ -9,6 +9,16 @@ export const getGenres = async () => {
     throw error;
   }
 };
+
+export const getGenreById = async (id: string) => {
+  try {
+    const response = await axiosInstance.get<Genre>(`/api/v1/genre/${id}`);
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};
+
 
 export const getGenresByList = async (genreIds: string[]) => {
   try {

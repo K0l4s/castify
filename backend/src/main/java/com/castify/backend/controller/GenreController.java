@@ -36,6 +36,16 @@ public class GenreController {
         }
     }
 
+    @GetMapping("/{id}")
+    public ResponseEntity<?> getGenreById(@PathVariable String id) {
+        try {
+            GenreSimple genre = genreService.getGenreById(id);
+            return new ResponseEntity<>(genre, HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
     @PostMapping("/namesByList")
     public ResponseEntity<?> getGenreNamesByList(@RequestBody List<String> genreIds) {
         try {

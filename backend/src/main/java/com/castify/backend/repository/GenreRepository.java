@@ -9,6 +9,7 @@ import java.util.List;
 
 @Repository
 public interface GenreRepository extends MongoRepository<GenreEntity, String> {
+    GenreEntity findByIdAndIsActiveTrue(String id);
     @Query("{ 'isActive': true }")
     List<GenreEntity> findAllActiveGenres();
     @Query("{ '_id': { $in: ?0 } }")

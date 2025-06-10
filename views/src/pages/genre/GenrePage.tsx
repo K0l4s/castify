@@ -3,7 +3,6 @@ import { getGenres } from '../../services/GenreService';
 import { Genre } from '../../models/GenreModel';
 import { useToast } from '../../context/ToastProvider';
 import { RiImageAddLine } from 'react-icons/ri';
-import MainHeader from '../../components/header/MainHeader';
 import { Link } from 'react-router-dom';
 
 const GenrePage = () => {
@@ -52,7 +51,6 @@ const GenrePage = () => {
 
   return (
     <div>
-      <MainHeader />
       <div className="container mx-auto px-4 py-8 min-h-screen">
         <h1 className="text-3xl font-bold mb-8 text-black dark:text-white text-center">Genres</h1>
 
