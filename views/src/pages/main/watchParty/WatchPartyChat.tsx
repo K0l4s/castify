@@ -463,6 +463,7 @@ const ChatMessageItem: React.FC<ChatMessageItemProps> = ({
           height="h-8"
           avatarUrl={message.avatarUrl || defaultAvatar}
           alt={message.username || "User"}
+          userFrameUrl={message.userFrameUrl}
         />
       </div>
       

@@ -140,7 +140,13 @@
         "title": "Danh sách phát",
         "deleteTitle": "Bạn có chắc muốn xóa danh sách phát này không?",
         "namePlaceholder": "Nhập tên danh sách phát",
-        "descriptionPlaceholder": "Nhập mô tả danh sách phát"
+        "descriptionPlaceholder": "Nhập mô tả danh sách phát",
+        "addToPlaylist": {
+            "header": "Thêm vào danh sách phát",
+            "title": "Danh sách phát của bạn",
+            "createNew": "Tạo mới",
+            "noPlaylists": "Bạn chưa có danh sách phát nào"
+        }
     },
     "common": {
         "loading": "Đang tải dữ liệu...",
@@ -169,7 +175,11 @@
         "oldest": "Cũ nhất",
         "like": "Yêu thích",
         "loadMore":"Tải thêm",
-        "sureToDelete": "Bạn có chắc muốn xóa không?"
+        "sureToDelete": "Bạn có chắc muốn xóa không?",
+        "close": "Đóng",
+        "public": "Công khai",
+        "private": "Riêng tư",
+        "send": "Gửi"
     },
     "watchParty": {
         "browse": {
@@ -451,5 +461,12 @@
     },
     "suggestedPodcasts": {
         "title": "Đề xuất cho bạn"
+    },
+    "reportModal": {
+        "header": "Báo cáo",
+        "title": "Tiêu đề",
+        "titlePlaceholder": "Vui lòng cung cấp tiêu đề của báo cáo",
+        "content": "Nội dung",
+        "contentPlaceholder": "Vui lòng cung cấp thêm chi tiết về vấn đề"
     }
 }

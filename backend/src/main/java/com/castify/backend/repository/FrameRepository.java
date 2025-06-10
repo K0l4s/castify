@@ -11,4 +11,5 @@ import java.util.List;
 public interface FrameRepository extends MongoRepository<FrameEntity, String> {
     List<FrameEntity> findAllByStatus(FrameStatus status);
     List<FrameEntity> findByUserId(String userId);
+    FrameEntity findOneByUserId(String userId);
 }
