@@ -145,17 +145,19 @@ public class AuthenticationService implements IAuthenticationService {
         var accessToken = jwtService.generateToken(user);
         String refreshToken = jwtService.generateRefreshToken(user);
         saveUserToken(user, accessToken, TokenType.BEARER);
+        emailService.sendWelcomeMessage(user.getEmail(),user.getFullname());
         return AuthenticationResponse.builder().accessToken(accessToken).refreshToken(refreshToken).build();
     }
     @Override
-    public void sendRequest(ResetPasswordRequest request) throws IOException {
+    public void sendRequest(String email) throws IOException {
 //        authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword()));
 //
-        var user = repository.findByEmailOrUsername(request.getEmail()).orElseThrow();
+        var user = repository.findByEmailOrUsername(email).orElseThrow();
         var jwtToken = jwtService.generateToken(user);
         var refreshToken = jwtService.generateRefreshToken(user);
         revokeAllUserTokens(user);
         saveUserToken(user, jwtToken, TokenType.RESET_PASS);
+        emailService.sendRefreshMessage(user.getEmail(), jwtToken);
 //        return true;
 //        return AuthenticationResponse.builder().accessToken(jwtToken).refreshToken(refreshToken).build();
 

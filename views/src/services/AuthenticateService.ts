@@ -8,10 +8,10 @@ import { axiosInstance } from "../utils/axiosInstance";
 export const authenticateApi = {
     login: async (loginValue: LoginInput) => {
         return axiosInstance.post(`/api/v1/auth/authenticate`, loginValue)
-            // return await axios.post(`${BaseApi}api/v1/auth/authenticate`, loginValue);
-            
+        // return await axios.post(`${BaseApi}api/v1/auth/authenticate`, loginValue);
+
     },
-    
+
     register: async (registerValue: any) => {
         return axiosInstance.post(`api/v1/auth/register`, registerValue);
         // return response.data;
@@ -21,7 +21,7 @@ export const authenticateApi = {
     },
     vertify: async (token: string) => {
         return await axiosInstance.post(
-            `/api/v1/auth/verify-email`, 
+            `/api/v1/auth/verify-email`,
             {}, // body của request để trống nếu không có dữ liệu cần gửi
             {
                 headers: {
@@ -32,6 +32,23 @@ export const authenticateApi = {
     },
     loginWithGoogle: async (token: string) => {
         return axiosInstance.post(`/api/v1/auth/google`, { token });
+    },
+    sendRefreshPassword: async (email: string) => {
+        return axiosInstance.post(`/api/v1/auth/reset/send-request?email=${encodeURIComponent(email)}`);
+    },
+
+    resetPassword: async (token: string, newPassword: string) => {
+        return axiosInstance.post(
+            `/api/v1/auth/reset/change?newPassword=${encodeURIComponent(newPassword)}`,
+            null,
+            {
+                headers: {
+                    Authorization: `Bearer ${token}`
+                }
+            }
+        );
     }
-    
+
+
+
 };

@@ -12,6 +12,7 @@ import { LoginInput } from "../../../models/Authentication";
 import { useToast } from "../../../context/ToastProvider";
 import { GoogleLogin } from "@react-oauth/google";
 import { useLanguage } from "../../../context/LanguageContext";
+import { Link, useNavigate } from "react-router-dom";
 
 
 interface DefaultModalProps {
@@ -25,7 +26,7 @@ const LoginModal = ({ trigger, isOpen, onClose }: DefaultModalProps) => {
   const user = useSelector((state: RootState) => state.auth.user);
   const [isLoading, setIsLoading] = useState(false);
   const [isBanError, setIsBanError] = useState<string>("");
-
+  const navigate = useNavigate();
   const [formData, setFormData] = useState<LoginInput>({
     email: '',
     password: ''
@@ -162,6 +163,11 @@ const LoginModal = ({ trigger, isOpen, onClose }: DefaultModalProps) => {
     }
   }
   const {language} = useLanguage();
+  const handleForgotPassword = () => {
+    // mở tab mới
+    window.open('/forgot-password', '_blank');
+  }
+
   return (
     <CustomModal animation="zoom" title={language.login.welcome} isOpen={isOpen} onClose={onClose}>
       <div className="p-6">
@@ -243,7 +249,8 @@ const LoginModal = ({ trigger, isOpen, onClose }: DefaultModalProps) => {
             </button>
           </p>
           <p className="mt-2">
-            <button className="font-medium text-indigo-600 hover:text-indigo-500 dark:text-indigo-400">
+            <button className="font-medium text-indigo-600 hover:text-indigo-500 dark:text-indigo-400"
+              onClick={handleForgotPassword}>
               {language.login.forgotPassword}
             </button>
           </p>

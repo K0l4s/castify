@@ -115,9 +115,9 @@ public class AuthController {
     }
 
     @PostMapping("/reset/send-request")
-    public ResponseEntity<?> sendRequest(ResetPasswordRequest request) {
+    public ResponseEntity<?> sendRequest(@RequestParam String email) {
         try {
-            service.sendRequest(request);
+            service.sendRequest(email);
             return ResponseEntity.ok("Send completed!");
         } catch (Exception ex) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Error: " + ex.getMessage());
@@ -128,10 +128,10 @@ public class AuthController {
     public ResponseEntity<?> resetPassword(
             HttpServletRequest request,
             HttpServletResponse response,
-            @RequestBody ChangePasswordRequest change
+            @RequestParam String newPassword
     ) {
         try {
-            return ResponseEntity.ok(service.resetPassword(request, response,change.getNewPassword()));
+            return ResponseEntity.ok(service.resetPassword(request, response,newPassword));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Error: " + e.getMessage());
         }

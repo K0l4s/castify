@@ -52,6 +52,8 @@ import BrowseRoomsPage from '../pages/main/watchParty/BrowseRoomsPage'
 import AdminEventFramePage from '../pages/admin/framePage/AdminEventFramePage'
 import SearchResults from '../components/main/search/SearchResult'
 import PaymentResultPage from '../pages/main/blankShop/PaymentResultPage'
+import ResetPassword from '../pages/main/auth/ResetPassword'
+import ForgotPassword from '../pages/main/auth/ForgotPassword'
 // import CreateFrameEventForm from '../components/admin/event/CreateFrameEventForm'
 // import IntroVideoPage from '../pages/main/landingPage/IntroVideoPage'
 
@@ -95,10 +97,12 @@ const Router = () => {
                 {/* <Route> */}
                 {/* <Route path="test" element={<CreateFrameEventForm/>}/> */}
                 <Route path='/payment/result' element={<PaymentResultPage />} />
+                
                 <Route path='/login' element={<LandingPage />} />
                 <Route path='/register' element={<LandingPage />} />
-                <Route path='/forgot-password' element={<LandingPage />} />
-                <Route path='/reset-password' element={<LandingPage />} />
+                <Route path='/forgot-password' element={<ForgotPassword />} />
+                <Route path='/reset-password' element={<ResetPassword />} />
+                {/* <Route path='/refresh-password' element={<RefreshPassword />} /> */}
                 <Route path='/verify' element={<VertifyPage />} />
                 <Route path='/terms' element={<TermsPage />} />
                 <Route path='/privacy' element={<PrivacyPolicy />} />

@@ -71,7 +71,6 @@ public class UserEntity implements UserDetails {
     @DBRef(lazy = true)
     private FrameEntity usedFrame;
     private List<String> favoriteGenreIds = new ArrayList<>();
-
     // Genres that user may interest
     private List<String> suggestedGenreIds = new ArrayList<>();
 //    public FrameEntity getUsedFrame(){
