@@ -54,10 +54,10 @@ import java.util.logging.Logger;
 @RequestMapping("/api/v1/podcast")
 public class PodcastController {
     @Autowired
-    public IPodcastService podcastService = new PodcastServiceImpl();
+    public IPodcastService podcastService;
 
     @Autowired
-    public IUserService userService = new UserServiceImpl();
+    public IUserService userService;
 
     @Value("${file.upload-dir}")
     private String baseUploadDir;

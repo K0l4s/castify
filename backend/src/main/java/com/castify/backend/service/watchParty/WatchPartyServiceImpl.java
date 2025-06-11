@@ -67,7 +67,7 @@ public class WatchPartyServiceImpl implements IWatchPartyService {
         hostParticipant.setUserId(host.getId());
         hostParticipant.setUsername(host.getUsername());
         hostParticipant.setAvatarUrl(host.getAvatarUrl());
-        if (host.getUsername() != null) {
+        if (host.getUsedFrame() != null) {
             hostParticipant.setUserFrameUrl(host.getUsedFrame().getImageURL());
         }
         room.getParticipants().add(hostParticipant);
