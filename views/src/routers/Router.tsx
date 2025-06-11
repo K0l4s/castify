@@ -52,6 +52,9 @@ import BrowseRoomsPage from '../pages/main/watchParty/BrowseRoomsPage'
 import AdminEventFramePage from '../pages/admin/framePage/AdminEventFramePage'
 import SearchResults from '../components/main/search/SearchResult'
 import PaymentResultPage from '../pages/main/blankShop/PaymentResultPage'
+import ResetPassword from '../pages/main/auth/ResetPassword'
+import ForgotPassword from '../pages/main/auth/ForgotPassword'
+import ChangePasswordPage from '../pages/main/auth/ChangePasswordPage'
 // import CreateFrameEventForm from '../components/admin/event/CreateFrameEventForm'
 // import IntroVideoPage from '../pages/main/landingPage/IntroVideoPage'
 
@@ -60,16 +63,16 @@ import PaymentResultPage from '../pages/main/blankShop/PaymentResultPage'
 // import NotificationComponent from '../components/main/conversation/NotificationComponent'
 
 const Router = () => {
-      const { changeLanguage } = useLanguage();
-  
-  const location = useLocation();
+    const { changeLanguage } = useLanguage();
+
+    const location = useLocation();
     const queryParams = new URLSearchParams(location.search);
-      const lang = queryParams.get("lang");
-      console.log("lang", lang);
-      if (lang) {
+    const lang = queryParams.get("lang");
+    console.log("lang", lang);
+    if (lang) {
         changeLanguage(lang as 'en' | 'vi');
         localStorage.setItem("lang", lang);
-      }
+    }
     const isAdmin = useSelector((state: RootState) => state.auth.user?.role === Role.A);
     const user = useSelector((state: RootState) => state.auth.user);
     const isLogin = useSelector((state: RootState) => state.auth.isAuthenticated);
@@ -78,7 +81,7 @@ const Router = () => {
     const [isUpdateInformation, setIsUpdateInformation] = useState(false);
     // console.log("C"+(isLogin && (user?.lastName == null || user?.firstName == null || !user?.middleName == null || !user?.birthday == null )))
     useEffect(() => {
-        if (isLogin && (user?.lastName == null || user?.firstName == null || !user?.middleName == null || !user?.birthday == null )) {
+        if (isLogin && (user?.lastName == null || user?.firstName == null || !user?.middleName == null || !user?.birthday == null)) {
             setIsUpdateInformation(true);
             toast.info('Please update your information to use all features of the app');
         } else {
@@ -95,10 +98,13 @@ const Router = () => {
                 {/* <Route> */}
                 {/* <Route path="test" element={<CreateFrameEventForm/>}/> */}
                 <Route path='/payment/result' element={<PaymentResultPage />} />
+
                 <Route path='/login' element={<LandingPage />} />
                 <Route path='/register' element={<LandingPage />} />
-                <Route path='/forgot-password' element={<LandingPage />} />
-                <Route path='/reset-password' element={<LandingPage />} />
+                <Route path='/forgot-password' element={<ForgotPassword />} />
+                <Route path='/reset-password' element={<ResetPassword />} />
+                <Route path='/change-password' element={<RequireAuth><ChangePasswordPage /></RequireAuth>} />
+                {/* <Route path='/refresh-password' element={<RefreshPassword />} /> */}
                 <Route path='/verify' element={<VertifyPage />} />
                 <Route path='/terms' element={<TermsPage />} />
                 <Route path='/privacy' element={<PrivacyPolicy />} />
@@ -108,7 +114,7 @@ const Router = () => {
                 <Route path="/msg" element={<ConversationLayout />} />
                 <Route path="/msg/:id" element={<ConversationLayout />} />
                 <Route path='video-editor' element={<VideoEditor />} />
-                
+
                 {/* <Route path="/info" element={<IntroVideoPage/>}/> */}
 
                 {/* <Route path='test' element={<Test/>}/> */}
@@ -122,7 +128,7 @@ const Router = () => {
                     <Route path="report" element={<AdminReportPage />} />
                     <Route path="genre" element={<AdminGenrePage />} />
                     <Route path="frame" element={<AdminFramePage />} />
-                    <Route path="event" element={<AdminEventFramePage/>}/>
+                    <Route path="event" element={<AdminEventFramePage />} />
                 </Route>
 
                 <Route path='/creator/*' element={<RequireAuth><CreatorLayout /></RequireAuth>} >

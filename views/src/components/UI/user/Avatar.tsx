@@ -13,16 +13,22 @@ interface AvatarProps {
 }
 const Avatar: React.FC<AvatarProps> = ({ avatarUrl,alt, width, height, usedFrame,userFrameUrl,onClick,onError}) => {
     return (
-        <div className="relative" onClick={onClick} >
-            <img 
-                src={avatarUrl? avatarUrl : defaultAvatar} 
-                alt={alt ? alt : "avatar"}
-                onError={onError}
-                className={`rounded-full ring-2 ring-gray-200 dark:ring-gray-700 ${width} ${height} object-cover`}
-            />
-            {usedFrame && <img src={usedFrame.imageURL} alt={usedFrame.name} className={`absolute inset-0 object-contain`} />}
-            {userFrameUrl && <img src={userFrameUrl} alt="User Frame" className={`absolute inset-0 object-contain`} />}
-        </div>
+        <div className="relative" onClick={onClick}>
+    <img 
+        src={avatarUrl ? avatarUrl : defaultAvatar} 
+        alt={alt ? alt : "avatar"}
+        onError={onError}
+        className={`rounded-full ring-2 ring-gray-200 dark:ring-gray-700 ${width} ${height} object-cover`}
+    />
+    {usedFrame && (
+        <img 
+            src={usedFrame.imageURL} 
+            alt={usedFrame.name} 
+            className="absolute inset-0 object-contain scale-[1.2] pointer-events-none"
+        />
+    )}
+</div>
+
     )
 }
 

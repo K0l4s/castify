@@ -18,7 +18,8 @@
         "login": "Login",
         "register": "Register",
         "logout": "Logout",
-        "language": "Language"
+        "language": "Language",
+        "changePassword": "Change Password"
     },
     "searchbar": {
         "recentSearches": "Recent Searches",

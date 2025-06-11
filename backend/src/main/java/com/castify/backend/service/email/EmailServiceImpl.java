@@ -76,4 +76,19 @@ public class EmailServiceImpl implements IEmailService {
 
         sendEmail(email, subject, htmlContent);
     }
+
+    @Override
+    public void sendRefreshMessage(String email, String tokenValid) {
+        String subject = "Blankcil Refresh your password!";
+        String verificationUrl = "http://localhost:5000/reset-password?token=" + tokenValid;
+
+        System.out.println(verificationUrl);
+        Context context = new Context();
+        context.setVariable("verificationUrl", verificationUrl);
+        context.setVariable("verificationCode", null);
+
+        String htmlContent = templateEngine.process("email/refresh", context);
+
+        sendEmail(email, subject, htmlContent);
+    }
 }
