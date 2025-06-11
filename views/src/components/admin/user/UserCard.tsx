@@ -82,7 +82,11 @@ const UserCard: React.FC<UserCardProps> = ({ user }) => {
                         Xem Profile
                     </button>
 
-                    <button className="w-full text-white bg-red-500 hover:bg-red-600 px-4 py-2 rounded-md" onClick={handleOpenConfirm}>
+                    <button
+                        className={`w-full text-white px-4 py-2 rounded-md ${user.role === Role.A ? "bg-gray-400 cursor-not-allowed" : "bg-red-500 hover:bg-red-600"}`}
+                        onClick={user.role === Role.A ? undefined : handleOpenConfirm}
+                        disabled={user.role === Role.A}
+                    >
                         {user.nonBanned ? "Khóa" : "Mở khóa"}
                     </button>
                 </div>
