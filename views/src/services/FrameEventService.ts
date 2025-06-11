@@ -25,3 +25,12 @@ export const getCurrentActiveFrame = async () => {
     throw error;
   }
 };
+
+export const toggleFrameEventActive = async (eventId: string) => {
+  try {
+    const response = await axiosInstanceAuth.put(`/api/admin/v1/frame/event/toggle-active?id=`+eventId, );
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+}

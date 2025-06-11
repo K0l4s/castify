@@ -7,6 +7,7 @@ import EventCalendarResult from '../../../components/admin/event/EventCalendarRe
 // import { FaTableCellsColumnLock } from 'react-icons/fa6';
 import { FaRegCalendarAlt, FaTable } from 'react-icons/fa';
 import Tooltip from '../../../components/UI/custom/Tooltip';
+import CreateFrameEventForm from '../../../components/admin/event/CreateFrameEventForm';
 
 interface FrameEvent {
     id: string;
@@ -33,6 +34,7 @@ const AdminEventFramePage: React.FC = () => {
     const [useActiveFilter, setUseActiveFilter] = useState(false);
     const [events, setEvents] = useState<FrameEvent[]>([]);
     const [viewType, setViewType] = useState<viewTypeEnum>(viewTypeEnum.TABLE)
+    const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
     const handleSearch = async () => {
         try {
             const params: any = {
@@ -55,31 +57,83 @@ const AdminEventFramePage: React.FC = () => {
         handleSearch(); // initial fetch
     }, []);
 
+
     return (
-        <div className="min-h-screen p-6 transition-colors duration-300">
-            {/* title */}
-            <h1 className='text-2xl font-bold text-black mb-2 dark:text-white'>QUẢN LÝ SỰ KIỆN</h1>
-            <div className="grid gap-4 grid-cols-1 md:grid-cols-2 lg:grid-cols-4 mb-6">
-                <input
-                    type="text"
-                    placeholder="Từ khóa"
-                    value={keyword}
-                    onChange={(e) => setKeyword(e.target.value)}
-                    className="px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-[#23232a] text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                />
-                <input
-                    type="datetime-local"
-                    value={fromDate}
-                    onChange={(e) => setFromDate(e.target.value)}
-                    className="px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-[#23232a] text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                />
-                <input
-                    type="datetime-local"
-                    value={toDate}
-                    onChange={(e) => setToDate(e.target.value)}
-                    className="px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-[#23232a] text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                />
+        <div className="min-h-screen transition-colors duration-300">
+            {/* Title */}
+            <h1 className="text-3xl font-extrabold text-blue-700 dark:text-blue-300 mb-6 tracking-tight drop-shadow-lg">
+                QUẢN LÝ SỰ KIỆN
+            </h1>
+            {/* Add Event Button */}
+            <div className="flex justify-between items-center mb-6 flex-wrap gap-2">
+                <button
+                    onClick={() => setIsCreateModalOpen(true)}
+                    className="flex items-center gap-2 px-6 py-2 rounded-lg bg-gradient-to-r from-blue-600 to-purple-500 hover:from-blue-700 hover:to-purple-600 dark:from-blue-500 dark:to-purple-700 dark:hover:from-blue-600 dark:hover:to-purple-800 text-white font-semibold shadow-lg transition"
+                >
+                    <span className="text-lg">＋</span> Thêm sự kiện mới
+                </button>
+                {/* ViewType Switch */}
                 <div className="flex items-center gap-2">
+                    <Tooltip text="Xem dưới dạng bảng">
+                        <FaTable
+                            className={`w-10 h-10 p-2 rounded-xl cursor-pointer transition-all duration-200 shadow-sm ${viewType === viewTypeEnum.TABLE
+                                ? "bg-white dark:bg-[#23232a] text-blue-600 ring-2 ring-blue-400"
+                                : "hover:bg-gray-200 dark:hover:bg-[#23232a] text-gray-400"
+                                }`}
+                            onClick={() => setViewType(viewTypeEnum.TABLE)}
+                        />
+                    </Tooltip>
+                    <Tooltip text="Xem dưới dạng lịch">
+                        <FaRegCalendarAlt
+                            className={`w-10 h-10 p-2 rounded-xl cursor-pointer transition-all duration-200 shadow-sm ${viewType === viewTypeEnum.CALENDAR
+                                ? "bg-white dark:bg-[#23232a] text-purple-600 ring-2 ring-purple-400"
+                                : "hover:bg-gray-200 dark:hover:bg-[#23232a] text-gray-400"
+                                }`}
+                            onClick={() => setViewType(viewTypeEnum.CALENDAR)}
+                        />
+                    </Tooltip>
+                </div>
+            </div>
+            {/* Filters */}
+            <div className="grid gap-4 grid-cols-1 md:grid-cols-2 lg:grid-cols-4 mb-8">
+                <div className="flex flex-col">
+                    <label htmlFor="keyword" className="mb-1 text-gray-700 dark:text-gray-200 font-medium">
+                        Từ khóa
+                    </label>
+                    <input
+                        id="keyword"
+                        type="text"
+                        placeholder="Từ khóa"
+                        value={keyword}
+                        onChange={(e) => setKeyword(e.target.value)}
+                        className="px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-[#23232a] text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-400 shadow"
+                    />
+                </div>
+                <div className="flex flex-col">
+                    <label htmlFor="fromDate" className="mb-1 text-gray-700 dark:text-gray-200 font-medium">
+                        Từ ngày
+                    </label>
+                    <input
+                        id="fromDate"
+                        type="datetime-local"
+                        value={fromDate}
+                        onChange={(e) => setFromDate(e.target.value)}
+                        className="px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-[#23232a] text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-400 shadow"
+                    />
+                </div>
+                <div className="flex flex-col">
+                    <label htmlFor="toDate" className="mb-1 text-gray-700 dark:text-gray-200 font-medium">
+                        Đến ngày
+                    </label>
+                    <input
+                        id="toDate"
+                        type="datetime-local"
+                        value={toDate}
+                        onChange={(e) => setToDate(e.target.value)}
+                        className="px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-[#23232a] text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-400 shadow"
+                    />
+                </div>
+                <div className="flex items-center gap-2 bg-white dark:bg-[#23232a] rounded-lg px-4 py-2 border border-gray-300 dark:border-gray-700 shadow">
                     <input
                         type="checkbox"
                         checked={useActiveFilter}
@@ -87,7 +141,9 @@ const AdminEventFramePage: React.FC = () => {
                         id="useActiveFilter"
                         className="accent-blue-500 dark:accent-blue-400"
                     />
-                    <label htmlFor="useActiveFilter" className="text-gray-700 dark:text-gray-200">Lọc theo trạng thái</label>
+                    <label htmlFor="useActiveFilter" className="text-gray-700 dark:text-gray-200 font-medium">
+                        Lọc theo trạng thái
+                    </label>
                     {useActiveFilter && (
                         <>
                             <input
@@ -97,33 +153,34 @@ const AdminEventFramePage: React.FC = () => {
                                 id="active"
                                 className="accent-green-500 dark:accent-green-400 ml-4"
                             />
-                            <label htmlFor="active" className="text-gray-700 dark:text-gray-200">Đang kích hoạt</label>
+                            <label htmlFor="active" className="text-green-700 dark:text-green-300 font-medium">
+                                Đang kích hoạt
+                            </label>
                         </>
                     )}
                 </div>
+            </div>
+            <div className="flex justify-end mb-8">
                 <button
                     onClick={handleSearch}
-                    className="md:col-span-2 lg:col-span-1 px-6 py-2 rounded-lg bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 text-white font-semibold transition"
+                    className="px-8 py-2 rounded-lg bg-gradient-to-r from-blue-600 to-purple-500 hover:from-blue-700 hover:to-purple-600 dark:from-blue-500 dark:to-purple-700 dark:hover:from-blue-600 dark:hover:to-purple-800 text-white font-semibold shadow-lg transition"
                 >
                     Tìm kiếm
                 </button>
             </div>
-            {/* viewType icon selected */}
-            <div className='text-black dark:text-white flex items-center gap-1 justify-end'>
-                <Tooltip text='Xem dưới dạng bảng'>
-                    <FaTable className={`w-10 h-10 hover:bg-gray-200 p-3 rounded-xl ${viewType === viewTypeEnum.TABLE && "text-red-500"}`} onClick={() => setViewType(viewTypeEnum.TABLE)} />
-                </Tooltip>
-                <Tooltip text='Xem dưới dạng lịch'>
-                    <FaRegCalendarAlt className={`w-10 h-10 hover:bg-gray-200 p-3 rounded-xl ${viewType === viewTypeEnum.CALENDAR && "text-red-500"}`} onClick={() => setViewType(viewTypeEnum.CALENDAR)} />
-                </Tooltip>
-            </div>
-            {
-                viewType === viewTypeEnum.TABLE ?
-                    <EventTableResult events={events} />
-                    :
+            {/* Event Table or Calendar */}
+            <div className="bg-white dark:bg-[#23232a] rounded-2xl shadow-xl p-4">
+                {viewType === viewTypeEnum.TABLE ? (
+                    <EventTableResult events={events} setEvents={setEvents} />
+                ) : (
                     <EventCalendarResult events={events} />
-                // null
-            }
+                )}
+            </div>
+            <CreateFrameEventForm
+                isOpen={isCreateModalOpen}
+                onClose={() => setIsCreateModalOpen(false)}
+                setEvents={setEvents}
+            />
         </div>
     );
 };

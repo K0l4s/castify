@@ -108,4 +108,16 @@ public class AdminFrameController {
 
         return ResponseEntity.ok(results);
     }
+
+    @PutMapping("/event/toggle-active")
+    public ResponseEntity<?> createFrameEvent(
+            @RequestParam(name="id") String id
+            ) throws IOException {
+
+        try {
+            return new ResponseEntity<>(frameEventService.toggleActiveFrameEvent(id), HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<>(new ErrorResponse(e.getMessage()), HttpStatus.BAD_REQUEST);
+        }
+    }
 }
