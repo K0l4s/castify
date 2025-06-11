@@ -1,0 +1,32 @@
+/* Dark mode overrides for react-date-range */
+body.dark .rdrCalendarWrapper,
+body.dark .rdrDateDisplay,
+body.dark .rdrMonthAndYearWrapper,
+body.dark .rdrWeekDays,
+body.dark .rdrDays,
+body.dark .rdrDay,
+body.dark .rdrMonth {
+  background-color: #1f2937 !important;
+  color: #f3f4f6 !important;
+}
+
+body.dark .rdrDayNumber span {
+  color: #f3f4f6 !important;
+}
+
+body.dark .rdrDayDisabled {
+  background-color: #374151 !important;
+  color: #6b7280 !important;
+}
+
+body.dark .rdrSelected,
+body.dark .rdrInRange,
+body.dark .rdrStartEdge,
+body.dark .rdrEndEdge {
+  background: #2563eb !important;
+  color: #fff !important;
+}
+
+body.dark .rdrDayToday .rdrDayNumber span {
+  border-bottom: 2px solid #2563eb !important;
+}

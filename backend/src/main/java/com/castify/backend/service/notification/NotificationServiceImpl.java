@@ -37,8 +37,8 @@ public class NotificationServiceImpl implements INotificationService {
     @Override
     public void saveNotification(String receiverId, NotiType type, String title, String content, String url) throws Exception {
         UserEntity sender = userService.getUserByAuthentication(); // Sử dụng userService đã được inject
-//        if(receiverId.equals(sender.getId()))
-//            return; // Ngan gui thong bao cho ban than
+        if(receiverId.equals(sender.getId()))
+            return; // Ngan gui thong bao cho ban than
         NotificationEntity notificationEntity = new NotificationEntity();
         notificationEntity.setSender(sender);
         notificationEntity.setReceiverId(receiverId);
@@ -53,7 +53,25 @@ public class NotificationServiceImpl implements INotificationService {
                 modelMapper.map(savedNoti, NotifiModel.class)
         );
     }
-
+    @Override
+    public void saveNotificationNonSender(String receiverId, NotiType type, String title, String content, String url) throws Exception {
+//        UserEntity sender = userService.getUserByAuthentication(); // Sử dụng userService đã được inject
+//        if(receiverId.equals(sender.getId()))
+//            return; // Ngan gui thong bao cho ban than
+        NotificationEntity notificationEntity = new NotificationEntity();
+//        notificationEntity.setSender(sender);
+        notificationEntity.setReceiverId(receiverId);
+        notificationEntity.setType(type);
+        notificationEntity.setTitle(title);
+        notificationEntity.setContent(content);
+        notificationEntity.setTargetUrl(url);
+        NotificationEntity savedNoti = notificationRepository.save(notificationEntity);
+        messagingTemplate.convertAndSendToUser(
+                receiverId,
+                "/queue/notification",
+                modelMapper.map(savedNoti, NotifiModel.class)
+        );
+    }
     @Override
     public PaginatedResponse<NotifiModel> getNotiByUser(int pageNumber, int pageSize) throws Exception {
         Sort sort = Sort.by(Sort.Direction.DESC, "createdAt");

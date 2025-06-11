@@ -19,4 +19,6 @@ public interface IFrameEventService {
             Integer pageSize);
 
     FrameEventEntity getActiveFrameEvent();
+
+    FrameEventEntity toggleActiveFrameEvent(String id);
 }

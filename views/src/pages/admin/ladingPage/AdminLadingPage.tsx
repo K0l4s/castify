@@ -296,24 +296,26 @@ const AdminLadingPage = () => {
           <div className="w-full md:w-1/3 flex flex-col items-center gap-4 p-2">
             <div className="w-full bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-4 flex flex-col items-center">
               <h2 className="text-xl font-bold mb-2 text-blue-600 dark:text-blue-400">Date Picker</h2>
+              <div className="w-full dark:bg-gray-900 dark:text-white rounded-md">
               <DateRange
                 editableDateInputs={true}
                 onChange={(item) => {
-                  const selection = item.selection;
-                  setDateRange([
-                    {
-                      startDate: selection.startDate ?? today,
-                      endDate: selection.endDate ?? today,
-                      key: selection.key ?? "selection",
-                    },
-                  ]);
+                const selection = item.selection;
+                setDateRange([
+                  {
+                  startDate: selection.startDate ?? today,
+                  endDate: selection.endDate ?? today,
+                  key: selection.key ?? "selection",
+                  },
+                ]);
                 }}
                 moveRangeOnFirstSelection={false}
                 ranges={dateRange}
                 maxDate={today}
                 rangeColors={["#2563eb"]}
-                className="rounded-md"
+                className="rounded-lg w-full"
               />
+              </div>
             </div>
           </div>
         </div>

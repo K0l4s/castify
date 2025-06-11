@@ -98,4 +98,10 @@ public class FrameEventServiceImpl implements IFrameEventService {
         return frameEventRepository.findOngoingEvents(now);
     }
 
+    @Override
+    public FrameEventEntity toggleActiveFrameEvent(String id){
+        FrameEventEntity frame = frameEventRepository.findFrameEventEntityById(id);
+        frame.setActive(!frame.isActive());
+        return frameEventRepository.save(frame);
+    }
 }

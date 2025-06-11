@@ -132,14 +132,18 @@ const AdminUserPage = () => {
                   >
                     Xem Profile
                   </button>
-                  <button className="w-full text-white bg-red-500 hover:bg-red-600 px-4 py-1 m-2 rounded-md"
+                    <button
+                    className={`w-full text-white px-4 py-1 m-2 rounded-md ${user.role === Role.A ? 'bg-gray-400 cursor-not-allowed' : 'bg-red-500 hover:bg-red-600'}`}
+                    disabled={user.role === Role.A}
                     onClick={() => {
+                      if (user.role !== Role.A) {
                       setSelectedUserBan(user);
                       handleOpenConfirm();
+                      }
                     }}
-                  >
+                    >
                     Ban
-                  </button>
+                    </button>
                 </div>
               </td>
               <ConfirmBox
