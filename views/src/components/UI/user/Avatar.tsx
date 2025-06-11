@@ -11,7 +11,7 @@ interface AvatarProps {
     onClick?: (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => void
     onError?: (e: any) => void
 }
-const Avatar: React.FC<AvatarProps> = ({ avatarUrl, alt, width, height, usedFrame, userFrameUrl, onClick, onError }) => {
+const Avatar: React.FC<AvatarProps> = ({ avatarUrl, alt, width, height, usedFrame, onClick, onError }) => {
     return (
         <div className="relative" onClick={onClick}>
             <img
