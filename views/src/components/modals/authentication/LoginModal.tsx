@@ -12,7 +12,7 @@ import { LoginInput } from "../../../models/Authentication";
 import { useToast } from "../../../context/ToastProvider";
 import { GoogleLogin } from "@react-oauth/google";
 import { useLanguage } from "../../../context/LanguageContext";
-import { Link, useNavigate } from "react-router-dom";
+// import { useNavigate } from "react-router-dom";
 
 
 interface DefaultModalProps {
@@ -26,7 +26,7 @@ const LoginModal = ({ trigger, isOpen, onClose }: DefaultModalProps) => {
   const user = useSelector((state: RootState) => state.auth.user);
   const [isLoading, setIsLoading] = useState(false);
   const [isBanError, setIsBanError] = useState<string>("");
-  const navigate = useNavigate();
+  // const navigate = useNavigate();
   const [formData, setFormData] = useState<LoginInput>({
     email: '',
     password: ''
