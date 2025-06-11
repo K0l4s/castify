@@ -8,6 +8,8 @@ import com.castify.backend.models.paginated.PaginatedResponse;
 public interface INotificationService {
     void saveNotification(String receiverId, NotiType type, String title, String content, String url) throws Exception;
 
+    void saveNotificationNonSender(String receiverId, NotiType type, String title, String content, String url) throws Exception;
+
     PaginatedResponse<NotifiModel> getNotiByUser(int pageNumber, int pageSize) throws Exception;
 
     ReturnNumber getTotalUnreadNotifications() throws Exception;
