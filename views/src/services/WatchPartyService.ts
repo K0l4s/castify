@@ -169,6 +169,7 @@ export default class WatchPartyService {
         userId: msg.userId,
         username: msg.username,
         avatarUrl: msg.avatarUrl,
+        userFrameUrl: msg.userFrameUrl,
         message: msg.message,
         type: msg.type,
         timestamp: msg.timestamp

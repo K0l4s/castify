@@ -18,7 +18,7 @@ interface BannedUser {
   username: string;
   fullName: string;
   avatarUrl?: string;
-  usedFrame?: any;
+  userFrameUrl?: string;
 }
 
 interface RoomSettingsModalProps {
@@ -384,7 +384,7 @@ const RoomSettingsModal: React.FC<RoomSettingsModalProps> = ({
                   width="w-12"
                   height="h-12"
                   avatarUrl={user.avatarUrl || defaultAvatar}
-                  usedFrame={user.usedFrame}
+                  userFrameUrl={user.userFrameUrl}
                   alt={getDisplayName(user)}
                 />
                 <div>
@@ -406,7 +406,8 @@ const RoomSettingsModal: React.FC<RoomSettingsModalProps> = ({
                 className="text-green-600 dark:text-green-400 border-green-600 dark:border-green-400 hover:bg-green-50 dark:hover:bg-green-900/20"
               />
             </div>
-          ))}
+          )
+        )}
         </div>
       )}
     </div>

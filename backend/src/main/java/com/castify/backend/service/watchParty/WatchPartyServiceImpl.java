@@ -702,7 +702,7 @@ public class WatchPartyServiceImpl implements IWatchPartyService {
                 bannedUser.put("username", user.getUsername());
                 bannedUser.put("fullName", user.getFullname());
                 bannedUser.put("avatarUrl", user.getAvatarUrl());
-                bannedUser.put("usedFrame", user.getUsedFrame());
+                bannedUser.put("userFrameUrl", user.getUsedFrame().getImageURL());
                 bannedUsers.add(bannedUser);
             }
         }
