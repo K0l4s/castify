@@ -93,7 +93,7 @@ const EditModal: React.FC<EditModalProps> = ({ isOpen, onClose, onSave, frame })
               type="text"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              className="w-full p-2 border rounded dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+              className="w-full p-2 border border-gray-300 rounded bg-white text-black dark:bg-gray-700 dark:border-gray-600 dark:text-white"
               placeholder="Enter frame name"
             />
           </div>
@@ -106,7 +106,7 @@ const EditModal: React.FC<EditModalProps> = ({ isOpen, onClose, onSave, frame })
                 type="number"
                 value={price || ''}
                 onChange={handlePriceChange}
-                className="w-full p-2 border rounded dark:bg-gray-700 dark:border-gray-600 dark:text-white pr-10"
+                className="w-full p-2 border border-gray-300 rounded bg-white text-black dark:bg-gray-700 dark:border-gray-600 dark:text-white pr-10"
                 placeholder="Enter price"
                 min="0"
               />
