@@ -80,7 +80,8 @@ const WatchPartyParticipants: React.FC<WatchPartyParticipantsProps> = ({
   // Safe getter for display name
   const getDisplayName = (participant: any) => {
     if (!participant) return 'Unknown';
-    return participant.username || participant.fullName || 'Unknown';
+    const name = participant.username || participant.fullName || 'Unknown';
+    return name.length > 15 ? name.slice(0, 15) + '…' : name;
   };
 
   // Safe check for participants array

@@ -470,8 +470,10 @@ const ChatMessageItem: React.FC<ChatMessageItemProps> = ({
       {/* Message Content */}
       <div className="flex-1 min-w-0">
         <div className="flex items-baseline gap-2 mb-1">
-          <span className="font-semibold text-sm text-gray-900 dark:text-white">
-            {message.username || "Anonymous"}
+          <span className="font-semibold text-sm text-gray-900 dark:text-white" title={message.username || "Anonymous"}>
+            {(message.username && message.username.length > 15)
+              ? message.username.slice(0, 15) + "…"
+              : message.username || "Anonymous"}
             {isOwnMessage && <span className="text-xs text-gray-500 ml-1">({language.watchParty.chat.you})</span>}
           </span>
           {timeAgo && (
