@@ -124,7 +124,7 @@ const Payment = (p: PaymentProps) => {
                         />
                         <span className="text-gray-500">VNĐ</span>
                     </div>
-                    <div className="mt-2 text-sm text-gray-700">
+                    <div className="mt-2 text-sm text-gray-700 dark:text-gray-300">
                         Quy đổi: <span className="font-semibold">{Math.floor(amount / 1000)}</span> xu blank xu
                     </div>
                 </div>
