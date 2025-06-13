@@ -106,9 +106,9 @@ const AdminUserPage = () => {
         <CustomTable headers={["ID", "Fullname", "Username", "Active", "Banned", "Action"]}>
           {users.map((user) => (
             <tr key={user.id}>
-              <td className="px-6 py-4 whitespace-nowrap">{user.id}</td>
-              <td className="px-6 py-4 whitespace-nowrap">{user.fullname}</td>
-              <td className="px-6 py-4 whitespace-nowrap">{user.username}</td>
+              <td className="px-6 py-4 whitespace-nowrap text-black dark:text-white">{user.id}</td>
+              <td className="px-6 py-4 whitespace-nowrap text-black dark:text-white">{user.fullname}</td>
+              <td className="px-6 py-4 whitespace-nowrap text-black dark:text-white">{user.username}</td>
               <td className="px-6 py-4 whitespace-nowrap">
                 <span
                   className={`px-3 py-1 rounded-full ${user.active ? "bg-green-100 text-green-700" : "bg-red-100 text-red-700"
