@@ -23,7 +23,6 @@ import NotificationIcon from "./NotificationIcon";
 import Avatar from "../UI/user/Avatar";
 import { useClickOutside } from "../../hooks/useClickOutside";
 import ChooseGenreModal from "../../pages/main/landingPage/ChooseGenreModal";
-
 const Authentication = () => {
   const { language, changeLanguage } = useLanguage();
   const [isOpen, setIsOpen] = useState(false);

@@ -9,7 +9,10 @@ import { receiveMsg, resetNewConversation } from '../../redux/slice/messageSlice
 import useStomp from '../../hooks/useStomp'
 import { shortConversation } from '../../models/Conversation'
 import { conversationService } from '../../services/ConversationService'
+import soundUrl from '../../assets/sound/notification.mp3' // import âm thanh thông báo
 const MessageIcon = () => {
+  let audioElement: HTMLAudioElement | null = null;
+
   const navigate = useNavigate()
   // const conversation = useSelector((state: RootState) => state.message.conversation);
   const currentUser = useSelector((state: RootState) => state.auth.user);
@@ -41,6 +44,18 @@ const MessageIcon = () => {
       console.log(data)
       setIsRead(false);
       dispatch(receiveMsg(data));
+      if (soundUrl) {
+        if (!audioElement) {
+          audioElement = new Audio(soundUrl);
+        } else {
+          audioElement.src = soundUrl;
+        }
+
+        audioElement.play().catch((err) => {
+          console.warn("🎵 Không thể phát âm thanh:", err);
+        });
+      }
+      
     }
   }, [data])
   return (

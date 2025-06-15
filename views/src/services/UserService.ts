@@ -4,9 +4,9 @@ import { axiosInstance, axiosInstanceAuth, axiosInstanceFile } from "../utils/ax
 import Cookies from 'js-cookie';
 
 const getAxiosInstance = () => {
-  const state = store.getState();
-  const isAuthenticated = state.auth.isAuthenticated;
-  return isAuthenticated ? axiosInstanceAuth : axiosInstance;
+    const state = store.getState();
+    const isAuthenticated = state.auth.isAuthenticated;
+    return isAuthenticated ? axiosInstanceAuth : axiosInstance;
 }
 
 export const userService = {
@@ -45,9 +45,11 @@ export const userService = {
         // return await axiosInstance.delete(`${BaseApi}api/v1/user`);
     },
     followUser: async (targetUsername: string) => {
-        return await axiosInstanceAuth.put(`/api/v1/user/follow?username=${targetUsername}`)
+        return await axiosInstanceAuth.put(`/api/v1/user/follow?username=${targetUsername}`);
     },
-    getSuggestUser: async () => {
+    getSuggestUser: async (pageNumber?: number, pageSize?: number) => {
+        if (pageNumber && pageSize)
+            return await axiosInstanceAuth.get(`/api/v1/user/recommend?pageNumber=${pageNumber}&pageSize=${pageSize}`);
         return await axiosInstanceAuth.get(`/api/v1/user/recommend`);
     },
     changeAvatar: async (avatar: File) => {

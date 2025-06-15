@@ -17,4 +17,8 @@ public interface INotificationService {
     void readNotifi(String notiId) throws Exception;
 
     void makeReadAll() throws Exception;
+
+    void deleteNoti(String notiId) throws Exception;
+
+    void deleteAll() throws Exception;
 }

@@ -3,11 +3,10 @@ import React, { useEffect, useState } from 'react';
 import { axiosInstanceAuth } from '../../../utils/axiosInstance';
 import 'react-big-calendar/lib/css/react-big-calendar.css';
 import EventTableResult from '../../../components/admin/event/EventTableResult';
-import EventCalendarResult from '../../../components/admin/event/EventCalendarResult';
 // import { FaTableCellsColumnLock } from 'react-icons/fa6';
-import { FaRegCalendarAlt, FaTable } from 'react-icons/fa';
-import Tooltip from '../../../components/UI/custom/Tooltip';
 import CreateFrameEventForm from '../../../components/admin/event/CreateFrameEventForm';
+import { FaSearch } from 'react-icons/fa';
+import Tooltip from '../../../components/UI/custom/Tooltip';
 
 interface FrameEvent {
     id: string;
@@ -33,7 +32,6 @@ const AdminEventFramePage: React.FC = () => {
     const [active, setActive] = useState(false);
     const [useActiveFilter, setUseActiveFilter] = useState(false);
     const [events, setEvents] = useState<FrameEvent[]>([]);
-    const [viewType, setViewType] = useState<viewTypeEnum>(viewTypeEnum.TABLE)
     const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
     const handleSearch = async () => {
         try {
@@ -59,122 +57,88 @@ const AdminEventFramePage: React.FC = () => {
 
 
     return (
-        <div className="min-h-screen transition-colors duration-300">
-            {/* Title */}
-            <h1 className="text-3xl font-extrabold text-blue-700 dark:text-blue-300 mb-6 tracking-tight drop-shadow-lg">
-                QUẢN LÝ SỰ KIỆN
-            </h1>
-            {/* Add Event Button */}
-            <div className="flex justify-between items-center mb-6 flex-wrap gap-2">
+        <div className="p-6  mx-auto">
+            <h1 className="text-2xl font-bold mb-4 text-blue-700">Quản lý sự kiện</h1>
+            <div className="flex flex-wrap gap-2 mb-4 items-center">
                 <button
                     onClick={() => setIsCreateModalOpen(true)}
-                    className="flex items-center gap-2 px-6 py-2 rounded-lg bg-gradient-to-r from-blue-600 to-purple-500 hover:from-blue-700 hover:to-purple-600 dark:from-blue-500 dark:to-purple-700 dark:hover:from-blue-600 dark:hover:to-purple-800 text-white font-semibold shadow-lg transition"
+                    className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded"
                 >
-                    <span className="text-lg">＋</span> Thêm sự kiện mới
+                    + Thêm sự kiện
                 </button>
-                {/* ViewType Switch */}
-                <div className="flex items-center gap-2">
-                    <Tooltip text="Xem dưới dạng bảng">
-                        <FaTable
-                            className={`w-10 h-10 p-2 rounded-xl cursor-pointer transition-all duration-200 shadow-sm ${viewType === viewTypeEnum.TABLE
-                                ? "bg-white dark:bg-[#23232a] text-blue-600 ring-2 ring-blue-400"
-                                : "hover:bg-gray-200 dark:hover:bg-[#23232a] text-gray-400"
-                                }`}
-                            onClick={() => setViewType(viewTypeEnum.TABLE)}
-                        />
-                    </Tooltip>
-                    <Tooltip text="Xem dưới dạng lịch">
-                        <FaRegCalendarAlt
-                            className={`w-10 h-10 p-2 rounded-xl cursor-pointer transition-all duration-200 shadow-sm ${viewType === viewTypeEnum.CALENDAR
-                                ? "bg-white dark:bg-[#23232a] text-purple-600 ring-2 ring-purple-400"
-                                : "hover:bg-gray-200 dark:hover:bg-[#23232a] text-gray-400"
-                                }`}
-                            onClick={() => setViewType(viewTypeEnum.CALENDAR)}
-                        />
-                    </Tooltip>
-                </div>
             </div>
-            {/* Filters */}
-            <div className="grid gap-4 grid-cols-1 md:grid-cols-2 lg:grid-cols-4 mb-8">
-                <div className="flex flex-col">
-                    <label htmlFor="keyword" className="mb-1 text-gray-700 dark:text-gray-200 font-medium">
-                        Từ khóa
-                    </label>
+            <div className="flex flex-wrap gap-2 mb-4 text-black dark:text-white">
+                <label className="flex flex-col">
+                    <span className="mb-1 text-sm">Từ khóa</span>
                     <input
-                        id="keyword"
                         type="text"
                         placeholder="Từ khóa"
                         value={keyword}
-                        onChange={(e) => setKeyword(e.target.value)}
-                        className="px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-[#23232a] text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-400 shadow"
+                        onChange={e => setKeyword(e.target.value)}
+                        className="border px-2 py-1 rounded text-black dark:text-white bg-white dark:bg-gray-800"
                     />
-                </div>
-                <div className="flex flex-col">
-                    <label htmlFor="fromDate" className="mb-1 text-gray-700 dark:text-gray-200 font-medium">
-                        Từ ngày
-                    </label>
+                </label>
+                <label className="flex flex-col">
+                    <span className="mb-1 text-sm">Từ ngày</span>
                     <input
-                        id="fromDate"
                         type="datetime-local"
                         value={fromDate}
-                        onChange={(e) => setFromDate(e.target.value)}
-                        className="px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-[#23232a] text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-400 shadow"
+                        onChange={e => setFromDate(e.target.value)}
+                        className="border px-2 py-1 rounded text-black dark:text-white bg-white dark:bg-gray-800"
                     />
-                </div>
-                <div className="flex flex-col">
-                    <label htmlFor="toDate" className="mb-1 text-gray-700 dark:text-gray-200 font-medium">
-                        Đến ngày
-                    </label>
+                </label>
+                <label className="flex flex-col">
+                    <span className="mb-1 text-sm">Đến ngày</span>
                     <input
-                        id="toDate"
                         type="datetime-local"
                         value={toDate}
-                        onChange={(e) => setToDate(e.target.value)}
-                        className="px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-[#23232a] text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-400 shadow"
+                        onChange={e => setToDate(e.target.value)}
+                        className="border px-2 py-1 rounded text-black dark:text-white bg-white dark:bg-gray-800"
                     />
+                </label>
+                <div className="flex flex-col items-center">
+                    <span className="mb-1 text-sm">Trạng thái</span>
+                    <div className="flex items-center gap-2">
+                        <div
+                            className={`cursor-pointer px-3 py-1 rounded border ${!useActiveFilter ? 'bg-blue-500 text-white border-blue-500' : 'bg-white text-black dark:bg-gray-800 dark:text-white border-gray-300'}`}
+                            onClick={() => setUseActiveFilter(false)}
+                        >
+                            Tất cả
+                        </div>
+                        <div
+                            className={`cursor-pointer px-3 py-1 rounded border ${useActiveFilter && active ? 'bg-blue-500 text-white border-blue-500' : 'bg-white text-black dark:bg-gray-800 dark:text-white border-gray-300'}`}
+                            onClick={() => {
+                                setUseActiveFilter(true);
+                                setActive(true);
+                            }}
+                        >
+                            Đang kích hoạt
+                        </div>
+                        <div
+                            className={`cursor-pointer px-3 py-1 rounded border ${useActiveFilter && !active ? 'bg-blue-500 text-white border-blue-500' : 'bg-white text-black dark:bg-gray-800 dark:text-white border-gray-300'}`}
+                            onClick={() => {
+                                setUseActiveFilter(true);
+                                setActive(false);
+                            }}
+                        >
+                            Không kích hoạt
+                        </div>
+                        <Tooltip text="Lọc sự kiện" >
+                        <button
+                            onClick={handleSearch}
+                            className="bg-blue-500 hover:bg-blue-600 text-white h-full px-4 py-1 rounded self-end"
+                        >
+                            <FaSearch className="inline mr-1" />
+                        </button>
+                        </Tooltip>
+                    </div>
+
                 </div>
-                <div className="flex items-center gap-2 bg-white dark:bg-[#23232a] rounded-lg px-4 py-2 border border-gray-300 dark:border-gray-700 shadow">
-                    <input
-                        type="checkbox"
-                        checked={useActiveFilter}
-                        onChange={(e) => setUseActiveFilter(e.target.checked)}
-                        id="useActiveFilter"
-                        className="accent-blue-500 dark:accent-blue-400"
-                    />
-                    <label htmlFor="useActiveFilter" className="text-gray-700 dark:text-gray-200 font-medium">
-                        Lọc theo trạng thái
-                    </label>
-                    {useActiveFilter && (
-                        <>
-                            <input
-                                type="checkbox"
-                                checked={active}
-                                onChange={(e) => setActive(e.target.checked)}
-                                id="active"
-                                className="accent-green-500 dark:accent-green-400 ml-4"
-                            />
-                            <label htmlFor="active" className="text-green-700 dark:text-green-300 font-medium">
-                                Đang kích hoạt
-                            </label>
-                        </>
-                    )}
-                </div>
+
             </div>
-            <div className="flex justify-end mb-8">
-                <button
-                    onClick={handleSearch}
-                    className="px-8 py-2 rounded-lg bg-gradient-to-r from-blue-600 to-purple-500 hover:from-blue-700 hover:to-purple-600 dark:from-blue-500 dark:to-purple-700 dark:hover:from-blue-600 dark:hover:to-purple-800 text-white font-semibold shadow-lg transition"
-                >
-                    Tìm kiếm
-                </button>
-            </div>
-            {/* Event Table or Calendar */}
-            <div className="bg-white dark:bg-[#23232a] rounded-2xl shadow-xl p-4">
-                {viewType === viewTypeEnum.TABLE ? (
-                    <EventTableResult events={events} setEvents={setEvents} />
-                ) : (
-                    <EventCalendarResult events={events} />
-                )}
+            <div>
+                <EventTableResult events={events} setEvents={setEvents} />
+
             </div>
             <CreateFrameEventForm
                 isOpen={isCreateModalOpen}

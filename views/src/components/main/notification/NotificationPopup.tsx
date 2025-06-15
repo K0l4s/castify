@@ -9,6 +9,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '../../../redux/store';
 import { setTotalUnRead } from '../../../redux/slice/notificationSlice';
 import { useClickOutside } from '../../../hooks/useClickOutside';
+import { MdDone } from 'react-icons/md';
 
 interface Props {
     newMessage?: NotiModel;
@@ -102,9 +103,17 @@ const NotificationPopup = (props: Props) => {
         }
     };
 
-    const readNoti = async (id: string) => {
+    const readNoti = async (id: string, e?: React.MouseEvent) => {
+        if (e)
+            e.stopPropagation();
         await NotificationService.readNoti(id);
         dispatch(setTotalUnRead(totalUnRead - 1));
+        setNotifications(prev => prev.map(noti => {
+            if (noti.id === id) {
+                return { ...noti, read: true };
+            }
+            return noti;
+        }));
     };
 
     const readAllNoti = async () => {
@@ -155,12 +164,14 @@ const NotificationPopup = (props: Props) => {
                                     {formatTimeCalculation(noti.createdAt)}
                                 </p>
                             </div>
-                            <button
-                                onClick={(e) => e.stopPropagation()}
-                                className="relative p-2 text-gray-700 dark:text-gray-200 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700"
-                            >
-                                <HiOutlineDotsHorizontal className="w-5 h-5" />
-                            </button>
+                            <Tooltip text="Đánh dấu đã đọc">
+                                <button
+                                    onClick={(e) => readNoti(noti.id, e) || e.stopPropagation()}
+                                    className="relative p-2 text-gray-700 dark:text-gray-200 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700"
+                                >
+                                    <MdDone className="w-5 h-5" />
+                                </button>
+                            </Tooltip>
                         </li>
                     ))}
                     {loading && (

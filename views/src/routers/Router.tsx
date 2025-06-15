@@ -55,6 +55,7 @@ import PaymentResultPage from '../pages/main/blankShop/PaymentResultPage'
 import ResetPassword from '../pages/main/auth/ResetPassword'
 import ForgotPassword from '../pages/main/auth/ForgotPassword'
 import ChangePasswordPage from '../pages/main/auth/ChangePasswordPage'
+import SuggestUser from '../pages/main/landingPage/SuggestUser'
 // import CreateFrameEventForm from '../components/admin/event/CreateFrameEventForm'
 // import IntroVideoPage from '../pages/main/landingPage/IntroVideoPage'
 
@@ -111,8 +112,8 @@ const Router = () => {
                 <Route path='/payment-success' element={<PaymentSuccess />} />
                 <Route path='/payment-failure' element={<PaymentFailure />} />
                 {/* <Route path='/payment' element={<Payment />} /> */}
-                <Route path="/msg" element={<ConversationLayout />} />
-                <Route path="/msg/:id" element={<ConversationLayout />} />
+                <Route path="/msg" element={<RequireAuth><ConversationLayout /></RequireAuth>} />
+                <Route path="/msg/:id" element={<RequireAuth><ConversationLayout /></RequireAuth>} />
                 <Route path='video-editor' element={<VideoEditor />} />
 
                 {/* <Route path="/info" element={<IntroVideoPage/>}/> */}
@@ -160,6 +161,7 @@ const Router = () => {
                     <Route path='/browse-rooms' element={<RequireAuth><BrowseRoomsPage /></RequireAuth>} />
                     <Route path='/genres' element={<GenrePage />} />
                     <Route path='/genres/:genreId' element={<GenrePodcastsPage />} />
+                    <Route path='/suggest' element={<RequireAuth><SuggestUser /></RequireAuth>} />
                 </Route>
                 <Route element={<ProfileLayout />}>
 

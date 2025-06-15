@@ -16,4 +16,6 @@ public interface NotificationRepository extends MongoRepository<NotificationEnti
     long countByReceiverIdAndReadIsFalse(String receiverId);
 
     List<NotificationEntity> getNotificationEntitiesByReceiverIdAndReadIsFalse(String receiverId);
+    void deleteById(String id);
+    void deleteAllByReceiverId(String receiverId);
 }

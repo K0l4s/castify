@@ -117,7 +117,7 @@ const AddMembersModal = ({ isOpen, onClose, onAdded, members,setMembers }: AddMe
             closeOnOutsideClick
         >
             <div className="p-4 space-y-4">
-                <div className="grid grid-cols-2 gap-6">
+                <div className="grid grid-cols-2 gap-6 dark:text-white text-black">
                     {/* Friends List */}
                     <div>
                         <h3 className="text-md font-semibold mb-2">Your Friends</h3>
@@ -128,11 +128,11 @@ const AddMembersModal = ({ isOpen, onClose, onAdded, members,setMembers }: AddMe
                                 value={searchQuery}
                                 onChange={(e) => setSearchQuery(e.target.value)}
                                 onKeyDown={(e) => e.key === "Enter" && handleSearch()}
-                                className="w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400 transition"
+                                className="w-full px-4 py-2 text-white border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400 dark:bg-gray-800 dark:text-white transition"
                             />
                             <button
                                 onClick={handleSearch}
-                                className="absolute right-3 top-2.5 text-gray-500 hover:text-black"
+                                className="absolute right-3 top-2.5 text-gray-500 hover:text-black dark:text-gray-400 dark:hover:text-white"
                             >
                                 <FaSearch />
                             </button>
