@@ -4,12 +4,14 @@ import { userCard } from "../../../models/User"
 import { userService } from "../../../services/UserService"
 import { useSelector } from "react-redux"
 import { RootState } from "../../../redux/store"
+import { Link } from "react-router-dom"
 
 const SuggestFollow = () => {
     const [suggestUsers, setSuggestUsers] = useState<userCard[]>([])
     useEffect(() => {
         userService.getSuggestUser().then(res => {
             setSuggestUsers(res.data.content)
+            console.log("Suggest users: ", res)
         })
     }, [])
     const userId = useSelector((state: RootState) => state.auth.user?.id)
@@ -21,9 +23,9 @@ const SuggestFollow = () => {
                 <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-center sm:text-left drop-shadow-md">
                     Creator matching with you
                 </h1>
-                <button className="mt-4 sm:mt-0 px-4 py-2 rounded-full bg-white/10 hover:bg-white/20 text-white font-semibold shadow-md transition duration-200">
-                    See more
-                </button>
+                <Link to={"/suggest"} className="mt-4 sm:mt-0 px-4 py-2 rounded-full bg-white/10 hover:bg-white/20 text-white font-semibold shadow-md transition duration-200">
+                    View all
+                </Link>
             </div>
 
             <div className="flex flex-wrap items-center justify-center gap-2">

@@ -34,6 +34,7 @@ public class NotificationServiceImpl implements INotificationService {
     @Autowired
     private ModelMapper modelMapper;
 
+
     @Override
     public void saveNotification(String receiverId, NotiType type, String title, String content, String url) throws Exception {
         UserEntity sender = userService.getUserByAuthentication(); // Sử dụng userService đã được inject
@@ -104,5 +105,24 @@ public class NotificationServiceImpl implements INotificationService {
 
         unreadNotis.forEach(noti -> noti.setRead(true));
         notificationRepository.saveAll(unreadNotis);
+    }
+    @Override
+    public void deleteNoti(String notiId) throws Exception {
+        UserEntity userEntity = userService.getUserByAuthentication();
+        NotificationEntity noti = notificationRepository.getNotificationEntityById(notiId);
+        if(!noti.getReceiverId().equals(userEntity.getId()))
+        {
+            throw new Exception("You don't have permission to do this action!");
+        }
+        notificationRepository.delete(noti);
+//        notificationRepository.deleteById(notiId);
+    }
+    @Override
+    public void deleteAll() throws Exception {
+        UserEntity userEntity = userService.getUserByAuthentication();
+//        List<NotificationEntity> unreadNotis = notificationRepository.getNotificationEntitiesByReceiverId(userEntity.getId());
+
+//        unreadNotis.forEach(noti -> noti.setRead(true));
+        notificationRepository.deleteAllByReceiverId(userEntity.getId());
     }
 }

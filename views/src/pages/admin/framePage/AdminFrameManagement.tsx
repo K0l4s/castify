@@ -6,17 +6,21 @@ import { axiosInstanceAuth } from '../../../utils/axiosInstance';
 import Avatar from '../../../components/UI/user/Avatar';
 import { useSelector } from 'react-redux';
 import { RootState } from '../../../redux/store';
-// import FramePreviewModal from '../../main/blankShop/FramePreviewModal';
 
-type FrameStatus = 'ACCEPTED' | 'PROCESSING' | 'REJECTED';
+type FrameStatus = 'ACCEPTED' | 'PROCESSING' | 'REJECTED' | 'ALL';
+
+const PAGE_SIZE = 8;
 
 const AdminFramePage = () => {
   const [frames, setFrames] = useState<Frame[]>([]);
   const [loading, setLoading] = useState(true);
-  // const [selectedFrame, setSelectedFrame] = useState<Frame | null>(null);
   const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
   const [actionType, setActionType] = useState<'accept' | 'reject' | null>(null);
   const [frameToAction, setFrameToAction] = useState<Frame | null>(null);
+  const [filterStatus, setFilterStatus] = useState<FrameStatus>('ALL');
+  const [currentPage, setCurrentPage] = useState(1);
+  const [searchKeyword, setSearchKeyword] = useState('');
+
   const confirmModalRef = useRef<HTMLDivElement | null>(null);
   const toast = useToast();
   const currentUser = useSelector((state: RootState) => state.auth.user);
@@ -40,7 +44,7 @@ const AdminFramePage = () => {
     try {
       await axiosInstanceAuth.put(`/api/admin/v1/frame/approve/${frameId}?status=${newStatus}`);
       toast.success(`Frame ${newStatus.toLowerCase()} successfully`);
-      fetchAllFrames(); // Refresh the list
+      fetchAllFrames();
     } catch (error: any) {
       toast.error(error.response?.data?.message || 'Failed to update frame status');
     }
@@ -54,9 +58,8 @@ const AdminFramePage = () => {
 
   const handleConfirmAction = () => {
     if (!frameToAction || !actionType) return;
-
     const newStatus = actionType === 'accept' ? 'ACCEPTED' : 'REJECTED';
-    handleStatusChange(frameToAction.id, newStatus);
+    handleStatusChange(frameToAction.id, newStatus as FrameStatus);
     setIsConfirmModalOpen(false);
     setFrameToAction(null);
     setActionType(null);
@@ -92,9 +95,35 @@ const AdminFramePage = () => {
     );
   };
 
-  // const handlePreview = (frame: Frame) => {
-  //   setSelectedFrame(frame);
+  // Filter frames by status and keyword
+  const filteredFrames = frames.filter((frame) => {
+    const matchesStatus = filterStatus === 'ALL' || frame.status === filterStatus;
+    const matchesKeyword =
+      searchKeyword.trim() === '' ||
+      frame.name.toLowerCase().includes(searchKeyword.trim().toLowerCase());
+    return matchesStatus && matchesKeyword;
+  });
+
+  // Pagination logic
+  const totalPages = Math.ceil(filteredFrames.length / PAGE_SIZE);
+  const paginatedFrames = filteredFrames.slice(
+    (currentPage - 1) * PAGE_SIZE,
+    currentPage * PAGE_SIZE
+  );
+
+  // const handleFilterChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+  //   setFilterStatus(e.target.value as FrameStatus);
+  //   setCurrentPage(1); // Reset to first page when filter changes
   // };
+
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+  };
+
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchKeyword(e.target.value);
+    setCurrentPage(1); // Reset to first page when search changes
+  };
 
   if (loading) {
     return (
@@ -106,19 +135,47 @@ const AdminFramePage = () => {
 
   return (
     <div className="container mx-auto px-4 py-8 text-black dark:text-white">
-      <div className="flex justify-between items-center mb-6">
+      <div className="flex flex-col md:flex-row md:justify-between md:items-center mb-6 gap-4">
         <h1 className="text-2xl font-bold ">Frame Management</h1>
+        <div className="flex gap-2 items-center">
+          <input
+            type="text"
+            value={searchKeyword}
+            onChange={handleSearchChange}
+            placeholder="Search by frame name..."
+            className="border rounded px-3 py-2 dark:bg-gray-800 dark:text-white bg-white text-black focus:outline-none focus:ring-2 focus:ring-blue-400"
+          />
+          <div className="flex gap-1">
+            {([
+              { value: 'ALL', label: 'Tất cả' },
+              { value: 'ACCEPTED', label: 'Đã duyệt' },
+              { value: 'PROCESSING', label: 'Chờ duyệt' },
+              { value: 'REJECTED', label: 'Từ chối' },
+            ] as const).map((option) => (
+              <button
+                key={option.value}
+                type="button"
+                onClick={() => {
+                  setFilterStatus(option.value as FrameStatus);
+                  setCurrentPage(1);
+                }}
+                className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors
+                  ${filterStatus === option.value
+                    ? 'bg-blue-500 text-white'
+                    : 'bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-200 hover:bg-blue-100 dark:hover:bg-blue-900'
+                  }`}
+              >
+                {option.label}
+              </button>
+            ))}
+          </div>
+        </div>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6">
-        {frames.map((frame) => (
+        {paginatedFrames.map((frame) => (
           <div key={frame.id} className="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden">
             <div className="relative p-2">
-              {/* <img 
-                src={frame.imageURL}
-                alt={frame.name}
-                className="w-full h-full object-contain p-4"
-              /> */}
               <div className='mx-auto w-48 h-48 my-4'>
                 <Avatar
                   usedFrame={{
@@ -130,18 +187,8 @@ const AdminFramePage = () => {
                   avatarUrl={currentUser?.avatarUrl}
                   alt={frame.name}
                   width="w-48"
-                // height="h-full"
                 />
               </div>
-              {/* Preview overlay */}
-              {/* <div className="absolute inset-0 bg-black bg-opacity-0 hover:bg-opacity-50 transition-opacity flex items-center justify-center opacity-0 hover:opacity-100">
-                <button 
-                  onClick={() => handlePreview(frame)}
-                  className="px-4 py-2 bg-white dark:bg-gray-800 text-black dark:text-white rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
-                >
-                  Preview
-                </button>
-              </div> */}
             </div>
 
             <div className="p-4 border-t dark:border-gray-700">
@@ -179,19 +226,29 @@ const AdminFramePage = () => {
         ))}
       </div>
 
-      {frames.length === 0 && (
+      {filteredFrames.length === 0 && (
         <div className="text-center text-gray-500 dark:text-gray-400 mt-8">
           No frames available at the moment.
         </div>
       )}
 
-      {/* Frame Preview Modal */}
-      {/* <FramePreviewModal
-        isOpen={!!selectedFrame}
-        onClose={() => setSelectedFrame(null)}
-        frameImage={selectedFrame?.imageURL || ''}
-        frameName={selectedFrame?.name || ''}
-      /> */}
+      {/* Pagination */}
+      {totalPages > 1 && (
+        <div className="flex justify-center mt-8 space-x-2">
+          {Array.from({ length: totalPages }, (_, idx) => (
+            <button
+              key={idx + 1}
+              onClick={() => handlePageChange(idx + 1)}
+              className={`px-3 py-1 rounded ${currentPage === idx + 1
+                ? 'bg-blue-500 text-white'
+                : 'bg-gray-200 dark:bg-gray-700 text-black dark:text-white'
+                }`}
+            >
+              {idx + 1}
+            </button>
+          ))}
+        </div>
+      )}
 
       {/* Confirmation Modal */}
       {isConfirmModalOpen && (
@@ -226,4 +283,4 @@ const AdminFramePage = () => {
   );
 };
 
-export default AdminFramePage; 
+export default AdminFramePage;

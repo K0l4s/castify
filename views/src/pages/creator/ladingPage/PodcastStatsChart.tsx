@@ -56,14 +56,13 @@ const chartComponentMap = {
 };
 
 const DATASET_KEYS = [
-    { key: 'views', label: 'Views' },
-    { key: 'likes', label: 'Likes' },
-    { key: 'comments', label: 'Comments' },
+    { key: 'views', label: 'Views', color: 'bg-blue-500', border: 'border-blue-500' },
+    { key: 'likes', label: 'Likes', color: 'bg-green-500', border: 'border-green-500' },
+    { key: 'comments', label: 'Comments', color: 'bg-red-500', border: 'border-red-500' },
 ] as const;
 
 type DatasetKey = typeof DATASET_KEYS[number]['key'];
 
-// Helper to detect dark mode (using Tailwind's dark class on html)
 const useDarkMode = () => {
     const [isDark, setIsDark] = React.useState(
         typeof window !== 'undefined'
@@ -85,20 +84,13 @@ const PodcastStatsChart: React.FC<PodcastStatsChartProps> = ({ labels, views, li
     const [visibleDatasets, setVisibleDatasets] = useState<DatasetKey[]>(['views', 'likes', 'comments']);
     const isDark = useDarkMode();
 
-    const handleCheckboxChange = (key: DatasetKey) => {
+    const handleCardClick = (key: DatasetKey) => {
         setVisibleDatasets((prev) =>
             prev.includes(key)
                 ? prev.filter((k) => k !== key)
                 : [...prev, key]
         );
     };
-
-    const handleCheckAll = (checked: boolean) => {
-        setVisibleDatasets(checked ? DATASET_KEYS.map(d => d.key) : []);
-    };
-
-    const allChecked = visibleDatasets.length === DATASET_KEYS.length;
-    const someChecked = visibleDatasets.length > 0 && !allChecked;
 
     const datasets = [
         {
@@ -186,41 +178,56 @@ const PodcastStatsChart: React.FC<PodcastStatsChartProps> = ({ labels, views, li
 
     return (
         <div className="bg-white dark:bg-gray-900 rounded-2xl p-4 w-full" style={{ minHeight: 460 }}>
-            <div className="mb-4 flex items-center gap-2">
-                <label htmlFor="chart-type" className="text-sm font-medium text-gray-700 dark:text-gray-200">Chart Type:</label>
-                <select
-                    id="chart-type"
-                    className="border border-gray-300 dark:border-gray-600 rounded-md px-3 py-2 text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors"
-                    value={chartType}
-                    onChange={(e) => setChartType(e.target.value as ChartType)}
-                >
-                    <option className="bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100" value="line">Line</option>
-                    <option className="bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100" value="bar">Bar</option>
-                    <option className="bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100" value="radar">Radar</option>
-                    <option className="bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100" value="doughnut">Doughnut</option>
-                </select>
-                <div className="flex items-center ml-6 gap-2 text-black dark:text-white">
-                    <input
-                        type="checkbox"
-                        id="check-all"
-                        checked={allChecked}
-                        ref={el => {
-                            if (el) el.indeterminate = someChecked;
-                        }}
-                        onChange={e => handleCheckAll(e.target.checked)}
-                    />
-                    <label htmlFor="check-all" className="text-sm">All</label>
-                    {DATASET_KEYS.map(ds => (
-                        <span key={ds.key} className="flex items-center gap-1 ml-2">
-                            <input
-                                type="checkbox"
-                                id={`show-${ds.key}`}
-                                checked={visibleDatasets.includes(ds.key)}
-                                onChange={() => handleCheckboxChange(ds.key)}
-                            />
-                            <label htmlFor={`show-${ds.key}`} className="text-sm">{ds.label}</label>
-                        </span>
-                    ))}
+            <div className="mb-4 flex flex-col md:flex-row md:items-center gap-4">
+                <div className="flex items-center gap-2">
+                    <label htmlFor="chart-type" className="text-sm font-medium text-gray-700 dark:text-gray-200">Chart Type:</label>
+                    <select
+                        id="chart-type"
+                        className="border border-gray-300 dark:border-gray-600 rounded-md px-3 py-2 text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors"
+                        value={chartType}
+                        onChange={(e) => setChartType(e.target.value as ChartType)}
+                    >
+                        <option value="line">Line</option>
+                        <option value="bar">Bar</option>
+                        <option value="radar">Radar</option>
+                        <option value="doughnut">Doughnut</option>
+                    </select>
+                </div>
+                <div className="flex gap-2">
+                    {DATASET_KEYS.map(ds => {
+                        const selected = visibleDatasets.includes(ds.key);
+                        return (
+                            <button
+                                key={ds.key}
+                                type="button"
+                                onClick={() => handleCardClick(ds.key)}
+                                className={`
+                                    flex flex-col items-center px-4 py-2 rounded-lg border-2 cursor-pointer transition
+                                    ${selected ? `${ds.color} text-white ${ds.border}` : 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-200 border-transparent'}
+                                    hover:shadow-md
+                                `}
+                                style={{ minWidth: 90 }}
+                                title={ds.label}
+                            >
+                                {ds.key === 'views' && (
+                                    <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 mb-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M1.458 12C2.732 7.943 6.523 5 12 5c5.477 0 9.268 2.943 10.542 7-1.274 4.057-5.065 7-10.542 7-5.477 0-9.268-2.943-10.542-7z" />
+                                        <circle cx="12" cy="12" r="3" stroke="currentColor" strokeWidth={2} fill="none" />
+                                    </svg>
+                                )}
+                                {ds.key === 'likes' && (
+                                    <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 mb-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 016.364 0L12 7.636l1.318-1.318a4.5 4.5 0 116.364 6.364L12 21.364l-7.682-7.682a4.5 4.5 0 010-6.364z" />
+                                    </svg>
+                                )}
+                                {ds.key === 'comments' && (
+                                    <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 mb-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 10h.01M12 10h.01M16 10h.01M21 12c0 4.418-4.03 8-9 8a9.77 9.77 0 01-4-.8l-4 1 1-4A8.96 8.96 0 013 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                                    </svg>
+                                )}
+                            </button>
+                        );
+                    })}
                 </div>
             </div>
             <div className="w-full" style={{ height: '400px' }}>

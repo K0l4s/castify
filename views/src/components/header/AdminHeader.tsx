@@ -4,14 +4,13 @@ import Authentication from './Authentication'
 
 const AdminHeader = () => {
     const toggleSidebar = () => {
-        // document.getElementById("logo-sidebar")?.classList.remove("-translate-x-full")
-        if (document.getElementById("logo-sidebar")?.classList.contains("-translate-x-full")) {
-            document.getElementById("logo-sidebar")?.classList.remove("-translate-x-full")
-        } else {
-            document.getElementById("logo-sidebar")?.classList.add("-translate-x-full")
+        const sidebar = document.getElementById("logo-sidebar");
+        if (!sidebar) return;
+        // Only toggle on small screens (md:hidden)
+        if (window.innerWidth < 768) {
+            sidebar.classList.toggle("-translate-x-full");
         }
-
-      }
+    }
     return (
         <nav className="fixed top-0 z-50 w-full bg-white border-b border-gray-200 dark:bg-gray-800 dark:border-gray-700">
             <div className="px-3 py-3 lg:px-5 lg:pl-3">

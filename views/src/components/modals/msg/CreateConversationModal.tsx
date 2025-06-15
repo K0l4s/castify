@@ -135,10 +135,10 @@ const CreateConversationModal = (props: ConversationModalProps) => {
             closeOnOutsideClick
         >
             <div className="p-4 space-y-4">
-                <div className="flex flex-col gap-3">
+                <div className="flex flex-col gap-3 dark:text-white text-black">
                     {/* Conversation Name */}
                     <div>
-                        <label htmlFor="conversation-name" className="block text-sm font-semibold text-gray-600">
+                        <label htmlFor="conversation-name" className=" block text-sm font-semibold dark:text-gray-200 text-gray-600">
                             Conversation Name
                         </label>
                         <input

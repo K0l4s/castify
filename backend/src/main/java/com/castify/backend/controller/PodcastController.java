@@ -11,17 +11,13 @@ import com.castify.backend.models.user.UserModel;
 import com.castify.backend.service.ffmpeg.IFFmpegService;
 import com.castify.backend.service.genre.IGenreService;
 
-import com.castify.backend.service.podcast.IVideoTranscribe;
-import com.castify.backend.service.podcast.VideoTranscribeService;
+import com.castify.backend.service.podcast.*;
 
 import com.castify.backend.service.podcastLike.IPodcastLikeService;
 
-import com.castify.backend.service.podcast.TrendingPodcastService;
 import com.castify.backend.service.uploadFile.IUploadFileService;
 import com.castify.backend.service.user.IUserService;
 import com.castify.backend.service.user.UserServiceImpl;
-import com.castify.backend.service.podcast.IPodcastService;
-import com.castify.backend.service.podcast.PodcastServiceImpl;
 import com.castify.backend.utils.FileUtils;
 import io.jsonwebtoken.MalformedJwtException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -47,7 +43,10 @@ import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
 import java.util.logging.Logger;
 
 @RestController
@@ -88,6 +87,7 @@ public class PodcastController {
 
     @Autowired
     private TrendingPodcastService trendingPodcastService;
+
 
     @PostMapping(value = "/create", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<?> createPodcast(
@@ -175,6 +175,7 @@ public class PodcastController {
 
             // ✅ Không xài lại MultipartFile nữa. Dùng video đã lưu
             videoTranscribeService.transcribeVideo(realVideoFile, podcastModel.getId());
+
 
             return ResponseEntity.ok(podcastModel);
         } catch (Exception e) {
@@ -512,6 +513,87 @@ public class PodcastController {
             throw new RuntimeException("File size exceeds limit of 1GB");
         }
     }
+    @GetMapping("/video/by-quality")
+    public ResponseEntity<Resource> getVideoByQuality(
+            @RequestParam String basePath,
+            @RequestParam int quality,
+            @RequestParam String podcastId,
+            HttpServletRequest request
+    ) {
+        try {
+            Path videoFolderPath = Paths.get(videoBasePath).resolve(basePath).normalize();
+            File folder = videoFolderPath.toFile();
+
+            if (!folder.exists() || !folder.isDirectory()) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+            }
+
+            // Lấy tất cả các file video_XXXp.mp4
+            File[] files = folder.listFiles((dir, name) -> name.matches(podcastId+"_\\d{3,4}p\\.mp4"));
+
+            if (files == null || files.length == 0) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+            }
+
+            // Parse các độ phân giải hiện có
+            TreeMap<Integer, File> qualityMap = new TreeMap<>();
+            for (File file : files) {
+                String name = file.getName(); // video_480p.mp4
+                try {
+                    int res = Integer.parseInt(name.replaceAll("video_(\\d{3,4})p\\.mp4", "$1"));
+                    qualityMap.put(res, file);
+                } catch (Exception ignored) {}
+            }
+
+            // Tìm chất lượng gần nhất thấp hơn hoặc bằng yêu cầu
+            Integer selectedQuality = qualityMap.floorKey(quality);
+            if (selectedQuality == null) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+            }
+
+            File selectedFile = qualityMap.get(selectedQuality);
+            Resource resource = new UrlResource(selectedFile.toURI());
+
+            // Xử lý header Range (giống như hàm getVideo cũ)
+            long fileLength = selectedFile.length();
+            String range = request.getHeader("Range");
+
+            if (range != null) {
+                long start = 0, end = fileLength - 1;
+                String[] ranges = range.replace("bytes=", "").split("-");
+                if (!ranges[0].isEmpty()) start = Long.parseLong(ranges[0]);
+                if (ranges.length > 1 && !ranges[1].isEmpty()) end = Long.parseLong(ranges[1]);
+
+                if (start > end || end >= fileLength) {
+                    return ResponseEntity.status(HttpStatus.REQUESTED_RANGE_NOT_SATISFIABLE)
+                            .header("Content-Range", "bytes */" + fileLength)
+                            .build();
+                }
+
+                long contentLength = end - start + 1;
+                InputStream inputStream = Files.newInputStream(selectedFile.toPath());
+                inputStream.skip(start);
+
+                return ResponseEntity.status(HttpStatus.PARTIAL_CONTENT)
+                        .header(HttpHeaders.CONTENT_TYPE, "video/mp4")
+                        .header(HttpHeaders.CONTENT_RANGE, "bytes " + start + "-" + end + "/" + fileLength)
+                        .header(HttpHeaders.ACCEPT_RANGES, "bytes")
+                        .contentLength(contentLength)
+                        .body(new InputStreamResource(inputStream));
+            } else {
+                return ResponseEntity.ok()
+                        .header(HttpHeaders.CONTENT_TYPE, "video/mp4")
+                        .header(HttpHeaders.ACCEPT_RANGES, "bytes")
+                        .contentLength(fileLength)
+                        .body(resource);
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+        }
+    }
+
 
     public String processAndUploadThumbnail(MultipartFile originalThumbnail, Path userDir) throws IOException, InterruptedException {
         // Save original to temp file

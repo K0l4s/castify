@@ -5,6 +5,7 @@ import { FaRegListAlt } from 'react-icons/fa';
 import { Link } from "react-router-dom";
 import { MdOutlineFilterFrames } from "react-icons/md";
 import { BsCalendar2Event } from "react-icons/bs";
+import SidebarLink from "./SidebarLink";
 
 
 
@@ -16,7 +17,7 @@ const AdminSidebar = () => {
         <div className="h-full px-3 pb-4 overflow-y-auto bg-white dark:bg-gray-800">
           <ul className="space-y-2 font-medium">
             <li>
-              <Link to="/admin/dashboard"
+              {/* <Link to="/admin/dashboard"
                 className={childrenClass}>
                 <AiOutlineDashboard />
                 Dashboard</Link>
@@ -24,10 +25,6 @@ const AdminSidebar = () => {
                 className={childrenClass}>
                 <FaUsersCog />
                 User Management</Link>
-              {/* <Link to="/admin/podcast"
-                className={childrenClass}>
-                <PiApplePodcastsLogoFill />
-                Podcast Management</Link> */}
               <Link to="/admin/report"
                 className={childrenClass}>
                 <TbReport />
@@ -46,7 +43,14 @@ const AdminSidebar = () => {
                 className={childrenClass}>
                 <BsCalendar2Event />
                 Event Management
-              </Link>
+              </Link> */}
+              <SidebarLink to="/admin/dashboard" icon={<AiOutlineDashboard />} label="Dashboard" />
+              <SidebarLink to="/admin/user" icon={<FaUsersCog />} label="User Management" />
+              <SidebarLink to="/admin/report" icon={<TbReport />} label="Report Management" />
+              <SidebarLink to="/admin/genre" icon={<FaRegListAlt />} label="Genre Management" />
+              <SidebarLink to="/admin/frame" icon={<MdOutlineFilterFrames />} label="Frame Management" />
+              <SidebarLink to="/admin/event" icon={<BsCalendar2Event />} label="Event Management" />
+              
             </li>
           </ul>
         </div>

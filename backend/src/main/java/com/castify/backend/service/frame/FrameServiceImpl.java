@@ -122,7 +122,6 @@ public class FrameServiceImpl implements IFrameService{
     @Override
     public List<FrameModel> getAllFrames() throws Exception {
         List<FrameEntity> frames = frameRepository.findAll();
-        UserEntity currentUser = userService.getUserByAuthentication();
 
         return frames.stream().map(frameEntity -> modelMapper.map(frameEntity, FrameModel.class)).collect(Collectors.toList());
     }

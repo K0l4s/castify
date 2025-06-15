@@ -49,6 +49,49 @@ const CustomPodcastVideo = ({
     const [nextPodcast, setNextPodcast] = useState<Podcast>({} as Podcast);
     const location = useLocation();
     const queryParams = new URLSearchParams(location.search);
+    const [ccPosition, setCcPosition] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
+    const handleCCDragStart = (e: React.MouseEvent<HTMLDivElement>) => {
+        e.preventDefault();
+        const ccElement = e.currentTarget;
+        const startX = e.clientX - ccElement.offsetLeft;
+        const startY = e.clientY - ccElement.offsetTop;
+
+        const handleMouseMove = (moveEvent: MouseEvent) => {
+            const x = moveEvent.clientX - startX;
+            const y = moveEvent.clientY - startY;
+            setCcPosition({ x, y });
+        };
+
+        const handleMouseUp = () => {
+            document.removeEventListener("mousemove", handleMouseMove);
+            document.removeEventListener("mouseup", handleMouseUp);
+        };
+
+        document.addEventListener("mousemove", handleMouseMove);
+        document.addEventListener("mouseup", handleMouseUp);
+    };
+    const handleCCTouchStart = (e: React.TouchEvent<HTMLDivElement>) => {
+        e.preventDefault();
+        const ccElement = e.currentTarget;
+        const touch = e.touches[0];
+        const startX = touch.clientX - ccElement.offsetLeft;
+        const startY = touch.clientY - ccElement.offsetTop;
+
+        const handleTouchMove = (moveEvent: TouchEvent) => {
+            const touchMove = moveEvent.touches[0];
+            const x = touchMove.clientX - startX;
+            const y = touchMove.clientY - startY;
+            setCcPosition({ x, y });
+        };
+
+        const handleTouchEnd = () => {
+            document.removeEventListener("touchmove", handleTouchMove);
+            document.removeEventListener("touchend", handleTouchEnd);
+        };
+
+        document.addEventListener("touchmove", handleTouchMove);
+        document.addEventListener("touchend", handleTouchEnd);
+    }
     const id = queryParams.get("pid") as string | "";
 
     const [videoTracking, setVideoTracking] = useState<VideoTracking>();
@@ -75,8 +118,14 @@ const CustomPodcastVideo = ({
             // setCurrentTime(videoTracking.pauseTime);
             setShowConfirmBox(true);
             // setIsPlaying(true);
-        }
-    }, [videoRef, videoTracking]);
+        } else
+            if (videoRef.current && !videoTracking) {
+                // If no tracking data, start from the beginning
+                videoRef.current.currentTime = 0;
+                setCurrentTime(0);
+                setIsPlaying(true);
+            }
+    }, [videoRef, videoTracking, podcastId]);
     // Countdown state for next video
     const [showNextCountdown, setShowNextCountdown] = useState(false);
     const [countdown, setCountdown] = useState(5);
@@ -309,7 +358,7 @@ const CustomPodcastVideo = ({
 
     // For transcript list, highlight the current one
     const renderTranscriptList = () => (
-        <div className="max-h-64 overflow-y-auto bg-black/80 rounded-lg p-4 mt-2 text-white text-sm shadow-lg">
+        <div className="max-h-80 overflow-y-auto bg-black/80 rounded-lg p-4 mt-2 text-white text-sm shadow-lg">
             {transcripts.map((t) => (
                 <div
                     key={t.id}
@@ -419,7 +468,7 @@ const CustomPodcastVideo = ({
             >
                 <video
                     ref={videoRef}
-                    className={`w-full ease-in-out duration-300 ${isFullscreen ? "h-screen" : "h-[480px]"} rounded-xl m-auto`}
+                    className={`w-full ease-in-out duration-300 ${isFullscreen ? "h-screen" : "max-h-[720px]"} rounded-xl m-auto`}
                     poster={posterSrc}
                     src={videoSrc}
                     autoPlay={true}
@@ -454,8 +503,28 @@ const CustomPodcastVideo = ({
 
                 {/* Transcript overlay (current) - CC */}
                 {showCC && currentTranscript && (
-                    <div className="absolute left-1/2 bottom-28 transform -translate-x-1/2 z-20">
-                        <div className="bg-black/80 text-white px-4 py-2 rounded-lg text-base font-medium shadow-lg max-w-xl text-center select-none">
+                    <div
+                        className="absolute z-20 cursor-move"
+                        style={{
+                            left: ccPosition.x,
+                            top: ccPosition.y,
+                            opacity: 0.7,
+                            maxWidth: "90vw",
+                            minWidth: 320,
+                            minHeight: 80,
+                            pointerEvents: "auto",
+                        }}
+                        onMouseDown={handleCCDragStart}
+                        onTouchStart={handleCCTouchStart}
+                    >
+                        <div
+                            className="bg-black text-white px-6 py-3 rounded-2xl text2xl font-bold shadow-2xl text-center select-none"
+                            style={{
+                                userSelect: "none",
+                                lineHeight: 1,
+                                letterSpacing: "0.02em",
+                            }}
+                        >
                             {currentTranscript.text}
                         </div>
                     </div>
@@ -842,8 +911,8 @@ const CustomPodcastVideo = ({
                 }}
                 onCancel={() => {
                     setShowConfirmBox(false)
-                    if (videoRef.current)
-                        videoRef.current.currentTime = 0;
+                    // if (videoRef.current)
+                    //     videoRef.current.currentTime = 0;
 
                 }}
                 confirmText="Yes"

@@ -45,7 +45,7 @@ public class CommentServiceImpl implements ICommentService {
     private UserActivityRepository userActivityRepository;
 
     @Autowired
-    private INotificationService notificationService = new NotificationServiceImpl();
+    private INotificationService notificationService;
     @Autowired
     private IBlacklistService blacklistService;
     @Override
