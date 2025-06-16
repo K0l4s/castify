@@ -105,7 +105,7 @@ public class PodcastController {
             UserModel userModel = userService.getUserByToken();
             // Tạo thư mục user-specific
             Path userPodcastDir = FileUtils.createUserDirectory(baseUploadDir, userModel.getId(), userModel.getEmail(), "podcast");
-            videoTranscodeService.transcodeToHLS(videoFile,baseUploadDir);
+//            videoTranscodeService.transcodeToHLS(videoFile,baseUploadDir);
 
             // Format tên file
             String formattedVideoFileName = FileUtils.formatFileName(videoFile.getOriginalFilename());
