@@ -12,6 +12,7 @@ import { useDispatch } from 'react-redux';
 import { updateAvatar, updateCover } from '../../../redux/slice/authSlice';
 import defaultAvatar from '../../../assets/images/default_avatar.jpg';
 import { locationService } from '../../../services/LocationService';
+import CropModal from './CropModal';
 
 interface SettingModals {
   isOpen: boolean;
@@ -21,6 +22,7 @@ const SettingModals = (props: SettingModals) => {
   const [provincesList, setProvincesList] = useState<any[]>([]);
   const [districtsList, setDistrictsList] = useState<any[]>([]);
   const [wardsList, setWardsList] = useState<any[]>([]);
+  const [avatarCropSrc, setAvatarCropSrc] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchProvinces = async () => {
@@ -189,22 +191,49 @@ const SettingModals = (props: SettingModals) => {
     setIsEdit(false);
   };
 
+  // const handleChangeAvatar = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  //   toast.loading("Uploading avatar...");
+  //   const file = e.target.files?.[0];
+  //   if (file) {
+  //     await userService.changeAvatar(file).then(() => {
+  //       toast.clearAllToasts();
+  //       toast.success("Avatar updated successfully");
+  //       setUser(prev => prev ? { ...prev, avatarUrl: URL.createObjectURL(file) } : prev);
+  //       dispatch(updateAvatar(URL.createObjectURL(file)))
+  //     }
+  //     ).catch(err => {
+  //       toast.clearAllToasts();
+  //       toast.error("Error update avatar" + err.message);
+  //     });
+  //   }
+  // };
   const handleChangeAvatar = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    toast.loading("Uploading avatar...");
     const file = e.target.files?.[0];
     if (file) {
-      await userService.changeAvatar(file).then(() => {
-        toast.clearAllToasts();
-        toast.success("Avatar updated successfully");
-        setUser(prev => prev ? { ...prev, avatarUrl: URL.createObjectURL(file) } : prev);
-        dispatch(updateAvatar(URL.createObjectURL(file)))
-      }
-      ).catch(err => {
-        toast.clearAllToasts();
-        toast.error("Error update avatar"+err.message);
-      });
+      const reader = new FileReader();
+      reader.onload = () => {
+        setAvatarCropSrc(reader.result as string); // Gọi modal crop
+      };
+      reader.readAsDataURL(file);
     }
   };
+  const handleCroppedAvatar = async (blob: Blob) => {
+    toast.loading("Uploading avatar...");
+    try {
+      // Convert Blob to File
+      const file = new File([blob], "avatar.png", { type: blob.type || "image/png", lastModified: Date.now() });
+      await userService.changeAvatar(file);
+      const url = URL.createObjectURL(file);
+      setUser(prev => prev ? { ...prev, avatarUrl: url } : prev);
+      dispatch(updateAvatar(url));
+      toast.clearAllToasts();
+      toast.success("Avatar updated successfully");
+    } catch (err: any) {
+      toast.clearAllToasts();
+      toast.error("Error update avatar: " + err.message);
+    }
+  };
+
 
   const handleChangeCover = async (e: React.ChangeEvent<HTMLInputElement>) => {
     toast.loading("Uploading cover...");
@@ -426,6 +455,14 @@ const SettingModals = (props: SettingModals) => {
         </form>
       </div>
       {isLoading && <Loading />}
+      {avatarCropSrc && (
+        <CropModal
+          imageSrc={avatarCropSrc}
+          onClose={() => setAvatarCropSrc(null)}
+          onCropComplete={handleCroppedAvatar}
+        />
+      )}
+
     </CustomModal>
   );
 };
