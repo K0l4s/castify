@@ -106,44 +106,56 @@ const CustomPodcastVideo = ({
                 console.error("Error fetching video tracking:", error);
             }
         };
-        // console.log(user)
         if (currentUserId && id) {
             fetchVideoTracking();
         }
     }, [id]);
-    // Video tracking logic
     useEffect(() => {
         if (videoRef.current && videoTracking) {
-            // videoRef.current.currentTime = videoTracking.pauseTime;
-            // setCurrentTime(videoTracking.pauseTime);
             setShowConfirmBox(true);
-            // setIsPlaying(true);
         } else
             if (videoRef.current && !videoTracking) {
-                // If no tracking data, start from the beginning
                 videoRef.current.currentTime = 0;
                 setCurrentTime(0);
                 setIsPlaying(true);
             }
     }, [videoRef, videoTracking, podcastId]);
-    // Countdown state for next video
     const [showNextCountdown, setShowNextCountdown] = useState(false);
     const [countdown, setCountdown] = useState(5);
     const countdownTimeout = useRef<NodeJS.Timeout | null>(null);
-
-    // Prevent multiple triggers of next video navigation
     const hasNavigatedToNext = useRef(false);
-
-    // New state for CC overlay (black transcript overlay)
     const [showCC, setShowCC] = useState<boolean>(false);
-
-    // Playback speed state
     const [playbackRate, setPlaybackRate] = useState<number>(1);
-
-    // Responsive menu bar state
-    const [menuOpen, setMenuOpen] = useState(false);
-
     const navigate = useNavigate();
+
+    // --- Buffered state ---
+    const [buffered, setBuffered] = useState<number>(0);
+
+    // Update buffered state
+    const updateBuffered = () => {
+        if (videoRef.current && videoRef.current.buffered.length > 0) {
+            let max = 0;
+            for (let i = 0; i < videoRef.current.buffered.length; i++) {
+                if (videoRef.current.buffered.end(i) > max) {
+                    max = videoRef.current.buffered.end(i);
+                }
+            }
+            setBuffered(max);
+        }
+    };
+
+    useEffect(() => {
+        const video = videoRef.current;
+        if (!video) return;
+        video.addEventListener("progress", updateBuffered);
+        video.addEventListener("timeupdate", updateBuffered);
+        video.addEventListener("loadedmetadata", updateBuffered);
+        return () => {
+            video.removeEventListener("progress", updateBuffered);
+            video.removeEventListener("timeupdate", updateBuffered);
+            video.removeEventListener("loadedmetadata", updateBuffered);
+        };
+    }, [videoRef]);
 
     useEffect(() => {
         const fetchNextPodcast = async () => {
@@ -155,7 +167,6 @@ const CustomPodcastVideo = ({
             }
         };
         fetchNextPodcast();
-        // Reset navigation flag when podcastId changes
         hasNavigatedToNext.current = false;
         setShowNextCountdown(false);
         setCountdown(5);
@@ -255,28 +266,6 @@ const CustomPodcastVideo = ({
         }
     };
 
-    // Handle playback rate change
-    const handleSpeedUp = () => {
-        if (!videoRef.current) return;
-        const currentIdx = SPEEDS.findIndex((s) => s === playbackRate);
-        if (currentIdx < SPEEDS.length - 1) {
-            const newRate = SPEEDS[currentIdx + 1];
-            videoRef.current.playbackRate = newRate;
-            setPlaybackRate(newRate);
-        }
-    };
-
-    const handleSpeedDown = () => {
-        if (!videoRef.current) return;
-        const currentIdx = SPEEDS.findIndex((s) => s === playbackRate);
-        if (currentIdx > 0) {
-            const newRate = SPEEDS[currentIdx - 1];
-            videoRef.current.playbackRate = newRate;
-            setPlaybackRate(newRate);
-        }
-    };
-
-    // Handle playback rate select
     const handleSpeedSelect = (e: React.ChangeEvent<HTMLSelectElement>) => {
         const newRate = parseFloat(e.target.value);
         if (videoRef.current) {
@@ -285,7 +274,6 @@ const CustomPodcastVideo = ({
         setPlaybackRate(newRate);
     };
 
-    // Sync playbackRate with video element
     useEffect(() => {
         if (videoRef.current) {
             videoRef.current.playbackRate = playbackRate;
@@ -305,7 +293,6 @@ const CustomPodcastVideo = ({
 
     useEffect(() => {
         if ("mediaSession" in navigator) {
-            // Set metadata for the media session
             navigator.mediaSession.metadata = new MediaMetadata({
                 title: title ? title : "Sample Podcast Title",
                 artist: user ? user.fullname : "Sample User Name",
@@ -316,7 +303,6 @@ const CustomPodcastVideo = ({
                 ],
             });
 
-            // Set playback actions
             navigator.mediaSession.setActionHandler("play", () => {
                 if (videoRef.current) {
                     videoRef.current.play();
@@ -338,15 +324,12 @@ const CustomPodcastVideo = ({
                 }
             });
             navigator.mediaSession.setActionHandler("previoustrack", () => {
-                // Logic for previous track
             });
             navigator.mediaSession.setActionHandler("nexttrack", () => {
-                // Logic for next track
             });
         }
     }, []);
 
-    // Find the current transcript segment based on currentTime
     const currentTranscript = useMemo(() => {
         if (!transcripts || transcripts.length === 0) return null;
         return transcripts.find(
@@ -356,7 +339,6 @@ const CustomPodcastVideo = ({
         );
     }, [currentTime, transcripts]);
 
-    // For transcript list, highlight the current one
     const renderTranscriptList = () => (
         <div className="max-h-80 overflow-y-auto bg-black/80 rounded-lg p-4 mt-2 text-white text-sm shadow-lg">
             {transcripts.map((t) => (
@@ -368,7 +350,7 @@ const CustomPodcastVideo = ({
                         }`}
                     onClick={() => {
                         if (videoRef.current) {
-                            videoRef.current.currentTime = t.start + 0.01; // avoid edge case at exact start
+                            videoRef.current.currentTime = t.start + 0.01;
                             setCurrentTime(t.start + 0.01);
                         }
                     }}
@@ -380,12 +362,9 @@ const CustomPodcastVideo = ({
         </div>
     );
 
-    // --- FIX: handle auto next video when ended ---
-    // We use a ref to store the last ended event time to prevent double triggers
     const lastEndedTimeRef = useRef<number | null>(null);
 
     const handleVideoEnded = () => {
-        // Prevent multiple triggers
         if (hasNavigatedToNext.current) return;
         if (nextPodcast && nextPodcast.id) {
             setShowNextCountdown(true);
@@ -395,16 +374,14 @@ const CustomPodcastVideo = ({
         }
     };
 
-    // Listen for currentTime updates to detect if video is at end (for browsers that don't fire onEnded reliably)
     useEffect(() => {
         if (
             duration > 0 &&
-            currentTime >= duration - 0.1 && // allow a small threshold
+            currentTime >= duration - 0.1 &&
             nextPodcast &&
             nextPodcast.id &&
             !hasNavigatedToNext.current
         ) {
-            // Prevent double trigger if just ended
             if (
                 !lastEndedTimeRef.current ||
                 Date.now() - lastEndedTimeRef.current > 1000
@@ -415,10 +392,8 @@ const CustomPodcastVideo = ({
                 lastEndedTimeRef.current = Date.now();
             }
         }
-        // eslint-disable-next-line
     }, [currentTime, duration, nextPodcast]);
 
-    // Countdown effect
     useEffect(() => {
         if (showNextCountdown) {
             if (countdown > 0) {
@@ -426,7 +401,6 @@ const CustomPodcastVideo = ({
                     setCountdown((c) => c - 1);
                 }, 1000);
             } else if (countdown === 0 && nextPodcast && nextPodcast.id) {
-                // Always navigate when countdown reaches 0
                 hasNavigatedToNext.current = true;
                 navigate(`/watch?pid=${nextPodcast.id}`);
             }
@@ -436,12 +410,8 @@ const CustomPodcastVideo = ({
                 clearTimeout(countdownTimeout.current);
             }
         };
-        // eslint-disable-next-line
     }, [showNextCountdown, countdown, nextPodcast, navigate]);
 
-    // Responsive: collapse menu bar on small screens
-    // We'll use a hamburger menu for <md screens for the control bar
-    // The menu bar will be hidden under a button on small screens
     function formatTimeFromSeconds(seconds?: number): string {
         if (seconds === undefined) return '';
 
@@ -463,12 +433,13 @@ const CustomPodcastVideo = ({
             className={`container mx-auto relative group ${isFullscreen ? "fullscreen" : ""}`}
         >
             <div
-                className="relative rounded-xl overflow-hidden shadow-2xl bg-black"
+                className="relative rounded-2xl overflow-hidden shadow-2xl bg-gradient-to-br from-black via-gray-900 to-gray-800"
                 onMouseMove={handleMouseMove}
             >
+                {/* Video element */}
                 <video
                     ref={videoRef}
-                    className={`w-full ease-in-out duration-300 ${isFullscreen ? "h-screen" : "max-h-[720px]"} rounded-xl m-auto`}
+                    className={`w-full transition-all duration-300 ${isFullscreen ? "h-screen" : "max-h-[720px]"} rounded-2xl m-auto`}
                     poster={posterSrc}
                     src={videoSrc}
                     autoPlay={true}
@@ -482,22 +453,37 @@ const CustomPodcastVideo = ({
                 {/* Overlay gradient */}
                 <div
                     onClick={handlePlayPause}
-                    className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+                    className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 cursor-pointer"
                 />
-                {/* user's avatar */}
-                {user?.avatarUrl && title && (
-                    <div
-                        className={`px-3 absolute right-0 duration-300 ease-in-out flex items-center space-x-4 ${showControls ? "bottom-32" : "bottom-5"
-                            }`}
-                    >
-                        <Avatar
-                            width="w-10"
-                            height="h-10"
-                            avatarUrl={user.avatarUrl}
-                            usedFrame={user.usedFrame}
-                            alt="avatar"
-                            onClick={() => navigate(`/profile/${user.username}`)}
-                        />
+
+                {/* User's avatar and title */}
+                {/* Top overlay: avatar, title, and close button */}
+                {showControls && (
+                    <div className="absolute top-0 left-0 right-0 flex items-center justify-between px-4 py-2 m-4 z-20 pointer-events-none">
+                        <div className="flex items-center space-x-3 pointer-events-auto">
+                            {user?.avatarUrl && (
+                                <Avatar
+                                    width="w-10"
+                                    height="h-10"
+                                    avatarUrl={user.avatarUrl}
+                                    usedFrame={user.usedFrame}
+                                    alt="avatar"
+                                    onClick={() => navigate(`/profile/${user.username}`)}
+                                />
+                            )}
+                            {title && (
+                                <span className="text-white font-semibold text-base truncate max-w-xs">{title}</span>
+                            )}
+                        </div>
+                        {/* Example: Close button (optional, remove if not needed) */}
+                        {/* <button
+                            className="pointer-events-auto p-2 rounded-full bg-black/40 hover:bg-black/70 text-white transition"
+                            onClick={() => navigate(-1)}
+                        >
+                            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                        </button> */}
                     </div>
                 )}
 
@@ -508,7 +494,7 @@ const CustomPodcastVideo = ({
                         style={{
                             left: ccPosition.x,
                             top: ccPosition.y,
-                            opacity: 0.7,
+                            opacity: 0.85,
                             maxWidth: "90vw",
                             minWidth: 320,
                             minHeight: 80,
@@ -518,10 +504,10 @@ const CustomPodcastVideo = ({
                         onTouchStart={handleCCTouchStart}
                     >
                         <div
-                            className="bg-black text-white px-6 py-3 rounded-2xl text2xl font-bold shadow-2xl text-center select-none"
+                            className="bg-black/90 text-yellow-300 px-8 py-4 rounded-2xl text-2xl font-bold shadow-2xl text-center select-none border-2 border-yellow-400"
                             style={{
                                 userSelect: "none",
-                                lineHeight: 1,
+                                lineHeight: 1.2,
                                 letterSpacing: "0.02em",
                             }}
                         >
@@ -530,35 +516,33 @@ const CustomPodcastVideo = ({
                     </div>
                 )}
 
-
-
                 {/* Countdown overlay when video ends */}
                 {showNextCountdown && nextPodcast && nextPodcast.id && (
                     <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/80 z-50">
-                        <div className="bg-white/90 rounded-lg px-8 py-6 shadow-2xl flex flex-col items-center">
-                            <div className="text-lg font-semibold text-black mb-2">
+                        <div className="bg-white/95 rounded-2xl px-10 py-8 shadow-2xl flex flex-col items-center border-2 border-yellow-400">
+                            <div className="text-xl font-bold text-black mb-3">
                                 Sắp chuyển sang video tiếp theo:
                             </div>
-                            <div className="flex items-center space-x-3 mb-4">
+                            <div className="flex items-center space-x-4 mb-4">
                                 <img
                                     src={nextPodcast.thumbnailUrl || ""}
                                     alt={nextPodcast.title}
-                                    className="w-16 h-16 rounded object-cover border border-gray-300"
+                                    className="w-20 h-20 rounded-xl object-cover border-2 border-yellow-400 shadow"
                                 />
                                 <div>
-                                    <div className="font-bold text-black">{nextPodcast.title}</div>
+                                    <div className="font-bold text-black text-lg">{nextPodcast.title}</div>
                                     <div className="text-gray-600 text-sm">{nextPodcast.user?.fullname || nextPodcast.username}</div>
                                 </div>
                             </div>
-                            <div className="text-2xl font-bold text-yellow-500 mb-4">{countdown}s</div>
-                            <div className="flex space-x-4">
+                            <div className="text-3xl font-extrabold text-yellow-500 mb-4">{countdown}s</div>
+                            <div className="flex space-x-6">
                                 <button
                                     onClick={() => {
                                         setShowNextCountdown(false);
                                         setCountdown(5);
                                         hasNavigatedToNext.current = false;
                                     }}
-                                    className="px-4 py-2 rounded bg-gray-300 text-black font-semibold hover:bg-gray-400 transition"
+                                    className="px-6 py-2 rounded-lg bg-gray-200 text-black font-semibold hover:bg-gray-300 transition"
                                 >
                                     Hủy
                                 </button>
@@ -569,7 +553,7 @@ const CustomPodcastVideo = ({
                                         setCountdown(5);
                                         navigate(`/watch?pid=${nextPodcast.id}`);
                                     }}
-                                    className="px-4 py-2 rounded bg-yellow-400 text-black font-semibold hover:bg-yellow-500 transition"
+                                    className="px-6 py-2 rounded-lg bg-yellow-400 text-black font-bold hover:bg-yellow-500 transition"
                                 >
                                     Xem ngay
                                 </button>
@@ -579,12 +563,19 @@ const CustomPodcastVideo = ({
                 )}
 
                 {/* Controls container */}
-                <div className={`absolute bottom-0 left-0 transition-opacity duration-300 right-0 px-2 pb-4 md:px-6 md:pb-6  ${showControls ? "opacity-100" : "opacity-0"}`}>
+                <div className={`absolute bottom-0 left-0 right-0 px-3 pb-6 transition-opacity duration-300 ${showControls ? "opacity-100" : "opacity-0"}`}>
                     {/* Progress bar */}
-                    <div
-                        className={`mb-4 transition-opacity duration-300 ${showControls ? "opacity-100" : "opacity-0"
-                            }`}
-                    >
+                    <div className="mb-5 relative">
+                        <div
+                            className="absolute left-0 top-1/2 h-2 rounded-lg pointer-events-none"
+                            style={{
+                                width: `${duration > 0 ? (buffered / duration) * 100 : 0}%`,
+                                transform: "translateY(-25%)",
+                                background: "#fff9db", // màu vàng nhạt
+                                zIndex: 1,
+                            }}
+                        />
+                        {/* Progress line */}
                         <input
                             type="range"
                             min="0"
@@ -594,20 +585,20 @@ const CustomPodcastVideo = ({
                             onChange={handleSeek}
                             onMouseMove={handleMouseMoveOnSlider}
                             onMouseLeave={handleMouseLeaveSlider}
-                            className="w-full cursor-pointer appearance-none h-1.5 rounded-lg bg-white/30 hover:bg-white/40 transition-all"
+                            className="w-full cursor-pointer appearance-none h-2 rounded-lg bg-yellow-400/30 hover:bg-yellow-400/50 transition-all relative"
                             style={{
-                                background: `linear-gradient(to right,rgb(250, 190, 24) ${(
-                                    (currentTime / duration) *
-                                    100
-                                ).toFixed(2)}%, rgba(255,255,255,0.3) 0%)`,
+                                background: `linear-gradient(to right, #fabe18 ${(currentTime / duration) * 100}%, rgba(255,255,255,0.2) 0%)`,
+                                zIndex: 2,
+                                position: "relative",
                             }}
                         />
                         {hoverTime !== null && (
                             <div
-                                className="absolute bg-black/90 backdrop-blur-sm text-white px-2.5 py-1 text-xs rounded-lg shadow-xl"
+                                className="absolute bg-black/90 backdrop-blur-sm text-white px-3 py-1 text-xs rounded-lg shadow-xl"
                                 style={{
                                     left: `${(hoverTime / duration) * 100}%`,
                                     transform: "translateX(-50%)",
+                                    bottom: "120%",
                                 }}
                             >
                                 {formatTime(hoverTime)}
@@ -615,112 +606,42 @@ const CustomPodcastVideo = ({
                         )}
                     </div>
 
-                    {/* Responsive: Play/Pause/Prev/Next controls OUTSIDE menu bar on mobile */}
-                    <div className={`flex md:hidden justify-center items-center space-x-4 mb-3 transition-opacity duration-300 ${showControls ? "opacity-100" : "opacity-0"}`}>
-                        <Tooltip text="Rewind 10s">
-                            <button
-                                onClick={() =>
-                                    videoRef.current &&
-                                    (videoRef.current.currentTime -= 10)
-                                }
-                                className="p-2 rounded-full text-white hover:bg-white/20 transition-all duration-200"
-                            >
-                                <BiLeftArrow className="w-5 h-5" />
-                            </button>
-                        </Tooltip>
-                        <button
-                            onClick={handlePlayPause}
-                            className="w-12 h-12 flex justify-center items-center rounded-full bg-white/90 hover:bg-white text-yellow-600 shadow-lg transform hover:scale-105 transition-all duration-200"
-                        >
-                            {isPlaying ? (
-                                <BiPause className="w-6 h-6" />
-                            ) : (
-                                <BiPlay className="w-6 h-6 ml-1" />
-                            )}
-                        </button>
-                        <Tooltip text="Forward 10s">
-                            <button
-                                onClick={() =>
-                                    videoRef.current &&
-                                    (videoRef.current.currentTime += 10)
-                                }
-                                className="p-2 rounded-full text-white hover:bg-white/20 transition-all duration-200"
-                            >
-                                <BiRightArrow className="w-5 h-5" />
-                            </button>
-                        </Tooltip>
-                    </div>
-
-                    {/* Responsive menu bar */}
-                    <div className="block md:hidden mb-2">
-                        <button
-                            onClick={() => setMenuOpen((v) => !v)}
-                            className="p-2 rounded-full bg-black/60 text-yellow-400 border border-yellow-400 focus:outline-none"
-                            aria-label="Open controls menu"
-                        >
-                            <svg
-                                className="w-6 h-6"
-                                fill="none"
-                                stroke="currentColor"
-                                viewBox="0 0 24 24"
-                                xmlns="http://www.w3.org/2000/svg"
-                            >
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-                            </svg>
-                        </button>
-                    </div>
-
-                    <div
-                        className={`
-                            transition-opacity duration-300
-                            ${showControls ? "opacity-100" : "opacity-0"}
-                            ${menuOpen ? "block" : "hidden"} 
-                            md:flex md:items-center md:space-x-4 md:opacity-100 md:relative md:bottom-0
-                            flex-col md:flex-row
-                            bg-black/80 md:bg-transparent rounded-lg md:rounded-none p-3 md:p-0
-                            absolute md:static left-1/2 md:left-0 bottom-16 md:bottom-0 transform md:transform-none -translate-x-1/2 md:translate-x-0 z-40
-                        `}
-                        style={{
-                            minWidth: 0,
-                        }}
-                    >
-                        {/* On mobile, hide play/pause/prev/next in menu bar */}
-                        <div className="hidden md:flex flex-row items-center space-x-2 md:space-x-4 w-full">
+                    {/* Main controls row */}
+                    <div className="flex flex-row items-center justify-between w-full space-x-2">
+                        {/* Left controls */}
+                        <div className="flex flex-row items-center space-x-2">
                             <Tooltip text="Rewind 10s">
                                 <button
                                     onClick={() =>
                                         videoRef.current &&
                                         (videoRef.current.currentTime -= 10)
                                     }
-                                    className="p-2 rounded-full text-white hover:bg-white/20 transition-all duration-200"
+                                    className="p-2 rounded-full text-white hover:bg-yellow-400/30 transition"
                                 >
-                                    <BiLeftArrow className="w-5 h-5" />
+                                    <BiLeftArrow className="w-6 h-6" />
                                 </button>
                             </Tooltip>
-
                             <button
                                 onClick={handlePlayPause}
-                                className="w-12 h-12 flex justify-center items-center rounded-full bg-white/90 hover:bg-white text-yellow-600 shadow-lg transform hover:scale-105 transition-all duration-200"
+                                className="w-12 h-12 flex justify-center items-center rounded-full bg-yellow-400 hover:bg-yellow-500 text-black shadow-lg transform hover:scale-105 transition"
                             >
                                 {isPlaying ? (
-                                    <BiPause className="w-6 h-6" />
+                                    <BiPause className="w-7 h-7" />
                                 ) : (
-                                    <BiPlay className="w-6 h-6 ml-1" />
+                                    <BiPlay className="w-7 h-7 ml-1" />
                                 )}
                             </button>
-
                             <Tooltip text="Forward 10s">
                                 <button
                                     onClick={() =>
                                         videoRef.current &&
                                         (videoRef.current.currentTime += 10)
                                     }
-                                    className="p-2 rounded-full text-white hover:bg-white/20 transition-all duration-200"
+                                    className="p-2 rounded-full text-white hover:bg-yellow-400/30 transition"
                                 >
-                                    <BiRightArrow className="w-5 h-5" />
+                                    <BiRightArrow className="w-6 h-6" />
                                 </button>
                             </Tooltip>
-
                             {nextPodcast && nextPodcast.id && (
                                 <Tooltip text="Xem video tiếp theo">
                                     <button
@@ -730,90 +651,28 @@ const CustomPodcastVideo = ({
                                             setCountdown(5);
                                             navigate(`/watch?pid=${nextPodcast.id}`);
                                         }}
-                                        className="p-2 rounded-full text-white hover:bg-white/20 transition-all duration-200"
+                                        className="p-2 rounded-full text-white hover:bg-yellow-400/30 transition"
                                     >
-                                        <MdSkipNext className="w-5 h-5" />
+                                        <MdSkipNext className="w-6 h-6" />
                                     </button>
                                 </Tooltip>
                             )}
-
-
-                            <div className="text-white text-sm font-semibold px-2 select-none flex items-center">
-                                <select
-                                    value={playbackRate}
-                                    onChange={handleSpeedSelect}
-                                    className="bg-black/60 text-white rounded px-2 py-1 border border-yellow-400 focus:outline-none focus:ring-2 focus:ring-yellow-400"
-                                    style={{ minWidth: 60 }}
-                                >
-                                    {SPEEDS.map((speed) => (
-                                        <option key={speed} value={speed}>
-                                            {speed}x
-                                        </option>
-                                    ))}
-                                </select>
-                            </div>
-                            {/* <Tooltip text="Tăng tốc độ">
-                                <button
-                                    onClick={handleSpeedUp}
-                                    className={`p-2 rounded-full text-white hover:bg-white/20 transition-all duration-200 ${playbackRate >= SPEEDS[SPEEDS.length - 1] ? "opacity-50 cursor-not-allowed" : ""
-                                        }`}
-                                    disabled={playbackRate >= SPEEDS[SPEEDS.length - 1]}
-                                >
-                                    <span className="font-bold text-lg">+</span>
-                                </button>
-                            </Tooltip> */}
                         </div>
-                        {/* On mobile, only show speed controls and others in menu bar */}
-                        <div className="flex flex-row items-center space-x-2 md:space-x-4 w-full mt-2 md:mt-0">
-                            {/* Speed Down Button (mobile) */}
-                            <Tooltip text="Giảm tốc độ">
-                                <button
-                                    onClick={handleSpeedDown}
-                                    className={`p-2 rounded-full text-white hover:bg-white/20 transition-all duration-200 ${playbackRate <= SPEEDS[0] ? "opacity-50 cursor-not-allowed" : ""
-                                        } md:hidden`}
-                                    disabled={playbackRate <= SPEEDS[0]}
-                                >
-                                    <span className="font-bold text-lg">-</span>
-                                </button>
-                            </Tooltip>
-                            {/* Speed Select Dropdown (mobile) */}
-                            <div className="text-white text-sm font-semibold px-2 select-none flex items-center md:hidden">
-                                <select
-                                    value={playbackRate}
-                                    onChange={handleSpeedSelect}
-                                    className="bg-black/60 text-white rounded px-2 py-1 border border-yellow-400 focus:outline-none focus:ring-2 focus:ring-yellow-400"
-                                    style={{ minWidth: 60 }}
-                                >
-                                    {SPEEDS.map((speed) => (
-                                        <option key={speed} value={speed}>
-                                            {speed}x
-                                        </option>
-                                    ))}
-                                </select>
-                            </div>
-                            {/* Speed Up Button (mobile) */}
-                            <Tooltip text="Tăng tốc độ">
-                                <button
-                                    onClick={handleSpeedUp}
-                                    className={`p-2 rounded-full text-white hover:bg-white/20 transition-all duration-200 ${playbackRate >= SPEEDS[SPEEDS.length - 1] ? "opacity-50 cursor-not-allowed" : ""
-                                        } md:hidden`}
-                                    disabled={playbackRate >= SPEEDS[SPEEDS.length - 1]}
-                                >
-                                    <span className="font-bold text-lg">+</span>
-                                </button>
-                            </Tooltip>
-                            {/* Volume and time always visible */}
+
+                        {/* Center controls */}
+                        <div className="flex flex-row items-center space-x-3">
+                            {/* Volume */}
                             <div className="flex items-center space-x-2">
                                 {audioLevel === 0 ? (
                                     <BsVolumeMute
-                                        className="text-white w-5 h-5"
+                                        className="text-white w-6 h-6 cursor-pointer"
                                         onClick={() =>
                                             changeAudioLevel(audioLevelHistory)
                                         }
                                     />
                                 ) : (
                                     <BsVolumeUp
-                                        className="text-white w-5 h-5"
+                                        className="text-white w-6 h-6 cursor-pointer"
                                         onClick={() => {
                                             setAudioLevelHistory(audioLevel);
                                             changeAudioLevel(0);
@@ -827,65 +686,71 @@ const CustomPodcastVideo = ({
                                     step="0.01"
                                     value={audioLevel}
                                     onChange={handleChangeAudioLevel}
-                                    className="w-20 h-1.5 rounded-lg cursor-pointer appearance-none"
+                                    className="w-24 h-2 rounded-lg cursor-pointer appearance-none bg-yellow-400/30"
                                     style={{
-                                        background: `linear-gradient(to right,rgb(250, 190, 24) ${audioLevel * 100
-                                            }%, rgba(255,255,255,0.3) 0%)`,
+                                        background: `linear-gradient(to right, #fabe18 ${audioLevel * 100}%, rgba(255,255,255,0.2) 0%)`,
                                     }}
                                 />
                             </div>
-                            <div
-                                className={`left-4 text-white text-sm rounded-full shadow-lg transition-all duration-300 bottom-2`}
-                            >
+                            {/* Time */}
+                            <div className="text-white text-sm font-mono px-2 select-none rounded bg-black/40">
                                 {formatTime(currentTime)} / {formatTime(duration)}
                             </div>
                         </div>
-                        <div className="flex flex-row items-center space-x-2 md:space-x-4 w-full mt-2 md:mt-0">
-                            {/* Transcript list toggle button */}
+
+                        {/* Right controls */}
+                        <div className="flex flex-row items-center space-x-2">
+                            {/* Speed select */}
+                            <select
+                                value={playbackRate}
+                                onChange={handleSpeedSelect}
+                                className="bg-black/60 text-yellow-400 rounded px-3 py-1 border border-yellow-400 focus:outline-none focus:ring-2 focus:ring-yellow-400 font-semibold"
+                                style={{ minWidth: 60 }}
+                            >
+                                {SPEEDS.map((speed) => (
+                                    <option key={speed} value={speed}>
+                                        {speed}x
+                                    </option>
+                                ))}
+                            </select>
+                            {/* Transcript/CC buttons */}
                             <Tooltip text={showTranscript ? "Ẩn transcript" : "Xem transcript"}>
                                 <button
                                     onClick={() => setShowTranscript((v) => !v)}
-                                    className={`px-3 py-1 rounded-full text-xs font-semibold border border-yellow-400 text-yellow-400 bg-black/40 hover:bg-yellow-400 hover:text-black transition-all duration-200`}
+                                    className={`px-3 py-1 rounded-full text-xs font-semibold border border-yellow-400 text-yellow-400 bg-black/40 hover:bg-yellow-400 hover:text-black transition`}
                                 >
                                     {showTranscript ? "Ẩn transcript" : "Xem transcript"}
                                 </button>
                             </Tooltip>
-                            {/* CC (black overlay) toggle button */}
                             <Tooltip text={showCC ? "Ẩn CC" : "Hiện CC"}>
                                 <button
                                     onClick={() => setShowCC((v) => !v)}
-                                    className={`px-3 py-1 rounded-full text-xs font-semibold border border-yellow-400 text-yellow-400 bg-black/40 hover:bg-yellow-400 hover:text-black transition-all duration-200`}
+                                    className={`px-3 py-1 rounded-full text-xs font-semibold border border-yellow-400 text-yellow-400 bg-black/40 hover:bg-yellow-400 hover:text-black transition`}
                                 >
                                     {showCC ? "Ẩn CC" : "Hiện CC"}
                                 </button>
                             </Tooltip>
+                            {/* Fullscreen Button */}
+                            <Tooltip
+                                text={
+                                    isFullscreen
+                                        ? "Exit fullscreen"
+                                        : "Enter fullscreen"
+                                }
+                            >
+                                <button
+                                    onClick={handleFullscreenToggle}
+                                    className="p-2 rounded-full text-white hover:bg-yellow-400/30 transition"
+                                >
+                                    {isFullscreen ? (
+                                        <MdOutlineZoomInMap className="w-6 h-6" />
+                                    ) : (
+                                        <MdOutlineZoomOutMap className="w-6 h-6" />
+                                    )}
+                                </button>
+                            </Tooltip>
                         </div>
                     </div>
-                </div>
-
-                {/* Fullscreen Button */}
-                <div
-                    className={`absolute bottom-6 right-6 z-50 ${showControls ? "opacity-100" : "opacity-0"
-                        }`}
-                >
-                    <Tooltip
-                        text={
-                            isFullscreen
-                                ? "Exit fullscreen"
-                                : "Enter fullscreen"
-                        }
-                    >
-                        <button
-                            onClick={handleFullscreenToggle}
-                            className="p-2 rounded-full text-white hover:bg-white/20 transition-all duration-200"
-                        >
-                            {isFullscreen ? (
-                                <MdOutlineZoomInMap className="w-5 h-5" />
-                            ) : (
-                                <MdOutlineZoomOutMap className="w-5 h-5" />
-                            )}
-                        </button>
-                    </Tooltip>
                 </div>
 
                 {/* Transcript list panel */}
@@ -901,19 +766,14 @@ const CustomPodcastVideo = ({
                 isOpen={showConfirmBox}
                 onConfirm={() => {
                     setShowConfirmBox(false);
-                    // Continue video
                     if (videoRef.current && videoTracking) {
                         videoRef.current.currentTime = videoTracking.pauseTime;
                         setCurrentTime(videoTracking.pauseTime);
                         videoRef.current.play();
                     }
-                    // Handle confirm action here
                 }}
                 onCancel={() => {
                     setShowConfirmBox(false)
-                    // if (videoRef.current)
-                    //     videoRef.current.currentTime = 0;
-
                 }}
                 confirmText="Yes"
                 cancelText="No"
