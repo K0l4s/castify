@@ -6,15 +6,18 @@ import { FaPlay } from 'react-icons/fa';
 import { formatViewsToShortly } from '../../../utils/formatViews';
 import { CgEyeAlt } from 'react-icons/cg';
 import { BsClock } from 'react-icons/bs';
-import { formatDistanceToNow } from 'date-fns';
 import Avatar from '../../../components/UI/user/Avatar';
 import defaultAvatar from '../../../assets/images/default_avatar.jpg';
+import { formatRelativeTime } from '../../../utils/DateUtils';
+import { useLanguage } from '../../../context/LanguageContext';
 
 const TrendingCarousel: React.FC = () => {
   const [podcasts, setPodcasts] = useState<Podcast[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeIndex, setActiveIndex] = useState(0);
   const navigate = useNavigate();
+
+  const {language, currentLang} = useLanguage();
 
   useEffect(() => {
     const fetchTrendingPodcasts = async () => {
@@ -88,7 +91,7 @@ const TrendingCarousel: React.FC = () => {
         <div className="flex-1 flex flex-col justify-center px-8 md:px-16 py-8">
           <div className="mb-4">
             <span className="inline-block bg-red-600 text-white px-3 py-1 rounded-full text-sm font-bold mb-2">
-              TRENDING #{activeIndex + 1}
+              {language.trending.trending} #{activeIndex + 1}
             </span>
           </div>
           
@@ -115,7 +118,7 @@ const TrendingCarousel: React.FC = () => {
                 <span>•</span>
                 <span className="flex items-center gap-1">
                   <BsClock />
-                  {formatDistanceToNow(new Date(activePodcast.createdDay), { addSuffix: true })}
+                  {formatRelativeTime(activePodcast.createdDay, currentLang)}
                 </span>
               </div>
             </div>
@@ -131,7 +134,7 @@ const TrendingCarousel: React.FC = () => {
               className="flex items-center gap-2 bg-red-600 hover:bg-red-700 text-white px-6 py-3 rounded-full font-medium transition-all transform hover:scale-105"
             >
               <FaPlay />
-              Play Now
+              {language.trending.playNow}
             </Link>
           </div>
         </div>

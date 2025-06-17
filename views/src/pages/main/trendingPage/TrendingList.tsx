@@ -4,7 +4,6 @@ import { getTrendingPodcast } from '../../../services/PodcastService';
 import { Podcast } from '../../../models/PodcastModel';
 import { FiLoader } from 'react-icons/fi';
 import { formatViewsToShortly } from '../../../utils/formatViews';
-import { formatDistanceToNow } from 'date-fns';
 import { useNavigate } from 'react-router-dom';
 import Avatar from '../../../components/UI/user/Avatar';
 import defaultAvatar from '../../../assets/images/default_avatar.jpg';
@@ -24,9 +23,10 @@ import { formatTimeDuration } from '../../../components/UI/podcast/video';
 import { useSelector } from 'react-redux';
 import { RootState } from '../../../redux/store';
 import { useLanguage } from '../../../context/LanguageContext';
+import { formatRelativeTime } from '../../../utils/DateUtils';
 
 const TrendingList: React.FC = () => {
-  const {language} = useLanguage();
+  const {language, currentLang} = useLanguage();
   const isAuthenticated = useSelector((state: RootState) => state.auth.isAuthenticated);
 
   const [podcasts, setPodcasts] = useState<Podcast[]>([]);
@@ -311,7 +311,7 @@ const TrendingList: React.FC = () => {
                   <BsDot className="text-gray-500" />
                   <span className="text-base text-gray-600 dark:text-gray-200 flex items-center">
                     <BsClock className="mr-1" />
-                    {formatDistanceToNow(new Date(podcast.createdDay), { addSuffix: true })}
+                    {formatRelativeTime(podcast.createdDay, currentLang)}
                   </span>
                 </div>
                 

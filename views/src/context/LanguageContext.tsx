@@ -6,6 +6,7 @@ type Language = 'en' | 'vi';
 
 interface LanguageContextType {
   language: Record<string, any>;  // Allow nested objects here
+  currentLang: Language;
   changeLanguage: (lang: Language) => void;
 }
 
@@ -32,7 +33,7 @@ export const LanguageProvider: React.FC<LanguageProviderProps> = ({ children }) 
   };
 
   return (
-    <LanguageContext.Provider value={{ language: languages[language], changeLanguage }}>
+    <LanguageContext.Provider value={{ language: languages[language], currentLang: language, changeLanguage }}>
       {children}
     </LanguageContext.Provider>
   );
