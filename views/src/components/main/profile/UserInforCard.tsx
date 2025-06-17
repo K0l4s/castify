@@ -6,8 +6,10 @@ import { userService } from '../../../services/UserService';
 import { useToast } from '../../../context/ToastProvider';
 import { useState } from 'react';
 import Avatar from '../../UI/user/Avatar';
+import { useLanguage } from '../../../context/LanguageContext';
 
 const UserInforCard = (user: userCard) => {
+  const {language} = useLanguage();
   const [isFollow, setIsFollow] = useState(user.follow);
   const navigate = useNavigate();
   const toast = useToast();
@@ -47,7 +49,7 @@ const UserInforCard = (user: userCard) => {
             }`}
         >
           {isFollow ? <LuUserX2 className="text-lg" /> : <FaUserFriends className="text-lg" />}
-          {isFollow ? 'Unfollow' : 'Follow'}
+          {isFollow ? language.common.unfollow : language.common.follow}
         </button>
       </div>
     </div>

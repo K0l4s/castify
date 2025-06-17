@@ -7,6 +7,7 @@ import { FaChevronLeft, FaChevronRight, FaHeart } from 'react-icons/fa';
 import { Link } from 'react-router-dom';
 import { FaSprayCanSparkles } from 'react-icons/fa6';
 import "./podcastSection.css";
+import { useLanguage } from '../../../context/LanguageContext';
 
 interface PodcastSectionProps {
   title: string;
@@ -33,6 +34,7 @@ const PodcastSection: React.FC<PodcastSectionProps> = ({
   onAddToPlaylist,
   onShare
 }) => {
+  const {language} = useLanguage();
   const [genreStates, setGenreStates] = useState<{ [key: string]: GenreLoadState }>({});
   const [scrollPositions, setScrollPositions] = useState<{ [key: string]: number }>({});
   // Sửa lỗi: unique option menu cho mỗi section và podcast
@@ -186,7 +188,7 @@ const PodcastSection: React.FC<PodcastSectionProps> = ({
                   to={`/genres/${genre.id}`}
                   className="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 font-medium text-sm transition-colors"
                 >
-                  View all →
+                  {language.common.viewAll || 'View All'}
                 </Link>
               </div>
 

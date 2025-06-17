@@ -2,7 +2,6 @@ import React, { useRef } from "react";
 import { Podcast } from "../../../models/PodcastModel";
 import { useNavigate } from "react-router-dom";
 import { formatViewsToShortly } from "../../../utils/formatViews";
-import { formatDistanceToNow } from "date-fns";
 import Avatar from "../user/Avatar";
 import defaultAvatar from "../../../assets/images/default_avatar.jpg";
 import { BsDot, BsThreeDotsVertical } from "react-icons/bs";
@@ -14,6 +13,7 @@ import { FaClock, FaPlay } from "react-icons/fa";
 import Tooltip from "../custom/Tooltip";
 import { useClickOutside } from "../../../hooks/useClickOutside";
 import { useLanguage } from "../../../context/LanguageContext";
+import { formatRelativeTime } from "../../../utils/DateUtils";
 
 interface PodcastListItemProps {
   podcast: Podcast;
@@ -34,7 +34,7 @@ const PodcastListItem: React.FC<PodcastListItemProps> = ({
 }) => {
   const navigate = useNavigate();
   const menuRef = useRef<HTMLDivElement>(null);
-  const {language} = useLanguage();
+  const {language, currentLang} = useLanguage();
   useClickOutside(menuRef, () => {
     if (isOptionMenuOpen) {
       onToggleOptionMenu(podcast.id, new MouseEvent("click") as unknown as React.MouseEvent);
@@ -105,7 +105,7 @@ const PodcastListItem: React.FC<PodcastListItemProps> = ({
           <BsDot className="text-gray-500" />
           <span className="text-base text-gray-600 dark:text-gray-200 flex items-center">
             <BsClock className="mr-1" />
-            {formatDistanceToNow(new Date(podcast.createdDay), { addSuffix: true })}
+            {formatRelativeTime(podcast.createdDay, currentLang)}
           </span>
         </div>
         
