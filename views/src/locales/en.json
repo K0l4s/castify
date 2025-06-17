@@ -3,6 +3,7 @@
         "home": "Home",
         "follow": "Follow",
         "trending": "Trending",
+        "newest": "Newest",
         "history": "History",
         "react": "Reactions",
         "playlist": "Playlist",
@@ -403,6 +404,13 @@
         "description": "Discover what's hot and popular in the podcast world right now",
         "noResults": "No trending podcasts found",
         "loadMore": "Load More"
+    },
+    "newest": {
+        "title": "Newest Podcasts",
+        "description": "Discover the most recently uploaded content from our community",
+        "noResults": "No new podcasts found",
+        "loadMore": "Load More",
+        "latestFrom": "Latest from"
     },
     "follow": {
         "title": "Following Feed",

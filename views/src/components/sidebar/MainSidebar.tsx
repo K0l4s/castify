@@ -4,7 +4,7 @@ import { RootState } from "../../redux/store";
 import { SiYoutubestudio } from "react-icons/si";
 import { useToast } from "../../context/ToastProvider";
 import { useLanguage } from "../../context/LanguageContext";
-import { BsFire } from "react-icons/bs";
+import { BsFillLightningChargeFill, BsFire } from "react-icons/bs";
 import FollowingSidebar from "./FollowingSidebar";
 import { MdLiveTv } from "react-icons/md";
 import { useClickOutside } from "../../hooks/useClickOutside";
@@ -115,6 +115,26 @@ const MainSidebar = () => {
                 )}
               </Link>
             </li>
+            
+            <li>
+              <Link
+                to="/feed/newest"
+                onClick={handleLinkClick}
+                className={
+                  getLinkClass("/feed/newest") +
+                  " group hover:bg-red-50 dark:hover:bg-gray-700 rounded-lg"
+                }
+              >
+                <BsFillLightningChargeFill
+                  size={24}
+                  className={`w-6 h-6 ${isOpenSideBar ? "mr-4" : "mx-auto"} group-hover:text-orange-500 dark:group-hover:text-orange-400 transition`}
+                />
+                {isOpenSideBar && (
+                  <span className="truncate">{language.sidebar.newest}</span>
+                )}
+              </Link>
+            </li>
+            
 
             <li>
               <Link

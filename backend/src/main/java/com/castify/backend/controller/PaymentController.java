@@ -10,6 +10,7 @@ import com.castify.backend.service.payment.vnPay.VNPayPaymentService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
@@ -33,6 +34,10 @@ public class PaymentController {
     private SimpMessagingTemplate messagingTemplate;
     @Autowired
     private INotificationService notificationService;
+
+    @Value("${FRONT_END_DOMAIN}")
+    private String frontEndDomain;
+
     @PostMapping("/vnpay")
     public ResponseEntity<Map<String, String>> createVNPayPayment(@RequestBody PaymentModel request, HttpServletRequest req) {
         try {
@@ -74,17 +79,17 @@ public class PaymentController {
 //                            ""
 //                    );
                 logger.info(trans.getUserId());
-                String redirectUrl = "http://localhost:5000/payment/result"
+                String redirectUrl = frontEndDomain + "/payment/result"
                         + "?status=" + trans.getStatus().toString()
                         + "&amount=" + trans.getAmount();
 
                 response.sendRedirect(redirectUrl);
             } else {
-                response.sendRedirect("http://localhost:5000/payment/result?status=FAILED");
+                response.sendRedirect(frontEndDomain + "/payment/result?status=FAILED");
             }
     } catch (Exception e) {
         logger.info(e.getMessage());
-        response.sendRedirect("http://localhost:5000/payment/result?status=ERROR");
+        response.sendRedirect(frontEndDomain + "/payment/result?status=ERROR");
     }
     }
 

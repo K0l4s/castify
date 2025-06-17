@@ -56,6 +56,7 @@ import ResetPassword from '../pages/main/auth/ResetPassword'
 import ForgotPassword from '../pages/main/auth/ForgotPassword'
 import ChangePasswordPage from '../pages/main/auth/ChangePasswordPage'
 import SuggestUser from '../pages/main/landingPage/SuggestUser'
+import NewestPodcastPage from '../pages/main/newest/NewPodcastPage'
 // import CreateFrameEventForm from '../components/admin/event/CreateFrameEventForm'
 // import IntroVideoPage from '../pages/main/landingPage/IntroVideoPage'
 
@@ -145,6 +146,7 @@ const Router = () => {
                     <Route path='/feed' element={<LandingPage />} />
                     <Route path='/feed/follow' element={<RequireAuth><FollowingPage /></RequireAuth>} />
                     <Route path='/feed/trend' element={<TrendingPage />} />
+                    <Route path='/feed/newest' element={<NewestPodcastPage />} />
                     <Route path='/feed/liked' element={<RequireAuth><LikedPage /></RequireAuth>} />
                     <Route path='/feed/history' element={<RequireAuth><HistoryPage /></RequireAuth>} />
                     <Route path='/playlist' element={<RequireAuth><PlaylistPage /></RequireAuth>} />
