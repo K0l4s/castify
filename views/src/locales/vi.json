@@ -3,6 +3,7 @@
         "home": "Trang chủ",
         "follow": "Đang theo dõi",
         "trending": "Xu hướng",
+        "newest": "Mới nhất",
         "history": "Lịch sử xem",
         "react": "Tương tác",
         "playlist": "Danh sách phát",
@@ -401,6 +402,13 @@
         "description": "Khám phá những gì đang hot và phổ biến trong thế giới podcast ngay bây giờ",
         "noResults": "Không tìm thấy podcast nào đang thịnh hành",
         "loadMore": "Tải thêm"
+    },
+    "newest": {
+        "title": "Podcast mới nhất",
+        "description": "Cùng khám phá nội dung mới nhất được tải lên từ cộng đồng nhé",
+        "noResults": "Không tìm thấy podcast nào mới",
+        "loadMore": "Tải thêm",
+        "latestFrom": "Mới nhất từ"
     },
     "follow": {
         "title": "Danh sách theo dõi",
