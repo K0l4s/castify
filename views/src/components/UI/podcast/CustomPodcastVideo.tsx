@@ -591,7 +591,7 @@ const CustomPodcastVideo = ({
                         onTouchStart={handleCCTouchStart}
                     >
                         <div
-                            className="bg-black/90 text-yellow-300 px-8 py-4 rounded-2xl text-2xl font-bold shadow-2xl text-center select-none border-2 border-yellow-400"
+                            className="bg-black/90 text-yellow-300 max-w-3xl px-8 py-4 rounded-2xl text-xl font-bold shadow-2xl text-center select-none border-2 border-yellow-400"
                             style={{
                                 userSelect: "none",
                                 lineHeight: 1.2,
