@@ -171,19 +171,19 @@ const CreatorLandingPage = () => {
           <div className="flex items-center gap-3">
             <button
               onClick={resetThisYear}
-              className="px-5 py-2 bg-gradient-to-r from-blue-500 to-indigo-500 hover:from-blue-600 hover:to-indigo-600 text-white rounded-lg shadow-lg font-semibold transition-all duration-300"
+              className="px-5 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg shadow-lg font-semibold transition-all duration-300"
             >
               This year
             </button>
             <button
               onClick={resetThisMonth}
-              className="px-5 py-2 bg-gradient-to-r from-blue-500 to-indigo-500 hover:from-blue-600 hover:to-indigo-600 text-white rounded-lg shadow-lg font-semibold transition-all duration-300"
+              className="px-5 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg shadow-lg font-semibold transition-all duration-300"
             >
               This month
             </button>
             <button
               onClick={resetToToday}
-              className="px-5 py-2 bg-gradient-to-r from-blue-500 to-indigo-500 hover:from-blue-600 hover:to-indigo-600 text-white rounded-lg shadow-lg font-semibold transition-all duration-300"
+              className="px-5 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg shadow-lg font-semibold transition-all duration-300"
             >
               Today
             </button>
