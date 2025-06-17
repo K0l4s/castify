@@ -17,8 +17,19 @@ export const CardItem = ({
     linkText,
     linkTo,
 }: CardItemProps) => {
+    // const backgroundImage = "https://tascam.com/wp-content/uploads/images/products/_tascam/mixcast_4/mixcast_4_w_4_people.jpg"
     return (
-        <div className="w-full relative bg-gradient-to-br from-sky-500 via-sky-400 to-violet-500 rounded-2xl h-full text-white flex flex-wrap items-center justify-between shadow-xl overflow-hidden hover:scale-[1.02] transition-transform duration-300">
+        <div
+            className="w-full relative rounded-2xl h-full text-white flex flex-wrap items-center justify-between shadow-xl overflow-hidden hover:scale-[1.02] transition-transform duration-300"
+            style={{
+                backgroundImage: `url(${image})`,
+                backgroundSize: 'cover',
+                backgroundPosition: 'center',
+            }}
+        >
+            {/* Overlay tối để dễ đọc chữ */}
+            <div className="absolute inset-0 bg-black/50 backdrop-blur-sm hover:backdrop-blur-none z-0"></div>
+
             {/* Decorative Circles */}
             <div className="absolute -top-8 -left-8 w-24 h-24 bg-white/10 rounded-full blur-2xl z-0"></div>
             <div className="absolute bottom-0 right-0 w-20 h-20 bg-violet-300/20 rounded-full blur-2xl z-0"></div>
@@ -49,26 +60,11 @@ export const CardItem = ({
                         strokeWidth="2"
                         viewBox="0 0 24 24"
                     >
-                        <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            d="M17 8l4 4m0 0l-4 4m4-4H3"
-                        />
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M17 8l4 4m0 0l-4 4m4-4H3" />
                     </svg>
                 </Link>
             </div>
-
-            {/* Image */}
-            <div className="hidden md:block  z-10 pr-4">
-                <img
-                    src={image}
-                    alt="Card Visual"
-                    className="w-20 h-20 object-contain drop-shadow-2xl animate-bounce-slow"
-                    style={{
-                        filter: "drop-shadow(0 4px 24px rgba(80,0,200,0.15))",
-                    }}
-                />
-            </div>
         </div>
+
     );
 };
