@@ -12,10 +12,10 @@ import { ReportType } from "../../../models/Report";
 import { useToast } from "../../../context/ToastProvider";
 import Avatar from "../user/Avatar";
 import { formatTimeDuration } from "./video";
-import { formatDistanceToNow } from "date-fns";
 import AddToPlaylistModal from "../../../pages/main/playlistPage/AddToPlaylistModal";
 import { useLanguage } from "../../../context/LanguageContext";
 import { MdOutlineWatchLater } from "react-icons/md";
+import { formatRelativeTime } from "../../../utils/DateUtils";
 
 interface PodcastHistoryProps {
   podcast: Podcast;
@@ -28,7 +28,7 @@ const PodcastHistory: React.FC<PodcastHistoryProps> = ({
   onDelete,
   timestamp,
 }) => {
-  const {language} = useLanguage();
+  const {language, currentLang} = useLanguage();
   const [isShareModalOpen, setIsShareModalOpen] = useState(false);
   const [isReportModalOpen, setIsReportModalOpen] = useState(false);
   const [isPlaylistModalOpen, setIsPlaylistModalOpen] = useState(false);
@@ -38,9 +38,9 @@ const PodcastHistory: React.FC<PodcastHistoryProps> = ({
   const author = podcast.user.fullname;
   
   // Format the timestamp if provided
-  const viewedAtFormatted = timestamp 
-    ? formatDistanceToNow(new Date(timestamp), { addSuffix: true })
-    : undefined;
+  const viewedAtFormatted = timestamp
+      ? formatRelativeTime(timestamp, currentLang)
+      : currentLang === 'vi' ? 'Ngày không xác định' : 'Unknown Date';
 
   const handleSave = () => {
     toast.info("Save feature is coming soon");

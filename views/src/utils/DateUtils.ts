@@ -1,5 +1,7 @@
 import { format, toZonedTime } from "date-fns-tz";
 import { differenceInDays, differenceInHours, differenceInMinutes, parseISO } from "date-fns";
+import { formatDistanceToNow } from 'date-fns';
+import { vi, enUS } from 'date-fns/locale';
 
 const timeZone = 'Asia/Bangkok';
 
@@ -52,4 +54,18 @@ export const formatLastUpdatedFromNow = (dateTime: string): string => {
   }
   
   return "Just now";
+};
+
+// Use it instead of formatDistanceToNow for better control over locale
+export const formatRelativeTime = (date: string | Date, currentLanguage: string) => {
+  try {
+    const locale = currentLanguage === 'vi' ? vi : enUS;
+    
+    return formatDistanceToNow(new Date(date), {
+      addSuffix: true,
+      locale: locale
+    });
+  } catch (error) {
+    return currentLanguage === 'vi' ? 'Ngày không xác định' : 'Unknown Date';
+  }
 };

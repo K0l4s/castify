@@ -138,10 +138,11 @@ public class SecurityConfiguration {
         List patterns = new ArrayList<>();
         patterns.add("http://localhost:5000");
         patterns.add("https://castifyapp.vercel.app/");
+        patterns.add("https://informed-elk-constantly.ngrok-free.app");
         CorsConfiguration configuration = new CorsConfiguration();
 //        configuration.addAllowedOriginPattern("http://localhost:3000");
-//        configuration.setAllowedOriginPatterns(patterns);
-        configuration.addAllowedOriginPattern("*");
+        configuration.setAllowedOriginPatterns(patterns);
+//        configuration.addAllowedOriginPattern("*");
         configuration.addAllowedMethod("*");
         configuration.addAllowedHeader("*");
         configuration.setAllowCredentials(true);

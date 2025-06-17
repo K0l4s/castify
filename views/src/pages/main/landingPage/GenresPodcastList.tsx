@@ -4,6 +4,7 @@ import { userService } from '../../../services/UserService';
 import { useSelector } from 'react-redux';
 import { RootState } from '../../../redux/store';
 import PodcastSection from './PodcastSection';
+import { useLanguage } from '../../../context/LanguageContext';
 
 interface GenresPodcastListProps {
   onReport: (podcastId: string) => void;
@@ -16,6 +17,7 @@ const GenresPodcastList: React.FC<GenresPodcastListProps> = ({
   onAddToPlaylist,
   onShare
 }) => {
+  const {language} = useLanguage();
   const [favoriteGenres, setFavoriteGenres] = useState<Genre[]>([]);
   const [suggestedGenres, setSuggestedGenres] = useState<Genre[]>([]);
   const [loading, setLoading] = useState(true);
@@ -116,7 +118,7 @@ const GenresPodcastList: React.FC<GenresPodcastListProps> = ({
       {/* Favorites Section */}
       {hasFavorites && (
         <PodcastSection
-          title="Your Favorites"
+          title={language.landingPage.yourFavorite || "Your Favorite Genres"}
           genres={favoriteGenres}
           type="favorites"
           onReport={onReport}
@@ -128,7 +130,7 @@ const GenresPodcastList: React.FC<GenresPodcastListProps> = ({
       {/* Suggested Section */}
       {hasSuggested && (
         <PodcastSection
-          title={isAuthenticated ? "You May Like" : "Discover Podcasts"}
+          title={isAuthenticated ? language.landingPage.youMayLike || "You May Like" : language.landingPage.discover || "Discover Podcasts"}
           genres={suggestedGenres}
           type="suggested"
           onReport={onReport}

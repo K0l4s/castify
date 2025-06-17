@@ -3,6 +3,7 @@
         "home": "Trang chủ",
         "follow": "Đang theo dõi",
         "trending": "Xu hướng",
+        "newest": "Mới nhất",
         "history": "Lịch sử xem",
         "react": "Tương tác",
         "playlist": "Danh sách phát",
@@ -109,6 +110,12 @@
         "delete": "Xóa",
         "deleteTitle": "Bạn có chắc muốn xóa không?"
     },
+    "landingPage": {
+        "suggestFollowTitle": "Nhà sáng tạo có thể bạn sẽ thích",
+        "yourFavorite": "Những gì bạn yêu thích",
+        "youMayLike": "Bạn có thể thích",
+        "discover": "Khám phá Podcast"
+    },
     "creator": {
         "overview": "Tổng quan kênh",
         "likes": "Lượt thích",
@@ -180,7 +187,8 @@
         "close": "Đóng",
         "public": "Công khai",
         "private": "Riêng tư",
-        "send": "Gửi"
+        "send": "Gửi",
+        "viewAll":"Xem tất cả"
     },
     "watchParty": {
         "browse": {
@@ -400,7 +408,16 @@
         "title": "Podcast thịnh hành",
         "description": "Khám phá những gì đang hot và phổ biến trong thế giới podcast ngay bây giờ",
         "noResults": "Không tìm thấy podcast nào đang thịnh hành",
-        "loadMore": "Tải thêm"
+        "loadMore": "Tải thêm",
+        "playNow": "Phát ngay",
+        "trending": "Thịnh hành"
+    },
+    "newest": {
+        "title": "Podcast mới nhất",
+        "description": "Cùng khám phá nội dung mới nhất được tải lên từ cộng đồng nhé",
+        "noResults": "Không tìm thấy podcast nào mới",
+        "loadMore": "Tải thêm",
+        "latestFrom": "Mới nhất từ"
     },
     "follow": {
         "title": "Danh sách theo dõi",

@@ -1,6 +1,5 @@
 import React, { useEffect, useRef } from 'react';
 import { Podcast } from '../../../models/PodcastModel';
-import { formatDistanceToNow } from 'date-fns';
 import default_avatar from '../../../assets/images/default_avatar.jpg';
 import { Link } from 'react-router-dom';
 import { FaClock, FaEdit, FaFlag, FaPlay, FaShareAlt } from 'react-icons/fa';
@@ -13,6 +12,7 @@ import Avatar from '../user/Avatar';
 import { BsClock, BsEye } from 'react-icons/bs';
 import { useLanguage } from '../../../context/LanguageContext';
 import { MdPlaylistAdd } from 'react-icons/md';
+import { formatRelativeTime } from '../../../utils/DateUtils';
 
 interface PodcastTagProps {
   podcast: Podcast;
@@ -25,10 +25,10 @@ interface PodcastTagProps {
 
 const PodcastTag: React.FC<PodcastTagProps> = ({ podcast, onReport, onAddToPlaylist, onShare, onToggleOptionMenu, isOptionMenuOpen }) => {
   const author = podcast.user.fullname;
-  const {language} = useLanguage();
+  const { language, currentLang } = useLanguage();
   const createdDay = podcast.createdDay
-    ? formatDistanceToNow(new Date(podcast.createdDay), { addSuffix: true })
-    : 'Unknown Date';
+    ? formatRelativeTime(podcast.createdDay, currentLang)
+    : currentLang === 'vi' ? 'Ngày không xác định' : 'Unknown Date';
 
   // tính toán thủ công createdDay
 

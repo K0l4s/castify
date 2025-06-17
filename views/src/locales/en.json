@@ -3,6 +3,7 @@
         "home": "Home",
         "follow": "Follow",
         "trending": "Trending",
+        "newest": "Newest",
         "history": "History",
         "react": "Reactions",
         "playlist": "Playlist",
@@ -109,6 +110,12 @@
         "delete": "Delete",
         "deleteTitle": "Are you really want to delete ?"
     },
+    "landingPage": {
+        "suggestFollowTitle": "Creator matching for you",
+        "yourFavorite": "Your Favorite",
+        "youMayLike": "You May Like",
+        "discover": "Discover Podcasts"
+    },
     "creator": {
         "overview": "Creator Overview",
         "likes": "Likes",
@@ -181,7 +188,8 @@
         "close": "Close",
         "public": "Public",
         "private": "Private",
-        "send": "Send"
+        "send": "Send",
+        "viewAll":"View all"
     },
 
     "watchParty": {
@@ -402,7 +410,16 @@
         "title": "Trending Podcasts",
         "description": "Discover what's hot and popular in the podcast world right now",
         "noResults": "No trending podcasts found",
-        "loadMore": "Load More"
+        "loadMore": "Load More",
+        "playNow": "Play Now",
+        "trending": "Trending"
+    },
+    "newest": {
+        "title": "Newest Podcasts",
+        "description": "Discover the most recently uploaded content from our community",
+        "noResults": "No new podcasts found",
+        "loadMore": "Load More",
+        "latestFrom": "Latest from"
     },
     "follow": {
         "title": "Following Feed",
