@@ -11,6 +11,7 @@ import com.castify.backend.models.user.UserModel;
 import com.castify.backend.service.ffmpeg.IFFmpegService;
 import com.castify.backend.service.genre.IGenreService;
 
+import com.castify.backend.service.notification.VideoTranscodeService;
 import com.castify.backend.service.podcast.*;
 
 import com.castify.backend.service.podcastLike.IPodcastLikeService;
@@ -86,8 +87,10 @@ public class PodcastController {
     private VideoTranscribeService videoTranscribeService;
 
     @Autowired
-    private TrendingPodcastService trendingPodcastService;
+    private VideoTranscodeService videoTranscodeService;
 
+    @Autowired
+    private TrendingPodcastService trendingPodcastService;
 
     @PostMapping(value = "/create", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<?> createPodcast(
@@ -100,9 +103,9 @@ public class PodcastController {
             validateCreatePodcastInfo(genreIds, videoFile);
 
             UserModel userModel = userService.getUserByToken();
-
             // Tạo thư mục user-specific
             Path userPodcastDir = FileUtils.createUserDirectory(baseUploadDir, userModel.getId(), userModel.getEmail(), "podcast");
+//            videoTranscodeService.transcodeToHLS(videoFile,baseUploadDir);
 
             // Format tên file
             String formattedVideoFileName = FileUtils.formatFileName(videoFile.getOriginalFilename());

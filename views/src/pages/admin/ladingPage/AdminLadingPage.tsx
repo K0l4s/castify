@@ -183,6 +183,7 @@ const AdminLadingPage = () => {
             {
               title: "Users",
               value: dashboard.totalUsers,
+              prevValue: prevDashboard.totalUsers,
               icon: <BsPeopleFill size={22} />,
               color: "text-blue-500",
               link: "/admin/user",
@@ -190,24 +191,28 @@ const AdminLadingPage = () => {
             {
               title: "Podcasts",
               value: dashboard.totalPodcasts,
+              prevValue: prevDashboard.totalPodcasts,
               icon: <PiGooglePodcastsLogoBold size={22} />,
               color: "text-green-500",
             },
             {
               title: "Likes",
               value: dashboard.totalLikes,
+              prevValue: prevDashboard.totalLikes,
               icon: <FcLike size={22} />,
               color: "text-red-500",
             },
             {
               title: "Comments",
               value: dashboard.totalComments,
+              prevValue: prevDashboard.totalComments,
               icon: <FaRegCommentDots size={22} />,
               color: "text-purple-500",
             },
             {
               title: "Reports",
               value: dashboard.totalReportsAwait,
+              prevValue: prevDashboard.totalReportsAwait,
               icon: <GoReport size={22} />,
               color: "text-yellow-500",
               link: "/admin/report",
@@ -215,20 +220,46 @@ const AdminLadingPage = () => {
             {
               title: "Access",
               value: dashboard.totalAccess,
+              prevValue: prevDashboard.totalAccess,
               icon: <MdCallMissedOutgoing size={22} />,
               color: "text-pink-500",
             },
-          ].map((item, idx) => (
-            <div
-              key={idx}
-              className={`flex flex-col items-center justify-center bg-white dark:bg-gray-800 rounded-xl shadow p-4 hover:shadow-lg transition cursor-pointer`}
-              onClick={() => item.link && navigate(item.link)}
-            >
-              <div className={`mb-2 ${item.color}`}>{item.icon}</div>
-              <div className="text-lg font-semibold">{item.value.toLocaleString()}</div>
-              <div className="text-xs text-gray-500">{item.title}</div>
-            </div>
-          ))}
+          ].map((item, idx) => {
+            const diff = item.prevValue !== undefined ? item.value - item.prevValue : 0;
+            const diffPercent =
+              item.prevValue && item.prevValue !== 0
+          ? ((item.value - item.prevValue) / item.prevValue) * 100
+          : item.value !== 0
+          ? 100
+          : 0;
+            return (
+              <div
+          key={idx}
+          className={`flex flex-col items-center justify-center bg-white dark:bg-gray-800 rounded-xl shadow p-4 hover:shadow-lg transition cursor-pointer`}
+          onClick={() => item.link && navigate(item.link)}
+              >
+          <div className={`mb-2 ${item.color}`}>{item.icon}</div>
+          <div className="text-lg font-semibold">{item.value.toLocaleString()}</div>
+          <div className="text-xs text-gray-500">{item.title}</div>
+          <div className="mt-1 text-xs flex items-center gap-1">
+            {diff === 0 ? (
+              <span className="text-gray-400">No change</span>
+            ) : (
+              <>
+                <span className={diff > 0 ? "text-green-500" : "text-red-500"}>
+            {diff > 0 ? "+" : ""}
+            {diff.toLocaleString()}
+            {" "}
+            ({diffPercent > 0 ? "+" : ""}
+            {diffPercent.toFixed(1)}%)
+                </span>
+                {/* <span className="text-gray-400">vs prev</span> */}
+              </>
+            )}
+          </div>
+              </div>
+            );
+          })}
         </div>
 
         {/* Date Picker & Chart */}
