@@ -4,6 +4,7 @@ import com.castify.backend.entity.PlaylistEntity;
 import com.castify.backend.entity.PlaylistItem;
 import com.castify.backend.entity.PodcastEntity;
 import com.castify.backend.entity.UserEntity;
+import com.castify.backend.enums.PlaylistType;
 import com.castify.backend.exception.PermissionDeniedException;
 import com.castify.backend.exception.ResourceAlreadyExistsException;
 import com.castify.backend.models.playlist.CreatePlaylistDTO;
@@ -38,6 +39,21 @@ public class PlaylistServiceImpl implements IPlaylistService {
     private final ModelMapper modelMapper;
     private final PodcastRepository podcastRepository;
     private final MongoTemplate mongoTemplate;
+
+    @Override
+    public void createDefaultWatchLaterPlaylist(UserEntity user) {
+        PlaylistEntity watchLater = new PlaylistEntity();
+        watchLater.setName("Watch Later");
+        watchLater.setDescription("Your watch later playlist");
+        watchLater.setOwner(user);
+        watchLater.setCreatedAt(LocalDateTime.now());
+        watchLater.setLastUpdated(LocalDateTime.now());
+        watchLater.setPublish(false);
+        watchLater.setType(PlaylistType.WATCH_LATER);
+        watchLater.setItems(new ArrayList<>());
+
+        playlistRepository.save(watchLater);
+    }
 
     @Override
     public PlaylistModel getPlaylistById(String id) {

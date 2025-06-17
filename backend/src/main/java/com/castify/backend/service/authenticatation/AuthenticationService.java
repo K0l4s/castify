@@ -1,16 +1,20 @@
 package com.castify.backend.service.authenticatation;
 
+import com.castify.backend.entity.PlaylistEntity;
 import com.castify.backend.entity.TokenEntity;
 import com.castify.backend.entity.UserEntity;
 import com.castify.backend.entity.location.WardEntity;
+import com.castify.backend.enums.PlaylistType;
 import com.castify.backend.enums.Role;
 import com.castify.backend.enums.TokenType;
 import com.castify.backend.models.authentication.*;
+import com.castify.backend.repository.PlaylistRepository;
 import com.castify.backend.repository.WardRepository;
 import com.castify.backend.service.email.EmailServiceImpl;
 import com.castify.backend.service.email.IEmailService;
 import com.castify.backend.service.authenticatation.jwt.IJwtService;
 import com.castify.backend.service.authenticatation.jwt.JwtServiceImpl;
+import com.castify.backend.service.playlist.IPlaylistService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -25,6 +29,7 @@ import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
+import java.util.Optional;
 
 import com.castify.backend.repository.UserRepository;
 import com.castify.backend.repository.TokenRepository;
@@ -57,6 +62,11 @@ public class AuthenticationService implements IAuthenticationService {
     @Autowired
     private UserRepository userRepository;
 
+    @Autowired
+    private IPlaylistService playlistService;
+    @Autowired
+    private PlaylistRepository playlistRepository;
+
     @Override
     public AuthenticationResponse authenticate(AuthenticationRequest request) {
         authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword()));
@@ -65,6 +75,12 @@ public class AuthenticationService implements IAuthenticationService {
         var refreshToken = jwtService.generateRefreshToken(user);
         revokeAllUserTokens(user);
         saveUserToken(user, jwtToken, TokenType.BEARER);
+
+        Optional<PlaylistEntity> existing = playlistRepository.findByOwnerAndType(user, PlaylistType.WATCH_LATER);
+        if (existing.isEmpty()) {
+            playlistService.createDefaultWatchLaterPlaylist(user);
+        }
+
         return AuthenticationResponse.builder().accessToken(jwtToken).refreshToken(refreshToken).build();
     }
     @Override
@@ -117,6 +133,9 @@ public class AuthenticationService implements IAuthenticationService {
         String validToken = jwtService.generateValidToken(request.getUsername());
         saveUserToken(savedUser, validToken, TokenType.VALID);
         emailService.sendVerificationMail(user.getEmail(), validToken, request.getAppType());
+
+        // create watch later playlist
+        playlistService.createDefaultWatchLaterPlaylist(user);
         return RegisterResponse.builder().firstName(savedUser.getFirstName()).lastName(savedUser.getLastName()).middleName(savedUser.getMiddleName()).email(savedUser.getEmail()).build();
     }
 
