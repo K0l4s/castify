@@ -7,12 +7,13 @@ import { useLocation, useNavigate } from "react-router-dom";
 import Avatar from "../user/Avatar";
 import { Transcript } from "../../../models/Transcript";
 import { getNext, getTranscipts } from "../../../services/PodcastService";
-import { Podcast } from "../../../models/PodcastModel";
+import { Podcast, SolutionModel } from "../../../models/PodcastModel";
 import { VideoTracking } from "../../../models/VideoTracking";
 import { trackService } from "../../../services/TrackingService";
 import ConfirmBoxNoOverlay from "../dialogBox/ConfirmBoxNoOverlay";
 import { useSelector } from "react-redux";
 import { RootState } from "../../../redux/store";
+import { BaseApi } from "../../../utils/axiosInstance";
 
 interface CustomPodcastVideoProps {
     videoSrc: string;
@@ -21,6 +22,7 @@ interface CustomPodcastVideoProps {
     user?: any;
     videoRef: React.RefObject<HTMLVideoElement>;
     podcastId: string;
+    solutionModelList?: SolutionModel[];
 }
 
 const SPEEDS = [0.5, 0.75, 1, 1.25, 1.5, 2];
@@ -32,9 +34,80 @@ const CustomPodcastVideo = ({
     videoRef,
     title,
     user,
+    solutionModelList = [],
 }: CustomPodcastVideoProps) => {
+    // console.log(solutionModelList)
+    const location = useLocation();
+    const queryParams = new URLSearchParams(location.search);
+    const pid = queryParams.get("pid") || podcastId;
+    const [formattedSolutionModelList, setFormattedSolutionModelList] = useState<SolutionModel[]>([]);
+    useEffect(() => {
+        if (solutionModelList && solutionModelList.length > 0) {
+            const formattedList = solutionModelList.map((model) => ({
+                ...model,
+                url: `${BaseApi}/api/v1/podcast/video?path=${encodeURIComponent(model.url)}`,
+            }));
+            setFormattedSolutionModelList(formattedList);
+            console.log("Formatted solution model list:", formattedList);
+        } else {
+            setFormattedSolutionModelList([]);
+            console.log("No solution model list provided or empty.");
+        }
+    }, [solutionModelList, podcastId, pid]);
+    const [selectedSolution, setSelectedSolution] = useState<SolutionModel | null>(null);
+    const handleSolutionSelect = (solution: SolutionModel) => {
+        setSelectedSolution(solution);
+        const video = videoRef.current;
+        if (video) {
+            const currentTime = video.currentTime;
+
+            // Gán src mới
+            video.src = solution.url;
+
+            // Đợi video load đủ để có thể đặt lại thời gian
+            const onCanPlay = () => {
+                video.currentTime = currentTime;
+                video.play();
+                video.removeEventListener("canplay", onCanPlay);
+            };
+
+            video.addEventListener("canplay", onCanPlay);
+        }
+    };
+
+    // const handleDefaultSolutionSelect = () => {
+    //    setSelectedSolution(null);
+    //     const video = videoRef.current;
+    //     if (video) {
+    //         const currentTime = video.currentTime;
+
+    //         // Gán src về video gốc
+    //         video.src = videoSrc;
+
+    //         // Đợi video load đủ để có thể đặt lại thời gian
+    //         const onCanPlay = () => {
+    //             video.currentTime = currentTime;
+    //             video.play();
+    //             video.removeEventListener("canplay", onCanPlay);
+    //         };
+
+    //         video.addEventListener("canplay", onCanPlay);
+    //     }
+    // }
+
+
     const containerRef = useRef<HTMLDivElement>(null);
     const [showConfirmBox, setShowConfirmBox] = useState(false);
+    const [isLoading, setIsLoading] = useState(true);
+    const handleWaitForVideoLoad = () => {
+        setIsLoading(true);
+    }
+    const handleVideoLoaded = () => {
+        setIsLoading(false);
+    }
+    useEffect(() => {
+        console.log("loading video:", isLoading);
+    }, [isLoading]);
     const [currentTime, setCurrentTime] = useState(0);
     const [duration, setDuration] = useState(0);
     const [isPlaying, setIsPlaying] = useState(true);
@@ -47,8 +120,8 @@ const CustomPodcastVideo = ({
     const [transcripts, setTranscripts] = useState<Transcript[]>([]);
     const [showTranscript, setShowTranscript] = useState<boolean>(false);
     const [nextPodcast, setNextPodcast] = useState<Podcast>({} as Podcast);
-    const location = useLocation();
-    const queryParams = new URLSearchParams(location.search);
+
+
     const [ccPosition, setCcPosition] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
     const handleCCDragStart = (e: React.MouseEvent<HTMLDivElement>) => {
         e.preventDefault();
@@ -113,11 +186,15 @@ const CustomPodcastVideo = ({
     useEffect(() => {
         if (videoRef.current && videoTracking) {
             setShowConfirmBox(true);
+            console.log("Video tracking data:", !videoTracking);
         } else
-            if (videoRef.current && !videoTracking) {
+            if (videoRef.current && videoTracking === undefined) {
                 videoRef.current.currentTime = 0;
                 setCurrentTime(0);
                 setIsPlaying(true);
+            }
+            else {
+                setShowConfirmBox(false);
             }
     }, [videoRef, videoTracking, podcastId]);
     const [showNextCountdown, setShowNextCountdown] = useState(false);
@@ -436,6 +513,14 @@ const CustomPodcastVideo = ({
                 className="relative rounded-2xl overflow-hidden shadow-2xl bg-gradient-to-br from-black via-gray-900 to-gray-800"
                 onMouseMove={handleMouseMove}
             >
+                {isLoading && (
+                    <div className="absolute inset-0 flex items-center justify-center bg-black/70 z-50">
+                        <div className="text-white text-lg font-semibold">
+                            Đang tải video...
+                        </div>
+                    </div>
+                )
+                }
                 {/* Video element */}
                 <video
                     ref={videoRef}
@@ -446,6 +531,8 @@ const CustomPodcastVideo = ({
                     controls={false}
                     onTimeUpdate={handleTimeUpdate}
                     onLoadedMetadata={handleLoadedMetadata}
+                    onWaiting={handleWaitForVideoLoad}
+                    onCanPlay={handleVideoLoaded}
                     onEnded={handleVideoEnded}
                     id="custom-podcast-video"
                 />
@@ -713,6 +800,29 @@ const CustomPodcastVideo = ({
                                     </option>
                                 ))}
                             </select>
+                            {/* solution select option */}
+                            {formattedSolutionModelList.length > 0 && (
+                                <select
+                                    value={selectedSolution?.solution || ""}
+                                    onChange={(e) => {
+
+                                        const selected = formattedSolutionModelList.find(
+                                            (s) => s.solution.toString() === e.target.value
+                                        );
+                                        handleSolutionSelect(selected!);
+
+                                    }}
+                                    className="bg-black/60 text-yellow-400 rounded px-3 py-1 border border-yellow-400 focus:outline-none focus:ring-2 focus:ring-yellow-400 font-semibold"
+                                    style={{ minWidth: 80 }}
+                                >
+                                    <option value={formattedSolutionModelList[0]?.solution || ""}>Chất lượng gốc</option>
+                                    {formattedSolutionModelList.map((solution) => (
+                                        <option key={solution.solution} value={solution.solution}>
+                                            {solution.solution}x
+                                        </option>
+                                    ))}
+                                </select>
+                            )}
                             {/* Transcript/CC buttons */}
                             <Tooltip text={showTranscript ? "Ẩn transcript" : "Xem transcript"}>
                                 <button
@@ -762,7 +872,7 @@ const CustomPodcastVideo = ({
             </div>
             <ConfirmBoxNoOverlay
                 title="Xem tiếp video?"
-                message={"Chúng tôi nhận thấy bạn đã xem video này đến " + formatTimeFromSeconds(videoTracking?.pauseTime) + ". Bạn có muốn tiếp tục xem không?"}
+                message={"Chúng tôi nhận thấy bạn đã xem video này đến " + formatTimeFromSeconds(videoTracking?.pauseTime) + " giây. Bạn có muốn tiếp tục xem không?"}
                 isOpen={showConfirmBox}
                 onConfirm={() => {
                     setShowConfirmBox(false);

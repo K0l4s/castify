@@ -264,7 +264,8 @@ public class TrendingPodcastService {
                 podcast.getLastEdited(),
                 podcast.isActive(),
                 isLiked,
-                podcast.getUser() != null ? userSimple : null
+                podcast.getUser() != null ? userSimple : null,
+                podcast.getSolutionModelList()
         );
     }
 }

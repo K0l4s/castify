@@ -35,20 +35,20 @@ import { BsClockHistory } from "react-icons/bs";
 import { RiPlayListAddFill } from "react-icons/ri";
 
 const PodcastViewport: React.FC = () => {
-  const {language} = useLanguage();
+  const { language } = useLanguage();
   const location = useLocation();
   const queryParams = new URLSearchParams(location.search);
   const id = queryParams.get("pid") as string | "";
   const playlistId = queryParams.get("playlist");
   const userId = useSelector((state: RootState) => state.auth.user?.id) as string | "";
-  
+
   useEffect(() => {
     const handleBeforeUnload = () => {
-      if(!id || !userId) return; // Ensure id and userId are available
+      if (!id || !userId) return; // Ensure id and userId are available
       const video = document.getElementById('custom-podcast-video') as HTMLVideoElement | null;
       const currentTime = video?.currentTime ?? 0;
       // Use the correct server URL (should be https and with //)
-      const url = BaseApi+'/api/v1/tracking';
+      const url = BaseApi + '/api/v1/tracking';
       // sendBeacon requires a Blob or ArrayBuffer, not a string
       const data = JSON.stringify({
         podcastId: id,
@@ -62,7 +62,7 @@ const PodcastViewport: React.FC = () => {
     window.addEventListener('beforeunload', handleBeforeUnload);
     return () => window.removeEventListener('beforeunload', handleBeforeUnload);
   }, [id, userId]);
-  useTrackPodcastProgress({ podcastId:id, userId });
+  useTrackPodcastProgress({ podcastId: id, userId });
   const [podcast, setPodcast] = useState<Podcast | null>(null);
   const [isDescriptionExpanded, setIsDescriptionExpanded] = useState(false);
   const [showDescToggle, setShowDescToggle] = useState(false);
@@ -323,7 +323,8 @@ const PodcastViewport: React.FC = () => {
           <source src={podcast.videoUrl} type="video/mp4" />
           Your browser does not support the video tag.
         </video> */}
-        <CustomPodcastVideo podcastId={podcast.id} user={podcast.user} title={podcast.title} videoRef={videoRef} videoSrc={podcast.videoUrl} posterSrc={podcast.thumbnailUrl || "/TEST.png"} />
+        <CustomPodcastVideo podcastId={podcast.id} user={podcast.user} title={podcast.title} videoRef={videoRef} videoSrc={podcast.videoUrl} posterSrc={podcast.thumbnailUrl || "/TEST.png"}
+          solutionModelList={podcast.solutionModelList} />
 
         {!podcast.active && (
           <div className="mt-4">
@@ -415,10 +416,10 @@ const PodcastViewport: React.FC = () => {
             />
             <CustomButton
               text={language.podcastView.watchParty || "Watch Party"}
-              icon={<FaUsers size={20}/>}
+              icon={<FaUsers size={20} />}
               variant="primary"
               rounded="full"
-              onClick={() => { 
+              onClick={() => {
                 if (!isAuthenticated) {
                   toast.warning("Please login to do this action");
                   return;
@@ -446,8 +447,8 @@ const PodcastViewport: React.FC = () => {
                       <BsClockHistory className="inline-block mb-1 mr-2" />
                       {language.common.watchLater || "Watch Later"}
                     </li>
-                    <li className="px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer" 
-                      onClick={() => { 
+                    <li className="px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer"
+                      onClick={() => {
                         if (!isAuthenticated) {
                           toast.warning("Please login to do this action");
                           return;

@@ -105,7 +105,6 @@ public class PodcastController {
             UserModel userModel = userService.getUserByToken();
             // Tạo thư mục user-specific
             Path userPodcastDir = FileUtils.createUserDirectory(baseUploadDir, userModel.getId(), userModel.getEmail(), "podcast");
-//            videoTranscodeService.transcodeToHLS(videoFile,baseUploadDir);
 
             // Format tên file
             String formattedVideoFileName = FileUtils.formatFileName(videoFile.getOriginalFilename());
@@ -175,7 +174,7 @@ public class PodcastController {
             );
 
             PodcastModel podcastModel = podcastService.createPodcast(createPodcastModel, userModel.getId());
-
+            videoTranscodeService.transcodeVideo(podcastModel.getVideoUrl(),userPodcastDir.toString(),formattedVideoFileName, podcastModel.getId());
             // ✅ Không xài lại MultipartFile nữa. Dùng video đã lưu
             videoTranscribeService.transcribeVideo(realVideoFile, podcastModel.getId());
 

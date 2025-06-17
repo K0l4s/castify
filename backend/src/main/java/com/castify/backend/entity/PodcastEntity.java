@@ -1,5 +1,6 @@
 package com.castify.backend.entity;
 
+import com.castify.backend.models.podcast.SolutionModel;
 import org.springframework.data.annotation.Id; // Sửa dòng này
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -8,6 +9,7 @@ import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Document(collection = "podcast")
@@ -23,6 +25,8 @@ public class PodcastEntity {
     private String videoUrl;
     private long views;
     private long duration;
+//    private
+    private List<SolutionModel> solutionModelList = new ArrayList<>();
 
     private List<GenreEntity> genres;
 
@@ -49,3 +53,4 @@ public class PodcastEntity {
         return comments != null ? comments.size() : 0;
     }
 }
+
