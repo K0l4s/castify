@@ -51,82 +51,87 @@ public class CommentServiceImpl implements ICommentService {
     @Override
     public CommentModel addComment(CommentRequestDTO commentRequestDTO) {
         try {
+            UserEntity currentUser = userService.getUserByAuthentication();
 
-            UserEntity userEntity = userService.getUserByAuthentication();
-            if(blacklistService.calculateViolationScore(commentRequestDTO.getContent())>=1)
-            {
-//                String receiverId, NotiType type, String title, String content, String url
-                notificationService.saveNotification(userEntity.getId(),NotiType.WARNING,"CẢNH BÁO VI PHẠM!","Comment của bạn có chứa từ khóa cấm, hãy thử lại sau!","");
-                throw new Exception("Comment content is unavailable!");
-            }
-            PodcastEntity podcastEntity = podcastRepository.findById(commentRequestDTO.getPodcastId())
+            // Kiểm tra podcast
+            PodcastEntity podcast = podcastRepository.findById(commentRequestDTO.getPodcastId())
                     .orElseThrow(() -> new RuntimeException("Podcast not found"));
 
-            CommentEntity commentEntity = modelMapper.map(commentRequestDTO, CommentEntity.class);
-            commentEntity.setId(null);
-            commentEntity.setPodcast(podcastEntity);
-            commentEntity.setParentId(commentRequestDTO.getParentId());
-            commentEntity.setUser(userEntity);
-            if (commentEntity.getMentionedUser() != null) {
-                commentEntity.setContent("@" + commentEntity.getMentionedUser() + " " + commentEntity.getContent());
-            } else {
-                commentEntity.setContent(commentEntity.getContent());
+            // Tạo comment entity
+            CommentEntity comment = new CommentEntity();
+            comment.setId(null);
+            comment.setUser(currentUser);
+            comment.setPodcast(podcast);
+            comment.setParentId(commentRequestDTO.getParentId());
+            comment.setTimestamp(LocalDateTime.now());
+
+            // Gán content (xử lý censor nếu có vi phạm)
+            String originalContent = commentRequestDTO.getContent();
+            if (blacklistService.calculateViolationScore(originalContent) >= 1) {
+                notificationService.saveNotificationNonSender(
+                        currentUser.getId(),
+                        NotiType.WARNING,
+                        "CẢNH BÁO VI PHẠM!",
+                        "Comment của bạn có chứa từ khóa cấm, hãy cẩn thận lần sau!",
+                        ""
+                );
+                originalContent = blacklistService.censorViolationWords(originalContent);
             }
-            commentEntity.setTimestamp(LocalDateTime.now());
-            CommentEntity savedComment = new CommentEntity();
-            // Nếu có parentId, tìm comment cha và thêm vào replies
-            if (commentRequestDTO.getParentId() != null) {
-                CommentEntity parentComment = commentRepository.findById(commentRequestDTO.getParentId())
+
+            // Xử lý mention user (nếu có)
+            if (commentRequestDTO.getMentionedUser() != null) {
+                comment.setContent("@" + commentRequestDTO.getMentionedUser() + " " + originalContent);
+
+                UserEntity mentionedUser = userRepository.findByUsername(commentRequestDTO.getMentionedUser())
+                        .orElseThrow(() -> new RuntimeException("Mentioned user not found"));
+                comment.setMentionedUser(mentionedUser.getUsername());
+            } else {
+                comment.setContent(originalContent);
+            }
+
+            // Lưu comment
+            CommentEntity savedComment;
+            if (comment.getParentId() != null) {
+                CommentEntity parent = commentRepository.findById(comment.getParentId())
                         .orElseThrow(() -> new RuntimeException("Parent comment not found"));
 
-                // replies là null thì tạo một danh sách rỗng
-                if (parentComment.getReplies() == null) {
-                    parentComment.setReplies(new ArrayList<>());
+                if (parent.getReplies() == null) {
+                    parent.setReplies(new ArrayList<>());
                 }
 
-                // Lưu comment con trước để MongoDB sinh ID cho commentEntity
-                savedComment= commentRepository.save(commentEntity);
-
-                // Sau khi lưu, commentEntity sẽ có ID hợp lệ
-                parentComment.getReplies().add(commentEntity);
-
-                // Mention user nếu có
-                if (commentRequestDTO.getMentionedUser() != null) {
-                    UserEntity mentionedUser = userRepository.findByUsername(commentRequestDTO.getMentionedUser())
-                            .orElseThrow(() -> new RuntimeException("User not found"));
-                    commentEntity.setMentionedUser(mentionedUser.getUsername());
-                }
-
-                commentRepository.save(parentComment);
+                savedComment = commentRepository.save(comment);
+                parent.getReplies().add(savedComment);
+                commentRepository.save(parent);
             } else {
-                // Nếu không có parentId, đây là comment cấp 0
-                savedComment= commentRepository.save(commentEntity);
+                savedComment = commentRepository.save(comment);
             }
 
-            // Thêm ref trong PodcastEntity
-            if (podcastEntity.getComments() == null) {
-                podcastEntity.setComments(new ArrayList<>());
+            // Thêm comment vào podcast
+            if (podcast.getComments() == null) {
+                podcast.setComments(new ArrayList<>());
             }
+            podcast.getComments().add(savedComment);
+            podcastRepository.save(podcast);
 
-            podcastEntity.getComments().add(commentEntity);
-
-            podcastRepository.save(podcastEntity);
-            String content = userEntity.getFullname() + " đã bình luận "+commentRequestDTO.getContent()+" trên video " + podcastEntity.getTitle();
-            if (podcastEntity.getUser() != null) {
+            // Gửi thông báo đến chủ podcast nếu có
+            if (podcast.getUser() != null) {
+                String notiContent = currentUser.getFullname() + " đã bình luận: " + originalContent + " trên video " + podcast.getTitle();
                 notificationService.saveNotification(
-                        podcastEntity.getUser().getId(),
+                        podcast.getUser().getId(),
                         NotiType.COMMENT,
                         "Bạn có bình luận mới!",
-                        content,
-                        "/watch?pid=" + podcastEntity.getId()
+                        notiContent,
+                        "/watch?pid=" + podcast.getId()
                 );
             }
-            return modelMapper.map(commentEntity, CommentModel.class);
+
+            return modelMapper.map(savedComment, CommentModel.class);
         } catch (Exception e) {
             System.out.println("Error saving comment: " + e.getMessage());
             throw new RuntimeException("Failed to save comment", e);
         }
     }
+
 
     @Override
     public PageDTO<CommentModel> getPodcastComments(String id, int page, int size, String sortBy) {

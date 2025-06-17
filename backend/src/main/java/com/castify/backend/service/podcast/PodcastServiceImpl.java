@@ -784,6 +784,7 @@ public class PodcastServiceImpl implements IPodcastService {
                         .collect(Collectors.toList()) : new ArrayList<>(),
                 podcast.getViews(),
                 podcast.getDuration(),
+
                 podcast.getTotalLikes(),
                 podcast.getTotalComments(),
                 podcast.getUser() != null ? podcast.getUser().getUsername() : null,
@@ -791,7 +792,8 @@ public class PodcastServiceImpl implements IPodcastService {
                 podcast.getLastEdited(),
                 podcast.isActive(),
                 isLiked,
-                podcast.getUser() != null ? userSimple : null
+                podcast.getUser() != null ? userSimple : null,
+                podcast.getSolutionModelList()
         );
     }
     @Override

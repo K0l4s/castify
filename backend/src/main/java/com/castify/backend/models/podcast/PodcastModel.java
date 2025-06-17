@@ -8,6 +8,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @AllArgsConstructor
@@ -25,6 +26,7 @@ public class PodcastModel {
     private long totalLikes;
     private long totalComments;
     private String username;
+
     @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS")
     private LocalDateTime createdDay;
     @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS")
@@ -36,4 +38,7 @@ public class PodcastModel {
 //    private List<PodcastLikeEntity> likes;
 
     private UserSimple user;
+    private List<SolutionModel> solutionModelList;
+
+
 }

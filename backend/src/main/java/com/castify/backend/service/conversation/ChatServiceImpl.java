@@ -222,21 +222,39 @@ public class ChatServiceImpl implements IChatService {
 
     @Override
     public MessageResponse sendMessage(String message, String groupId) throws Exception {
-        UserEntity user = userService.getUserByAuthentication();
-        if(blacklistService.calculateViolationScore(message)>=1)
-        {
-//                String receiverId, NotiType type, String title, String content, String url
-            notificationService.saveNotification(user.getId(), NotiType.WARNING,"CẢNH BÁO VI PHẠM!","Tin nhắn của bạn có chứa từ khóa cấm, hãy thử lại sau!","");
-            throw new Exception("Comment content is unavailable!");
+        UserEntity sender = userService.getUserByAuthentication();
+
+        // Kiểm tra quyền gửi tin nhắn trong nhóm
+        checkValidMessage(groupId, sender.getId());
+
+        // Tạo đối tượng tin nhắn
+        MessageEntity messageEntity = new MessageEntity();
+        messageEntity.setSender(sender);
+        messageEntity.setContent(message);
+        messageEntity.setChatId(groupId);
+
+        // Kiểm tra và xử lý vi phạm nếu có
+        int violationScore = blacklistService.calculateViolationScore(message);
+        if (violationScore >= 1) {
+            // Gửi cảnh báo đến người dùng
+            notificationService.saveNotificationNonSender(
+                    sender.getId(),
+                    NotiType.WARNING,
+                    "CẢNH BÁO VI PHẠM!",
+                    "Tin nhắn của bạn có chứa từ khóa cấm!",
+                    ""
+            );
+
+            // Censor nội dung tin nhắn
+            String censoredContent = blacklistService.censorViolationWords(message);
+            messageEntity.setContent(censoredContent);
         }
-        checkValidMessage(groupId, user.getId());
-        MessageEntity msg = new MessageEntity();
-        msg.setSender(user);
-        msg.setContent(message);
-        msg.setChatId(groupId);
-        MessageEntity newMess = messageRepository.save(msg);
-        return modelMapper.map(newMess, MessageResponse.class);
+
+        // Lưu tin nhắn và trả về phản hồi
+        MessageEntity savedMessage = messageRepository.save(messageEntity);
+        return modelMapper.map(savedMessage, MessageResponse.class);
     }
+
 
     private void checkValidMessage(String groupId, String userId) {
         ChatEntity chatEntity = chatRepository.findChatEntityById(groupId);

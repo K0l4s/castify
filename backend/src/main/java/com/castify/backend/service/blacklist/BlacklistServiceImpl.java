@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.regex.Pattern;
 
 @Service
 public class BlacklistServiceImpl implements IBlacklistService{
@@ -46,5 +47,44 @@ public class BlacklistServiceImpl implements IBlacklistService{
 
         return totalScore;
     }
+    @Override
+    public String censorViolationWords(String text) {
+        String lowerText = text.toLowerCase();
+        String censoredText = text; // giữ nguyên chữ gốc để thay thế
+
+        List<BlacklistEntity> blacklist = blacklistRepository.findAll();
+        for (BlacklistEntity entity : blacklist) {
+            String value = entity.getValue();
+            if (value != null && !value.isEmpty()) {
+                String valueLower = value.toLowerCase();
+
+                if (lowerText.contains(valueLower)) {
+                    boolean isException = false;
+
+                    if (entity.getPos() != null && !entity.getPos().isEmpty()) {
+                        for (PosModel exception : entity.getPos()) {
+                            if (exception.getPos() != null && !exception.getPos().isEmpty()) {
+                                if (lowerText.contains(exception.getPos().toLowerCase())) {
+                                    isException = true;
+                                    break;
+                                }
+                            }
+                        }
+                    }
+
+                    if (!isException) {
+                        // Tạo bản che: ví dụ "tuấn" -> "t***"
+                        String censoredWord = value.charAt(0) + "*".repeat(value.length() - 1);
+
+                        // Regex thay thế không phân biệt hoa thường
+                        censoredText = censoredText.replaceAll("(?i)" + Pattern.quote(value), censoredWord);
+                    }
+                }
+            }
+        }
+
+        return censoredText;
+    }
+
 
 }

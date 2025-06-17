@@ -1,5 +1,8 @@
 import { UserSimple } from "./User";
-
+export interface SolutionModel{
+  solution:number;
+  url:string;
+}
 export interface Podcast {
   id: string;
   title: string;
@@ -17,6 +20,7 @@ export interface Podcast {
   user: UserSimple;
   active: boolean;
   liked: boolean;
+  solutionModelList: SolutionModel[];
 }
 
 export interface PodcastResponse {
