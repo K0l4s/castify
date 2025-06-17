@@ -20,7 +20,7 @@ const MainConversation = () => {
   const [pageNumber, setPageNumber] = useState(1);
   const [totalPage, setTotalPage] = useState(1);
   const [isFeching, setIsFeching] = useState(false);
-  const [isSending, setIsSending] = useState(false); // <-- Thêm state loading gửi tin nhắn
+  const [isSending, setIsSending] = useState(false);
   const [showInfo, setShowInfo] = useState(false);
   const [chatDetail, setChatDetail] = useState<ConversationDetail>(
     {
@@ -70,7 +70,7 @@ const MainConversation = () => {
   useEffect(() => {
     console.log(messages.length);
   }, [messages]);
-  const pageSize = 7;
+  const pageSize = 15;
   const fetchMessages = async () => {
     if (!id) return;
     setIsFeching(true);
@@ -81,13 +81,21 @@ const MainConversation = () => {
       console.log(response.data);
       // đảo ngược mảng để hiển thị tin nhắn mới nhất ở cuối
       setMessages((prevMessages) => [...prevMessages, ...response.data.data]);
+      if (pageNumber < 2) {
+        bottomRef.current?.scrollIntoView({ behavior: "smooth" });
+      }
+
+      // }
+
       // setPageNumber((prev) => prev + 1);
     } catch (error) {
       console.error("❌ Failed to fetch messages:", error);
     } finally {
       setIsFeching(false);
+      // bottomRef.current?.scrollIntoView({ behavior: "smooth" });
     }
   };
+
   useEffect(() => {
     setMessages([]);
     setPageNumber(1);
@@ -172,7 +180,7 @@ const MainConversation = () => {
     setIsSending(true); // Bắt đầu loading
     try {
       await conversationService.sendMessage(message, id);
-      
+
       bottomRef.current?.scrollIntoView({ behavior: "smooth" });
       // setMessages((prev) => [...prev, newMessage]);
       inputElement.value = "";

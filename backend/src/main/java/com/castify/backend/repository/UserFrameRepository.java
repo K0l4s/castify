@@ -5,6 +5,8 @@ import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.data.mongodb.repository.Query;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDateTime;
+import java.util.Collection;
 import java.util.List;
 
 @Repository
@@ -20,4 +22,7 @@ public interface UserFrameRepository extends MongoRepository<UserFrameEntity, St
 
     @Query(value = "{ 'user.id': ?0, 'frames.id': ?1 }", delete = true)
     void deleteByUserIdAndFrameId(String userId, String frameId);
+
+//    long countByFramesContains(String frameId);
+     long  countByFramesInAndPurchasedAtBetween(List<String> frames, LocalDateTime before, LocalDateTime after);
 }

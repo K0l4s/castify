@@ -8,6 +8,7 @@ import PodcastStatsChart from "./PodcastStatsChart";
 import { DateRange } from 'react-date-range';
 import 'react-date-range/dist/styles.css';
 import 'react-date-range/dist/theme/default.css';
+import { CiShop } from "react-icons/ci";
 
 const CreatorLandingPage = () => {
   const [dateRange, setDateRange] = useState<{
@@ -24,6 +25,7 @@ const CreatorLandingPage = () => {
     totalComments: 0,
     totalViews: 0,
     topVideos: [],
+    totalFrames: 0
   });
   const [prevData, setPrevData] = useState({
     totalFollowers: 0,
@@ -31,6 +33,7 @@ const CreatorLandingPage = () => {
     totalComments: 0,
     totalViews: 0,
     topVideos: [],
+    totalFrames: 0
   });
   useEffect(() => {
     if (dateRange.startDate && dateRange.endDate) {
@@ -122,37 +125,36 @@ const CreatorLandingPage = () => {
       title: language.profile.followers,
       value: data.totalFollowers,
       prevValue: prevData.totalFollowers,
-      color: 'text-blue-500 dark:text-blue-400',
-      bgColor: 'bg-gradient-to-tr from-blue-100 via-white to-blue-50 dark:from-blue-900/40 dark:via-gray-900 dark:to-blue-900/10',
+      color: 'text-blue-500',
       icon: <BsPeopleFill size={28} />,
-      link: null,
     },
     {
       title: language.creator.likes,
       value: data.totalLikes,
       prevValue: prevData.totalLikes,
-      color: 'text-green-500 dark:text-green-400',
-      bgColor: 'bg-gradient-to-tr from-green-100 via-white to-green-50 dark:from-green-900/40 dark:via-gray-900 dark:to-green-900/10',
+      color: 'text-green-500',
       icon: <FcLike size={28} />,
-      link: null,
     },
     {
       title: language.creator.comments,
       value: data.totalComments,
       prevValue: prevData.totalComments,
-      color: 'text-red-500 dark:text-red-400',
-      bgColor: 'bg-gradient-to-tr from-red-100 via-white to-red-50 dark:from-red-900/40 dark:via-gray-900 dark:to-red-900/10',
+      color: 'text-red-500',
       icon: <FcComments size={28} />,
-      link: null,
     },
     {
       title: language.creator.views,
       value: data.totalViews,
       prevValue: prevData.totalViews,
-      color: 'text-yellow-500 dark:text-yellow-400',
-      bgColor: 'bg-gradient-to-tr from-yellow-100 via-white to-yellow-50 dark:from-yellow-900/40 dark:via-gray-900 dark:to-yellow-900/10',
+      color: 'text-yellow-500',
       icon: <BsEye size={28} />,
-      link: null,
+    },
+    {
+      title: "Frame",
+      value: data.totalFrames,
+      prevValue: prevData.totalFrames,
+      color: 'text-violet-500',
+      icon: <CiShop size={28} />,
     }
   ];
 
@@ -188,41 +190,102 @@ const CreatorLandingPage = () => {
           </div>
         </div>
       </div>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
-        {statsCards.map((item, index) => {
-          const diff = item.value - item.prevValue;
-          const isPositive = diff > 0;
-          return (
-            <div
-              key={index}
-              className={`${item.bgColor} p-6 rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300 border border-transparent hover:border-blue-200 dark:hover:border-blue-700 group`}
-            >
-              <div className="flex justify-between items-center">
-                <div className={`${item.color} p-3 rounded-xl bg-white/80 dark:bg-gray-800/80 shadow-md group-hover:scale-110 transition-transform`}>
-                  {item.icon}
+      <div className="flex flex-row gap-3 mb-4">
+        <div className="grid w-2/3 grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
+          {statsCards.map((item, index) => {
+            const diff = item.value - item.prevValue;
+            return (
+              <div
+                key={index}
+                className={`flex flex-col items-center justify-center bg-white dark:bg-gray-800 rounded-xl shadow p-4 hover:shadow-lg transition cursor-pointer`}
+              >
+                <div className={`mb-2 ${item.color}`}>{item.icon}</div>
+                <div className={`text-lg font-semibold ${item.color}`}>{item.value.toLocaleString()}</div>
+                <div className="text-xs text-gray-500 ">{item.title}</div>
+                <div className="mt-1 text-xs flex items-center gap-1">
+                  {diff === 0 ? (
+                    <span className="text-gray-400">No change</span>
+                  ) : (
+                    <>
+                      <span className={diff > 0 ? "text-green-700" : "text-red-700"}>
+                        {diff > 0 ? "+" : ""}
+                        {diff.toLocaleString()}
+                        {" "}
+                        ({item.prevValue === 0 ? "N/A" : `${((diff / item.prevValue) * 100 > 0 ? "+" : "")}${((diff / item.prevValue) * 100).toFixed(1)}%`})
+                      </span>
+                    </>
+                  )}
                 </div>
-                <span className={`flex items-center gap-1 text-sm font-medium px-2 py-1 rounded-lg
-                  ${isPositive ? 'text-green-700 bg-green-100 dark:text-green-400 dark:bg-green-900/40' :
-                    'text-red-700 bg-red-100 dark:text-red-400 dark:bg-red-900/40'}`}>
-                  {isPositive ? '▲' : '▼'} {Math.abs(diff)}
-                </span>
               </div>
-              <div className="mt-4">
-                <h2 className="text-lg font-semibold text-gray-700 dark:text-gray-200">{item.title}</h2>
-                <p className={`text-3xl font-bold mt-2 ${item.color} tracking-tight`}>
-                  {item.value.toLocaleString()}
-                </p>
-              </div>
+            );
+          })}
+        </div>
+        {/* Bộ chọn ngày chiếm 1/3 */}
+        <div className="w-full max-w-96 md:w-1/3 flex flex-col gap-3">
+          {/* <h3 className="text-xl text-black dark:text-white font-bold mb-2">Date Range</h3>
+          <div className="rounded-2xl shadow-xl bg-white dark:bg-gray-900 p-4">
+            <DateRange
+              ranges={[{
+                startDate: dateRange.startDate,
+                endDate: dateRange.endDate,
+                key: 'selection',
+              }]}
+              onChange={(ranges: any) => {
+                const { startDate, endDate } = ranges.selection;
+                setDateRange({ startDate, endDate });
+              }}
+              maxDate={new Date()}
+              moveRangeOnFirstSelection={false}
+              className="rounded-lg"
+            />
+          </div> */}
+          <div className="p-4 flex flex-col items-center bg-white dark:bg-gray-800 rounded-xl shadow h-full">
+            <h2 className="text-base font-bold mb-3 text-blue-600 dark:text-blue-400">Select Date Range</h2>
+            <DateRange
+              ranges={[{
+                startDate: dateRange.startDate,
+                endDate: dateRange.endDate,
+                key: 'selection',
+              }]}
+              onChange={(ranges: any) => {
+                const { startDate, endDate } = ranges.selection;
+                setDateRange({ startDate, endDate });
+              }}
+              maxDate={new Date()}
+              moveRangeOnFirstSelection={false}
+              className="rounded-lg"
+            />
+            <div className="flex gap-2 mt-4">
+              <button
+                onClick={resetToToday}
+                className="px-3 py-1 rounded bg-blue-500 text-white hover:bg-blue-600 text-xs"
+              >
+                Today
+              </button>
+              <button
+                onClick={resetThisMonth}
+                className="px-3 py-1 rounded bg-blue-500 text-white hover:bg-blue-600 text-xs"
+              >
+                Month
+              </button>
+              <button
+                onClick={resetThisYear}
+                className="px-3 py-1 rounded bg-blue-500 text-white hover:bg-blue-600 text-xs"
+              >
+                Year
+              </button>
             </div>
-          );
-        })}
+            <div className="mt-2 text-xs text-gray-500 dark:text-gray-400 text-center">
+              {dateRange.startDate?.toLocaleDateString()} - {dateRange.endDate?.toLocaleDateString()}
+            </div>
+          </div>
+        </div>
       </div>
-
 
       {/* Chart & Date Picker */}
       <div className="mb-8 flex flex-col-reverse md:flex-row gap-6">
         {/* Biểu đồ chiếm 2/3 trên màn hình md trở lên */}
-        <div className="w-full md:w-2/3">
+        <div className="w-full">
           {stats ? (
             <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-xl transition-all duration-300 h-full">
               <PodcastStatsChart
@@ -239,26 +302,7 @@ const CreatorLandingPage = () => {
           )}
         </div>
 
-        {/* Bộ chọn ngày chiếm 1/3 */}
-        <div className="w-full max-w-96 md:w-1/3 flex flex-col gap-3">
-          <h3 className="text-xl text-black dark:text-white font-bold mb-2">Date Range</h3>
-          <div className="rounded-2xl shadow-xl bg-white dark:bg-gray-900 p-4">
-            <DateRange
-              ranges={[{
-                startDate: dateRange.startDate,
-                endDate: dateRange.endDate,
-                key: 'selection',
-              }]}
-              onChange={(ranges: any) => {
-                const { startDate, endDate } = ranges.selection;
-                setDateRange({ startDate, endDate });
-              }}
-              maxDate={new Date()}
-              moveRangeOnFirstSelection={false}
-              className="rounded-lg"
-            />
-          </div>
-        </div>
+
       </div>
 
       {/* Top Videos */}
