@@ -5,6 +5,7 @@ import { Genre, genreCreateUpdate } from "../../../models/GenreModel";
 // import { MdDelete } from "react-icons/md";
 import { RiImageAddLine } from "react-icons/ri";
 import { useToast } from "../../../context/ToastProvider";
+import { axiosInstanceAuth } from "../../../utils/axiosInstance";
 
 const AdminGenrePage = () => {
   const [genres, setGenres] = useState<Genre[]>([]);
@@ -23,6 +24,7 @@ const AdminGenrePage = () => {
   // const [openMenuId, setOpenMenuId] = useState<string | null>(null);
   const [allGenres, setAllGenres] = useState<Genre[]>([]);
   const [showAddGenreModal, setShowAddGenreModal] = useState(false);
+  const [topGenres, setTopGenres] = useState<{ id: string; name: string; count: number }[]>([]);
 
   const deleteModalRef = useRef<HTMLDivElement | null>(null);
   const toast = useToast();
@@ -64,8 +66,14 @@ const AdminGenrePage = () => {
 
   const fetchStatistics = async () => {
     try {
-      const totalCount = await getTotalActiveGenresCount();
+      const [totalCount, usageCounts] = await Promise.all([
+        getTotalActiveGenresCount(),
+        axiosInstanceAuth.get('/api/v1/genre/usage-count')
+      ]);
       setTotalGenreCount(totalCount);
+      // Sort by count in descending order and take top 3
+      const sortedGenres = usageCounts.data.sort((a: any, b: any) => b.count - a.count).slice(0, 3);
+      setTopGenres(sortedGenres);
     } catch (error) {
       console.error('Error fetching statistics:', error);
       toast.error('Có lỗi xảy ra khi lấy dữ liệu thống kê');
@@ -266,7 +274,7 @@ const AdminGenrePage = () => {
 
       {/* Thống kê */}
       <div className="mb-10">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           <div className="bg-gradient-to-r from-purple-500 to-pink-500 p-6 rounded-2xl shadow-xl text-white hover:shadow-2xl transition-all duration-300">
             <div className="flex items-center justify-between">
               <div>
@@ -279,6 +287,24 @@ const AdminGenrePage = () => {
               <p className="text-sm opacity-80">Thể loại đang hoạt động</p>
             </div>
           </div>
+
+          {/* Top 3 Genres */}
+          {topGenres.map((genre, index) => (
+            <div key={genre.id} className="bg-gradient-to-r from-blue-500 to-indigo-500 p-6 rounded-2xl shadow-xl text-white hover:shadow-2xl transition-all duration-300">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h4 className="text-xl font-semibold mb-2">Top {index + 1}</h4>
+                  <p className="text-2xl font-bold truncate">{genre.name}</p>
+                </div>
+                <div className="text-4xl">
+                  {index === 0 ? '🥇' : index === 1 ? '🥈' : '🥉'}
+                </div>
+              </div>
+              <div className="mt-4">
+                <p className="text-sm opacity-80">Được sử dụng {genre.count} lần</p>
+              </div>
+            </div>
+          ))}
         </div>
       </div>
 
