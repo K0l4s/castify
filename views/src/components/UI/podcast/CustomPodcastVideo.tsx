@@ -54,6 +54,26 @@ const CustomPodcastVideo = ({
             console.log("No solution model list provided or empty.");
         }
     }, [solutionModelList, podcastId, pid]);
+    const handleDefaultSolutionSelect = () => {
+        setSelectedSolution(null);
+        const video = videoRef.current;
+        if (video) {
+            const currentTime = video.currentTime;
+
+            // Gán src về video gốc
+            video.src = videoSrc;
+
+            // Đợi video load đủ để có thể đặt lại thời gian
+            const onCanPlay = () => {
+                video.currentTime = currentTime;
+                video.play();
+                video.removeEventListener("canplay", onCanPlay);
+            };
+
+            video.addEventListener("canplay", onCanPlay);
+        }
+    }
+
     const [selectedSolution, setSelectedSolution] = useState<SolutionModel | null>(null);
     const handleSolutionSelect = (solution: SolutionModel) => {
         setSelectedSolution(solution);
@@ -74,26 +94,6 @@ const CustomPodcastVideo = ({
             video.addEventListener("canplay", onCanPlay);
         }
     };
-
-    // const handleDefaultSolutionSelect = () => {
-    //    setSelectedSolution(null);
-    //     const video = videoRef.current;
-    //     if (video) {
-    //         const currentTime = video.currentTime;
-
-    //         // Gán src về video gốc
-    //         video.src = videoSrc;
-
-    //         // Đợi video load đủ để có thể đặt lại thời gian
-    //         const onCanPlay = () => {
-    //             video.currentTime = currentTime;
-    //             video.play();
-    //             video.removeEventListener("canplay", onCanPlay);
-    //         };
-
-    //         video.addEventListener("canplay", onCanPlay);
-    //     }
-    // }
 
 
     const containerRef = useRef<HTMLDivElement>(null);
@@ -514,10 +514,39 @@ const CustomPodcastVideo = ({
                 onMouseMove={handleMouseMove}
             >
                 {isLoading && (
-                    <div className="absolute inset-0 flex items-center justify-center bg-black/70 z-50">
+                    <div className="absolute inset-0 flex flex-col gap-2 items-center justify-center bg-black/70 z-50">
                         <div className="text-white text-lg font-semibold">
                             Đang tải video...
                         </div>
+                        {/* warn solution change */}
+                        <div className="text-yellow-500 text-lg font-semibold">
+                            Chọn chất lượng video thấp hơn!
+                        </div>
+                        {formattedSolutionModelList.length > 0 && (
+                            <select
+                                value={selectedSolution?.solution || ""}
+                                onChange={(e) => {
+                                    if (e.target.value === "") {
+                                        handleDefaultSolutionSelect();
+                                        return;
+                                    }
+                                    const selected = formattedSolutionModelList.find(
+                                        (s) => s.solution.toString() === e.target.value
+                                    );
+                                    handleSolutionSelect(selected!);
+
+                                }}
+                                className="bg-black/60 text-yellow-400 rounded px-3 py-1 border border-yellow-400 focus:outline-none focus:ring-2 focus:ring-yellow-400 font-semibold"
+                                style={{ minWidth: 80 }}
+                            >
+                                <option value={""}>Chất lượng gốc</option>
+                                {formattedSolutionModelList.map((solution) => (
+                                    <option key={solution.solution} value={solution.solution}>
+                                        {solution.solution}x
+                                    </option>
+                                ))}
+                            </select>
+                        )}
                     </div>
                 )
                 }
@@ -805,7 +834,10 @@ const CustomPodcastVideo = ({
                                 <select
                                     value={selectedSolution?.solution || ""}
                                     onChange={(e) => {
-
+                                        if (e.target.value === "") {
+                                            handleDefaultSolutionSelect();
+                                            return;
+                                        }
                                         const selected = formattedSolutionModelList.find(
                                             (s) => s.solution.toString() === e.target.value
                                         );
@@ -815,7 +847,7 @@ const CustomPodcastVideo = ({
                                     className="bg-black/60 text-yellow-400 rounded px-3 py-1 border border-yellow-400 focus:outline-none focus:ring-2 focus:ring-yellow-400 font-semibold"
                                     style={{ minWidth: 80 }}
                                 >
-                                    <option value={formattedSolutionModelList[0]?.solution || ""}>Chất lượng gốc</option>
+                                    <option value={""}>Chất lượng gốc</option>
                                     {formattedSolutionModelList.map((solution) => (
                                         <option key={solution.solution} value={solution.solution}>
                                             {solution.solution}x

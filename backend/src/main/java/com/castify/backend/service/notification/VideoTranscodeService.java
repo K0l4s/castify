@@ -17,7 +17,7 @@ public class VideoTranscodeService {
     private final List<Integer> availableResolutions = Arrays.asList(360, 480, 720, 1080);
     @Autowired
     private PodcastRepository podcastRepository;
-    public void transcodeVideo(String inputPath, String outputDir, String fileName, String podcastId) throws IOException, InterruptedException {
+    public void transcodeVideo(String inputPath, String outputDir, String podcastId) throws IOException, InterruptedException {
         // 1. Lấy độ phân giải gốc
         int sourceHeight = getVideoHeight(inputPath);
         if (sourceHeight == -1) throw new RuntimeException("Không lấy được độ phân giải video.");
