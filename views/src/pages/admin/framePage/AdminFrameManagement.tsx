@@ -134,18 +134,18 @@ const AdminFramePage = () => {
   }
 
   return (
-    <div className="container mx-auto px-4 py-8 text-black dark:text-white">
-      <div className="flex flex-col md:flex-row md:justify-between md:items-center mb-6 gap-4">
-        <h1 className="text-2xl font-bold ">Frame Management</h1>
-        <div className="flex gap-2 items-center">
+    <div className="container mx-auto px-4 py-10 text-black dark:text-white">
+      <div className="flex flex-col md:flex-row md:justify-between md:items-center mb-8 gap-4">
+        <h1 className="text-3xl font-extrabold text-gray-900 dark:text-white">🎨 Quản lý khung ảnh</h1>
+        <div className="flex gap-3 flex-wrap">
           <input
             type="text"
             value={searchKeyword}
             onChange={handleSearchChange}
             placeholder="Search by frame name..."
-            className="border rounded px-3 py-2 dark:bg-gray-800 dark:text-white bg-white text-black focus:outline-none focus:ring-2 focus:ring-blue-400"
+            className="px-5 py-2.5 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-400 dark:text-white"
           />
-          <div className="flex gap-1">
+          <div className="flex gap-2">
             {([
               { value: 'ALL', label: 'Tất cả' },
               { value: 'ACCEPTED', label: 'Đã duyệt' },
@@ -159,7 +159,7 @@ const AdminFramePage = () => {
                   setFilterStatus(option.value as FrameStatus);
                   setCurrentPage(1);
                 }}
-                className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors
+                className={`px-5 py-2.5 rounded-xl text-sm font-medium transition-all shadow-md
                   ${filterStatus === option.value
                     ? 'bg-blue-500 text-white'
                     : 'bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-200 hover:bg-blue-100 dark:hover:bg-blue-900'
@@ -172,63 +172,58 @@ const AdminFramePage = () => {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-8">
         {paginatedFrames.map((frame) => (
-          <div key={frame.id} className="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden">
-            <div className="relative p-2">
-              <div className='mx-auto w-48 h-48 my-4'>
-                <Avatar
-                  usedFrame={{
-                    id: frame.id,
-                    imageURL: frame.imageURL,
-                    name: frame.name,
-                    price: frame.price,
-                  }}
-                  avatarUrl={currentUser?.avatarUrl}
-                  alt={frame.name}
-                  width="w-48"
-                />
-              </div>
+          <div key={frame.id} className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg hover:shadow-2xl transition-shadow duration-300 overflow-hidden flex flex-col">
+            <div className="relative aspect-square w-10/12 m-auto p-5">
+              <Avatar
+                usedFrame={{
+                  id: frame.id,
+                  imageURL: frame.imageURL,
+                  name: frame.name,
+                  price: frame.price,
+                }}
+                avatarUrl={currentUser?.avatarUrl}
+                alt={frame.name}
+                width="w-full"
+                height="h-full"
+              />
             </div>
 
-            <div className="p-4 border-t dark:border-gray-700">
-              <div className="flex justify-between items-start mb-2">
-                <h2 className="text-lg font-semibold dark:text-white">{frame.name}</h2>
-                {getStatusBadge(frame.status)}
-              </div>
-
-              <div className="flex justify-between items-center">
-                <span className="text-sm text-gray-500 dark:text-gray-400">
-                  {new Date(frame.createdAt).toLocaleDateString()}
-                </span>
-              </div>
+            <div className="px-4 mb-2 flex justify-between items-start">
+              <h2 className="text-lg font-semibold text-gray-900 dark:text-white truncate">{frame.name}</h2>
+              {getStatusBadge(frame.status)}
             </div>
 
-            <div className="p-4 bg-gray-50 dark:bg-gray-900/50 flex justify-between items-center">
-              {frame.status === 'PROCESSING' && (
-                <>
-                  <button
-                    onClick={() => handleActionClick(frame, 'accept')}
-                    className="text-green-500 hover:text-green-600 dark:text-green-400 dark:hover:text-green-300"
-                  >
-                    Accept
-                  </button>
-                  <button
-                    onClick={() => handleActionClick(frame, 'reject')}
-                    className="text-red-500 hover:text-red-600 dark:text-red-400 dark:hover:text-red-300"
-                  >
-                    Reject
-                  </button>
-                </>
-              )}
+            <div className="px-4 mb-2">
+              <span className="text-sm text-gray-500 dark:text-gray-400">
+                {new Date(frame.createdAt).toLocaleDateString()}
+              </span>
             </div>
+
+            {frame.status === 'PROCESSING' && (
+              <div className="mt-auto px-4 py-3 bg-gray-50 dark:bg-gray-900/40 flex gap-3">
+                <button
+                  onClick={() => handleActionClick(frame, 'accept')}
+                  className="w-full bg-emerald-500 hover:bg-emerald-600 text-white font-medium py-2 rounded-xl transition-colors"
+                >
+                  ✓ Accept
+                </button>
+                <button
+                  onClick={() => handleActionClick(frame, 'reject')}
+                  className="w-full bg-red-500 hover:bg-red-600 text-white font-medium py-2 rounded-xl transition-colors"
+                >
+                  ✕ Reject
+                </button>
+              </div>
+            )}
           </div>
         ))}
       </div>
 
       {filteredFrames.length === 0 && (
-        <div className="text-center text-gray-500 dark:text-gray-400 mt-8">
-          No frames available at the moment.
+        <div className="text-center text-gray-500 dark:text-gray-400 mt-10 text-lg">
+          No frames available at the moment. 🚫
         </div>
       )}
 
@@ -239,10 +234,11 @@ const AdminFramePage = () => {
             <button
               key={idx + 1}
               onClick={() => handlePageChange(idx + 1)}
-              className={`px-3 py-1 rounded ${currentPage === idx + 1
-                ? 'bg-blue-500 text-white'
-                : 'bg-gray-200 dark:bg-gray-700 text-black dark:text-white'
-                }`}
+              className={`px-4 py-2 rounded-xl transition-all shadow-md ${
+                currentPage === idx + 1
+                  ? 'bg-blue-500 text-white'
+                  : 'bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-200 hover:bg-blue-100 dark:hover:bg-blue-900'
+              }`}
             >
               {idx + 1}
             </button>
@@ -253,25 +249,26 @@ const AdminFramePage = () => {
       {/* Confirmation Modal */}
       {isConfirmModalOpen && (
         <div ref={confirmModalRef} className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
-          <div className="bg-white dark:bg-gray-800 p-6 rounded-lg w-96">
-            <h3 className="text-xl font-semibold mb-4 text-center text-black dark:text-white">
+          <div className="bg-white dark:bg-gray-800 p-8 rounded-2xl w-96 shadow-2xl">
+            <h3 className="text-xl font-semibold mb-6 text-center text-black dark:text-white">
               {actionType === 'accept'
                 ? 'Bạn có chắc chắn chấp nhận frame này không?'
                 : 'Bạn có chắc chắn từ chối frame này không?'}
             </h3>
-            <div className="flex justify-between">
+            <div className="flex justify-between gap-4">
               <button
                 onClick={handleCancelAction}
-                className="px-4 py-2 bg-gray-300 text-black rounded-lg hover:bg-gray-400 dark:bg-gray-600 dark:text-white dark:hover:bg-gray-700"
+                className="flex-1 px-4 py-2.5 bg-gray-200 text-gray-700 dark:bg-gray-700 dark:text-gray-200 rounded-xl hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors"
               >
                 Hủy
               </button>
               <button
                 onClick={handleConfirmAction}
-                className={`px-4 py-2 text-white rounded-lg ${actionType === 'accept'
-                  ? 'bg-green-500 hover:bg-green-600'
-                  : 'bg-red-500 hover:bg-red-600'
-                  }`}
+                className={`flex-1 px-4 py-2.5 text-white rounded-xl transition-colors ${
+                  actionType === 'accept'
+                    ? 'bg-emerald-500 hover:bg-emerald-600'
+                    : 'bg-red-500 hover:bg-red-600'
+                }`}
               >
                 {actionType === 'accept' ? 'Chấp nhận' : 'Từ chối'}
               </button>
