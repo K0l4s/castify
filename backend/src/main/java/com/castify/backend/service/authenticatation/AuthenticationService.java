@@ -45,7 +45,7 @@ public class AuthenticationService implements IAuthenticationService {
 //    private final JwtServiceImpl jwtService;
 //    private final AuthenticationManager authenticationManager;
     @Autowired
-    private IJwtService jwtService = new JwtServiceImpl();
+    private IJwtService jwtService;
     @Autowired
     private TokenRepository tokenRepository;
     @Autowired
@@ -57,7 +57,7 @@ public class AuthenticationService implements IAuthenticationService {
     @Autowired
     private WardRepository wardRepository;
     @Autowired
-    private IEmailService emailService = new EmailServiceImpl();
+    private IEmailService emailService;
 
     @Autowired
     private UserRepository userRepository;

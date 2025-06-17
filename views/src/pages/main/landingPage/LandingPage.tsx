@@ -146,10 +146,10 @@ const LandingPage = () => {
         <TrendingCarousel />
         <div className="flex flex-col items-center justify-center gap-4 w-full md:w-2/5 mx-auto">
           <CardItem
-            title="VUI HƠN"
-            subtitle="Khi xem nhóm cùng WATCH PARTY!"
+            title="WATCH PARTY"
+            subtitle="Vui hơn khi xem nhóm!"
             label="WATCH PARTY"
-            image="https://png.pngtree.com/png-vector/20220709/ourmid/pngtree-friends-watching-movie-together-flat-illustration-png-image_5838894.png"
+            image="https://tascam.com/wp-content/uploads/images/products/_tascam/mixcast_4/mixcast_4_w_4_people.jpg"
             linkText="Learn more"
             linkTo="/browse-rooms"
           />
@@ -157,7 +157,7 @@ const LandingPage = () => {
             title="NHẬP MÃ CHAOHE2025"
             subtitle="SALE 25% Tất cả frame trong cửa hàng"
             label="Flash Deal"
-            image="https://cdn-icons-png.flaticon.com/512/3523/3523935.png"
+            image="https://t3.ftcdn.net/jpg/13/61/25/40/360_F_1361254042_KOrLQuvUncyIW8PT4RpZaaEgCqOBcSrP.jpg"
             linkText="Shop Now"
             linkTo="/shop"
           />
