@@ -20,6 +20,7 @@ const MainConversation = () => {
   const [pageNumber, setPageNumber] = useState(1);
   const [totalPage, setTotalPage] = useState(1);
   const [isFeching, setIsFeching] = useState(false);
+  const [isSending, setIsSending] = useState(false); // <-- Thêm state loading gửi tin nhắn
   const [showInfo, setShowInfo] = useState(false);
   const [chatDetail, setChatDetail] = useState<ConversationDetail>(
     {
@@ -51,7 +52,6 @@ const MainConversation = () => {
 
   useEffect(() => {
     dispatch(setClick(!click))
-
     const fetchChatDetail = async () => {
       if (!id) return;
       try {
@@ -169,15 +169,18 @@ const MainConversation = () => {
 
     if (!message || !id) return;
 
+    setIsSending(true); // Bắt đầu loading
     try {
       await conversationService.sendMessage(message, id);
+      
       bottomRef.current?.scrollIntoView({ behavior: "smooth" });
-      // const newMessage: Message = response.data;
       // setMessages((prev) => [...prev, newMessage]);
       inputElement.value = "";
       window.scrollTo(0, document.body.scrollHeight + 50);
     } catch (error) {
       console.error("❌ Failed to send message:", error);
+    } finally {
+      setIsSending(false); // Kết thúc loading
     }
   };
   useEffect(() => {
@@ -274,12 +277,14 @@ const MainConversation = () => {
               className="flex-1 p-3 rounded-lg border text-gray-900 dark:text-white bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 resize-none"
               rows={1}
               onKeyDown={(e) => e.key === "Enter" && !e.shiftKey && sendMessage()}
+              disabled={isSending}
             />
             <button
-              className="p-3 rounded-full bg-blue-500 hover:bg-blue-600 text-white transition-colors"
+              className={`p-3 rounded-full bg-blue-500 hover:bg-blue-600 text-white transition-colors flex items-center justify-center ${isSending ? "opacity-60 cursor-not-allowed" : ""}`}
               onClick={sendMessage}
+              disabled={isSending}
             >
-              <TbSend size={20} />
+              {isSending ? <VscLoading className="animate-spin" size={20} /> : <TbSend size={20} />}
             </button>
           </div>
         </div>

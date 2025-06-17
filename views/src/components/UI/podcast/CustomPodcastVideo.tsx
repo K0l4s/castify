@@ -847,10 +847,10 @@ const CustomPodcastVideo = ({
                                     className="bg-black/60 text-yellow-400 rounded px-3 py-1 border border-yellow-400 focus:outline-none focus:ring-2 focus:ring-yellow-400 font-semibold"
                                     style={{ minWidth: 80 }}
                                 >
-                                    <option value={""}>Chất lượng gốc</option>
+                                    <option value={""}>GỐC</option>
                                     {formattedSolutionModelList.map((solution) => (
                                         <option key={solution.solution} value={solution.solution}>
-                                            {solution.solution}x
+                                            {solution.solution}P
                                         </option>
                                     ))}
                                 </select>
