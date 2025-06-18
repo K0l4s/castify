@@ -7,7 +7,7 @@ import defaultAvatar from "../../../assets/images/default_avatar.jpg";
 import { BsDot, BsThreeDotsVertical } from "react-icons/bs";
 import { CgEyeAlt } from "react-icons/cg";
 import { BsClock } from "react-icons/bs";
-import { MdOutlineWatchLater, MdOutlinePlaylistAdd, MdShare, MdOutlineFlag } from "react-icons/md";
+import { MdOutlinePlaylistAdd, MdShare, MdOutlineFlag } from "react-icons/md";
 import { formatTimeDuration } from "./video";
 import { FaClock, FaPlay } from "react-icons/fa";
 import Tooltip from "../custom/Tooltip";
@@ -180,7 +180,7 @@ const PodcastListItem: React.FC<PodcastListItemProps> = ({
               >
                 <MdOutlineFlag className="mr-2" /> {language.common.report || "Report"}
               </button>
-              <button
+              {/* <button
                 className="flex w-full items-center px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
                 onClick={(e) => {
                   e.stopPropagation();
@@ -188,7 +188,7 @@ const PodcastListItem: React.FC<PodcastListItemProps> = ({
                 }}
               >
                 <MdOutlineWatchLater className="mr-2" /> {language.common.watchLater || "Watch Later"}
-              </button>
+              </button> */}
             </div>
           )}
         </div>

@@ -8,7 +8,7 @@ import { useToast } from '../../../context/ToastProvider';
 import { useSelector } from 'react-redux';
 import { RootState } from '../../../redux/store';
 import CustomButton from '../../../components/UI/custom/CustomButton';
-import { FaPlay, FaRandom, FaGripLines, FaTrashAlt, FaBookmark, FaEdit, FaArrowLeft } from 'react-icons/fa';
+import { FaPlay, FaRandom, FaGripLines, FaTrashAlt, FaEdit, FaArrowLeft } from 'react-icons/fa';
 import { HiDotsVertical } from 'react-icons/hi';
 import { formatTimeDuration } from '../../../components/UI/podcast/video';
 import no_img_available from '../../../assets/images/no_img_available.jpg';
@@ -192,10 +192,10 @@ const DetailPlaylistPage: React.FC = () => {
     setActiveMenuId(activeMenuId === podcastId ? null : podcastId);
   };
 
-  const handleSavePodcast = async (podcastId: string) => {
-    toast.info(`Save feature is coming soon ${podcastId}`);
-    setActiveMenuId(null);
-  };
+  // const handleSavePodcast = async (podcastId: string) => {
+  //   toast.info(`Save feature is coming soon ${podcastId}`);
+  //   setActiveMenuId(null);
+  // };
 
   const handleRemoveItem = (podcastId: string) => {
     setItemToDelete(podcastId);
@@ -518,13 +518,13 @@ const DetailPlaylistPage: React.FC = () => {
                                       className="absolute right-8 top-0 w-48 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg z-50"
                                     >
                                       <ul className="py-1">
-                                        <li 
+                                        {/* <li 
                                           className="px-4 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer flex items-center text-gray-700 dark:text-gray-300 transition ease-in-out duration-200"
                                           onClick={() => handleSavePodcast(item.podcastId)}
                                         >
                                           <FaBookmark className="mr-2" />
                                           Save podcast
-                                        </li>
+                                        </li> */}
                                         
                                         {/* Only show remove option if user owns the playlist */}
                                         {isOwnPlaylist && (

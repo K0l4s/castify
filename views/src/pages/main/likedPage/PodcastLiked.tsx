@@ -5,7 +5,7 @@ import { FaBookmark, FaEye, FaFlag, FaShareAlt, FaHeart, FaRegHeart, FaPlay, FaC
 import { HiDotsVertical } from "react-icons/hi";
 import defaultAvatar from "../../../assets/images/default_avatar.jpg";
 import { ReportType } from "../../../models/Report";
-import { useToast } from "../../../context/ToastProvider";
+// import { useToast } from "../../../context/ToastProvider";
 import CustomOptionMenu from "../../../components/UI/custom/CustomOptionMenu";
 import Avatar from "../../../components/UI/user/Avatar";
 import ShareModal from "../../../components/modals/podcast/ShareModal";
@@ -13,7 +13,7 @@ import ReportModal from "../../../components/modals/report/ReportModal";
 import { formatTimeDuration } from "../../../components/UI/podcast/video";
 import AddToPlaylistModal from "../playlistPage/AddToPlaylistModal";
 import { useLanguage } from "../../../context/LanguageContext";
-import { MdOutlineWatchLater } from "react-icons/md";
+// import { MdOutlineWatchLater } from "react-icons/md";
 
 interface PodcastLikedProps {
   podcast: Podcast;
@@ -31,13 +31,13 @@ const PodcastLiked: React.FC<PodcastLikedProps> = ({
 
   const [isLiked, setIsLiked] = useState(true);
 
-  const toast = useToast();
+  // const toast = useToast();
   const podcastLink = `${window.location.origin}/watch?pid=${podcast.id}`;
   const author = podcast.user.fullname;
   
-  const handleSave = () => {
-    toast.info("Save feature is coming soon");
-  };
+  // const handleSave = () => {
+  //   toast.info("Save feature is coming soon");
+  // };
 
   const toggleShareModal = () => {
     setIsShareModalOpen(!isShareModalOpen);
@@ -146,10 +146,10 @@ const PodcastLiked: React.FC<PodcastLikedProps> = ({
               <FaFlag className="inline-block mr-2" />
               {language.common.report}
             </li>
-            <li className="px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer" onClick={handleSave}>
+            {/* <li className="px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer" onClick={handleSave}>
               <MdOutlineWatchLater className="inline-block mr-2" />
               {language.common.watchLater}
-            </li>
+            </li> */}
             <li className="px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer" onClick={toggleAddToPlaylistModal}>
               <FaBookmark className="inline-block mr-2" />
               {language.common.addToPlaylist}

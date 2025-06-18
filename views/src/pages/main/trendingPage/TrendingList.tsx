@@ -9,7 +9,7 @@ import Avatar from '../../../components/UI/user/Avatar';
 import defaultAvatar from '../../../assets/images/default_avatar.jpg';
 import { BsDot, BsThreeDotsVertical } from 'react-icons/bs';
 import { FaClock, FaPlay } from 'react-icons/fa';
-import { MdOutlineWatchLater, MdOutlinePlaylistAdd, MdShare, MdOutlineFlag } from 'react-icons/md';
+import { MdOutlinePlaylistAdd, MdShare, MdOutlineFlag } from 'react-icons/md';
 import { CgEyeAlt } from 'react-icons/cg';
 import { BsClock } from 'react-icons/bs';
 import ShareModal from '../../../components/modals/podcast/ShareModal';
@@ -161,10 +161,10 @@ const TrendingList: React.FC = () => {
     navigate(`/watch?pid=${podcastId}`);
   };
 
-  const onWatchLaterClick = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    toast.info("Coming soon!");
-  }
+  // const onWatchLaterClick = (e: React.MouseEvent) => {
+  //   e.stopPropagation();
+  //   toast.info("Coming soon!");
+  // }
 
   if (loading && podcasts.length === 0) {
     return (
@@ -388,12 +388,12 @@ const TrendingList: React.FC = () => {
                       >
                         <MdOutlineFlag className="mr-2" /> {language.common.report}
                       </button>
-                      <button
+                      {/* <button
                         className="flex w-full items-center px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
                         onClick={(e) => onWatchLaterClick(e)}
                       >
                         <MdOutlineWatchLater className="mr-2" /> {language.common.watchLater}
-                      </button>
+                      </button> */}
                     </div>
                   )}
                 </div>
