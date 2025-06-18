@@ -126,4 +126,10 @@ public class GenreController {
         List<GenreUsageCount> genreUsageCounts = genreService.countGenreUsage();
         return ResponseEntity.ok(genreUsageCounts);
     }
+
+    @GetMapping("/public/usage-count")
+    public ResponseEntity<List<GenreUsageCount>> getPublicGenreUsageCount() {
+        List<GenreUsageCount> genreUsageCounts = genreService.countGenreUsage();
+        return ResponseEntity.ok(genreUsageCounts);
+    }
 }

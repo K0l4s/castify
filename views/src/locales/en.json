@@ -111,10 +111,11 @@
         "deleteTitle": "Are you really want to delete ?"
     },
     "landingPage": {
-        "suggestFollowTitle": "Creator matching for you",
-        "yourFavorite": "Your Favorite",
-        "youMayLike": "You May Like",
-        "discover": "Discover Podcasts"
+        "suggestFollowTitle": "Creators matching for you!",
+        "topGenresTitle": "Most Popular Genres",
+        "yourFavorite": "What you love",
+        "youMayLike": "You may like",
+        "discover": "Discover Podcast"
     },
     "creator": {
         "overview": "Creator Overview",
