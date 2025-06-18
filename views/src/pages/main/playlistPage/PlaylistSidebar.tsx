@@ -3,7 +3,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { PlaylistModel } from '../../../models/PlaylistModel';
 import PlaylistService from '../../../services/PlaylistService';
-import { FaBookmark, FaChevronDown, FaChevronUp, FaGripLines, FaPlay, FaTrashAlt } from 'react-icons/fa';
+import { FaChevronDown, FaChevronUp, FaGripLines, FaPlay, FaTrashAlt } from 'react-icons/fa';
 import { FiLoader } from 'react-icons/fi';
 import { formatTimeDuration } from '../../../components/UI/podcast/video';
 import './style/PlaylistSidebar.css';
@@ -116,20 +116,20 @@ const PlaylistSidebar: React.FC<PlaylistSidebarProps> = ({ playlistId, currentPo
     setActiveMenuId(activeMenuId === podcastId ? null : podcastId);
   };
 
-  const handleSavePodcast = async (podcastId: string) => {
-    if (!isAuthenticated) {
-      toast.warning("Please login to save podcasts");
-      return;
-    }
+  // const handleSavePodcast = async (podcastId: string) => {
+  //   if (!isAuthenticated) {
+  //     toast.warning("Please login to save podcasts");
+  //     return;
+  //   }
     
-    try {
-      // Implement save podcast functionality here
-      toast.success("Podcast saved successfully: " + podcastId);
-      setActiveMenuId(null);
-    } catch (error) {
-      toast.error("Failed to save podcast");
-    }
-  };
+  //   try {
+  //     // Implement save podcast functionality here
+  //     toast.success("Podcast saved successfully: " + podcastId);
+  //     setActiveMenuId(null);
+  //   } catch (error) {
+  //     toast.error("Failed to save podcast");
+  //   }
+  // };
 
   const handleRemoveFromPlaylist = async (podcastId: string) => {
     if (!isAuthenticated) {
@@ -394,13 +394,13 @@ const PlaylistSidebar: React.FC<PlaylistSidebarProps> = ({ playlistId, currentPo
                                 className="absolute right-8 -top-2 w-48 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg z-50"
                               >
                                 <ul className="py-1">
-                                  <li 
+                                  {/* <li 
                                     className="px-4 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer flex items-center text-gray-700 dark:text-gray-300 transition ease-in-out duration-200"
                                     onClick={() => handleSavePodcast(item.podcastId)}
                                   >
                                     <FaBookmark className="mr-2" />
                                     Save podcast
-                                  </li>
+                                  </li> */}
                                   {/* Only show remove option if user owns the playlist */}
                                   {isOwnPlaylist && (
                                     <li 

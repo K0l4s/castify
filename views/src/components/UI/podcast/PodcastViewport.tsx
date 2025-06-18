@@ -31,7 +31,7 @@ import AddToPlaylistModal from "../../../pages/main/playlistPage/AddToPlaylistMo
 import { useTrackPodcastProgress } from "../../../hooks/useTrackPodcastProgress";
 import { BaseApi } from "../../../utils/axiosInstance";
 import { useLanguage } from "../../../context/LanguageContext";
-import { BsClockHistory } from "react-icons/bs";
+// import { BsClockHistory } from "react-icons/bs";
 import { RiPlayListAddFill } from "react-icons/ri";
 
 const PodcastViewport: React.FC = () => {
@@ -293,9 +293,9 @@ const PodcastViewport: React.FC = () => {
     navigate(`/creator/podcast/${id}`);
   };
 
-  const handleSave = () => {
-    toast.info("Save feature is coming soon");
-  };
+  // const handleSave = () => {
+  //   toast.info("Save feature is coming soon");
+  // };
 
   const toggleAddToPlaylistModal = (podcastId: string) => {
     setSelectedPodcastId(podcastId);
@@ -443,10 +443,10 @@ const PodcastViewport: React.FC = () => {
                       <FaFlag className="inline-block mb-1 mr-2" />
                       {language.common.report || "Report"}
                     </li>
-                    <li className="px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer" onClick={handleSave}>
+                    {/* <li className="px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer" onClick={handleSave}>
                       <BsClockHistory className="inline-block mb-1 mr-2" />
                       {language.common.watchLater || "Watch Later"}
-                    </li>
+                    </li> */}
                     <li className="px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer"
                       onClick={() => {
                         if (!isAuthenticated) {

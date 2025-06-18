@@ -9,12 +9,12 @@ import ShareModal from "../../modals/podcast/ShareModal";
 import defaultAvatar from "../../../assets/images/default_avatar.jpg";
 import ReportModal from "../../modals/report/ReportModal";
 import { ReportType } from "../../../models/Report";
-import { useToast } from "../../../context/ToastProvider";
+// import { useToast } from "../../../context/ToastProvider";
 import Avatar from "../user/Avatar";
 import { formatTimeDuration } from "./video";
 import AddToPlaylistModal from "../../../pages/main/playlistPage/AddToPlaylistModal";
 import { useLanguage } from "../../../context/LanguageContext";
-import { MdOutlineWatchLater } from "react-icons/md";
+// import { MdOutlineWatchLater } from "react-icons/md";
 import { formatRelativeTime } from "../../../utils/DateUtils";
 
 interface PodcastHistoryProps {
@@ -33,7 +33,7 @@ const PodcastHistory: React.FC<PodcastHistoryProps> = ({
   const [isReportModalOpen, setIsReportModalOpen] = useState(false);
   const [isPlaylistModalOpen, setIsPlaylistModalOpen] = useState(false);
 
-  const toast = useToast();
+  // const toast = useToast();
   const podcastLink = `${window.location.origin}/watch?pid=${podcast.id}`;
   const author = podcast.user.fullname;
   
@@ -42,9 +42,9 @@ const PodcastHistory: React.FC<PodcastHistoryProps> = ({
       ? formatRelativeTime(timestamp, currentLang)
       : currentLang === 'vi' ? 'Ngày không xác định' : 'Unknown Date';
 
-  const handleSave = () => {
-    toast.info("Save feature is coming soon");
-  };
+  // const handleSave = () => {
+  //   toast.info("Save feature is coming soon");
+  // };
 
   const toggleShareModal = () => {
     setIsShareModalOpen(!isShareModalOpen);
@@ -149,10 +149,10 @@ const PodcastHistory: React.FC<PodcastHistoryProps> = ({
               <FaFlag className="inline-block mr-2" />
               {language.common.report}
             </li>
-            <li className="px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer" onClick={handleSave}>
+            {/* <li className="px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer" onClick={handleSave}>
               <MdOutlineWatchLater className="inline-block mr-2" />
               {language.common.watchLater}
-            </li>
+            </li> */}
             <li className="px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer" onClick={toggleAddToPlaylistModal}>
               <FaBookmark className="inline-block mr-2" />
               {language.common.addToPlaylist}

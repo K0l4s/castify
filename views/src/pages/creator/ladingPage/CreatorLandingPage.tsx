@@ -201,13 +201,13 @@ const CreatorLandingPage = () => {
               >
                 <div className={`mb-2 ${item.color}`}>{item.icon}</div>
                 <div className={`text-lg font-semibold ${item.color}`}>{item.value.toLocaleString()}</div>
-                <div className="text-xs text-gray-500 ">{item.title}</div>
-                <div className="mt-1 text-xs flex items-center gap-1">
+                <div className="text-lg text-gray-500 dark:text-gray-300">{item.title}</div>
+                <div className="mt-1 text-lg flex items-center gap-1">
                   {diff === 0 ? (
                     <span className="text-gray-400">No change</span>
                   ) : (
                     <>
-                      <span className={diff > 0 ? "text-green-700" : "text-red-700"}>
+                      <span className={diff > 0 ? "dark:text-green-500 text-green-600" : "text-red-700"}>
                         {diff > 0 ? "+" : ""}
                         {diff.toLocaleString()}
                         {" "}
