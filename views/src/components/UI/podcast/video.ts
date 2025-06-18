@@ -10,13 +10,20 @@ export const setupVideoViewTracking = (
   let viewIncremented = false;
 
   const handleLoadedMetadata = () => {
-    if (videoElement.duration < 20) {
-      continuousThreshold = videoElement.duration / 2;
-      console.log("continuousThreshold", continuousThreshold);
+    const durationInMinutes = videoElement.duration / 60; // Convert to minutes
+    
+    if (durationInMinutes < 10) {
+      // Video < 10 phút: phải xem 1/3 thời gian
+      continuousThreshold = videoElement.duration / 3;
+      // console.log(`Video < 10min: threshold = ${continuousThreshold.toFixed(2)}s (1/3 of ${videoElement.duration.toFixed(2)}s)`);
+    } else if (durationInMinutes >= 10 && durationInMinutes < 30) {
+      // Video 10-30 phút: phải xem 3 phút
+      continuousThreshold = 3 * 60; // 3 minutes = 180 seconds
+      // console.log(`Video 10-30min: threshold = ${continuousThreshold}s (3 minutes)`);
     } else {
-      // continuousThreshold = videoElement.duration / 2;
-      continuousThreshold = 10; // Dành cho test, 10s auto tăng view
-      console.log("continuousThreshold", continuousThreshold);
+      // Video > 30 phút: phải xem 5 phút
+      continuousThreshold = 5 * 60; // 5 minutes = 300 seconds
+      // console.log(`Video > 30min: threshold = ${continuousThreshold}s (5 minutes)`);
     }
   };
 
