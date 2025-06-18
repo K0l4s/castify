@@ -8,6 +8,7 @@ import { useSelector } from 'react-redux';
 import { RootState } from '../../../redux/store';
 import { userService } from '../../../services/UserService';
 import { useToast } from '../../../context/ToastProvider';
+import { useLanguage } from '../../../context/LanguageContext';
 
 interface UserCardProps {
   user: UserSimple;
@@ -20,6 +21,7 @@ const UserCard: React.FC<UserCardProps> = ({
 }) => {
   const navigate = useNavigate();
   const toast = useToast();
+  const {language} = useLanguage();
   const [isLoading, setIsLoading] = useState(false);
   
   const isAuthenticated = useSelector((state: RootState) => state.auth.isAuthenticated);
@@ -29,8 +31,7 @@ const UserCard: React.FC<UserCardProps> = ({
     navigate(`/profile/${user.username}`);
   };
 
-  // ✅ Handle follow/unfollow logic
-  const handleFollowClick = async () => { // ✅ Remove event parameter
+  const handleFollowClick = async () => {
     if (!isAuthenticated) {
       toast.error('Please login to follow users');
       return;
@@ -66,7 +67,6 @@ const UserCard: React.FC<UserCardProps> = ({
 
   return (
     <div className="bg-white dark:bg-gray-800 rounded-xl shadow-md hover:shadow-xl transition-all duration-200 border border-gray-200 dark:border-gray-700 overflow-hidden group">
-      {/* ✅ Click để đi profile */}
       <div 
         onClick={handleProfileClick}
         className="p-6 text-center cursor-pointer"
@@ -87,7 +87,7 @@ const UserCard: React.FC<UserCardProps> = ({
           <h3 className="font-semibold text-lg text-gray-900 dark:text-white mb-1 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
             {user.fullname}
           </h3>
-          <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">
+          <p className="text-sm text-gray-600 dark:text-gray-400 mb-2 overflow-hidden text-ellipsis whitespace-nowrap" title={user.username}>
             @{user.username}
           </p>
           
@@ -97,28 +97,27 @@ const UserCard: React.FC<UserCardProps> = ({
               <span className="font-semibold text-gray-900 dark:text-white">
                 {user.totalFollower.toLocaleString()}
               </span>
-              <span className="ml-1">followers</span>
+              <span className="ml-1">{language.common.followers || 'followers'}</span>
             </div>
           </div>
         </div>
       </div>
 
-      {/* ✅ Follow Button riêng - tránh conflict với profile click */}
       <div 
         className="px-6 pb-6"
-        onClick={(e) => e.stopPropagation()} // ✅ Stop propagation here
+        onClick={(e) => e.stopPropagation()}
       >
         {/* Follow Button - Only show if not current user */}
         {isAuthenticated && currentUser && currentUser.id !== user.id && (
           <CustomButton
-            text={user.follow ? "Following" : "Follow"}
+            text={user.follow ? language.common.following || "Following" : language.common.follow || "Follow"}
             icon={user.follow ? <FiUserCheck /> : <FiUserPlus />}
             variant={user.follow ? "outline" : "primary"}
             size="sm"
             className="w-full"
             disabled={isLoading}
-            loading={isLoading} // ✅ Show loading state
-            onClick={handleFollowClick} // ✅ No event parameter needed
+            loading={isLoading} 
+            onClick={handleFollowClick}
           />
         )}
         
