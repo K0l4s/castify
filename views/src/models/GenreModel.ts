@@ -4,8 +4,8 @@ export interface Genre {
     imageUrl: string | null;
     color: string | null;
     textColor: string | null;
-    active: boolean;
-    lastEdited: Date;
+    active?: boolean;
+    lastEdited?: Date;
 }
 
 export interface genreCreateUpdate {

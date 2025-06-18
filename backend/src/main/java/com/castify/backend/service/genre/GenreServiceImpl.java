@@ -157,7 +157,8 @@ public class GenreServiceImpl implements IGenreService {
 
     @Override
     public List<GenreUsageCount> countGenreUsage() {
-        List<GenreEntity> allGenres = genreRepository.findAll();
+        // List<GenreEntity> allGenres = genreRepository.findAll();
+        List<GenreEntity> activeGenres = genreRepository.findByIsActiveTrue();
         List<PodcastEntity> podcasts = podcastRepository.findAllGenresInPodcasts();
 
         Map<String, Long> genreUsageMap = new HashMap<>();
@@ -167,7 +168,8 @@ public class GenreServiceImpl implements IGenreService {
             });
         });
 
-        return allGenres.stream()
+        // return allGenres.stream()
+        return activeGenres.stream()
                 .map(genre -> new GenreUsageCount(
                         genre.getId(),
                         genre.getName(),
