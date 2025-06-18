@@ -228,35 +228,35 @@ const AdminLadingPage = () => {
             const diff = item.prevValue !== undefined ? item.value - item.prevValue : 0;
             const diffPercent =
               item.prevValue && item.prevValue !== 0
-          ? ((item.value - item.prevValue) / item.prevValue) * 100
-          : item.value !== 0
-          ? 100
-          : 0;
+                ? ((item.value - item.prevValue) / item.prevValue) * 100
+                : item.value !== 0
+                  ? 100
+                  : 0;
             return (
               <div
-          key={idx}
-          className={`flex flex-col items-center justify-center bg-white dark:bg-gray-800 rounded-xl shadow p-4 hover:shadow-lg transition cursor-pointer`}
-          onClick={() => item.link && navigate(item.link)}
+                key={idx}
+                className={`flex flex-col items-center justify-center bg-white dark:bg-gray-800 rounded-xl shadow p-4 hover:shadow-lg transition cursor-pointer`}
+                onClick={() => item.link && navigate(item.link)}
               >
-          <div className={`mb-2 ${item.color}`}>{item.icon}</div>
-          <div className="text-lg font-semibold">{item.value.toLocaleString()}</div>
-          <div className="text-xs text-gray-500">{item.title}</div>
-          <div className="mt-1 text-xs flex items-center gap-1">
-            {diff === 0 ? (
-              <span className="text-gray-400">No change</span>
-            ) : (
-              <>
-                <span className={diff > 0 ? "text-green-500" : "text-red-500"}>
-            {diff > 0 ? "+" : ""}
-            {diff.toLocaleString()}
-            {" "}
-            ({diffPercent > 0 ? "+" : ""}
-            {diffPercent.toFixed(1)}%)
-                </span>
-                {/* <span className="text-gray-400">vs prev</span> */}
-              </>
-            )}
-          </div>
+                <div className={`mb-2 ${item.color}`}>{item.icon}</div>
+                <div className="text-lg font-semibold">{item.value.toLocaleString()}</div>
+                <div className="text-xs text-gray-500">{item.title}</div>
+                <div className="mt-1 text-xs flex items-center gap-1">
+                  {diff === 0 ? (
+                    <span className="text-gray-400">No change</span>
+                  ) : (
+                    <>
+                      <span className={diff > 0 ? "text-green-500" : "text-red-500"}>
+                        {diff > 0 ? "+" : ""}
+                        {diff.toLocaleString()}
+                        {" "}
+                        ({diffPercent > 0 ? "+" : ""}
+                        {diffPercent.toFixed(1)}%)
+                      </span>
+                      {/* <span className="text-gray-400">vs prev</span> */}
+                    </>
+                  )}
+                </div>
               </div>
             );
           })}
@@ -264,19 +264,19 @@ const AdminLadingPage = () => {
 
         {/* Date Picker & Chart */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="p-4 flex flex-col items-center bg-white dark:bg-gray-800 rounded-xl shadow h-full">
+          <div className="p-4 flex flex-col items-center bg-white dark:bg-gray-800 rounded-xl shadow h-full">
             <h2 className="text-base font-bold mb-3 text-blue-600 dark:text-blue-400">Select Date Range</h2>
             <DateRange
               editableDateInputs={true}
               onChange={(item) => {
-              const selection = item.selection;
-              setDateRange([
-                {
-                startDate: selection.startDate ?? today,
-                endDate: selection.endDate ?? today,
-                key: selection.key ?? "selection",
-                },
-              ]);
+                const selection = item.selection;
+                setDateRange([
+                  {
+                    startDate: selection.startDate ?? today,
+                    endDate: selection.endDate ?? today,
+                    key: selection.key ?? "selection",
+                  },
+                ]);
               }}
               moveRangeOnFirstSelection={false}
               ranges={dateRange}
@@ -286,28 +286,28 @@ const AdminLadingPage = () => {
             />
             <div className="flex gap-2 mt-4">
               <button
-              onClick={resetToToday}
-              className="px-3 py-1 rounded bg-blue-500 text-white hover:bg-blue-600 text-xs"
+                onClick={resetToToday}
+                className="px-3 py-1 rounded bg-blue-500 text-white hover:bg-blue-600 text-xs"
               >
-              Today
+                Today
               </button>
               <button
-              onClick={resetThisMonth}
-              className="px-3 py-1 rounded bg-blue-500 text-white hover:bg-blue-600 text-xs"
+                onClick={resetThisMonth}
+                className="px-3 py-1 rounded bg-blue-500 text-white hover:bg-blue-600 text-xs"
               >
-              Month
+                Month
               </button>
               <button
-              onClick={resetThisYear}
-              className="px-3 py-1 rounded bg-blue-500 text-white hover:bg-blue-600 text-xs"
+                onClick={resetThisYear}
+                className="px-3 py-1 rounded bg-blue-500 text-white hover:bg-blue-600 text-xs"
               >
-              Year
+                Year
               </button>
             </div>
             <div className="mt-2 text-xs text-gray-500 dark:text-gray-400 text-center">
               {dateRange[0].startDate?.toLocaleDateString()} - {dateRange[0].endDate?.toLocaleDateString()}
             </div>
-            </div>
+          </div>
           <div className="bg-white dark:bg-gray-800 rounded-xl shadow p-4">
             <PodcastStatsChart
               labels={stats?.labels ?? []}

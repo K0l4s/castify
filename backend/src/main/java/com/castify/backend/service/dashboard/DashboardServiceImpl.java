@@ -1,10 +1,13 @@
 package com.castify.backend.service.dashboard;
 
+import com.castify.backend.entity.FrameEntity;
 import com.castify.backend.entity.PodcastEntity;
 import com.castify.backend.entity.UserEntity;
 import com.castify.backend.models.dashboard.OverviewModel;
 import com.castify.backend.models.user.BasicUserModel;
+import com.castify.backend.repository.FrameRepository;
 import com.castify.backend.repository.PodcastRepository;
+import com.castify.backend.repository.UserFrameRepository;
 import com.castify.backend.repository.UserRepository;
 import com.castify.backend.repository.template.DashboardTemplate;
 import com.castify.backend.service.user.IUserService;
@@ -28,7 +31,10 @@ public class DashboardServiceImpl implements IDashboardService{
     private IUserService userService = new UserServiceImpl();
     @Autowired
     private PodcastRepository podcastRepository;
-
+    @Autowired
+    private UserFrameRepository userFrameRepository;
+    @Autowired
+    private FrameRepository frameRepository;
     @Autowired
     private UserRepository userRepository;
     @Override
@@ -128,7 +134,11 @@ public class DashboardServiceImpl implements IDashboardService{
                 })
                 .collect(Collectors.toList());
 
-
+        List<FrameEntity> frames = frameRepository.findByUserId(currentUser.getId());
+        List<String> frameIds = frames.stream()
+                .map(FrameEntity::getId)
+                .collect(Collectors.toList());
+        long totalFrames = userFrameRepository.countByFramesInAndPurchasedAtBetween(frameIds,start,end);
         // Kết quả trả về
         Map<String, Object> result = new HashMap<>();
         result.put("totalFollowers", totalFollowers);
@@ -136,7 +146,7 @@ public class DashboardServiceImpl implements IDashboardService{
         result.put("totalComments", totalComments);
         result.put("topVideos", topVideos);
         result.put("totalViews",totalViews);
-
+        result.put("totalFrames",totalFrames);
         return result;
     }
     @Override
@@ -147,7 +157,6 @@ public class DashboardServiceImpl implements IDashboardService{
 
         UserEntity currentUser = userService.getUserByAuthentication();
         List<PodcastEntity> videos = podcastRepository.findByUserIdAndCreatedDayBetween(currentUser.getId(), start, end);
-
         // Duyệt qua từng ngày và khởi tạo các map
         Map<LocalDate, Long> dailyViews = new TreeMap<>();
         Map<LocalDate, Long> dailyLikes = new TreeMap<>();
