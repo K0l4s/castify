@@ -1,4 +1,3 @@
-
 // import PodcastPlayer from "../../../components/UI/podcast/PodcastPlayer";
 // import { useEffect, useState } from "react";
 // import { getGenres } from "../../../services/GenreService";
@@ -9,6 +8,7 @@ import SEO from "../../../context/SEO";
 // import en from "../../../locales/en.json";
 import { CardItem } from "./CardItem";
 import SuggestFollow from "./SuggestFollow";
+import TopGenresSection from "./TopGenresSection";
 import IntroVideoPage from "./IntroVideoPage";
 import { useDocumentTitle } from "../../../hooks/useDocumentTitle";
 import GenresPodcastList from "./GenresPodcastList";
@@ -164,6 +164,9 @@ const LandingPage = () => {
         </div>
       </div>
       <SuggestFollow />
+      
+      {/* Top Genres Section */}
+      <TopGenresSection />
 
       {/* Podcast Sections */}
       <div className="px-8 py-4">
