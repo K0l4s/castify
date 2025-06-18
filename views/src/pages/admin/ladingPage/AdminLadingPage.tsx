@@ -240,8 +240,8 @@ const AdminLadingPage = () => {
               >
                 <div className={`mb-2 ${item.color}`}>{item.icon}</div>
                 <div className="text-lg font-semibold">{item.value.toLocaleString()}</div>
-                <div className="text-xs text-gray-500">{item.title}</div>
-                <div className="mt-1 text-xs flex items-center gap-1">
+                <div className="text-lg dark:text-gray-300 text-gray-500">{item.title}</div>
+                <div className="mt-1 text-md flex items-center gap-1">
                   {diff === 0 ? (
                     <span className="text-gray-400">No change</span>
                   ) : (
