@@ -352,7 +352,7 @@ const CommentSection: React.FC<CommentSectionProps> = ({ podcastId, totalComment
   };
 
   return (
-    <div className="mt-4 min-h-screen">
+    <div className="mt-4 lg:min-h-screen">
       <div className="flex items-center gap-4 my-2">
         <h2 className="text-xl text-black dark:text-white font-semibold mb-2">{totalComments} {language.common.comments}</h2>
         <div className="relative">

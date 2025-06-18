@@ -117,6 +117,20 @@
         "youMayLike": "You may like",
         "discover": "Discover Podcast"
     },
+    "search": {
+        "title": "Search Results",
+        "found": "Found",
+        "resultsFor": "results for",
+        "searchTook": "Search took",
+        "all": "All",
+        "podcasts": "Podcasts",
+        "users": "Users",
+        "playlists": "Playlists",
+        "watchParties": "Watch Parties",
+        "noResultsFound": "No results found",
+        "tryAdjusting": "Try adjusting your search terms or filters",
+        "browseContent": "Browse content"
+    },
     "creator": {
         "overview": "Creator Overview",
         "likes": "Likes",
@@ -179,6 +193,7 @@
         "filter": "Filter",
         "watchParty": "Watch Party",
         "follow": "Follow",
+        "following":"Following",
         "unfollow": "Unfollow",
         "followers": "Followers",
         "latest": "Latest",

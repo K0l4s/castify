@@ -117,6 +117,20 @@
         "youMayLike": "Bạn có thể thích",
         "discover": "Khám phá Podcast"
     },
+    "search": {
+        "title": "Kết quả tìm kiếm",
+        "found": "Đã tìm thấy",
+        "resultsFor": "kết quả cho",
+        "searchTook": "Tìm kiếm mất khoảng",
+        "all": "Tất cả",
+        "podcasts": "Podcast",
+        "users": "Người dùng",
+        "playlists": "Danh sách phát",
+        "watchParties": "Phòng xem chung",
+        "noResultsFound": "Không tìm thấy kết quả nào",
+        "tryAdjusting": "Hãy thử điều chỉnh các thuật ngữ tìm kiếm hoặc bộ lọc của bạn",
+        "browseContent": "Duyệt nội dung"
+    },
     "creator": {
         "overview": "Tổng quan kênh",
         "likes": "Lượt thích",
@@ -178,6 +192,7 @@
         "filter": "Lọc",
         "watchParty": "Xem chung",
         "follow":"Theo dõi",
+        "following":"Đang theo dõi",
         "unfollow":"Bỏ theo dõi",
         "followers": "Người theo dõi",
         "latest": "Mới nhất",

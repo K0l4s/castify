@@ -16,11 +16,12 @@ import AddToPlaylistModal from "../../../pages/main/playlistPage/AddToPlaylistMo
 import ReportModal from "../../modals/report/ReportModal";
 import ShareModal from "../../modals/podcast/ShareModal";
 import { UserSimple } from "../../../models/User";
+import { useLanguage } from "../../../context/LanguageContext";
 
 const SearchResults = () => {
   const location = useLocation();
   const navigate = useNavigate();
-  // const { language } = useLanguage();
+  const { language } = useLanguage();
    const toast = useToast();
 
   const queryParams = new URLSearchParams(location.search);
@@ -215,13 +216,13 @@ const SearchResults = () => {
         {/* Search Header */}
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
-            Search Results
+            {language.search.title || 'Search Results'}
           </h1>
           <p className="text-gray-600 dark:text-gray-400">
-            Found {getTotalResults()} results for "<span className="font-semibold">{keyword}</span>"
+            {language.search.found || 'Found'} {getTotalResults()} {language.search.resultsFor || 'results for'} "<span className="font-semibold">{keyword}</span>"
             {searchResult && (
               <span className="ml-2 text-sm">
-                (Search took {searchResult.searchDuration}ms)
+                ({language.search.searchTook || 'Search took'} {searchResult.searchDuration}ms)
               </span>
             )}
           </p>
@@ -231,11 +232,11 @@ const SearchResults = () => {
         <div className="mb-8">
           <div className="flex flex-wrap gap-2 border-b border-gray-200 dark:border-gray-700">
             {[
-              { key: 'all', label: 'All', icon: FiSearch, count: getTotalResults() },
-              { key: 'podcasts', label: 'Podcasts', icon: FiMic, count: searchResult?.podcasts.length || 0 },
-              { key: 'users', label: 'Users', icon: FiUsers, count: searchResult?.users.length || 0 },
-              { key: 'playlists', label: 'Playlists', icon: FiList, count: searchResult?.playlists.length || 0 },
-              { key: 'rooms', label: 'Watch Parties', icon: FiPlay, count: searchResult?.watchPartyRooms.length || 0 },
+              { key: 'all', label: language.search.all || 'All', icon: FiSearch, count: getTotalResults() },
+              { key: 'podcasts', label: language.search.podcasts || 'Podcasts', icon: FiMic, count: searchResult?.podcasts.length || 0 },
+              { key: 'users', label: language.search.users || 'Users', icon: FiUsers, count: searchResult?.users.length || 0 },
+              { key: 'playlists', label: language.search.playlists || 'Playlists', icon: FiList, count: searchResult?.playlists.length || 0 },
+              { key: 'rooms', label: language.search.watchParties || 'Watch Parties', icon: FiPlay, count: searchResult?.watchPartyRooms.length || 0 },
             ].map((tab) => (
               <button
                 key={tab.key}
@@ -269,14 +270,14 @@ const SearchResults = () => {
                   <div className="flex items-center justify-between mb-6">
                     <h2 className="text-2xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
                       <FiMic />
-                      Podcasts ({filteredResults.podcasts.length})
+                      {language.search.podcasts || 'Podcasts'} ({filteredResults.podcasts.length})
                     </h2>
                     {searchResult?.podcasts.length && searchResult.podcasts.length > 6 && (
                       <button
                         onClick={() => setActiveTab('podcasts')}
                         className="text-blue-600 dark:text-blue-400 hover:underline"
                       >
-                        View all
+                        {language.common.viewAll || 'View all'}
                       </button>
                     )}
                   </div>
@@ -306,14 +307,14 @@ const SearchResults = () => {
                   <div className="flex items-center justify-between mb-6">
                     <h2 className="text-2xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
                       <FiUsers />
-                      Users ({filteredResults.users.length})
+                      {language.search.users || 'Users'} ({filteredResults.users.length})
                     </h2>
                     {searchResult?.users.length && searchResult.users.length > 6 && (
                       <button
                         onClick={() => setActiveTab('users')}
                         className="text-blue-600 dark:text-blue-400 hover:underline"
                       >
-                        View all
+                        {language.common.viewAll || 'View all'}
                       </button>
                     )}
                   </div>
@@ -338,14 +339,14 @@ const SearchResults = () => {
                   <div className="flex items-center justify-between mb-6">
                     <h2 className="text-2xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
                       <FiList />
-                      Playlists ({filteredResults.playlists.length})
+                      {language.search.playlists || 'Playlists'} ({filteredResults.playlists.length})
                     </h2>
                     {searchResult?.playlists.length && searchResult.playlists.length > 6 && (
                       <button
                         onClick={() => setActiveTab('playlists')}
                         className="text-blue-600 dark:text-blue-400 hover:underline"
                       >
-                        View all
+                        {language.common.viewAll || 'View all'}
                       </button>
                     )}
                   </div>
@@ -370,14 +371,14 @@ const SearchResults = () => {
                   <div className="flex items-center justify-between mb-6">
                     <h2 className="text-2xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
                       <FiPlay />
-                      Live Watch Parties ({filteredResults.watchPartyRooms.length})
+                      {language.search.watchParties || 'Watch Parties'} ({filteredResults.watchPartyRooms.length})
                     </h2>
                     {searchResult?.watchPartyRooms.length && searchResult.watchPartyRooms.length > 6 && (
                       <button
                         onClick={() => setActiveTab('rooms')}
                         className="text-blue-600 dark:text-blue-400 hover:underline"
                       >
-                        View all
+                        {language.common.viewAll || 'View all'}
                       </button>
                     )}
                   </div>
@@ -401,16 +402,16 @@ const SearchResults = () => {
           <div className="text-center py-20">
             <FiSearch className="h-16 w-16 text-gray-400 mx-auto mb-4" />
             <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">
-              No results found
+              {language.search.noResultsFound || 'No results found'}
             </h3>
             <p className="text-gray-600 dark:text-gray-400 mb-6">
-              Try adjusting your search terms or browse our content
+              {language.search.tryAdjusting || 'Try adjusting your search terms or browse our content'}
             </p>
             <button
               onClick={() => navigate('/')}
               className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
             >
-              Browse Content
+              {language.search.browseContent || 'Browse Content'}
             </button>
           </div>
         )}
