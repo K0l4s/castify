@@ -8,6 +8,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.jsontype.impl.LaissezFaireSubTypeValidator;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.annotation.Bean;
@@ -27,12 +28,25 @@ import java.time.Duration;
 @Configuration
 @EnableCaching
 public class RedisConfig {
+    @Value("${spring.data.redis.host:localhost}")
+    private String redisHost;
+
+    @Value("${spring.data.redis.port}")
+    private int redisPort;
+
+    @Value("${spring.data.redis.password:}")
+    private String redisPassword;
 
     @Bean
     public LettuceConnectionFactory redisConnectionFactory() {
-        return new LettuceConnectionFactory(
-                new RedisStandaloneConfiguration("localhost", 6379)
-        );
+//        return new LettuceConnectionFactory(
+//                new RedisStandaloneConfiguration("localhost", 6379)
+//        );
+        RedisStandaloneConfiguration config = new RedisStandaloneConfiguration();
+        config.setHostName(redisHost);
+        config.setPort(redisPort);
+        config.setPassword(redisPassword);
+        return new LettuceConnectionFactory(config);
     }
 
     // ObjectMapper riêng cho Redis (with Default Typing)
