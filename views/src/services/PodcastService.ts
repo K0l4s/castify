@@ -1,6 +1,6 @@
 import { Podcast, PodcastResponse } from "../models/PodcastModel";
 import { store } from "../redux/store";
-import { axiosInstance, axiosInstanceAuth, axiosInstanceFile, BaseApi } from "../utils/axiosInstance";
+import { axiosInstance, axiosInstanceAuth, axiosInstanceFile } from "../utils/axiosInstance";
 
 interface CreatePodcastPayload {
   title: string;
@@ -84,9 +84,9 @@ export const getSelfPodcastsInCreator = async (
       }
     });
 
-    response.data.content.forEach(podcast => {
-      podcast.videoUrl = `${BaseApi}/api/v1/podcast/video?path=${encodeURIComponent(podcast.videoUrl)}`;
-    });
+    // response.data.content.forEach(podcast => {
+    //   podcast.videoUrl = `${BaseApi}/api/v1/podcast/video?path=${encodeURIComponent(podcast.videoUrl)}`;
+    // });
 
     return response.data;
   } catch (error) {
@@ -97,7 +97,7 @@ export const getSelfPodcastsInCreator = async (
 export const getPodcastById = async (id: string) => {
   try {
     const response = await axiosInstanceAuth.get<Podcast>(`/api/v1/podcast/${id}`);
-    response.data.videoUrl = `${BaseApi}/api/v1/podcast/video?path=${encodeURIComponent(response.data.videoUrl)}`;
+    // response.data.videoUrl = `${BaseApi}/api/v1/podcast/video?path=${encodeURIComponent(response.data.videoUrl)}`;
     return response.data;
   } catch (error) {
     throw error;
@@ -107,7 +107,7 @@ export const getPodcastById = async (id: string) => {
 export const getPodcastBySelf = async (id: string) => {
   try {
     const response = await axiosInstanceAuth.get<Podcast>(`/api/v1/podcast/detail/${id}`);
-    response.data.videoUrl = `${BaseApi}/api/v1/podcast/video?path=${encodeURIComponent(response.data.videoUrl)}`;
+    // response.data.videoUrl = `${BaseApi}/api/v1/podcast/video?path=${encodeURIComponent(response.data.videoUrl)}`;
     return response.data;
   } catch (error) {
     throw error;
@@ -117,7 +117,7 @@ export const getPodcastBySelf = async (id: string) => {
 export const getPodcastByAnonymous = async (id: string) => {
   try {
     const response = await axiosInstance.get<Podcast>(`/api/v1/podcast/anonymous/${id}`);
-    response.data.videoUrl = `${BaseApi}/api/v1/podcast/video?path=${encodeURIComponent(response.data.videoUrl)}`;
+    // response.data.videoUrl = `${BaseApi}/api/v1/podcast/video?path=${encodeURIComponent(response.data.videoUrl)}`;
     return response.data;
   } catch (error) {
     throw error;
@@ -141,9 +141,9 @@ export const getPodcastRecent = async (page: number, size: number) => {
         size
       }
     });
-    response.data.content.forEach(podcast => {
-      podcast.videoUrl = `${BaseApi}/api/v1/podcast/video?path=${encodeURIComponent(podcast.videoUrl)}`;
-    });
+    // response.data.content.forEach(podcast => {
+    //   podcast.videoUrl = `${BaseApi}/api/v1/podcast/video?path=${encodeURIComponent(podcast.videoUrl)}`;
+    // });
     return response.data;
   } catch (error) {
     throw error;
@@ -158,9 +158,9 @@ export const getPodcastPopular = async (page: number, size: number) => {
         size
       }
     });
-    response.data.content.forEach(podcast => {
-      podcast.videoUrl = `${BaseApi}/api/v1/podcast/video?path=${encodeURIComponent(podcast.videoUrl)}`;
-    });
+    // response.data.content.forEach(podcast => {
+    //   podcast.videoUrl = `${BaseApi}/api/v1/podcast/video?path=${encodeURIComponent(podcast.videoUrl)}`;
+    // });
     return response.data;
   } catch (error) {
     throw error;
@@ -175,9 +175,9 @@ export const getTrendingPodcast = async (page: number, size: number) => {
         size
       }
     });
-    response.data.content.forEach(podcast => {
-      podcast.videoUrl = `${BaseApi}/api/v1/podcast/video?path=${encodeURIComponent(podcast.videoUrl)}`;
-    });
+    // response.data.content.forEach(podcast => {
+    //   podcast.videoUrl = `${BaseApi}/api/v1/podcast/video?path=${encodeURIComponent(podcast.videoUrl)}`;
+    // });
     return response.data;
   } catch (error) {
     throw error;
@@ -193,9 +193,9 @@ export const getFollowingPodcast = async (page: number, size: number) => {
         size
       }
     });
-    response.data.content.forEach(podcast => {
-      podcast.videoUrl = `${BaseApi}/api/v1/podcast/video?path=${encodeURIComponent(podcast.videoUrl)}`;
-    });
+    // response.data.content.forEach(podcast => {
+    //   podcast.videoUrl = `${BaseApi}/api/v1/podcast/video?path=${encodeURIComponent(podcast.videoUrl)}`;
+    // });
     return response.data;
   } catch (error) {
     throw error;
@@ -210,9 +210,9 @@ export const getFollowingPodcastByUsername = async (username: string, page: numb
         size
       }
     });
-    response.data.content.forEach(podcast => {
-      podcast.videoUrl = `${BaseApi}/api/v1/podcast/video?path=${encodeURIComponent(podcast.videoUrl)}`;
-    });
+    // response.data.content.forEach(podcast => {
+    //   podcast.videoUrl = `${BaseApi}/api/v1/podcast/video?path=${encodeURIComponent(podcast.videoUrl)}`;
+    // });
     return response.data;
   } catch (error) {
     throw error;
@@ -228,9 +228,9 @@ export const getPodcastsByGenre = async (genreId: string, page: number, size: nu
         size
       }
     });
-    response.data.content.forEach(podcast => {
-      podcast.videoUrl = `${BaseApi}/api/v1/podcast/video?path=${encodeURIComponent(podcast.videoUrl)}`;
-    });
+    // response.data.content.forEach(podcast => {
+    //   podcast.videoUrl = `${BaseApi}/api/v1/podcast/video?path=${encodeURIComponent(podcast.videoUrl)}`;
+    // });
     return response.data;
   } catch (error) {
     throw error;
@@ -253,9 +253,9 @@ export const getSuggestedPodcastsByGenres = async (
       }
     });
 
-    response.data.content.forEach(podcast => {
-      podcast.videoUrl = `${BaseApi}/api/v1/podcast/video?path=${encodeURIComponent(podcast.videoUrl)}`;
-    });
+    // response.data.content.forEach(podcast => {
+    //   podcast.videoUrl = `${BaseApi}/api/v1/podcast/video?path=${encodeURIComponent(podcast.videoUrl)}`;
+    // });
 
     return response.data;
   } catch (error) {
@@ -289,9 +289,9 @@ export const getUserPodcasts = async (
       }
     });
 
-    response.data.content.forEach(podcast => {
-      podcast.videoUrl = `${BaseApi}/api/v1/podcast/video?path=${encodeURIComponent(podcast.videoUrl)}`;
-    });
+    // response.data.content.forEach(podcast => {
+    //   podcast.videoUrl = `${BaseApi}/api/v1/podcast/video?path=${encodeURIComponent(podcast.videoUrl)}`;
+    // });
 
     return response.data;
   } catch (error) {
@@ -329,9 +329,9 @@ export const getLikedPodcasts = async (page: number, size: number) => {
         size
       }
     });
-    response.data.content.forEach(podcast => {
-      podcast.videoUrl = `${BaseApi}/api/v1/podcast/video?path=${encodeURIComponent(podcast.videoUrl)}`;
-    });
+    // response.data.content.forEach(podcast => {
+    //   podcast.videoUrl = `${BaseApi}/api/v1/podcast/video?path=${encodeURIComponent(podcast.videoUrl)}`;
+    // });
     return response.data;
   } catch (error) {
     throw error;
