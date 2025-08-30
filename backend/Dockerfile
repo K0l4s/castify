@@ -7,9 +7,6 @@ WORKDIR /app
 # Copy file JAR vào container
 COPY target/backend-0.0.1-SNAPSHOT.jar /app/myapp.jar
 
-# Tạo thư mục cho resources
-RUN mkdir -p /app/castify_resources/user
-
 # Expose cổng 9090
 EXPOSE 9090
 
