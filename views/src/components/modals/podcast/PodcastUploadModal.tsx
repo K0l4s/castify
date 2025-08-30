@@ -6,7 +6,7 @@ import { createPodcast } from "../../../services/PodcastService";
 import { validateFileType } from "../../../utils/FileValidation";
 import CustomButton from "../../UI/custom/CustomButton";
 import { usePodcastContext } from "../../../context/PodcastContext";
-import PlaylistSection from "./PlaylistSelection";
+// import PlaylistSection from "./PlaylistSelection";
 import { captureFrameFromVideo } from "../../../utils/FileUtils";
 import GenreSelection from "./GenreSelection";
 import { getGenres } from "../../../services/GenreService";
@@ -34,11 +34,11 @@ const PodcastUploadModal: React.FC<PodcastUploadModalProps> = ({
   const [thumbnailPreview, setThumbnailPreview] = useState<string | null>(null);
   const [thumbnailFile, setThumbnailFile] = useState<File | null>(null);
 
-  const [playlists, setPlaylists] = useState<{ _id: string; name: string }[]>(
-    []
-  );
-  const [selectedPlaylists, setSelectedPlaylists] = useState<string[]>([]);
-  const [showPlaylistModal, setShowPlaylistModal] = useState(false);
+  // const [playlists, setPlaylists] = useState<{ _id: string; name: string }[]>(
+  //   []
+  // );
+  // const [selectedPlaylists, setSelectedPlaylists] = useState<string[]>([]);
+  // const [showPlaylistModal, setShowPlaylistModal] = useState(false);
 
   const [genres, setGenres] = useState<{ id: string; name: string }[]>([]);
   const [selectedGenres, setSelectedGenres] = useState<string[]>([]);
@@ -50,16 +50,16 @@ const PodcastUploadModal: React.FC<PodcastUploadModalProps> = ({
   const { fetchPodcasts } = usePodcastContext();
 
   // Mock API response
-  useEffect(() => {
-    const mockPlaylists = [
-      { _id: "1", name: "Playlist 1" },
-      { _id: "2", name: "Playlist 2" },
-      { _id: "3", name: "Playlist 3" },
-      { _id: "4", name: "Playlist 4" },
-      { _id: "5", name: "Playlist 5" },
-    ];
-    setPlaylists(mockPlaylists);
-  }, []);
+  // useEffect(() => {
+  //   const mockPlaylists = [
+  //     { _id: "1", name: "Playlist 1" },
+  //     { _id: "2", name: "Playlist 2" },
+  //     { _id: "3", name: "Playlist 3" },
+  //     { _id: "4", name: "Playlist 4" },
+  //     { _id: "5", name: "Playlist 5" },
+  //   ];
+  //   setPlaylists(mockPlaylists);
+  // }, []);
 
    // Fetch genres when the modal is opened
    useEffect(() => {
@@ -133,13 +133,13 @@ const PodcastUploadModal: React.FC<PodcastUploadModalProps> = ({
     }
   };
 
-  const handlePlaylistChange = (playlistId: string) => {
-    setSelectedPlaylists((prevSelected) =>
-      prevSelected.includes(playlistId)
-        ? prevSelected.filter((id) => id !== playlistId)
-        : [...prevSelected, playlistId]
-    );
-  };
+  // const handlePlaylistChange = (playlistId: string) => {
+  //   setSelectedPlaylists((prevSelected) =>
+  //     prevSelected.includes(playlistId)
+  //       ? prevSelected.filter((id) => id !== playlistId)
+  //       : [...prevSelected, playlistId]
+  //   );
+  // };
 
   const handleUpload = async () => {
     if (!title || !desc || !videoFile) {
@@ -185,7 +185,7 @@ const PodcastUploadModal: React.FC<PodcastUploadModalProps> = ({
     setVideoFilename(null);
     setThumbnailPreview(null);
     setThumbnailFile(null);
-    setSelectedPlaylists([]);
+    // setSelectedPlaylists([]);
     setSelectedGenres([]);
   };
 
@@ -195,7 +195,7 @@ const PodcastUploadModal: React.FC<PodcastUploadModalProps> = ({
       onClose={onClose}
       animation="zoom"
       size="xl"
-      title="Upload Video"
+      title="This feature is currently DISABLED for maintenance, please check back later."
       closeOnOutsideClick={false}
       closeOnEsc={false}
     >
@@ -370,13 +370,13 @@ const PodcastUploadModal: React.FC<PodcastUploadModalProps> = ({
         </div>
 
         {/* Playlist Selection Modal*/}
-        <PlaylistSection
+        {/* <PlaylistSection
           selectedPlaylists={selectedPlaylists}
           setShowPlaylistModal={setShowPlaylistModal}
           showPlaylistModal={showPlaylistModal}
           playlists={playlists}
           handlePlaylistChange={handlePlaylistChange}
-        />
+        /> */}
 
         {/* Genre Selection Modal */}
         <div className="col-span-2">
@@ -419,6 +419,7 @@ const PodcastUploadModal: React.FC<PodcastUploadModalProps> = ({
             variant="primary"
             size="lg"
             className="uppercase text-sm leading-normal font-medium"
+            disabled // disables the button for future update
           />
         </div>
       </div>
